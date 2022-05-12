@@ -10,8 +10,10 @@
 class PlayerInput
 {
 public:
-	PlayerInput(GLFWwindow* window);
+	PlayerInput(GLFWwindow* window, Camera default_camera = glm::vec3(0.0f, 0.0f, 3.0f));
 	void processInput(float delta_time);
+	Camera& getCamera();
+	Camera m_default_camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
 
 private:
 	GLFWwindow* m_window;

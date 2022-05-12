@@ -6,6 +6,7 @@
 class Keyboard
 {
 public:
+	Keyboard() = delete;
 	static void keyStateCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static bool key(int key);
 	static bool keyChanged(int key);

@@ -1,8 +1,5 @@
 #include "Camera.h"
 
-Camera Camera::m_default_camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
-// After implementation move args to default params
 Camera::Camera(glm::vec3 position)
     : m_camera_pos(position),
     m_world_up(glm::vec3(0.0f, 1.0f, 0.0f)),
@@ -17,6 +14,11 @@ Camera::Camera(glm::vec3 position)
 glm::mat4 Camera::getViewMatrix()
 {
     return glm::lookAt(m_camera_pos, m_camera_pos + m_camera_front, m_camera_up);
+}
+
+float Camera::getZoom()
+{
+    return m_zoom;
 }
 
 void Camera::updateCameraDirection(double dx, double dy)

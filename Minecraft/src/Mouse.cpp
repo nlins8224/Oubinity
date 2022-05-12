@@ -21,6 +21,8 @@ bool Mouse::m_buttons_changed[GLFW_MOUSE_BUTTON_LAST] = { 0 };
 
 void Mouse::cursorPosCallback(GLFWwindow* window, double x, double y)
 {
+	PlayerInput* ptr = static_cast<PlayerInput*>(glfwGetWindowUserPointer(window));
+
 	m_x = x;
 	m_y = y;
 
@@ -38,7 +40,7 @@ void Mouse::cursorPosCallback(GLFWwindow* window, double x, double y)
 	m_last_y = m_y;
 
 	std::cout << "dx: " << m_dx << " " << "dy: " << m_dy << std::endl;
-	Camera::m_default_camera.updateCameraDirection(m_dx * m_sensitivity, m_dy * m_sensitivity);
+	ptr->getCamera().updateCameraDirection(m_dx * m_sensitivity, m_dy * m_sensitivity);
 }
 
 void Mouse::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -60,7 +62,8 @@ void Mouse::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 void Mouse::mouseWheelCallback(GLFWwindow* window, double dx, double dy)
 {
-	Camera::m_default_camera.updateCameraZoom(dy);
+	PlayerInput* ptr = static_cast<PlayerInput*>(glfwGetWindowUserPointer(window));
+	ptr->getCamera().updateCameraZoom(dy);
 }
 
 double Mouse::getMouseX()

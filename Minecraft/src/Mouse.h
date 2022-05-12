@@ -3,29 +3,30 @@
 #include <GLAD/glad.h>
 #pragma once
 #include <GLFW/glfw3.h>
-#include "Camera.h"
+#include "PlayerInput.h"
 #include <iostream>
 
 class Mouse
 {
 public:
+
 	static void cursorPosCallback(GLFWwindow* window, double x, double y);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void mouseWheelCallback(GLFWwindow* window, double dx, double dy);
 
-	static double getMouseX();
-	static double getMouseY();
+	double getMouseX();
+	double getMouseY();
 
-	static double getDX();
-	static double getDY();
+	double getDX();
+	double getDY();
 
-	static double getScrollDX();
-	static double getScrollDY();
+	double getScrollDX();
+	double getScrollDY();
 
-	static bool button(int button);
-	static bool buttonChanged(int button);
-	static bool buttonWentUp(int button);
-	static bool buttonWentDown(int button);
+	bool button(int button);
+	bool buttonChanged(int button);
+	bool buttonWentUp(int button);
+	bool buttonWentDown(int button);
 
 private:
 	static double m_x;

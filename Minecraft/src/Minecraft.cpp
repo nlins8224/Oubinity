@@ -42,8 +42,9 @@ int main()
     };
       
     Shader shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl");
-    Loader loader{verts};
-    PlayerInput playerInput{window.getWindow()};
+    Loader loader{ verts };
+    PlayerInput player_input{window.getWindow()};
+    glfwSetWindowUserPointer(window.getWindow(), &player_input);
 
     while (!glfwWindowShouldClose(window.getWindow()))
     {
@@ -51,7 +52,7 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        playerInput.processInput(delta_time);
+        player_input.processInput(delta_time);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -61,13 +62,13 @@ int main()
         // TEMPORARY CODE BEGIN
         glm::mat4 model         = glm::mat4(1.0f);
         glm::mat4 view          = glm::mat4(1.0f);
-        glm::mat4 projection = glm::perspective(glm::radians(Camera::m_default_camera.m_zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);        // retrieve the matrix uniform locations
-        view = Camera::m_default_camera.getViewMatrix();
-        unsigned int modelLoc = glGetUniformLocation(shader.getID(), "model");
-        unsigned int viewLoc  = glGetUniformLocation(shader.getID(), "view");
+        glm::mat4 projection = glm::perspective(glm::radians(player_input.getCamera().getZoom()), (float)scr_width / (float)scr_height, 0.1f, 100.0f);        // retrieve the matrix uniform locations
+        view = player_input.getCamera().getViewMatrix();
+        unsigned int model_loc = glGetUniformLocation(shader.getID(), "model");
+        unsigned int view_loc  = glGetUniformLocation(shader.getID(), "view");
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
 
         shader.setUniformMat4("projection", projection);
         // TEMPORARY CODE END
