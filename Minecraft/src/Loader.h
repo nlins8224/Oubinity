@@ -1,9 +1,10 @@
 #include <vector>
 #include <glad/glad.h>
 
-class Loader {
+class Loader 
+{
 public:
-	void loadToVAO(std::vector<float> vertices);
+	void load(std::vector<float> vertices);
 	void bindVAO(int idx);
 	Loader() = default;
 	Loader(std::vector<float> vertices);

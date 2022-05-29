@@ -3,10 +3,10 @@
 
 Loader::Loader(std::vector<float> vertices)
 {
-	loadToVAO(vertices);
+	load(vertices);
 }
 
-void Loader::loadToVAO(std::vector<float> vertices)
+void Loader::load(std::vector<float> vertices)
 {
 	createVAO();
 	storeDataInVAO(0, vertices);
@@ -26,10 +26,10 @@ void Loader::storeDataInVAO(int attribute_number, std::vector<float> vertices) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices.front(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	m_vbos.push_back(vbo);
 }
