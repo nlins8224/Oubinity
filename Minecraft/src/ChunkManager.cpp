@@ -12,7 +12,7 @@ void ChunkManager::generateWorld()
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			glm::ivec3 chunk_position(i - 4, -1, j - 4);
+			glm::ivec3 chunk_position(i - 6, -1, j - 6);
 			Chunk current_chunk(chunk_position);
 			for (int x = 0; x < current_chunk.CHUNK_SIZE; x++)
 			{
@@ -33,8 +33,6 @@ void ChunkManager::generateWorld()
 			}
 		}
 	}
-	
-
 	
 }
 
