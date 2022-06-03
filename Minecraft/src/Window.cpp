@@ -24,6 +24,7 @@ void Window::windowInit()
     glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* p_window, int p_screen_width, int p_screen_height) {
         glViewport(0, 0, p_screen_width, p_screen_height);
         });
+
 }
 
 Window::Window(int p_screen_width, int p_screen_height, std::string p_screen_title)

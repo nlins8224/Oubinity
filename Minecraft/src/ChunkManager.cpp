@@ -1,8 +1,12 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager()
+ChunkManager::ChunkManager(Shader shader): m_shader{shader}
 {
 	generateWorld();
+}
+
+ChunkManager::~ChunkManager()
+{
 }
 
 // Temporary, just for tests
@@ -12,8 +16,8 @@ void ChunkManager::generateWorld()
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			glm::ivec3 chunk_position(i - 6, -1, j - 6);
-			Chunk current_chunk(chunk_position);
+			chunk_pos chunk_position(i - 4, -1, j - 4);
+			Chunk current_chunk(chunk_position, m_shader);
 			for (int x = 0; x < current_chunk.CHUNK_SIZE; x++)
 			{
 				for (int y = 0; y < current_chunk.CHUNK_SIZE; y++)
@@ -25,18 +29,20 @@ void ChunkManager::generateWorld()
 				}
 			}
 
-			m_chunks[key(chunk_position)] = current_chunk;
-		
-			for (auto& chunk : m_chunks)
-			{
-				chunk.second.updateChunk();
-			}
+			m_chunks[chunk_position] = current_chunk;
+			
 		}
+	}
+
+	for (auto& chunk : m_chunks)
+	{
+		chunk.second.updateChunk();
+
 	}
 	
 }
 
-std::unordered_map<long, Chunk> ChunkManager::getChunks()
+std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> ChunkManager::getChunks()
 {
 	return m_chunks;
 }

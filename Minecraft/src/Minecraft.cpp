@@ -25,6 +25,7 @@ int main()
     Window window{ scr_width, scr_height, "Minecraft" };
     window.windowInit();
 
+
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -32,9 +33,23 @@ int main()
     }
 
     Shader shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl");
+
+    std::cout << glGetError() << std::endl;
     PlayerInput player_input{window.getWindow()};
-    ChunkManager chunk_manager;
+    ChunkManager chunk_manager(shader);
     chunk_manager.generateWorld();
+
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+    const GLubyte* glsl_ver = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    printf("%s : %s (%s)\n >> GLSL: %s\n",
+        vendor,
+        renderer,
+        version,
+        glsl_ver);
+
     glEnable(GL_DEPTH_TEST);
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
 
@@ -49,7 +64,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.useProgram();
+        //shader.useProgram();
        
         glm::mat4 model = glm::mat4(1.0f);
         shader.setUniformMat4("model", model);
@@ -61,7 +76,6 @@ int main()
         view = player_input.getCamera().getViewMatrix();
         shader.setUniformMat4("view", view);
 
-        
         for (auto& chunk : chunk_manager.getChunks())
         {
             chunk.second.renderChunk();
