@@ -1,13 +1,11 @@
 #include "Chunk.h"
-#include <iostream> // debug
 using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
 Chunk::Chunk(chunk_pos position) : m_chunk_position{ position }
 {
-	// TODO: Fill array with 0's in .h?
-	initAirChunk();
+
 }
 
 Chunk::Chunk(const Chunk& chunk) :
@@ -22,16 +20,14 @@ Chunk::Chunk(const Chunk& chunk) :
 
 bool Chunk::isFaceVisible(int x, int y, int z)
 {
-	// out of bounds?, for example x - 1 < 0, x + 1 = 16 > 15
+	// out of bounds check, for example x - 1 = -1 < 0, x + 1 = 16 > 15
 	if (x < 0 || y < 0 || z < 0) return false;
 	if (x >= 16 || y >= 16 || z >= 16) return false;
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
-// "30" should have a name, it is amount_of_vertices_in_a_face 
 void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int z)
 {
-	// This is ugly and should be refactored.
 	const uint8_t FACE_ROWS{ 6 };
 	for (int i = 0; i < FACE_ROWS; i++)
 	{
@@ -53,7 +49,6 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 	}
 }
 
-// Explaination of this method is needed.
 void Chunk::addVisibleFaces(int x, int y, int z)
 {
 	if (!isFaceVisible(x + 1, y, z)) addFace(faces[block_mesh::RIGHT],  x, y, z);
@@ -106,9 +101,7 @@ void Chunk::loadChunkMesh()
 void Chunk::renderChunk()
 {
 	m_loader.bindVAO();
-	std::cout << glGetError() << std::endl;
 	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
-
 }
 
 chunk_pos Chunk::getChunkPos()
@@ -116,28 +109,13 @@ chunk_pos Chunk::getChunkPos()
 	return m_chunk_position;
 }
 
-//for debug
 std::array<std::array<std::array<int, 16>, 16>, 16> Chunk::getBlocks()
 {
 	return m_blocks;
 }
 
-
-void Chunk::initAirChunk()
-{
-	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
-	{
-		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
-		{
-			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
-			{
-				m_blocks[local_x][local_y][local_z] = block_id::AIR;
-			}
-		}
-	}
-}
-
-// This will not work when another chunk hides face
+// This could be optimised. For now chunk cannot recognize if a face is not visible,
+// because other neighboring chunk hides it.
 int Chunk::getBlockId(int x, int y, int z)
 {
 	return m_blocks[x][y][z];

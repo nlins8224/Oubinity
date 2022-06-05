@@ -5,9 +5,6 @@ ChunkManager::ChunkManager()
 	generateWorld();
 }
 
-ChunkManager::~ChunkManager()
-{
-}
 
 // Temporary, just for tests
 void ChunkManager::generateWorld()

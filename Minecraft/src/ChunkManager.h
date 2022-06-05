@@ -8,7 +8,7 @@ class ChunkManager
 {
 public:
 	ChunkManager();
-	~ChunkManager();
+	~ChunkManager() = default;
 	void generateWorld();
 	std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> getChunks();
 

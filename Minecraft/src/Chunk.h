@@ -54,15 +54,13 @@ public:
 private:
 	bool m_has_mesh{ false };
 	std::vector<float> m_mesh_vertex_positions;
-	chunk_pos m_chunk_position{0, 0, 0}; // <- to default constructor?
+	chunk_pos m_chunk_position{0, 0, 0};
 	Loader m_loader;
-	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks;
+	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
+	// Later xyz could be changed to chunk_pos
 	void addVisibleFaces(int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
-	void addFace(std::array<float, 30> const &face, int x, int y, int z);
-	void initAirChunk();
+	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
 	int getBlockId(int x, int y, int z);
-
 };
-
