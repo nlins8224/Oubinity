@@ -1,16 +1,17 @@
 #include <vector>
 #include <glad/glad.h>
 
-class Loader {
+class Loader 
+{
 public:
-	void loadToVAO(std::vector<float> vertices);
-	void bindVAO(int idx);
+	void loadMesh(std::vector<float> vertices);
+	void bindVAO();
 	Loader() = default;
-	Loader(std::vector<float> vertices);
+	~Loader() = default;
 
 private:
-	std::vector<int> m_vaos{};
-	std::vector<int> m_vbos{};
+	GLuint m_vao;
+	GLuint m_vbo;
 
 	void createVAO();
 	void storeDataInVAO(int attribute_number, std::vector<float> vertices);

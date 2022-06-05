@@ -6,7 +6,6 @@ Shader::Shader(std::string vertex_path, std::string fragment_path)
 	unsigned int vertex_shader = compileShader(GL_VERTEX_SHADER, code.vertex);
 	unsigned int fragment_shader = compileShader(GL_FRAGMENT_SHADER, code.fragment);
 	createShaderProgram(vertex_shader, fragment_shader);
-	clean();
 }
 
 unsigned int Shader::getID()

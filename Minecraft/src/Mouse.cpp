@@ -12,7 +12,7 @@ double Mouse::m_dy = 0;
 double Mouse::m_scroll_dx = 0;
 double Mouse::m_scroll_dy = 0;
 
-double Mouse::m_sensitivity = 0.1f;
+double Mouse::m_sensitivity = 0.7f;
 
 bool Mouse::m_first_mouse = true;
 
@@ -39,7 +39,6 @@ void Mouse::cursorPosCallback(GLFWwindow* window, double x, double y)
 	m_last_x = m_x;
 	m_last_y = m_y;
 
-	std::cout << "dx: " << m_dx << " " << "dy: " << m_dy << std::endl;
 	ptr->getCamera().updateCameraDirection(m_dx * m_sensitivity, m_dy * m_sensitivity);
 }
 
