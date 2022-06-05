@@ -6,8 +6,13 @@
 
 namespace BlockMesh
 {
-    const std::array<float, 30> BACK_FACE
-    { //  x?     y?     z? 
+    static const int FACE_SIZE{ 30 };
+    static const int FACE_AMOUNT{ 6 };
+    static const int FACE_ROWS{ 6 };
+    static const int FACE_COLUMNS{ 5 };
+
+    const std::array<float, FACE_SIZE> BACK_FACE
+    { //  x      y      z      u     v 
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -16,7 +21,7 @@ namespace BlockMesh
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f
     };
 
-    const std::array<float, 30> FRONT_FACE
+    const std::array<float, FACE_SIZE> FRONT_FACE
     {
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
@@ -26,7 +31,7 @@ namespace BlockMesh
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f
     };
 
-    const std::array<float, 30> LEFT_FACE
+    const std::array<float, FACE_SIZE> LEFT_FACE
     {
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -36,7 +41,7 @@ namespace BlockMesh
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f
     };
 
-    const std::array<float, 30> RIGHT_FACE
+    const std::array<float, FACE_SIZE> RIGHT_FACE
     {
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -46,7 +51,7 @@ namespace BlockMesh
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f
     };
 
-    const std::array<float, 30> BOTTOM_FACE
+    const std::array<float, FACE_SIZE> BOTTOM_FACE
     {
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
@@ -56,7 +61,7 @@ namespace BlockMesh
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    const std::array<float, 30> TOP_FACE
+    const std::array<float, FACE_SIZE> TOP_FACE
     {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -76,7 +81,7 @@ namespace BlockMesh
         TOP
     };
 
-    const std::array<std::array<float, 30>, 6> faces
+    const std::array<std::array<float, FACE_SIZE>, FACE_AMOUNT> faces
     {
         BACK_FACE,
         FRONT_FACE,

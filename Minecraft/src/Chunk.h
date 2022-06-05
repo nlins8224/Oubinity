@@ -34,7 +34,6 @@ struct chunk_pos_hasher
 	}
 };
 
-// This should be splitted later into Chunk and ChunkRenderer classes
 class Chunk
 {
 public:
@@ -58,7 +57,6 @@ private:
 	std::vector<float> m_mesh_vertex_positions;
 	chunk_pos m_chunk_position{0, 0, 0}; // <- to default constructor?
 	Loader m_loader;
-	// This could be one array later
 	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks;
 
 	void addVisibleFaces(int x, int y, int z);

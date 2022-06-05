@@ -1,6 +1,6 @@
 #include "Chunk.h"
 #include <iostream> // debug
-using BlockMesh::faces, BlockMesh::block_mesh;
+using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
@@ -23,15 +23,14 @@ Chunk::Chunk(const Chunk& chunk) :
 
 bool Chunk::isFaceVisible(int x, int y, int z)
 {
-	// quick hack, translate coords later
+	// out of bounds?, for example x - 1 < 0, x + 1 = 16 > 15
 	if (x < 0 || y < 0 || z < 0) return false;
-	// out of bounds?, for example x + 1 = 16 > 15
 	if (x >= 16 || y >= 16 || z >= 16) return false;
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
 // "30" should have a name, it is amount_of_vertices_in_a_face 
-void Chunk::addFace(std::array<float, 30> const &face, int x, int y, int z)
+void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int z)
 {
 	// This is ugly and should be refactored.
 	const uint8_t FACE_ROWS{ 6 };
@@ -46,8 +45,6 @@ void Chunk::addFace(std::array<float, 30> const &face, int x, int y, int z)
 		float x_world_pos = m_chunk_position.x * CHUNK_SIZE + x + face[x_coord];
 		float y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
 		float z_world_pos = m_chunk_position.z * CHUNK_SIZE + z + face[z_coord];
-
-		/*std::cout << x_world_pos << " " << y_world_pos << " " << z_world_pos << std::endl;*/
 
 		m_mesh_vertex_positions.push_back(x_world_pos);
 		m_mesh_vertex_positions.push_back(y_world_pos);
