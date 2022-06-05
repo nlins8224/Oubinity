@@ -44,12 +44,11 @@ public:
 	~Chunk() = default;
 
 	void updateChunk();
-	void setBlock(int x, int y, int z, Block::block_id type);
 	void prepareChunkMesh();
 	void loadChunkMesh();
 	void renderChunk();
+	void setBlock(int x, int y, int z, Block::block_id type);
 	chunk_pos getChunkPos();
-	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> getBlocks();
 
 private:
 	bool m_has_mesh{ false };

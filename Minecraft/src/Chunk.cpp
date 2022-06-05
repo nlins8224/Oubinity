@@ -18,11 +18,69 @@ Chunk::Chunk(const Chunk& chunk) :
 
 }
 
+void Chunk::updateChunk()
+{
+	prepareChunkMesh();
+	loadChunkMesh();
+	renderChunk();
+}
+
+void Chunk::prepareChunkMesh()
+{
+	int block{ 0 };
+	int x{ 0 }, y{ 0 }, z{ 0 };
+	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
+	{
+		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
+		{
+			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
+			{
+				block = getBlockId(local_x, local_y, local_z);
+				if (block != block_id::AIR)
+					addVisibleFaces(local_x, local_y, local_z);
+			}
+		}
+	}
+}
+
+void Chunk::loadChunkMesh()
+{
+	m_loader.loadMesh(m_mesh_vertex_positions);
+}
+
+
+void Chunk::renderChunk()
+{
+	m_loader.bindVAO();
+	// This could be moved to renderer later
+	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
+}
+
+void Chunk::setBlock(int x, int y, int z, block_id type)
+{
+	m_blocks[x][y][z] = type;
+}
+
+chunk_pos Chunk::getChunkPos()
+{
+	return m_chunk_position;
+}
+
+void Chunk::addVisibleFaces(int x, int y, int z)
+{
+	if (!isFaceVisible(x + 1, y, z)) addFace(faces[block_mesh::RIGHT], x, y, z);
+	if (!isFaceVisible(x - 1, y, z)) addFace(faces[block_mesh::LEFT], x, y, z);
+	if (!isFaceVisible(x, y + 1, z)) addFace(faces[block_mesh::TOP], x, y, z);
+	if (!isFaceVisible(x, y - 1, z)) addFace(faces[block_mesh::BOTTOM], x, y, z);
+	if (!isFaceVisible(x, y, z + 1)) addFace(faces[block_mesh::FRONT], x, y, z);
+	if (!isFaceVisible(x, y, z - 1)) addFace(faces[block_mesh::BACK], x, y, z);
+}
+
 bool Chunk::isFaceVisible(int x, int y, int z)
 {
 	// out of bounds check, for example x - 1 = -1 < 0, x + 1 = 16 > 15
 	if (x < 0 || y < 0 || z < 0) return false;
-	if (x >= 16 || y >= 16 || z >= 16) return false;
+	if (x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE) return false;
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
@@ -47,71 +105,6 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		m_mesh_vertex_positions.push_back(face[u_coord]);
 		m_mesh_vertex_positions.push_back(face[v_coord]);
 	}
-}
-
-void Chunk::addVisibleFaces(int x, int y, int z)
-{
-	if (!isFaceVisible(x + 1, y, z)) addFace(faces[block_mesh::RIGHT],  x, y, z);
-	if (!isFaceVisible(x - 1, y, z)) addFace(faces[block_mesh::LEFT],   x, y, z);
-	if (!isFaceVisible(x, y + 1, z)) addFace(faces[block_mesh::TOP],    x, y, z);
-	if (!isFaceVisible(x, y - 1, z)) addFace(faces[block_mesh::BOTTOM], x, y, z);
-	if (!isFaceVisible(x, y, z + 1)) addFace(faces[block_mesh::FRONT],  x, y, z);
-	if (!isFaceVisible(x, y, z - 1)) addFace(faces[block_mesh::BACK],   x, y, z);
-}
-
-void Chunk::updateChunk()
-{
-	prepareChunkMesh();
-	loadChunkMesh();
-	renderChunk();
-}
-
-void Chunk::setBlock(int x, int y, int z, block_id type)
-{
-	m_blocks[x][y][z] = type;
-}
-
-void Chunk::prepareChunkMesh()
-{
-	int block{ 0 };
-	int x{ 0 }, y{ 0 }, z{ 0 };
-	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
-	{
-		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
-		{
-			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
-			{
-				block = getBlockId(local_x, local_y, local_z);
-				if (block != block_id::AIR) 
-					addVisibleFaces(local_x, local_y, local_z);
-			}
-		}
-	}
-
-	
-
-}
-
-void Chunk::loadChunkMesh()
-{
-	m_loader.loadMesh(m_mesh_vertex_positions);
-}
-
-
-void Chunk::renderChunk()
-{
-	m_loader.bindVAO();
-	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
-}
-
-chunk_pos Chunk::getChunkPos()
-{
-	return m_chunk_position;
-}
-
-std::array<std::array<std::array<int, 16>, 16>, 16> Chunk::getBlocks()
-{
-	return m_blocks;
 }
 
 // This could be optimised. For now chunk cannot recognize if a face is not visible,
