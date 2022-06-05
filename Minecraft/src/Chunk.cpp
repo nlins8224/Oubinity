@@ -14,16 +14,11 @@ Chunk::Chunk(const Chunk& chunk) :
 	m_has_mesh{chunk.m_has_mesh},
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
 	m_chunk_position{chunk.m_chunk_position},
+	m_loader{chunk.m_loader},
 	m_blocks{chunk.m_blocks},
-	m_shader{chunk.m_shader},
-	m_vao{chunk.m_vao},
-	m_vbo{chunk.m_vbo}
+	m_shader{chunk.m_shader}
 {
 
-}
-
-Chunk::~Chunk()
-{
 }
 
 bool Chunk::isFaceVisible(int x, int y, int z)
@@ -102,46 +97,23 @@ void Chunk::prepareChunkMesh()
 		}
 	}
 
-	glGenVertexArrays(1, &m_vao);
-	glGenBuffers(1, &m_vbo);
-
-	glBindVertexArray(m_vao);
-	//std::cout << m_vao << std::endl;
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_mesh_vertex_positions.size() * sizeof(float), m_mesh_vertex_positions.data(), GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	
 
 }
 
-// This will be moved later to Loader class
-// Should be something like m_chunk_loader.load(m_mesh_vertex_positions);
 void Chunk::loadChunkMesh()
 {
-	
-
+	m_loader.loadMesh(m_mesh_vertex_positions);
 }
 
 
 void Chunk::renderChunk()
 {
-	glBindVertexArray(m_vao);
-	std::cout << m_vao << std::endl;
+	m_loader.bindVAO();
 	m_shader.useProgram();
-	//std::cout << glGetError() << std::endl;
+	std::cout << glGetError() << std::endl;
 	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
 
-	/*glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glBindVertexArray(0);*/
 }
 
 chunk_pos Chunk::getChunkPos()

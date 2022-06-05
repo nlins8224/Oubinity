@@ -42,7 +42,7 @@ public:
 	Chunk(chunk_pos position, Shader& shader);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
-	~Chunk();
+	~Chunk() = default;
 
 	void updateChunk();
 	void setBlock(int x, int y, int z, Block::block_id type);
@@ -53,12 +53,11 @@ public:
 	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> getBlocks();
 
 private:
-	GLuint m_vbo, m_vao;
 	bool m_has_mesh{ false };
 	Shader m_shader{ "shaders/blockVertex.glsl", "shaders/blockFragment.glsl" };
 	std::vector<float> m_mesh_vertex_positions;
 	chunk_pos m_chunk_position{0, 0, 0}; // <- to default constructor?
-
+	Loader m_loader;
 	// This could be one array later
 	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks;
 
