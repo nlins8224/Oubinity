@@ -1,6 +1,6 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Shader shader): m_shader{shader}
+ChunkManager::ChunkManager()
 {
 	generateWorld();
 }
@@ -17,7 +17,7 @@ void ChunkManager::generateWorld()
 		for (int j = 0; j < 4; j++)
 		{
 			chunk_pos chunk_position(i - 4, -1, j - 4);
-			Chunk current_chunk(chunk_position, m_shader);
+			Chunk current_chunk(chunk_position);
 			for (int x = 0; x < current_chunk.CHUNK_SIZE; x++)
 			{
 				for (int y = 0; y < current_chunk.CHUNK_SIZE; y++)

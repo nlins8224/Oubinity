@@ -4,7 +4,7 @@ using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(chunk_pos position, Shader &shader) : m_chunk_position{ position }, m_shader{shader}
+Chunk::Chunk(chunk_pos position) : m_chunk_position{ position }
 {
 	// TODO: Fill array with 0's in .h?
 	initAirChunk();
@@ -15,8 +15,7 @@ Chunk::Chunk(const Chunk& chunk) :
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
 	m_chunk_position{chunk.m_chunk_position},
 	m_loader{chunk.m_loader},
-	m_blocks{chunk.m_blocks},
-	m_shader{chunk.m_shader}
+	m_blocks{chunk.m_blocks}
 {
 
 }
@@ -107,7 +106,6 @@ void Chunk::loadChunkMesh()
 void Chunk::renderChunk()
 {
 	m_loader.bindVAO();
-	m_shader.useProgram();
 	std::cout << glGetError() << std::endl;
 	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
 

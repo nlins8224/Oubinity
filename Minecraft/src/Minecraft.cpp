@@ -36,7 +36,7 @@ int main()
 
     std::cout << glGetError() << std::endl;
     PlayerInput player_input{window.getWindow()};
-    ChunkManager chunk_manager(shader);
+    ChunkManager chunk_manager;
     chunk_manager.generateWorld();
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
@@ -64,7 +64,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //shader.useProgram();
+        shader.useProgram();
        
         glm::mat4 model = glm::mat4(1.0f);
         shader.setUniformMat4("model", model);

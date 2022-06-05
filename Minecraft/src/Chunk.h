@@ -38,7 +38,7 @@ class Chunk
 {
 public:
 	static const int CHUNK_SIZE{ 16 };
-	Chunk(chunk_pos position, Shader& shader);
+	Chunk(chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -53,7 +53,6 @@ public:
 
 private:
 	bool m_has_mesh{ false };
-	Shader m_shader{ "shaders/blockVertex.glsl", "shaders/blockFragment.glsl" };
 	std::vector<float> m_mesh_vertex_positions;
 	chunk_pos m_chunk_position{0, 0, 0}; // <- to default constructor?
 	Loader m_loader;

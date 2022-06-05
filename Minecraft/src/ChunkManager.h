@@ -7,13 +7,12 @@
 class ChunkManager
 {
 public:
-	ChunkManager(Shader shader);
+	ChunkManager();
 	~ChunkManager();
 	void generateWorld();
 	std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> getChunks();
 
 private:
 	 std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> m_chunks;
-	 Shader m_shader;
 };
 
