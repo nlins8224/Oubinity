@@ -28,7 +28,7 @@ void Chunk::updateChunk()
 void Chunk::prepareChunkMesh()
 {
 	int block{ 0 };
-	int x{ 0 }, y{ 0 }, z{ 0 };
+	int x{ 0 }, y{ 0 }, z{ 0 }; // delete this?
 	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
 		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
@@ -105,6 +105,11 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		m_mesh_vertex_positions.push_back(face[u_coord]);
 		m_mesh_vertex_positions.push_back(face[v_coord]);
 	}
+}
+
+void Chunk::addFaceTexture()
+{
+
 }
 
 // This could be optimised. For now chunk cannot recognize if a face is not visible,
