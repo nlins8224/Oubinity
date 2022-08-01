@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 namespace Block {
 
 	enum block_id
@@ -12,6 +13,7 @@ namespace Block {
 	{
 		block_id id;
 		bool transparent{ false };
+		std::string texture{ "" };
 	};
 
 	static const Block Air
@@ -22,8 +24,13 @@ namespace Block {
 
 	static const Block Dirt
 	{
-		.id{ DIRT }
+		.id{ DIRT },
+		.texture{ "dirt" }
 	};
+
+	// private hashmap could be here and function getBlockType() which would return block of given type
+	// for example getBlockType(block_id::DIRT) would reurn Block Dirt
+	// later this could be moved to .json or .ini file
 
 }
 
