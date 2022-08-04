@@ -14,7 +14,7 @@ void ChunkManager::generateWorld()
 		for (int j = 0; j < 1; j++)
 		{
 			chunk_pos chunk_position(i - 4, -1, j - 4);
-			Chunk current_chunk(chunk_position);
+			Chunk current_chunk(&m_texture_manager, chunk_position);
 			for (int x = 0; x < current_chunk.CHUNK_SIZE; x++)
 			{
 				for (int y = 0; y < current_chunk.CHUNK_SIZE; y++)
@@ -42,5 +42,10 @@ void ChunkManager::generateWorld()
 std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> ChunkManager::getChunks()
 {
 	return m_chunks;
+}
+
+TextureManager ChunkManager::getTextureManager()
+{
+	return this->m_texture_manager;
 }
 

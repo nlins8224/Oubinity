@@ -3,6 +3,7 @@
 #include "BlockMesh.h"
 #include "Loader.h"
 #include "Shader.h"
+#include "TextureManager.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
@@ -38,7 +39,7 @@ class Chunk
 {
 public:
 	static const int CHUNK_SIZE{ 16 };
-	Chunk(chunk_pos position);
+	Chunk(TextureManager* texture_manager, chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -55,13 +56,14 @@ private:
 	std::vector<float> m_mesh_vertex_positions;
 	chunk_pos m_chunk_position{0, 0, 0};
 	Loader m_loader;
+	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
 	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
 	// Later xyz could be changed to chunk_pos
-	void addVisibleFaces(std::string texture, int x, int y, int z);
+	void addVisibleFaces(int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
-	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, std::string texture, int x, int y, int z);
+	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
 	void setFaceTexture(std::string texture);
 	int getBlockId(int x, int y, int z);
 };
