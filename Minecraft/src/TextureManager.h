@@ -12,6 +12,8 @@ private:
 	int m_texture_width;
 	int m_texture_height;
 	int m_textures_max_amount;
+	int m_stb_nr_channels{ 0 };
+	GLuint m_texture_array{ 0 };
 
 	std::vector<std::string> textures{};
 	void generateMipmap();
