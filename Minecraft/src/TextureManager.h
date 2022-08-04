@@ -15,10 +15,10 @@ private:
 	int m_stb_nr_channels{ 0 };
 	GLuint m_texture_array{ 0 };
 
-	std::vector<std::string> textures{};
+	std::vector<std::string> m_textures{};
 	void generateMipmap();
-	void addTexture(std::string item);
+	void addTexture(std::string texture);
 	std::string loadTexture(std::string path);
-
+	int getTextureIndex(std::string texture);
 };
 
