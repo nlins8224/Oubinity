@@ -89,11 +89,12 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 	const uint8_t FACE_ROWS{ 6 };
 	for (int i = 0; i < FACE_ROWS; i++)
 	{
-		uint8_t x_coord = i * 5;
-		uint8_t y_coord = (i * 5) + 1;
-		uint8_t z_coord = (i * 5) + 2;
-		uint8_t u_coord = (i * 5) + 3;
-		uint8_t v_coord = (i * 5) + 4;
+		uint8_t x_coord = i * 6;
+		uint8_t y_coord = (i * 6) + 1;
+		uint8_t z_coord = (i * 6) + 2;
+		uint8_t u_coord = (i * 6) + 3;
+		uint8_t v_coord = (i * 6) + 4;
+		uint8_t w_coord = (i * 6) + 5;
 		
 		float x_world_pos = m_chunk_position.x * CHUNK_SIZE + x + face[x_coord];
 		float y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
@@ -104,10 +105,10 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		m_mesh_vertex_positions.push_back(z_world_pos);
 		m_mesh_vertex_positions.push_back(face[u_coord]);
 		m_mesh_vertex_positions.push_back(face[v_coord]);
+		m_mesh_vertex_positions.push_back(face[w_coord]);
+
 	}
 }
-
-
 
 
 void Chunk::addFaceTexture()
