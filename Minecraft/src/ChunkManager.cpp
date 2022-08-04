@@ -9,9 +9,9 @@ ChunkManager::ChunkManager()
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 1; i++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < 1; j++)
 		{
 			chunk_pos chunk_position(i - 4, -1, j - 4);
 			Chunk current_chunk(chunk_position);
