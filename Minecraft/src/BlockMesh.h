@@ -9,7 +9,7 @@ namespace BlockMesh
     static const int FACE_SIZE{ 36 };
     static const int FACE_AMOUNT{ 6 };
     static const int FACE_ROWS{ 6 };
-    static const int FACE_COLUMNS{ 5 };
+    static const int FACE_COLUMNS{ 6 };
 
     const std::array<float, FACE_SIZE> BACK_FACE
     { //  x      y      z      u     v     w
