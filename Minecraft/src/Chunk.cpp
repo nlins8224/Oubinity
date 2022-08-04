@@ -107,9 +107,16 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 	}
 }
 
+
+
+
 void Chunk::addFaceTexture()
 {
-
+	// TODO: Set Z parameter here. 
+	// Add another coord to tex coords.
+	// Update Loader class.
+	// Texture is choosed via TextureManager.
+	// Texture should be also loaded via TextureManager? 
 }
 
 // This could be optimised. For now chunk cannot recognize if a face is not visible,

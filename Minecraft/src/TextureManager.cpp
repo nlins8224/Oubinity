@@ -6,10 +6,9 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
 {
-	GLuint texture_id;
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	std::string texture_data = loadTexture("");
+	glGenTextures(1, &m_texture_array);
+	glBindTexture(GL_TEXTURE_2D, m_texture_array);
+	//std::string texture_data = loadTexture("");
 
 	// create texture array
 	glTexImage3D(
@@ -37,13 +36,14 @@ void TextureManager::addTexture(std::string texture)
 	if (!is_in)
 		textures.push_back(texture);
 	// TODO: Load image
-	auto texture_image = stbi_load();
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_image);
+	unsigned char *texture_image = stbi_load(texture.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	auto itr = std::find(textures.begin(), textures.end(), texture);
 	int texture_index = std::distance(textures.begin(), itr);
 	// insert texture to texture array
 	glTexSubImage3D(
 		GL_TEXTURE_2D_ARRAY,
+		0,
 		0,
 		0,
 		texture_index,
@@ -52,14 +52,12 @@ void TextureManager::addTexture(std::string texture)
 		1,
 		GL_RGBA,
 		GL_UNSIGNED_BYTE,
-		texture_image // TODO: load image
-		
+		texture_image
+	);
+	
 }
 
 std::string TextureManager::loadTexture(std::string path)
 {
-	int width, height, nrChannels;
-	return stbi_load(path, &width, &height, &nrChannels, 0);
+	return "";
 }
-
-
