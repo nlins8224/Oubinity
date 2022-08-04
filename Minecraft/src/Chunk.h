@@ -59,9 +59,9 @@ private:
 	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
 	// Later xyz could be changed to chunk_pos
-	void addVisibleFaces(int x, int y, int z);
+	void addVisibleFaces(std::string texture, int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
-	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
-	void addFaceTexture();
+	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, std::string texture, int x, int y, int z);
+	void setFaceTexture(std::string texture);
 	int getBlockId(int x, int y, int z);
 };

@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include "Chunk.h"
 #include "TextureManager.h"
-#include <iostream>
 
 
 class ChunkManager

@@ -32,15 +32,14 @@ void TextureManager::generateMipmap()
 
 void TextureManager::addTexture(std::string texture)
 {
-	const bool is_in = std::find(textures.begin(), textures.end(), texture) != textures.end();
+	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (!is_in)
-		textures.push_back(texture);
+		m_textures.push_back(texture);
 	// TODO: Load image
 	std::string path = "textures/" + texture + ".png";
 	unsigned char *texture_image = stbi_load(path.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-	auto itr = std::find(textures.begin(), textures.end(), texture);
-	int texture_index = std::distance(textures.begin(), itr);
+	int texture_index = getTextureIndex(texture);
 	// insert texture to texture array
 	glTexSubImage3D(
 		GL_TEXTURE_2D_ARRAY,
@@ -61,4 +60,10 @@ void TextureManager::addTexture(std::string texture)
 std::string TextureManager::loadTexture(std::string path)
 {
 	return "";
+}
+
+int TextureManager::getTextureIndex(std::string texture)
+{
+	auto itr = std::find(m_textures.begin(), m_textures.end(), texture);
+	return std::distance(m_textures.begin(), itr);
 }
