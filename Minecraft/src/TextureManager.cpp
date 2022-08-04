@@ -8,7 +8,6 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 {
 	glGenTextures(1, &m_texture_array);
 	glBindTexture(GL_TEXTURE_2D, m_texture_array);
-	//std::string texture_data = loadTexture("");
 
 	// create texture array
 	glTexImage3D(
