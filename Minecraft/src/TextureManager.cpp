@@ -36,7 +36,8 @@ void TextureManager::addTexture(std::string texture)
 	if (!is_in)
 		textures.push_back(texture);
 	// TODO: Load image
-	unsigned char *texture_image = stbi_load(texture.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
+	std::string path = "textures/" + texture + ".png";
+	unsigned char *texture_image = stbi_load(path.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	auto itr = std::find(textures.begin(), textures.end(), texture);
 	int texture_index = std::distance(textures.begin(), itr);
