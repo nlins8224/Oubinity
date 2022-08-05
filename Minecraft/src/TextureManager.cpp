@@ -8,7 +8,10 @@ TextureManager::TextureManager(Shader& shader, int texture_width, int texture_he
 	m_textures_max_amount{textures_max_amount}
 {
 	glGenTextures(1, &m_texture_array);
-	glBindTexture(GL_TEXTURE_2D, m_texture_array);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
+
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// create texture array
 	glTexImage3D(
@@ -36,7 +39,12 @@ void TextureManager::addTexture(std::string texture)
 	if (!is_in)
 		m_textures.push_back(texture);
 	std::string path = "textures/" + texture + ".png";
-	unsigned char *texture_image = stbi_load(path.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
+	int width, height, channels;
+	unsigned char *texture_image = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	if (!texture_image)
+	{
+		std::cout << "Failed to generate texture" << std::endl;
+	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	int texture_index = getTextureIndex(texture);
 	// insert texture to texture array

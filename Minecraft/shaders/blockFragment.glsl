@@ -1,9 +1,10 @@
 #version 330 core
-out vec4 FragColor;
+out vec4 fragment_color;
 
-in vec3 ourColor;
+uniform sampler2DArray texture_array_sampler;
 
-void main()
-{
-    FragColor = vec4(ourColor, 1.0f);
+in vec3 interpolated_tex_coords;
+
+void main(void) {
+	fragment_color = texture(texture_array_sampler, interpolated_tex_coords);
 }
