@@ -56,9 +56,13 @@ void TextureManager::addTexture(std::string texture)
 	
 }
 
-std::string TextureManager::loadTexture()
+void TextureManager::loadTexture()
 {
-	return "";
+	const std::string& texture_array_sampler = "texture_array_sampler";
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
+	int sampler_location = m_shader.getUniformLocation(texture_array_sampler);
+	glUniform1i(sampler_location, 0);
 }
 
 int TextureManager::getTextureIndex(std::string texture)
