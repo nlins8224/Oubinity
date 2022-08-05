@@ -24,7 +24,7 @@ void Loader::storeDataInVAO(int attribute_number, std::vector<float> vertices) {
 	glEnableVertexAttribArray(0);
 	
 	// store uvw textures coords
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(4 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
 
