@@ -64,6 +64,6 @@ private:
 	void addVisibleFaces(int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
 	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
-	void setFaceTexture(std::string texture);
+	int setFaceTexture(int block_id);
 	int getBlockId(int x, int y, int z);
 };

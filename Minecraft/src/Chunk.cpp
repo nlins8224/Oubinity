@@ -94,11 +94,7 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 {
 	const uint8_t FACE_ROWS{ 6 };
 	int block_id = getBlockId(x, y, z);
-	std::string texture = Block::getBlockType(block_id).texture;
-	m_texture_manager->addTexture(texture);
-	int texture_id = m_texture_manager->getTextureIndex(texture);
-	std::cout << texture_id << std::endl;
-
+	int texture_id = setFaceTexture(block_id);
 
 	for (int i = 0; i < FACE_ROWS; i++)
 	{
@@ -112,23 +108,21 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		float y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
 		float z_world_pos = m_chunk_position.z * CHUNK_SIZE + z + face[z_coord];
 
-		setFaceTexture(texture);
-
 		m_mesh_vertex_positions.push_back(x_world_pos);
 		m_mesh_vertex_positions.push_back(y_world_pos);
 		m_mesh_vertex_positions.push_back(z_world_pos);
 		m_mesh_vertex_positions.push_back(face[u_coord]);
 		m_mesh_vertex_positions.push_back(face[v_coord]);
-		m_mesh_vertex_positions.push_back(texture_id); // should be texture_id here
-
+		m_mesh_vertex_positions.push_back(texture_id);
 	}
 }
 
 
-void Chunk::setFaceTexture(std::string texture)
+int Chunk::setFaceTexture(int block_id)
 {
-	// Texture is choosed via TextureManager.
-	// Texture should be also loaded via TextureManager? 
+	std::string texture = Block::getBlockType(block_id).texture;
+	m_texture_manager->addTexture(texture);
+	return m_texture_manager->getTextureIndex(texture);	
 }
 
 // This could be optimised. For now chunk cannot recognize if a face is not visible,
