@@ -38,7 +38,7 @@ struct chunk_pos_hasher
 class Chunk
 {
 public:
-	static const int CHUNK_SIZE{ 16 };
+	static const int CHUNK_SIZE{ 1 };
 	Chunk(TextureManager* texture_manager, chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;

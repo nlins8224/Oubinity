@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 #include <glad/glad.h>
 #include "stb_image.h"
 #include "Shader.h"
@@ -11,6 +12,7 @@ public:
 	int getTextureIndex(std::string texture);
 	void addTexture(std::string texture);
 	void loadTexture();
+	void generateMipmap();
 
 private:
 	int m_texture_width;
@@ -21,6 +23,5 @@ private:
 	Shader& m_shader;
 
 	std::vector<std::string> m_textures{};
-	void generateMipmap();
 };
 
