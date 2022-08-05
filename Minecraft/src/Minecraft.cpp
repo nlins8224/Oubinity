@@ -36,7 +36,7 @@ int main()
 
     std::cout << glGetError() << std::endl;
     PlayerInput player_input{window.getWindow()};
-    ChunkManager chunk_manager;
+    ChunkManager chunk_manager(shader);
     chunk_manager.generateWorld();
 
     const GLubyte* vendor = glGetString(GL_VENDOR);

@@ -1,7 +1,8 @@
 #include "TextureManager.h"
 
-TextureManager::TextureManager(int texture_width, int texture_height, int textures_max_amount) 
+TextureManager::TextureManager(Shader& shader, int texture_width, int texture_height, int textures_max_amount) 
 	: 
+	m_shader{shader},
 	m_texture_width{texture_width},
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
@@ -34,7 +35,6 @@ void TextureManager::addTexture(std::string texture)
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (!is_in)
 		m_textures.push_back(texture);
-	// TODO: Load image
 	std::string path = "textures/" + texture + ".png";
 	unsigned char *texture_image = stbi_load(path.c_str(), &m_texture_width, &m_texture_height, &m_stb_nr_channels, 0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
@@ -56,7 +56,7 @@ void TextureManager::addTexture(std::string texture)
 	
 }
 
-std::string TextureManager::loadTexture(std::string path)
+std::string TextureManager::loadTexture()
 {
 	return "";
 }
