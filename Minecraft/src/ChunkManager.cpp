@@ -1,6 +1,8 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager()
+ChunkManager::ChunkManager(Shader shader)
+	:
+	m_shader{shader}
 {
 	generateWorld();
 }
