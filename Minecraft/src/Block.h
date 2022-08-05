@@ -3,11 +3,14 @@
 #include <map>
 namespace Block {
 
+	// later this could be moved to .json or .ini file
+
 	enum block_id
 	{
 		AIR,
 		DIRT,
 		COBBLESTONE,
+		SAND,
 		AMOUNT
 	};
 
@@ -36,11 +39,18 @@ namespace Block {
 		.texture{ "cobblestone" }
 	};
 
+	static const Block Sand
+	{
+		.id{ SAND },
+		.texture{ "sand" }
+	};
+
 	static const std::map<int, Block> TYPES_MAP
 	{
 		{AIR, Air},
 		{DIRT, Dirt},
-		{COBBLESTONE, Cobblestone}
+		{COBBLESTONE, Cobblestone},
+		{SAND, Sand}
 	};
 
 	inline Block getBlockType(int block_id)
@@ -48,9 +58,6 @@ namespace Block {
 		return TYPES_MAP.at(block_id);
 	}
 
-	// private hashmap could be here and function getBlockType() which would return block of given type
-	// for example getBlockType(block_id::DIRT) would reurn Block Dirt
-	// later this could be moved to .json or .ini file
 
 }
 
