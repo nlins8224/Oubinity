@@ -34,7 +34,6 @@ void Chunk::updateChunk()
 void Chunk::prepareChunkMesh()
 {
 	int block{ 0 };
-	int x{ 0 }, y{ 0 }, z{ 0 }; // delete this?
 	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
 		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
@@ -93,8 +92,8 @@ bool Chunk::isFaceVisible(int x, int y, int z)
 void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int z)
 {
 	const uint8_t FACE_ROWS{ 6 };
-	int block_id = getBlockId(x, y, z);
-	int texture_id = setFaceTexture(block_id);
+	int block_id{ getBlockId(x, y, z) };
+	int texture_id{ setFaceTexture(block_id) };
 
 	for (int i = 0; i < FACE_ROWS; i++)
 	{

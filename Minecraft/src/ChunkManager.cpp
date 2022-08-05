@@ -21,7 +21,7 @@ void ChunkManager::generateWorld()
 				{
 					for (int z = 0; z < current_chunk.CHUNK_SIZE; z++)
 					{
-						if (z == 1)
+						if (z == 0)
 							current_chunk.setBlock(x, y, z, Block::block_id::DIRT);
 						else 
 							current_chunk.setBlock(x, y, z, Block::block_id::COBBLESTONE);
