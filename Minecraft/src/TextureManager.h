@@ -10,7 +10,7 @@ public:
 	TextureManager(Shader& shader, int texture_witdh, int texture_height, int textures_max_amount);
 	int getTextureIndex(std::string texture);
 	void addTexture(std::string texture);
-	std::string loadTexture();
+	void loadTexture();
 
 private:
 	int m_texture_width;
