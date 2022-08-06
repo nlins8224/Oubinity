@@ -18,6 +18,7 @@ void Shader::useProgram()
 	glUseProgram(m_id);
 }
 
+// TODO: change glGetUniform... to getUniform()
 void Shader::setUniformBool(const std::string& name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(m_id, name.c_str()), static_cast<int>(value));
@@ -36,6 +37,11 @@ void Shader::setUniformFloat(const std::string& name, float value) const
 void Shader::setUniformMat4(const std::string& name, const glm::mat4& mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+GLint Shader::getUniformLocation(const std::string& name) const
+{
+	return glGetUniformLocation(m_id, name.c_str());
 }
 
 shader_code Shader::parseShader(std::string vertex_path, std::string fragment_path)

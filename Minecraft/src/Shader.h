@@ -23,6 +23,7 @@ public:
 	void setUniformInt(const std::string& name, int value) const;
 	void setUniformFloat(const std::string& name, float value) const;
 	void setUniformMat4(const std::string& name, const glm::mat4& mat) const;
+	GLint getUniformLocation(const std::string& name) const;
 	void useProgram();
 private:
 	unsigned int m_id;
