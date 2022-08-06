@@ -14,7 +14,6 @@ Chunk::Chunk(TextureManager* texture_manager, chunk_pos position)
 
 Chunk::Chunk(const Chunk& chunk)
 	:
-	m_has_mesh{chunk.m_has_mesh},
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
 	m_chunk_position{chunk.m_chunk_position},
 	m_loader{chunk.m_loader},
@@ -34,11 +33,11 @@ void Chunk::updateChunk()
 void Chunk::prepareChunkMesh()
 {
 	int block{ 0 };
-	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
+	for (uint8_t local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
-		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
+		for (uint8_t local_y = 0; local_y < CHUNK_SIZE; local_y++)
 		{
-			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
+			for (uint8_t local_z = 0; local_z < CHUNK_SIZE; local_z++)
 			{
 				block = getBlockId(local_x, local_y, local_z);
 				if (block != block_id::AIR)
@@ -61,7 +60,7 @@ void Chunk::renderChunk()
 	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
 }
 
-void Chunk::setBlock(int x, int y, int z, block_id type)
+void Chunk::setBlock(uint8_t x, uint8_t y, uint8_t z, block_id type)
 {
 	m_blocks[x][y][z] = type;
 }
@@ -71,7 +70,7 @@ chunk_pos Chunk::getChunkPos()
 	return m_chunk_position;
 }
 
-void Chunk::addVisibleFaces(int x, int y, int z)
+void Chunk::addVisibleFaces(uint8_t x, uint8_t y, uint8_t z)
 {
 	if (!isFaceVisible(x + 1, y, z)) addFace(faces[block_mesh::RIGHT],  x, y, z);
 	if (!isFaceVisible(x - 1, y, z)) addFace(faces[block_mesh::LEFT],   x, y, z);
@@ -81,7 +80,7 @@ void Chunk::addVisibleFaces(int x, int y, int z)
 	if (!isFaceVisible(x, y, z - 1)) addFace(faces[block_mesh::BACK],   x, y, z);
 }
 
-bool Chunk::isFaceVisible(int x, int y, int z)
+bool Chunk::isFaceVisible(int8_t x, int8_t y, int8_t z)
 {
 	// out of bounds check for example...
 	if (x < 0 || y < 0 || z < 0) return false; // ...x - 1 = -1 < 0
@@ -95,17 +94,27 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 	int block_id{ getBlockId(x, y, z) };
 	int texture_id{ setFaceTexture(block_id) };
 
+	uint8_t x_coord;
+	uint8_t y_coord;
+	uint8_t z_coord;
+	uint8_t u_coord;
+	uint8_t v_coord;
+
+	float x_world_pos;
+	float y_world_pos;
+	float z_world_pos;
+
 	for (int i = 0; i < FACE_ROWS; i++)
 	{
-		uint8_t x_coord = i * 6;
-		uint8_t y_coord = (i * 6) + 1;
-		uint8_t z_coord = (i * 6) + 2;
-		uint8_t u_coord = (i * 6) + 3;
-		uint8_t v_coord = (i * 6) + 4;
+		x_coord = i * 6;
+		y_coord = (i * 6) + 1;
+		z_coord = (i * 6) + 2;
+		u_coord = (i * 6) + 3;
+		v_coord = (i * 6) + 4;
 		
-		float x_world_pos = m_chunk_position.x * CHUNK_SIZE + x + face[x_coord];
-		float y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
-		float z_world_pos = m_chunk_position.z * CHUNK_SIZE + z + face[z_coord];
+		x_world_pos = m_chunk_position.x * CHUNK_SIZE + x + face[x_coord];
+		y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
+		z_world_pos = m_chunk_position.z * CHUNK_SIZE + z + face[z_coord];
 
 		m_mesh_vertex_positions.push_back(x_world_pos);
 		m_mesh_vertex_positions.push_back(y_world_pos);
@@ -117,7 +126,7 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 }
 
 
-int Chunk::setFaceTexture(int block_id)
+int Chunk::setFaceTexture(int8_t block_id)
 {
 	std::string texture = Block::getBlockType(block_id).texture;
 	m_texture_manager->addTexture(texture);
@@ -126,7 +135,7 @@ int Chunk::setFaceTexture(int block_id)
 
 // This could be optimised. For now chunk cannot recognize if a face is not visible,
 // because other neighboring chunk hides it.
-int Chunk::getBlockId(int x, int y, int z)
+int Chunk::getBlockId(uint8_t x, uint8_t y, uint8_t z)
 {
 	return m_blocks[x][y][z];
 }

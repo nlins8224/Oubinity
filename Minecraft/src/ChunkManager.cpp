@@ -11,17 +11,17 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (int i = 0; i < 4; i++)
+	for (uint8_t i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 2; j++)
+		for (uint8_t j = 0; j < 2; j++)
 		{
 			chunk_pos chunk_position(i, -1, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
-			for (int x = 0; x < current_chunk->CHUNK_SIZE; x++)
+			for (uint8_t x = 0; x < current_chunk->CHUNK_SIZE; x++)
 			{
-				for (int y = 0; y < current_chunk->CHUNK_SIZE; y++)
+				for (uint8_t y = 0; y < current_chunk->CHUNK_SIZE; y++)
 				{
-					for (int z = 0; z < current_chunk->CHUNK_SIZE; z++)
+					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
 						current_chunk->setBlock(x, y, z, Block::block_id::SAND);
 					}	
