@@ -38,7 +38,7 @@ struct chunk_pos_hasher
 class Chunk
 {
 public:
-	static const int CHUNK_SIZE{ 4 };
+	static const uint8_t CHUNK_SIZE{ 4 };
 	Chunk(TextureManager* texture_manager, chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -48,11 +48,10 @@ public:
 	void prepareChunkMesh();
 	void loadChunkMesh();
 	void renderChunk();
-	void setBlock(int x, int y, int z, Block::block_id type);
+	void setBlock(uint8_t x, uint8_t y, uint8_t z, Block::block_id type);
 	chunk_pos getChunkPos();
 
 private:
-	bool m_has_mesh{ false };
 	std::vector<float> m_mesh_vertex_positions;
 	chunk_pos m_chunk_position{0, 0, 0};
 	Loader m_loader;
@@ -61,9 +60,9 @@ private:
 	std::array<std::array<std::array<uint8_t, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
 	// Later xyz could be changed to chunk_pos
-	void addVisibleFaces(int x, int y, int z);
-	bool isFaceVisible(int x, int y, int z);
+	void addVisibleFaces(uint8_t x, uint8_t y, uint8_t z);
+	bool isFaceVisible(int8_t x, int8_t y, int8_t z);
 	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
-	int setFaceTexture(int block_id);
-	int getBlockId(int x, int y, int z);
+	int setFaceTexture(int8_t block_id);
+	int getBlockId(uint8_t x, uint8_t y, uint8_t z);
 };
