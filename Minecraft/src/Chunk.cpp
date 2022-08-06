@@ -57,7 +57,6 @@ void Chunk::loadChunkMesh()
 void Chunk::renderChunk()
 {
 	m_loader.bindVAO();
-	m_texture_manager->generateMipmap();
 	// This could be moved to renderer later
 	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
 }
