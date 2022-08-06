@@ -38,7 +38,7 @@ struct chunk_pos_hasher
 class Chunk
 {
 public:
-	static const uint8_t CHUNK_SIZE{ 4 };
+	static const uint8_t CHUNK_SIZE{ 16 };
 	Chunk(TextureManager* texture_manager, chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -53,6 +53,7 @@ public:
 
 private:
 	std::vector<float> m_mesh_vertex_positions;
+	std::vector<float> m_mesh_textures_positions;
 	chunk_pos m_chunk_position{0, 0, 0};
 	Loader m_loader;
 	TextureManager* m_texture_manager;

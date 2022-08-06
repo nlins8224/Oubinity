@@ -15,6 +15,7 @@ Chunk::Chunk(TextureManager* texture_manager, chunk_pos position)
 Chunk::Chunk(const Chunk& chunk)
 	:
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
+	m_mesh_textures_positions{chunk.m_mesh_textures_positions},
 	m_chunk_position{chunk.m_chunk_position},
 	m_loader{chunk.m_loader},
 	m_blocks{chunk.m_blocks},
@@ -49,7 +50,7 @@ void Chunk::prepareChunkMesh()
 
 void Chunk::loadChunkMesh()
 {
-	m_loader.loadMesh(m_mesh_vertex_positions);
+	m_loader.loadMesh(m_mesh_vertex_positions, m_mesh_textures_positions);
 }
 
 
@@ -119,9 +120,9 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		m_mesh_vertex_positions.push_back(x_world_pos);
 		m_mesh_vertex_positions.push_back(y_world_pos);
 		m_mesh_vertex_positions.push_back(z_world_pos);
-		m_mesh_vertex_positions.push_back(face[u_coord]);
-		m_mesh_vertex_positions.push_back(face[v_coord]);
-		m_mesh_vertex_positions.push_back(texture_id);
+		m_mesh_textures_positions.push_back(face[u_coord]);
+		m_mesh_textures_positions.push_back(face[v_coord]);
+		m_mesh_textures_positions.push_back(texture_id);
 	}
 }
 
