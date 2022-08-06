@@ -36,6 +36,8 @@ void ChunkManager::generateWorld()
 		}
 	}
 
+	m_texture_manager.loadTexture();
+
 	for (auto& chunk : m_chunks)
 	{
 		chunk.second.updateChunk();
