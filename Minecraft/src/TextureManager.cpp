@@ -26,6 +26,7 @@ TextureManager::TextureManager(Shader& shader, int texture_width, int texture_he
 		GL_UNSIGNED_BYTE,
 		nullptr
 	);
+
 }
 
 void TextureManager::generateMipmap()
@@ -61,7 +62,7 @@ void TextureManager::addTexture(std::string texture)
 		GL_UNSIGNED_BYTE,
 		texture_image
 	);
-	
+	stbi_image_free(texture_image);
 }
 
 void TextureManager::loadTexture()
