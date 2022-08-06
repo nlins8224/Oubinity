@@ -11,9 +11,9 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (uint8_t i = 0; i < 4; i++)
+	for (uint8_t i = 0; i < 8; i++)
 	{
-		for (uint8_t j = 0; j < 2; j++)
+		for (uint8_t j = 0; j < 8; j++)
 		{
 			chunk_pos chunk_position(i, -1, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
@@ -38,6 +38,7 @@ void ChunkManager::generateWorld()
 	for (auto& chunk : m_chunks)
 	{
 		chunk.second.prepareChunkMesh();
+		// This is bottleneck. Probably amount of vertices, because lots of small chunks loads just fine.
 		chunk.second.loadChunkMesh();
 	}
 	
