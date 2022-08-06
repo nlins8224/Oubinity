@@ -15,7 +15,7 @@ void ChunkManager::generateWorld()
 	{
 		for (int j = 0; j < 2; j++)
 		{
-			chunk_pos chunk_position(i - 4, -1, j - 4);
+			chunk_pos chunk_position(i, -1, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
 			for (int x = 0; x < current_chunk->CHUNK_SIZE; x++)
 			{
