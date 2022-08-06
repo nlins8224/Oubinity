@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-void Loader::loadMesh(std::vector<float> vertices)
+void Loader::loadMesh(std::vector<float>& vertices)
 {
 	createVAO();
 	storeDataInVAO(0, vertices);
@@ -14,7 +14,7 @@ void Loader::createVAO() {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::storeDataInVAO(int attribute_number, std::vector<float> vertices) {
+void Loader::storeDataInVAO(int attribute_number, std::vector<float>& vertices) {
 	glGenBuffers(1, &m_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
