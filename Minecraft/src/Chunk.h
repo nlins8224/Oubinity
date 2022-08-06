@@ -38,7 +38,7 @@ struct chunk_pos_hasher
 class Chunk
 {
 public:
-	static const int CHUNK_SIZE{ 16 };
+	static const int CHUNK_SIZE{ 4 };
 	Chunk(TextureManager* texture_manager, chunk_pos position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -58,7 +58,7 @@ private:
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
-	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
+	std::array<std::array<std::array<uint8_t, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
 	// Later xyz could be changed to chunk_pos
 	void addVisibleFaces(int x, int y, int z);
