@@ -36,7 +36,7 @@ void ChunkManager::generateWorld()
 		}
 	}
 
-	m_texture_manager.loadTexture();
+	m_texture_manager.generateMipmap();
 
 	for (auto& chunk : m_chunks)
 	{
