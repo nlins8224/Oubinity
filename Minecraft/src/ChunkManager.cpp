@@ -11,7 +11,7 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 2; j++)
 		{
@@ -23,10 +23,7 @@ void ChunkManager::generateWorld()
 				{
 					for (int z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
-						if (z % 2)
-							current_chunk->setBlock(x, y, z, Block::block_id::SAND);
-						else
-							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+						current_chunk->setBlock(x, y, z, Block::block_id::SAND);
 					}	
 				}
 			}
@@ -40,8 +37,8 @@ void ChunkManager::generateWorld()
 
 	for (auto& chunk : m_chunks)
 	{
-		chunk.second.updateChunk();
-
+		chunk.second.prepareChunkMesh();
+		chunk.second.loadChunkMesh();
 	}
 	
 }
