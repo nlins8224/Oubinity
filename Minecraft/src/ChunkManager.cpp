@@ -38,7 +38,6 @@ void ChunkManager::generateWorld()
 	for (auto& chunk : m_chunks)
 	{
 		chunk.second.prepareChunkMesh();
-		// This is bottleneck. Probably amount of vertices, because lots of small chunks loads just fine.
 		chunk.second.loadChunkMesh();
 	}
 	
