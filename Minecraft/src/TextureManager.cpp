@@ -37,8 +37,10 @@ void TextureManager::generateMipmap()
 void TextureManager::addTexture(std::string texture)
 {
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
-	if (!is_in)
-		m_textures.push_back(texture);
+	if (is_in)
+		return;
+
+	m_textures.push_back(texture);
 	std::string path = "textures/" + texture + ".png";
 	int width, height, channels;
 	unsigned char *texture_image = stbi_load(path.c_str(), &width, &height, &channels, 0);
