@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <map>
 namespace Block {
 
 	// later this could be moved to .json or .ini file
@@ -45,19 +44,17 @@ namespace Block {
 		.texture{ "sand" }
 	};
 
-	static const std::map<int, Block> TYPES_MAP
-	{
-		{AIR, Air},
-		{DIRT, Dirt},
-		{COBBLESTONE, Cobblestone},
-		{SAND, Sand}
-	};
-
 	inline Block getBlockType(int block_id)
 	{
-		return TYPES_MAP.at(block_id);
+		switch (block_id)
+		{
+		case AIR:         return Air;
+		case DIRT:        return Dirt;
+		case COBBLESTONE: return Cobblestone;
+		case SAND:        return Sand;
+		default:		  return Air; // "not_found.png" could be here
+		}
 	}
-
 
 }
 

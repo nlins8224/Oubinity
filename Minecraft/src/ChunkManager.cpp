@@ -11,11 +11,11 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (uint8_t i = 0; i < 8; i++)
+	for (uint8_t i = 0; i < 32; i++)
 	{
-		for (uint8_t j = 0; j < 8; j++)
+		for (uint8_t j = 0; j < 32; j++)
 		{
-			chunk_pos chunk_position(i, -1, j);
+			chunk_pos chunk_position(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
 			for (uint8_t x = 0; x < current_chunk->CHUNK_SIZE; x++)
 			{
@@ -23,7 +23,14 @@ void ChunkManager::generateWorld()
 				{
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
-						current_chunk->setBlock(x, y, z, Block::block_id::SAND);
+						if (y == 15)
+							current_chunk->setBlock(x, y, z, Block::block_id::DIRT);
+						else if (x % 3 == 1)
+							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+						else
+							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+
+
 					}	
 				}
 			}
@@ -38,7 +45,6 @@ void ChunkManager::generateWorld()
 	for (auto& chunk : m_chunks)
 	{
 		chunk.second.prepareChunkMesh();
-		// This is bottleneck. Probably amount of vertices, because lots of small chunks loads just fine.
 		chunk.second.loadChunkMesh();
 	}
 	

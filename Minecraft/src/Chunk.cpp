@@ -33,7 +33,7 @@ void Chunk::updateChunk()
 
 void Chunk::prepareChunkMesh()
 {
-	int block{ 0 };
+	int block;
 	for (uint8_t local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
 		for (uint8_t local_y = 0; local_y < CHUNK_SIZE; local_y++)
@@ -50,6 +50,7 @@ void Chunk::prepareChunkMesh()
 
 void Chunk::loadChunkMesh()
 {
+	std::cout << "Debug: " << m_mesh_vertex_positions.size() << std::endl;
 	m_loader.loadMesh(m_mesh_vertex_positions, m_mesh_textures_positions);
 }
 
@@ -105,7 +106,7 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 	float y_world_pos;
 	float z_world_pos;
 
-	for (int i = 0; i < FACE_ROWS; i++)
+	for (uint8_t i = 0; i < FACE_ROWS; i++)
 	{
 		x_coord = i * 6;
 		y_coord = (i * 6) + 1;
@@ -117,15 +118,14 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, int x, int y, int 
 		y_world_pos = m_chunk_position.y * CHUNK_SIZE + y + face[y_coord];
 		z_world_pos = m_chunk_position.z * CHUNK_SIZE + z + face[z_coord];
 
-		m_mesh_vertex_positions.push_back(x_world_pos);
-		m_mesh_vertex_positions.push_back(y_world_pos);
-		m_mesh_vertex_positions.push_back(z_world_pos);
-		m_mesh_textures_positions.push_back(face[u_coord]);
-		m_mesh_textures_positions.push_back(face[v_coord]);
-		m_mesh_textures_positions.push_back(texture_id);
+		m_mesh_vertex_positions.emplace_back(x_world_pos);
+		m_mesh_vertex_positions.emplace_back(y_world_pos);
+		m_mesh_vertex_positions.emplace_back(z_world_pos);
+		m_mesh_textures_positions.emplace_back(face[u_coord]);
+		m_mesh_textures_positions.emplace_back(face[v_coord]);
+		m_mesh_textures_positions.emplace_back(texture_id);
 	}
 }
-
 
 int Chunk::setFaceTexture(int8_t block_id)
 {
