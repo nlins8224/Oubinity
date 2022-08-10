@@ -52,6 +52,7 @@ namespace Block {
 		case DIRT:        return Dirt;
 		case COBBLESTONE: return Cobblestone;
 		case SAND:        return Sand;
+		default:		  return Air; // "not_found.png" could be here
 		}
 	}
 

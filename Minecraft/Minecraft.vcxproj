@@ -195,6 +195,7 @@
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
+    <None Include="Readme.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
