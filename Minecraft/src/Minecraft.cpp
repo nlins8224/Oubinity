@@ -18,7 +18,7 @@ const int scr_height = 1600;
 float delta_time = 0.0f;
 float last_frame = 0.0f;
 
-float fov = 45.0f;
+float fov = 90.0f;
 
 int main()
 {
@@ -37,7 +37,6 @@ int main()
     std::cout << glGetError() << std::endl;
     PlayerInput player_input{window.getWindow()};
     ChunkManager chunk_manager(shader);
-    chunk_manager.generateWorld();
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
