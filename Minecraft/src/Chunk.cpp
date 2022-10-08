@@ -50,7 +50,6 @@ void Chunk::prepareChunkMesh()
 
 void Chunk::loadChunkMesh()
 {
-	std::cout << "Debug: " << m_mesh_vertex_positions.size() << std::endl;
 	m_loader.loadMesh(m_mesh_vertex_positions, m_mesh_textures_positions);
 }
 
