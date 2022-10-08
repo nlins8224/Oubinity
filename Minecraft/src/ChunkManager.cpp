@@ -11,9 +11,9 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (uint8_t i = 0; i < 1; i++)
+	for (uint8_t i = 0; i < 8; i++)
 	{
-		for (uint8_t j = 0; j < 1; j++)
+		for (uint8_t j = 0; j < 8; j++)
 		{
 			chunk_pos chunk_position(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
@@ -23,7 +23,22 @@ void ChunkManager::generateWorld()
 				{
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
-						current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+						float chance = (double)rand() / RAND_MAX;
+						if (y == 15)
+						{
+							if (chance < 0.80) current_chunk->setBlock(x, y, z, Block::block_id::AIR);
+							else if (chance < 0.95) current_chunk->setBlock(x, y, z, Block::block_id::SAND);
+							else current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+						}
+						else if (y > 12)
+						{
+							if (chance < 0.50) current_chunk->setBlock(x, y, z, Block::block_id::AIR);
+							else if (chance < 0.75) current_chunk->setBlock(x, y, z, Block::block_id::SAND);
+							else current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+						}
+						else
+							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+
 					}	
 				}
 			}
