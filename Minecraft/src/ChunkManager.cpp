@@ -11,9 +11,9 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (uint8_t i = 0; i < 32; i++)
+	for (uint8_t i = 0; i < 1; i++)
 	{
-		for (uint8_t j = 0; j < 32; j++)
+		for (uint8_t j = 0; j < 1; j++)
 		{
 			chunk_pos chunk_position(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
@@ -23,14 +23,7 @@ void ChunkManager::generateWorld()
 				{
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
-						if (y == 15)
-							current_chunk->setBlock(x, y, z, Block::block_id::DIRT);
-						else if (x % 3 == 1)
-							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
-						else
-							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
-
-
+						current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
 					}	
 				}
 			}
