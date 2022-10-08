@@ -59,7 +59,9 @@ void Chunk::renderChunk()
 {
 	m_loader.bindVAO();
 	// This could be moved to renderer later
-	glDrawArrays(GL_TRIANGLES, 0, m_mesh_vertex_positions.size());
+	// There are 3 vertices per triangle
+	uint64_t amount_of_triangles{ m_mesh_vertex_positions.size() / 3 };
+	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
 void Chunk::setBlock(uint8_t x, uint8_t y, uint8_t z, block_id type)
