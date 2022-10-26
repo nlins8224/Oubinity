@@ -15,7 +15,7 @@ void ChunkManager::generateWorld()
 	{
 		for (uint8_t j = 0; j < 8; j++)
 		{
-			chunk_pos chunk_position(i, 0, j);
+			glm::ivec3 chunk_position(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_position));
 			for (uint8_t x = 0; x < current_chunk->CHUNK_SIZE; x++)
 			{
@@ -58,7 +58,7 @@ void ChunkManager::generateWorld()
 	
 }
 
-std::unordered_map<chunk_pos, Chunk, chunk_pos_hasher> ChunkManager::getChunks()
+std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks()
 {
 	return m_chunks;
 }
