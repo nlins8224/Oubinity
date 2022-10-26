@@ -68,3 +68,20 @@ TextureManager ChunkManager::getTextureManager()
 	return this->m_texture_manager;
 }
 
+glm::vec3 ChunkManager::getChunkPosition(glm::vec3 position)
+{
+	int x = static_cast<int>(floor(position.x)) / Chunk::CHUNK_SIZE;
+	int y = static_cast<int>(floor(position.y)) / Chunk::CHUNK_SIZE;
+	int z = static_cast<int>(floor(position.z)) / Chunk::CHUNK_SIZE;
+
+	return glm::vec3(x, y, z);
+}
+
+glm::vec3 ChunkManager::getLocalChunkPosition(glm::vec3 position)
+{
+	int x = static_cast<int>(floor(position.x)) % Chunk::CHUNK_SIZE;
+	int y = static_cast<int>(floor(position.y)) % Chunk::CHUNK_SIZE;
+	int z = static_cast<int>(floor(position.z)) % Chunk::CHUNK_SIZE;
+
+	return glm::vec3(x, y, z);
+}
