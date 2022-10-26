@@ -4,7 +4,7 @@ using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(TextureManager* texture_manager, chunk_pos position)
+Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 position)
 	: 
 	m_texture_manager{ texture_manager },
 	m_chunk_position{ position }

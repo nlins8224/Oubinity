@@ -9,23 +9,9 @@
 #include <array>
 #include <functional>
 
-struct chunk_pos
+struct glm_ivec3_hasher
 {
-	int x, y, z;
-
-	chunk_pos(int _x, int _y, int _z) : x{ _x }, y{ _y }, z{ _z } {}
-
-	bool operator==(const chunk_pos& other) const
-	{
-		return (x == other.x
-			&& y == other.y
-			&& z == other.z);
-	}
-};
-
-struct chunk_pos_hasher
-{
-	size_t operator()(const chunk_pos& p) const
+	size_t operator()(const glm::ivec3& p) const
 	{
 		size_t res = 17;
 		res = res * 31 + std::hash<int>()(p.x);
@@ -39,7 +25,7 @@ class Chunk
 {
 public:
 	static const uint8_t CHUNK_SIZE{ 16 };
-	Chunk(TextureManager* texture_manager, chunk_pos position);
+	Chunk(TextureManager* texture_manager, glm::ivec3 position);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -53,7 +39,7 @@ public:
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
-	chunk_pos m_chunk_position{0, 0, 0};
+	glm::ivec3 m_chunk_position{0, 0, 0};
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
