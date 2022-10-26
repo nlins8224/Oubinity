@@ -23,21 +23,22 @@ void ChunkManager::generateWorld()
 				{
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
+						glm::ivec3 pos{ x, y, z };
 						float chance = (double)rand() / RAND_MAX;
 						if (y == 15)
 						{
-							if (chance < 0.80) current_chunk->setBlock(x, y, z, Block::block_id::AIR);
-							else if (chance < 0.95) current_chunk->setBlock(x, y, z, Block::block_id::SAND);
-							else current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+							if (chance < 0.80) current_chunk->setBlock(pos, Block::block_id::AIR);
+							else if (chance < 0.95) current_chunk->setBlock(pos, Block::block_id::SAND);
+							else current_chunk->setBlock(pos, Block::block_id::COBBLESTONE);
 						}
 						else if (y > 12)
 						{
-							if (chance < 0.50) current_chunk->setBlock(x, y, z, Block::block_id::AIR);
-							else if (chance < 0.75) current_chunk->setBlock(x, y, z, Block::block_id::SAND);
-							else current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+							if (chance < 0.50) current_chunk->setBlock(pos, Block::block_id::AIR);
+							else if (chance < 0.75) current_chunk->setBlock(pos, Block::block_id::SAND);
+							else current_chunk->setBlock(pos, Block::block_id::COBBLESTONE);
 						}
 						else
-							current_chunk->setBlock(x, y, z, Block::block_id::COBBLESTONE);
+							current_chunk->setBlock(pos, Block::block_id::COBBLESTONE);
 
 					}	
 				}

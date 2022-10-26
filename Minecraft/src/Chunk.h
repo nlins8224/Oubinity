@@ -34,7 +34,7 @@ public:
 	void prepareChunkMesh();
 	void loadChunkMesh();
 	void renderChunk();
-	void setBlock(uint8_t x, uint8_t y, uint8_t z, Block::block_id type);
+	void setBlock(glm::ivec3 pos, Block::block_id type);
 
 private:
 	std::vector<float> m_mesh_vertex_positions;
@@ -45,10 +45,9 @@ private:
 	// block_id should be here instead of int?
 	std::array<std::array<std::array<uint8_t, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
 
-	// Later xyz could be changed to chunk_pos
-	void addVisibleFaces(uint8_t x, uint8_t y, uint8_t z);
-	bool isFaceVisible(int8_t x, int8_t y, int8_t z);
-	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, int x, int y, int z);
+	void addVisibleFaces(glm::ivec3 pos);
+	bool isFaceVisible(glm::ivec3 pos);
+	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, glm::ivec3 pos);
 	int setFaceTexture(int8_t block_id);
-	int getBlockId(uint8_t x, uint8_t y, uint8_t z);
+	int getBlockId(glm::ivec3 pos);
 };
