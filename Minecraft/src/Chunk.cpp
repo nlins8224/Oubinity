@@ -68,11 +68,6 @@ void Chunk::setBlock(uint8_t x, uint8_t y, uint8_t z, block_id type)
 	m_blocks[x][y][z] = type;
 }
 
-chunk_pos Chunk::getChunkPos()
-{
-	return m_chunk_position;
-}
-
 void Chunk::addVisibleFaces(uint8_t x, uint8_t y, uint8_t z)
 {
 	if (!isFaceVisible(x + 1, y, z)) addFace(faces[block_mesh::RIGHT],  x, y, z);

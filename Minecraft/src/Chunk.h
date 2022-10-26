@@ -49,7 +49,6 @@ public:
 	void loadChunkMesh();
 	void renderChunk();
 	void setBlock(uint8_t x, uint8_t y, uint8_t z, Block::block_id type);
-	chunk_pos getChunkPos();
 
 private:
 	std::vector<float> m_mesh_vertex_positions;
