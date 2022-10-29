@@ -33,6 +33,9 @@ void Chunk::updateChunk()
 
 void Chunk::prepareChunkMesh()
 {
+	m_mesh_vertex_positions.clear();
+	m_mesh_textures_positions.clear();
+
 	int block;
 	for (uint8_t local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
