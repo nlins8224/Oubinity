@@ -10,6 +10,7 @@ namespace Block {
 		DIRT,
 		COBBLESTONE,
 		SAND,
+		PLANKS,
 		AMOUNT
 	};
 
@@ -44,6 +45,12 @@ namespace Block {
 		.texture{ "sand" }
 	};
 
+	static const Block Planks
+	{
+		.id{ PLANKS },
+		.texture{ "planks" }
+	};
+
 	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
@@ -52,6 +59,7 @@ namespace Block {
 		case DIRT:        return Dirt;
 		case COBBLESTONE: return Cobblestone;
 		case SAND:        return Sand;
+		case PLANKS:      return Planks;
 		default:		  return Air; // "not_found.png" could be here
 		}
 	}
