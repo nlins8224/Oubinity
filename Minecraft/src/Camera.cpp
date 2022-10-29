@@ -81,6 +81,11 @@ void Camera::updateCameraZoom(double dy)
     }
 }
 
+glm::vec3 Camera::getCameraPos()
+{
+    return m_camera_pos;
+}
+
 void Camera::updateCameraVectors()
 {
     glm::vec3 front_direction;
