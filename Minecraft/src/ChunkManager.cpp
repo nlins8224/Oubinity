@@ -94,7 +94,13 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
-		return;
+		if (type == Block::AIR)
+			return;
+		else
+		{
+			std::unique_ptr<Chunk> chunk(new Chunk(&m_texture_manager, chunk_pos));
+			m_chunks[chunk_pos] = *chunk;
+		}
 
 	std::cout << "Chunk found at: x " << chunk_pos.x << " y: " << chunk_pos.y << " z: " << chunk_pos.z << " " << std::endl;
 
