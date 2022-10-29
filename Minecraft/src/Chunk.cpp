@@ -68,6 +68,11 @@ void Chunk::setBlock(glm::ivec3 pos, block_id type)
 	m_blocks[pos.x][pos.y][pos.z] = type;
 }
 
+glm::ivec3 Chunk::getPosition()
+{
+	return m_chunk_position;
+}
+
 void Chunk::addVisibleFaces(glm::ivec3 pos)
 {
 	int x = pos.x, y = pos.y, z = pos.z;
@@ -133,9 +138,12 @@ int Chunk::setFaceTexture(int8_t block_id)
 	return m_texture_manager->getTextureIndex(texture);	
 }
 
-// This could be optimised. For now chunk cannot recognize if a face is not visible,
-// because other neighboring chunk hides it.
 int Chunk::getBlockId(glm::ivec3 pos)
 {
 	return m_blocks[pos.x][pos.y][pos.z];
+}
+
+bool Chunk::isTransparent(glm::ivec3 pos)
+{
+	return Block::getBlockType(this->getBlockId(pos)).transparent;
 }

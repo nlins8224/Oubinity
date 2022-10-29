@@ -35,7 +35,9 @@ public:
 	void loadChunkMesh();
 	void renderChunk();
 	void setBlock(glm::ivec3 pos, Block::block_id type);
-
+	glm::ivec3 getPosition();
+	int getBlockId(glm::ivec3 pos);
+	bool isTransparent(glm::ivec3 pos);
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
@@ -43,11 +45,10 @@ private:
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
-	std::array<std::array<std::array<uint8_t, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ 0 };
+	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
 
 	void addVisibleFaces(glm::ivec3 pos);
 	bool isFaceVisible(glm::ivec3 pos);
 	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, glm::ivec3 pos);
-	int setFaceTexture(int8_t block_id);
-	int getBlockId(glm::ivec3 pos);
+	int setFaceTexture(int8_t block_id);	
 };
