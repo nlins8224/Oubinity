@@ -4,7 +4,14 @@
 #include "Chunk.h"
 #include "Shader.h"
 #include "TextureManager.h"
+#include "Block.h"
 
+/*
+Convention:
+world_pos is what it seems to be
+chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE
+block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
+*/
 
 class ChunkManager
 {
@@ -14,9 +21,10 @@ public:
 	void generateWorld();
 	std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> getChunks();
 	TextureManager getTextureManager();
-	glm::vec3 getChunkPosition(glm::vec3 position);
-	glm::vec3 getChunkPosition(Chunk chunk);
-	glm::vec3 getLocalChunkPosition(glm::vec3 position);
+	glm::vec3 getChunkPosition(glm::vec3 world_pos);
+	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
+	void updateBlock(glm::vec3 pos, Block::block_id block_id);
+
 private:
 	 std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> m_chunks;
 	 Shader m_shader;

@@ -21,11 +21,18 @@ struct glm_ivec3_hasher
 	}
 };
 
+/* 
+Convention: 
+world_pos is what it seems to be
+chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE 
+block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
+*/
+
 class Chunk
 {
 public:
 	static const uint8_t CHUNK_SIZE{ 16 };
-	Chunk(TextureManager* texture_manager, glm::ivec3 position);
+	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -34,21 +41,21 @@ public:
 	void prepareChunkMesh();
 	void loadChunkMesh();
 	void renderChunk();
-	void setBlock(glm::ivec3 pos, Block::block_id type);
+	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPosition();
-	int getBlockId(glm::ivec3 pos);
-	bool isTransparent(glm::ivec3 pos);
+	Block::block_id getBlockId(glm::ivec3 block_pos);
+	bool isTransparent(glm::ivec3 block_pos);
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
-	glm::ivec3 m_chunk_position{0, 0, 0};
+	glm::ivec3 m_chunk_pos{0, 0, 0};
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
-	std::array<std::array<std::array<int, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
+	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
 
-	void addVisibleFaces(glm::ivec3 pos);
-	bool isFaceVisible(glm::ivec3 pos);
-	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, glm::ivec3 pos);
-	int setFaceTexture(int8_t block_id);	
+	void addVisibleFaces(glm::ivec3 block_pos);
+	bool isFaceVisible(glm::ivec3 block_pos);
+	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, glm::ivec3 block_pos);
+	int setFaceTexture(Block::block_id type);	
 };

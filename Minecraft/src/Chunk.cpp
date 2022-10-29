@@ -4,10 +4,10 @@ using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 position)
+Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos)
 	: 
 	m_texture_manager{ texture_manager },
-	m_chunk_position{ position }
+	m_chunk_pos{ chunk_pos }
 {
 
 }
@@ -16,7 +16,7 @@ Chunk::Chunk(const Chunk& chunk)
 	:
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
 	m_mesh_textures_positions{chunk.m_mesh_textures_positions},
-	m_chunk_position{chunk.m_chunk_position},
+	m_chunk_pos{chunk.m_chunk_pos},
 	m_loader{chunk.m_loader},
 	m_blocks{chunk.m_blocks},
 	m_texture_manager{chunk.m_texture_manager}
@@ -63,19 +63,19 @@ void Chunk::renderChunk()
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
-void Chunk::setBlock(glm::ivec3 pos, block_id type)
+void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
-	m_blocks[pos.x][pos.y][pos.z] = type;
+	m_blocks[block_pos.x][block_pos.y][block_pos.z] = type;
 }
 
 glm::ivec3 Chunk::getPosition()
 {
-	return m_chunk_position;
+	return m_chunk_pos;
 }
 
-void Chunk::addVisibleFaces(glm::ivec3 pos)
+void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 {
-	int x = pos.x, y = pos.y, z = pos.z;
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
 	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(faces[block_mesh::RIGHT],  glm::ivec3(x, y, z));
 	if (!isFaceVisible(glm::ivec3(x - 1, y, z))) addFace(faces[block_mesh::LEFT],   glm::ivec3(x, y, z));
@@ -85,19 +85,19 @@ void Chunk::addVisibleFaces(glm::ivec3 pos)
 	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(faces[block_mesh::BACK],	glm::ivec3(x, y, z));
 }
 
-bool Chunk::isFaceVisible(glm::ivec3 pos)
+bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 {
-	int x = pos.x, y = pos.y, z = pos.z;
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example...
 	if (x < 0 || y < 0 || z < 0) return false; // ...x - 1 = -1 < 0
 	if (x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE) return false; // ...x + 1 = 16 > 15
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
-void Chunk::addFace(std::array<float, FACE_SIZE> const &face, glm::ivec3 pos)
+void Chunk::addFace(std::array<float, FACE_SIZE> const &face, glm::ivec3 block_pos)
 {
 	const uint8_t FACE_ROWS{ 6 };
-	int block_id{ getBlockId(pos) };
+	Block::block_id block_id{ getBlockId(block_pos) };
 	int texture_id{ setFaceTexture(block_id) };
 
 	uint8_t x_coord;
@@ -118,9 +118,9 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, glm::ivec3 pos)
 		u_coord = (i * 6) + 3;
 		v_coord = (i * 6) + 4;
 		
-		x_world_pos = m_chunk_position.x * CHUNK_SIZE + pos.x + face[x_coord];
-		y_world_pos = m_chunk_position.y * CHUNK_SIZE + pos.y + face[y_coord];
-		z_world_pos = m_chunk_position.z * CHUNK_SIZE + pos.z + face[z_coord];
+		x_world_pos = m_chunk_pos.x * CHUNK_SIZE + block_pos.x + face[x_coord];
+		y_world_pos = m_chunk_pos.y * CHUNK_SIZE + block_pos.y + face[y_coord];
+		z_world_pos = m_chunk_pos.z * CHUNK_SIZE + block_pos.z + face[z_coord];
 
 		m_mesh_vertex_positions.emplace_back(x_world_pos);
 		m_mesh_vertex_positions.emplace_back(y_world_pos);
@@ -131,19 +131,19 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, glm::ivec3 pos)
 	}
 }
 
-int Chunk::setFaceTexture(int8_t block_id)
+int Chunk::setFaceTexture(Block::block_id block_id)
 {
 	std::string texture = Block::getBlockType(block_id).texture;
 	m_texture_manager->addTexture(texture);
 	return m_texture_manager->getTextureIndex(texture);	
 }
 
-int Chunk::getBlockId(glm::ivec3 pos)
+Block::block_id Chunk::getBlockId(glm::ivec3 block_pos)
 {
-	return m_blocks[pos.x][pos.y][pos.z];
+	return m_blocks[block_pos.x][block_pos.y][block_pos.z];
 }
 
-bool Chunk::isTransparent(glm::ivec3 pos)
+bool Chunk::isTransparent(glm::ivec3 block_pos)
 {
-	return Block::getBlockType(this->getBlockId(pos)).transparent;
+	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
