@@ -44,7 +44,7 @@ namespace Block {
 		.texture{ "sand" }
 	};
 
-	inline Block getBlockType(int block_id)
+	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
 		{
