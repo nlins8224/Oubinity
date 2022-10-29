@@ -90,7 +90,7 @@ glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 	return glm::vec3(x, y, z);
 }
 
-void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id block_id)
+void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
@@ -101,9 +101,11 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id block_id)
 	Chunk& chunk = m_chunks[chunk_pos];
 	glm::ivec3 block_chunk_pos = getChunkBlockPosition(world_pos);
 
-	if (chunk.getBlockId(block_chunk_pos) == block_id)
+	if (chunk.getBlockId(block_chunk_pos) == type)
 		return;
 
-	chunk.setBlock(block_chunk_pos, block_id);
+	std::cout << "HEY!!!" << std::endl;
+
+	chunk.setBlock(block_chunk_pos, type);
 	chunk.updateChunk();
 }
