@@ -6,12 +6,12 @@ namespace Block {
 
 	enum block_id
 	{
+		NONE = -1,
 		AIR,
 		DIRT,
 		COBBLESTONE,
 		SAND,
-		PLANKS,
-		AMOUNT
+		PLANKS
 	};
 
 	struct Block
@@ -19,6 +19,12 @@ namespace Block {
 		block_id id;
 		bool transparent{ false };
 		std::string texture{ "" };
+	};
+
+	static const Block None
+	{
+		.id{ NONE },
+		.texture{ "not_found" }
 	};
 
 	static const Block Air
@@ -60,7 +66,7 @@ namespace Block {
 		case COBBLESTONE: return Cobblestone;
 		case SAND:        return Sand;
 		case PLANKS:      return Planks;
-		default:		  return Air; // "not_found.png" could be here
+		default:		  return None;
 		}
 	}
 

@@ -57,10 +57,10 @@ void Camera::updateCameraPos(CameraDirection direction, double dt)
         m_camera_pos -= m_camera_right * velocity;
         break;
     case CameraDirection::UP: // could be multiplied by world_up instead of camera_up?
-        m_camera_pos += m_camera_up * velocity;
+        m_camera_pos += m_world_up * velocity;
         break;
     case CameraDirection::DOWN:
-        m_camera_pos -= m_camera_up * velocity;
+        m_camera_pos -= m_world_up * velocity;
         break;
     }
 }
@@ -84,6 +84,11 @@ void Camera::updateCameraZoom(double dy)
 glm::vec3 Camera::getCameraPos()
 {
     return m_camera_pos;
+}
+
+glm::vec3 Camera::getCameraDirection()
+{
+    return m_camera_front;
 }
 
 void Camera::updateCameraVectors()

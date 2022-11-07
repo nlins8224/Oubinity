@@ -25,6 +25,7 @@ public:
     void updateCameraPos(CameraDirection direction, double dt);
     void updateCameraZoom(double dy);
     glm::vec3 getCameraPos();
+    glm::vec3 getCameraDirection();
 
 private:
     glm::vec3 m_camera_pos;
