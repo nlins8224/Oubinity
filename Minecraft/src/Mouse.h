@@ -23,7 +23,7 @@ public:
 	double getScrollDX();
 	double getScrollDY();
 
-	bool button(int button);
+	static bool button(int button);
 	bool buttonChanged(int button);
 	bool buttonWentUp(int button);
 	bool buttonWentDown(int button);

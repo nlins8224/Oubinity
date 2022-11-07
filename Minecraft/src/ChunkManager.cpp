@@ -24,7 +24,8 @@ void ChunkManager::generateWorld()
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
 						glm::ivec3 current_chunk_pos{ x, y, z };
-						float chance = (double)rand() / RAND_MAX;
+						current_chunk->setBlock(current_chunk_pos, Block::DIRT);
+			/*			float chance = (double)rand() / RAND_MAX;
 						if (y == 15)
 						{
 							if (chance < 0.80) current_chunk->setBlock(current_chunk_pos, Block::block_id::AIR);
@@ -38,7 +39,7 @@ void ChunkManager::generateWorld()
 							else current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);
 						}
 						else
-							current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);
+							current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);*/
 
 					}	
 				}
@@ -90,28 +91,44 @@ glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 	return glm::vec3(x, y, z);
 }
 
+Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
+{
+	glm::vec3 chunk_pos = getChunkPosition(world_pos);
+	bool is_in = m_chunks.count(chunk_pos);
+	if (!is_in)
+		return Block::NONE;
+
+	glm::ivec3 block_pos = getChunkBlockPosition(world_pos);
+	return m_chunks.at(chunk_pos).getBlockId(block_pos);
+}
+
 void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
+	//std::cout << chunk_pos.x << chunk_pos.y << chunk_pos.z << std::endl;
+	//std::cout << "XDD" << std::endl;
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
+	{
+		std::cout << "IN" << std::endl;
 		if (type == Block::AIR)
-			return;
-		else
 		{
-			std::unique_ptr<Chunk> chunk(new Chunk(&m_texture_manager, chunk_pos));
-			m_chunks[chunk_pos] = *chunk;
+			std::cout << "Hello!!!" << std::endl;
+			return;
 		}
+		
+		std::cout << "HI!" << std::endl;
+		std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos) };
+		m_chunks[chunk_pos] = *chunk;
+	}
+		
 
-	std::cout << "Chunk found at: x " << chunk_pos.x << " y: " << chunk_pos.y << " z: " << chunk_pos.z << " " << std::endl;
-
-	Chunk& chunk = m_chunks[chunk_pos];
+	Chunk& chunk = m_chunks.at(chunk_pos);
 	glm::ivec3 block_chunk_pos = getChunkBlockPosition(world_pos);
 
 	if (chunk.getBlockId(block_chunk_pos) == type)
 		return;
 
-	std::cout << "HEY!!!" << std::endl;
-
+	std::cout << "XD" << std::endl;
 	chunk.setBlock(block_chunk_pos, type);
 	chunk.updateChunk();
 }
