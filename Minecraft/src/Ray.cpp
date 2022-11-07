@@ -7,18 +7,23 @@ double Ray::getDistance()
 
 bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 {
+	glm::vec3 abs_direction = m_direction;
+	glm::vec3 abs_local_pos = m_current_pos - m_world_block_pos;
 	int sign[3] = { 1, 1, 1 };
 	for (int i : {0, 1, 2})
 		if (m_direction[i] < 0)
+		{
 			sign[i] = -1;
-
-
-	glm::vec3 abs_direction = glm::abs(m_direction);
-	glm::vec3 abs_local_pos = glm::abs(m_current_pos - m_world_block_pos);
-
+			abs_direction[i] = -abs_direction[i];
+			abs_local_pos[i] = -abs_local_pos[i];
+		}
+			
 	double lx = abs_local_pos.x;
 	double ly = abs_local_pos.y;
 	double lz = abs_local_pos.z;
+
+	std::cout << "( " << lx << " " << ly << " " << lz << " )\n";
+
 
 	double dx = abs_direction.x;
 	double dy = abs_direction.y;
@@ -28,7 +33,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 	const double FACE_OFFSET = 0.5;
 
 	// Calculate intersections
-	if (dx != 0.0)
+	if (dx)
 	{
 		double x = FACE_OFFSET;
 		double y = (FACE_OFFSET - lx) / dx * dy + ly;
@@ -43,7 +48,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		}
 	}
 
-	if (dy != 0.0)
+	if (dy)
 	{
 		double x = (FACE_OFFSET - ly) / dy * dx + lx;
 		double y = FACE_OFFSET;
@@ -58,7 +63,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		}
 	}
 
-	if (dz != 0.0)
+	if (dz)
 	{
 		double x = (FACE_OFFSET - lz) / dz * dx + lx;
 		double y = (FACE_OFFSET - lz) / dz * dy + ly;
@@ -79,6 +84,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 
 bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block, glm::vec3 next_block)
 {
+	//std::cout << "( " << m_direction.x << " " << m_direction.y << " " << m_direction.z << " )\n";
 	if (m_world.getChunkBlockId(next_block) != Block::AIR)
 	{
 		hit_callback(current_block, next_block);
