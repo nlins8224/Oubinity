@@ -31,7 +31,6 @@ void PlayerInput::onMouseLeftPress()
 
 void PlayerInput::onMouseRightPress()
 {
-    std::cout << "RPM PRESSED" << std::endl;
     auto hit_callback = [&](glm::vec3 current_block, glm::vec3 next_block) mutable {
         m_world.updateBlock(current_block, Block::PLANKS);
     };

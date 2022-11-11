@@ -22,9 +22,6 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 	double ly = abs_local_pos.y;
 	double lz = abs_local_pos.z;
 
-	std::cout << "( " << lx << " " << ly << " " << lz << " )\n";
-
-
 	double dx = abs_direction.x;
 	double dy = abs_direction.y;
 	double dz = abs_direction.z;
@@ -78,13 +75,11 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		}
 	}
 
-	std::cout << "Ray::step, Miss!" << std::endl;
 	return true;
 }
 
 bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block, glm::vec3 next_block)
 {
-	//std::cout << "( " << m_direction.x << " " << m_direction.y << " " << m_direction.z << " )\n";
 	if (m_world.getChunkBlockId(next_block) != Block::AIR)
 	{
 		hit_callback(current_block, next_block);

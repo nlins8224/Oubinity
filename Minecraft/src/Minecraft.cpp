@@ -88,10 +88,10 @@ int main()
 
         if (player_pos != last_player_pos)
         {
-            //std::cout << "Player pos x: " << 
-            //    player_pos.x << " y: " <<
-            //    player_pos.y << " z: " <<
-            //    player_pos.z << std::endl;
+     /*       std::cout << "Player pos x: " << 
+                player_pos.x << " y: " <<
+                player_pos.y << " z: " <<
+                player_pos.z << std::endl;*/
         /*    std::cout << "Chunk position x: " <<
                 chunk_manager.getChunkPosition(player_pos).x << " y: " <<
                 chunk_manager.getChunkPosition(player_pos).y << " z: " <<

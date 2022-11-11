@@ -11,11 +11,11 @@ ChunkManager::ChunkManager(Shader shader)
 // Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (uint8_t i = 0; i < 8; i++)
+	for (int i = 0; i < 2; i++)
 	{
-		for (uint8_t j = 0; j < 8; j++)
+		for (int j = 0; j < 2; j++)
 		{
-			glm::ivec3 chunk_pos(i, 0, j);
+			glm::ivec3 chunk_pos(i - 1, -1, j - 1);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos));
 			for (uint8_t x = 0; x < current_chunk->CHUNK_SIZE; x++)
 			{
@@ -24,7 +24,7 @@ void ChunkManager::generateWorld()
 					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
 					{
 						glm::ivec3 current_chunk_pos{ x, y, z };
-						current_chunk->setBlock(current_chunk_pos, Block::DIRT);
+						current_chunk->setBlock(current_chunk_pos, Block::COBBLESTONE);
 			/*			float chance = (double)rand() / RAND_MAX;
 						if (y == 15)
 						{
@@ -72,28 +72,30 @@ TextureManager ChunkManager::getTextureManager()
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
-	int x = static_cast<int>(floor(world_pos.x)) / Chunk::CHUNK_SIZE;
-	int y = static_cast<int>(floor(world_pos.y)) / Chunk::CHUNK_SIZE;
-	int z = static_cast<int>(floor(world_pos.z)) / Chunk::CHUNK_SIZE;
+	int x = floor(world_pos.x / Chunk::CHUNK_SIZE);
+	int y = floor(world_pos.y / Chunk::CHUNK_SIZE);
+	int z = floor(world_pos.z / Chunk::CHUNK_SIZE);
 
-	return glm::vec3(x, y, z);
+	return glm::ivec3(x, y, z);
 }
 
 
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
-	glm::ivec3 world_pos_abs = glm::abs(world_pos);
+	glm::ivec3 world_pos_int = world_pos;
+	uint8_t M = Chunk::CHUNK_SIZE;
+	
+	// true modulo instead of C++ remainder modulo
+	int x = ((world_pos_int.x % M) + M) % M;
+	int y = ((world_pos_int.y % M) + M) % M;
+	int z = ((world_pos_int.z % M) + M) % M;
 
-	int x = static_cast<int>(floor(world_pos_abs.x)) % Chunk::CHUNK_SIZE;
-	int y = static_cast<int>(floor(world_pos_abs.y)) % Chunk::CHUNK_SIZE;
-	int z = static_cast<int>(floor(world_pos_abs.z)) % Chunk::CHUNK_SIZE;
-
-	return glm::vec3(x, y, z);
+	return glm::ivec3(x, y, z);
 }
 
 Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 {
-	glm::vec3 chunk_pos = getChunkPosition(world_pos);
+	glm::ivec3 chunk_pos = getChunkPosition(world_pos);
 	bool is_in = m_chunks.count(chunk_pos);
 	if (!is_in)
 		return Block::NONE;
@@ -105,30 +107,18 @@ Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
-	//std::cout << chunk_pos.x << chunk_pos.y << chunk_pos.z << std::endl;
-	//std::cout << "XDD" << std::endl;
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
 	{
-		std::cout << "IN" << std::endl;
-		if (type == Block::AIR)
-		{
-			std::cout << "Hello!!!" << std::endl;
-			return;
-		}
-		
-		std::cout << "HI!" << std::endl;
 		std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos) };
 		m_chunks[chunk_pos] = *chunk;
 	}
 		
-
 	Chunk& chunk = m_chunks.at(chunk_pos);
-	glm::ivec3 block_chunk_pos = getChunkBlockPosition(world_pos);
+	glm::ivec3 chunk_block_pos = getChunkBlockPosition(world_pos);
 
-	if (chunk.getBlockId(block_chunk_pos) == type)
+	if (chunk.getBlockId(chunk_block_pos) == type)
 		return;
-
-	std::cout << "XD" << std::endl;
-	chunk.setBlock(block_chunk_pos, type);
+	
+	chunk.setBlock(chunk_block_pos, type);
 	chunk.updateChunk();
 }
