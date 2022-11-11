@@ -35,8 +35,8 @@ int main()
     Shader shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl");
 
     std::cout << glGetError() << std::endl;
-    PlayerInput player_input{window.getWindow()};
     ChunkManager chunk_manager(shader);
+    PlayerInput player_input{window.getWindow(), chunk_manager};
 
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -51,6 +51,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
+    glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     while (!glfwWindowShouldClose(window.getWindow()))
     {
@@ -81,6 +82,29 @@ int main()
         }
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
+
+        glm::vec3 last_player_pos{ -1, -1, -1 };
+        glm::vec3 player_pos = player_input.getCamera().getCameraPos();
+
+        if (player_pos != last_player_pos)
+        {
+     /*       std::cout << "Player pos x: " << 
+                player_pos.x << " y: " <<
+                player_pos.y << " z: " <<
+                player_pos.z << std::endl;*/
+        /*    std::cout << "Chunk position x: " <<
+                chunk_manager.getChunkPosition(player_pos).x << " y: " <<
+                chunk_manager.getChunkPosition(player_pos).y << " z: " <<
+                chunk_manager.getChunkPosition(player_pos).z << std::endl;*/
+
+           /* std::cout << "Chunk local position x: " <<
+                chunk_manager.getLocalChunkPosition(player_pos).x << " y: " <<
+                chunk_manager.getLocalChunkPosition(player_pos).y << " z: " <<
+                chunk_manager.getLocalChunkPosition(player_pos).z << std::endl;*/
+        }
+
+        last_player_pos = player_pos;
+        //chunk_manager.updateBlock(player_pos, Block::PLANKS);
     }
 
     return 0;
