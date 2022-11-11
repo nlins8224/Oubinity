@@ -10,8 +10,8 @@
 /*
 Convention:
 world_pos is what it seems to be
-chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE
-block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
+chunk_pos is position of a chunk in the world
+block_pos is position of a block inside the chunk
 */
 
 class ChunkManager
