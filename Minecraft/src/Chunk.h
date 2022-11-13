@@ -31,7 +31,10 @@ block_pos is position of a block inside the chunk, calculated by: floor(world_po
 class Chunk
 {
 public:
-	static const uint8_t CHUNK_SIZE{ 16 };
+	static const int CHUNK_SIZE_X{ 16 };
+	static const int CHUNK_SIZE_Y{ 256 };
+	static const int CHUNK_SIZE_Z{ 16 };
+
 	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -52,7 +55,7 @@ private:
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	// block_id should be here instead of int?
-	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
+	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 block_pos);

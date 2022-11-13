@@ -7,40 +7,27 @@ ChunkManager::ChunkManager(Shader shader)
 	generateWorld();
 }
 
-
-// Temporary, just for tests
 void ChunkManager::generateWorld()
 {
-	for (int i = 0; i < 2; i++)
+
+	FastNoiseLite noise;
+	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+
+	for (int i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 4; j++)
 		{
-			glm::ivec3 chunk_pos(i - 1, -1, j - 1);
+
+			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos));
-			for (uint8_t x = 0; x < current_chunk->CHUNK_SIZE; x++)
+			for (int x = 0; x < current_chunk->CHUNK_SIZE_X; x++)
 			{
-				for (uint8_t y = 0; y < current_chunk->CHUNK_SIZE; y++)
+				for (int y = 0; y < current_chunk->CHUNK_SIZE_Y; y++)
 				{
-					for (uint8_t z = 0; z < current_chunk->CHUNK_SIZE; z++)
+					for (int z = 0; z < current_chunk->CHUNK_SIZE_Z; z++)
 					{
 						glm::ivec3 current_chunk_pos{ x, y, z };
-						current_chunk->setBlock(current_chunk_pos, Block::COBBLESTONE);
-			/*			float chance = (double)rand() / RAND_MAX;
-						if (y == 15)
-						{
-							if (chance < 0.80) current_chunk->setBlock(current_chunk_pos, Block::block_id::AIR);
-							else if (chance < 0.95) current_chunk->setBlock(current_chunk_pos, Block::block_id::SAND);
-							else current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);
-						}
-						else if (y > 12)
-						{
-							if (chance < 0.50) current_chunk->setBlock(current_chunk_pos, Block::block_id::AIR);
-							else if (chance < 0.75) current_chunk->setBlock(current_chunk_pos, Block::block_id::SAND);
-							else current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);
-						}
-						else
-							current_chunk->setBlock(current_chunk_pos, Block::block_id::COBBLESTONE);*/
-
+							current_chunk->setBlock(current_chunk_pos, Block::STONE);
 					}	
 				}
 			}
@@ -72,9 +59,9 @@ TextureManager ChunkManager::getTextureManager()
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
-	int x = floor(world_pos.x / Chunk::CHUNK_SIZE);
-	int y = floor(world_pos.y / Chunk::CHUNK_SIZE);
-	int z = floor(world_pos.z / Chunk::CHUNK_SIZE);
+	int x = floor(world_pos.x / Chunk::CHUNK_SIZE_X);
+	int y = floor(world_pos.y / Chunk::CHUNK_SIZE_Y);
+	int z = floor(world_pos.z / Chunk::CHUNK_SIZE_Z);
 
 	return glm::ivec3(x, y, z);
 }
@@ -83,12 +70,15 @@ glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
 	glm::ivec3 world_pos_int = world_pos;
-	uint8_t M = Chunk::CHUNK_SIZE;
+	uint8_t M_X = Chunk::CHUNK_SIZE_X;
+	uint8_t M_Y = Chunk::CHUNK_SIZE_Y;
+	uint8_t M_Z = Chunk::CHUNK_SIZE_Z;
+
 	
 	// true modulo instead of C++ remainder modulo
-	int x = ((world_pos_int.x % M) + M) % M;
-	int y = ((world_pos_int.y % M) + M) % M;
-	int z = ((world_pos_int.z % M) + M) % M;
+	int x = ((world_pos_int.x % M_X) + M_X) % M_X;
+	int y = ((world_pos_int.y % M_Y) + M_Y) % M_Y;
+	int z = ((world_pos_int.z % M_Z) + M_Z) % M_Z;
 
 	return glm::ivec3(x, y, z);
 }

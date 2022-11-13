@@ -179,6 +179,7 @@
     <ClCompile Include="src\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\FastNoiseLite.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\ChunkManager.h" />
     <ClInclude Include="src\Block.h" />

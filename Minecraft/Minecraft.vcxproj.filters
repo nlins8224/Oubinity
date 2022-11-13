@@ -101,6 +101,9 @@
     <ClInclude Include="src\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\FastNoiseLite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
