@@ -37,11 +37,11 @@ void Chunk::prepareChunkMesh()
 	m_mesh_textures_positions.clear();
 
 	int block;
-	for (uint8_t local_x = 0; local_x < CHUNK_SIZE; local_x++)
+	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
 	{
-		for (uint8_t local_y = 0; local_y < CHUNK_SIZE; local_y++)
+		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
 		{
-			for (uint8_t local_z = 0; local_z < CHUNK_SIZE; local_z++)
+			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
@@ -93,7 +93,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example...
 	if (x < 0 || y < 0 || z < 0) return false; // ...x - 1 = -1 < 0
-	if (x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE) return false; // ...x + 1 = 16 > 15
+	if (x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z) return false; // ...x + 1 = 16 > 15
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
@@ -121,9 +121,9 @@ void Chunk::addFace(std::array<float, FACE_SIZE> const &face, glm::ivec3 block_p
 		u_coord = (i * 6) + 3;
 		v_coord = (i * 6) + 4;
 		
-		x_world_pos = m_chunk_pos.x * CHUNK_SIZE + block_pos.x + face[x_coord];
-		y_world_pos = m_chunk_pos.y * CHUNK_SIZE + block_pos.y + face[y_coord];
-		z_world_pos = m_chunk_pos.z * CHUNK_SIZE + block_pos.z + face[z_coord];
+		x_world_pos = m_chunk_pos.x * CHUNK_SIZE_X + block_pos.x + face[x_coord];
+		y_world_pos = m_chunk_pos.y * CHUNK_SIZE_Y + block_pos.y + face[y_coord];
+		z_world_pos = m_chunk_pos.z * CHUNK_SIZE_Z + block_pos.z + face[z_coord];
 
 		m_mesh_vertex_positions.emplace_back(x_world_pos);
 		m_mesh_vertex_positions.emplace_back(y_world_pos);

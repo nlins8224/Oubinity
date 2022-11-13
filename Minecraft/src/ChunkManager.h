@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "TextureManager.h"
 #include "Block.h"
+#include "FastNoiseLite.h"
 
 /*
 Convention:
