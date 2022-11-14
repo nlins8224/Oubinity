@@ -177,6 +177,7 @@
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FastNoiseLite.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
+    <ClInclude Include="src\WorldGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
