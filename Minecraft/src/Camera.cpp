@@ -56,7 +56,7 @@ void Camera::updateCameraPos(CameraDirection direction, double dt)
     case CameraDirection::LEFT:
         m_camera_pos -= m_camera_right * velocity;
         break;
-    case CameraDirection::UP: // could be multiplied by world_up instead of camera_up?
+    case CameraDirection::UP:
         m_camera_pos += m_world_up * velocity;
         break;
     case CameraDirection::DOWN:

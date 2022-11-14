@@ -51,6 +51,7 @@ public:
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
+	std::vector<float> m_mesh_shading_positions;
 	glm::ivec3 m_chunk_pos{0, 0, 0};
 	Loader m_loader;
 	TextureManager* m_texture_manager;
@@ -59,6 +60,6 @@ private:
 
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 block_pos);
-	void addFace(std::array<float, BlockMesh::FACE_SIZE> const &face, glm::ivec3 block_pos);
+	void addFace(BlockMesh::block_mesh face_side, glm::ivec3 block_pos);
 	int setFaceTexture(Block::block_id type);	
 };

@@ -70,7 +70,7 @@ int main()
         shader.setUniformMat4("model", model);
         glm::mat4 view  = glm::mat4(1.0f);
 
-        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)scr_width / (float)scr_height, 0.1f, 100.0f);  
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)scr_width / (float)scr_height, 0.1f, 200.0f);  
         shader.setUniformMat4("projection", projection); 
 
         view = player_input.getCamera().getViewMatrix();

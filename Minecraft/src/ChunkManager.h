@@ -7,6 +7,7 @@
 #include "TextureManager.h"
 #include "Block.h"
 #include "FastNoiseLite.h"
+#include "WorldGenerator.h"
 
 /*
 Convention:

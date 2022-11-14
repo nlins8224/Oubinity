@@ -10,16 +10,17 @@ ChunkManager::ChunkManager(Shader shader)
 void ChunkManager::generateWorld()
 {
 
-	FastNoiseLite noise;
-	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+	WorldGenerator world_generator;
+	int seed = 1234;
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < 10; j++)
 		{
 
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos));
+			height_map h_map = world_generator.generateChunkHeightMap(chunk_pos, seed);
 			for (int x = 0; x < current_chunk->CHUNK_SIZE_X; x++)
 			{
 				for (int y = 0; y < current_chunk->CHUNK_SIZE_Y; y++)
@@ -27,7 +28,10 @@ void ChunkManager::generateWorld()
 					for (int z = 0; z < current_chunk->CHUNK_SIZE_Z; z++)
 					{
 						glm::ivec3 current_chunk_pos{ x, y, z };
+						if (y < h_map[x][z])
 							current_chunk->setBlock(current_chunk_pos, Block::STONE);
+						else
+							current_chunk->setBlock(current_chunk_pos, Block::AIR);
 					}	
 				}
 			}
