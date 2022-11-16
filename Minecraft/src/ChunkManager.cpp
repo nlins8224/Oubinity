@@ -74,9 +74,9 @@ glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
 	glm::ivec3 world_pos_int = world_pos;
-	uint8_t M_X = Chunk::CHUNK_SIZE_X;
-	uint8_t M_Y = Chunk::CHUNK_SIZE_Y;
-	uint8_t M_Z = Chunk::CHUNK_SIZE_Z;
+	int M_X = Chunk::CHUNK_SIZE_X;
+	int M_Y = Chunk::CHUNK_SIZE_Y;
+	int M_Z = Chunk::CHUNK_SIZE_Z;
 
 	
 	// true modulo instead of C++ remainder modulo
