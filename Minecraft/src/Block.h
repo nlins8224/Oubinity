@@ -12,7 +12,8 @@ namespace Block {
 		COBBLESTONE,
 		SAND,
 		PLANKS,
-		STONE
+		STONE,
+		GRASS
 	};
 
 	struct Block
@@ -64,6 +65,12 @@ namespace Block {
 		.texture{ "stone" }
 	};
 
+	static const Block Grass
+	{
+		.id{ GRASS },
+		.texture{ "grass" }
+	};
+
 	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
@@ -74,6 +81,7 @@ namespace Block {
 		case SAND:        return Sand;
 		case PLANKS:      return Planks;
 		case STONE:		  return Stone;
+		case GRASS:		  return Grass;
 		default:		  return None;
 		}
 	}

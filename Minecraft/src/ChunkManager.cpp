@@ -13,9 +13,9 @@ void ChunkManager::generateWorld()
 	WorldGenerator world_generator;
 	int seed = 1234;
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 16; i++)
 	{
-		for (int j = 0; j < 10; j++)
+		for (int j = 0; j < 16; j++)
 		{
 
 			glm::ivec3 chunk_pos(i, 0, j);
@@ -28,7 +28,11 @@ void ChunkManager::generateWorld()
 					for (int z = 0; z < current_chunk->CHUNK_SIZE_Z; z++)
 					{
 						glm::ivec3 current_chunk_pos{ x, y, z };
-						if (y < h_map[x][z])
+						if (y == h_map[x][z])
+							current_chunk->setBlock(current_chunk_pos, Block::GRASS);
+						else if (y < h_map[x][z] && y > h_map[x][z] - 10)
+							current_chunk->setBlock(current_chunk_pos, Block::DIRT);
+						else if (y < h_map[x][z])
 							current_chunk->setBlock(current_chunk_pos, Block::STONE);
 						else
 							current_chunk->setBlock(current_chunk_pos, Block::AIR);

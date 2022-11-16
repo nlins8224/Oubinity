@@ -32,7 +32,7 @@ class Chunk
 {
 public:
 	static const int CHUNK_SIZE_X{ 16 };
-	static const int CHUNK_SIZE_Y{ 256 };
+	static const int CHUNK_SIZE_Y{ 64 };
 	static const int CHUNK_SIZE_Z{ 16 };
 
 	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos);

@@ -5,8 +5,9 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	FastNoiseLite noise(world_seed);
 	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 	noise.SetFrequency(0.005);
-	noise.SetFractalOctaves(10);
+	noise.SetFractalOctaves(6);
 	noise.SetFractalLacunarity(2.0);
+	noise.SetFractalType(FastNoiseLite::FractalType_FBm);
 
 	height_map h_map{};
 	double target_height = 0.0;
@@ -18,7 +19,7 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 			float x_world_pos = x + chunk_pos.x * Chunk::CHUNK_SIZE_X;
 			float z_world_pos = z + chunk_pos.z * Chunk::CHUNK_SIZE_Z;
 
-			target_height = 20 * noise.GetNoise(x_world_pos, z_world_pos) + 100;
+			target_height = 30 * noise.GetNoise(x_world_pos, z_world_pos) + 40;
 			h_map[x][z] = target_height;
 		}
 	}
