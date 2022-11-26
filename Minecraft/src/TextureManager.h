@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include "stb_image.h"
 #include "Shader.h"
+#include <optick.h>
 class TextureManager
 {
 public:

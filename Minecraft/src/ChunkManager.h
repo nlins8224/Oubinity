@@ -9,7 +9,7 @@
 #include "FastNoiseLite.h"
 #include "WorldGenerator.h"
 #include "Camera.h"
-
+#include "optick.h"
 /*
 Convention:
 world_pos is what it seems to be
@@ -33,6 +33,7 @@ public:
 	void refreshChunks();
 	void generateChunk(std::unique_ptr<Chunk>& chunk, int seed);
 	void renderChunks();
+	void addTextures();
 
 private:
 	 std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> m_chunks;

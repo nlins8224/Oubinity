@@ -7,6 +7,7 @@ TextureManager::TextureManager(Shader& shader, int texture_width, int texture_he
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
 {
+	OPTICK_EVENT();
 	glGenTextures(1, &m_texture_array);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 
@@ -36,6 +37,7 @@ void TextureManager::generateMipmap()
 
 void TextureManager::addTexture(std::string texture)
 {
+	OPTICK_EVENT();
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (is_in)
 		return;
@@ -69,6 +71,7 @@ void TextureManager::addTexture(std::string texture)
 
 void TextureManager::loadTexture()
 {
+	OPTICK_EVENT();
 	const std::string& texture_array_sampler = "texture_array_sampler";
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
@@ -78,6 +81,7 @@ void TextureManager::loadTexture()
 
 int TextureManager::getTextureIndex(std::string texture)
 {
+	OPTICK_EVENT();
 	auto itr = std::find(m_textures.begin(), m_textures.end(), texture);
 	return std::distance(m_textures.begin(), itr);
 }
