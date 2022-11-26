@@ -1,5 +1,4 @@
 #include "Chunk.h"
-#include <iostream>
 using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
@@ -28,6 +27,7 @@ Chunk::Chunk(const Chunk& chunk)
 
 void Chunk::updateChunk()
 {
+	OPTICK_EVENT();
 	if (m_is_visible)
 		return;
 
@@ -39,10 +39,12 @@ void Chunk::updateChunk()
 
 void Chunk::prepareChunkMesh()
 {
+	OPTICK_EVENT("Clear Vectors");
 	m_mesh_vertex_positions.clear();
 	m_mesh_textures_positions.clear();
 	m_mesh_shading_positions.clear();
 
+	OPTICK_EVENT("Loop")
 	int block;
 	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
 	{
@@ -60,12 +62,14 @@ void Chunk::prepareChunkMesh()
 
 void Chunk::loadChunkMesh()
 {
+	OPTICK_EVENT();
 	m_loader.loadMesh(m_mesh_vertex_positions, m_mesh_textures_positions, m_mesh_shading_positions);
 }
 
 
 void Chunk::renderChunk()
 {
+	OPTICK_EVENT();
 	m_loader.bindVAO();
 	// This could be moved to renderer later
 	uint8_t vertices_per_triangle{ 3 };
@@ -75,16 +79,19 @@ void Chunk::renderChunk()
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
+	OPTICK_EVENT();
 	m_blocks[block_pos.x][block_pos.y][block_pos.z] = type;
 }
 
 glm::ivec3 Chunk::getPosition()
 {
+	OPTICK_EVENT();
 	return m_chunk_pos;
 }
 
 void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 {
+	OPTICK_EVENT();
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
 	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT,  glm::ivec3(x, y, z));
@@ -97,6 +104,7 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 
 bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 {
+	OPTICK_EVENT();
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example...
 	if (x < 0 || y < 0 || z < 0) return false; // ...x - 1 = -1 < 0
@@ -106,9 +114,10 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 {
+	OPTICK_EVENT();
 	const uint8_t FACE_ROWS{ 6 };
 	Block::block_id block_id{ getBlockId(block_pos) };
-	int texture_id{ setFaceTexture(block_id) };
+	int texture_id{ static_cast<int>(block_id) };
 
 	std::array<float, FACE_SIZE> face{ faces[face_side] };
 
@@ -146,19 +155,14 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	}
 }
 
-int Chunk::setFaceTexture(Block::block_id block_id)
-{
-	std::string texture = Block::getBlockType(block_id).texture;
-	m_texture_manager->addTexture(texture);
-	return m_texture_manager->getTextureIndex(texture);	
-}
-
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos)
 {
+	OPTICK_EVENT();
 	return m_blocks[block_pos.x][block_pos.y][block_pos.z];
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos)
 {
+	OPTICK_EVENT();
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
