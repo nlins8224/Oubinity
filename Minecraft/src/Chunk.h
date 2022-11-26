@@ -41,13 +41,12 @@ public:
 	~Chunk() = default;
 
 	void updateChunk();
-	void prepareChunkMesh();
-	void loadChunkMesh();
 	void renderChunk();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPosition();
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
+	bool m_is_visible{ false };
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
@@ -58,6 +57,8 @@ private:
 	// block_id should be here instead of int?
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
+	void prepareChunkMesh();
+	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 block_pos);
 	void addFace(BlockMesh::block_mesh face_side, glm::ivec3 block_pos);

@@ -1,58 +1,147 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Shader shader)
+ChunkManager::ChunkManager(Shader shader, Camera& camera)
 	:
-	m_shader{shader}
+	m_shader{shader},
+	m_camera{camera}
 {
 	generateWorld();
 }
 
+void ChunkManager::updateChunks()
+{
+	for (auto& chunk : m_chunks)
+	{
+		chunk.second.updateChunk();
+	}
+}
+
+// This can be opitimised
+void ChunkManager::refreshChunks()
+{
+	for (auto it = m_chunks.begin(); it != m_chunks.end();)
+	{
+		Chunk& chunk = it->second;
+
+		int player_chunk_pos_x = m_camera.getCameraPos().x / Chunk::CHUNK_SIZE_X;
+		int player_chunk_pos_z = m_camera.getCameraPos().z / Chunk::CHUNK_SIZE_Z;
+
+		int chunk_pos_x = chunk.getPosition().x;
+		int chunk_pos_z = chunk.getPosition().z;
+
+		int min_x = player_chunk_pos_x - m_render_distance;
+		int max_x = player_chunk_pos_x + m_render_distance;
+
+		int min_z = player_chunk_pos_z - m_render_distance;
+		int max_z = player_chunk_pos_z + m_render_distance;
+
+		if (
+			chunk_pos_x < min_x ||
+			chunk_pos_x > max_x ||
+			chunk_pos_z < min_z ||
+			chunk_pos_z > max_z
+			)
+		{
+			it = m_chunks.erase(it);
+		}
+		else
+		{
+			// I'm sorry for this...
+			++it;
+			glm::vec3 new_chunk_pos{ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z };
+			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
+			{
+				std::cout << "Chunk created at: " << new_chunk_pos.x << " " << new_chunk_pos.y << " " << new_chunk_pos.z << " " << std::endl;
+				std::cout << "Player at chunk: " << player_chunk_pos_x << " " << player_chunk_pos_z << std::endl;
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				generateChunk(new_chunk, 1234);
+				m_chunks[new_chunk_pos] = *new_chunk;
+			}
+
+			new_chunk_pos = { player_chunk_pos_x - m_render_distance, 0, chunk_pos_z };
+			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
+			{
+				std::cout << "Chunk created at: " << new_chunk_pos.x << " " << new_chunk_pos.y << " " << new_chunk_pos.z << " " << std::endl;
+				std::cout << "Player at chunk: " << player_chunk_pos_x << " " << player_chunk_pos_z << std::endl;
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				generateChunk(new_chunk, 1234);
+				m_chunks[new_chunk_pos] = *new_chunk;
+			}
+			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z + m_render_distance };
+			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
+			{
+				std::cout << "Chunk created at: " << new_chunk_pos.x << " " << new_chunk_pos.y << " " << new_chunk_pos.z << " " << std::endl;
+				std::cout << "Player at chunk: " << player_chunk_pos_x << " " << player_chunk_pos_z << std::endl;
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				generateChunk(new_chunk, 1234);
+				m_chunks[new_chunk_pos] = *new_chunk;
+			}
+			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z - m_render_distance };
+			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
+			{
+				std::cout << "Chunk created at: " << new_chunk_pos.x << " " << new_chunk_pos.y << " " << new_chunk_pos.z << " " << std::endl;
+				std::cout << "Player at chunk: " << player_chunk_pos_x << " " << player_chunk_pos_z << std::endl;
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				generateChunk(new_chunk, 1234);
+				m_chunks[new_chunk_pos] = *new_chunk;
+			}
+			// ...but this will not be here after refactor right? RIGHT!?
+		}
+	}
+}
+
+
+// TODO: this should be part of WorldGenerator
+void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
+{
+	WorldGenerator world_generator;
+	height_map h_map = world_generator.generateChunkHeightMap(chunk->getPosition(), seed);
+	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
+	{
+		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
+		{
+			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
+			{
+				glm::ivec3 block_pos{ x, y, z };
+				if (y == h_map[x][z])
+					chunk->setBlock(block_pos, Block::GRASS);
+				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
+					chunk->setBlock(block_pos, Block::DIRT);
+				else if (y < h_map[x][z])
+					chunk->setBlock(block_pos, Block::STONE);
+				else
+					chunk->setBlock(block_pos, Block::AIR);
+			}
+		}
+	}
+}
+
+void ChunkManager::renderChunks()
+{
+	for (auto& chunk : m_chunks)
+	{
+		chunk.second.renderChunk();
+	}
+}
+
 void ChunkManager::generateWorld()
 {
-
 	WorldGenerator world_generator;
 	int seed = 1234;
 
-	for (int i = 0; i < 16; i++)
+	for (int i = -m_render_distance; i < m_render_distance; i++)
 	{
-		for (int j = 0; j < 16; j++)
+		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
-
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos));
-			height_map h_map = world_generator.generateChunkHeightMap(chunk_pos, seed);
-			for (int x = 0; x < current_chunk->CHUNK_SIZE_X; x++)
-			{
-				for (int y = 0; y < current_chunk->CHUNK_SIZE_Y; y++)
-				{
-					for (int z = 0; z < current_chunk->CHUNK_SIZE_Z; z++)
-					{
-						glm::ivec3 current_chunk_pos{ x, y, z };
-						if (y == h_map[x][z])
-							current_chunk->setBlock(current_chunk_pos, Block::GRASS);
-						else if (y < h_map[x][z] && y > h_map[x][z] - 10)
-							current_chunk->setBlock(current_chunk_pos, Block::DIRT);
-						else if (y < h_map[x][z])
-							current_chunk->setBlock(current_chunk_pos, Block::STONE);
-						else
-							current_chunk->setBlock(current_chunk_pos, Block::AIR);
-					}	
-				}
-			}
-
-			m_chunks[chunk_pos] = *current_chunk;
-			
+			generateChunk(current_chunk, seed);
+			m_chunks[chunk_pos] = *current_chunk;		
 		}
 	}
 
 	m_texture_manager.generateMipmap();
-
-	for (auto& chunk : m_chunks)
-	{
-		chunk.second.prepareChunkMesh();
-		chunk.second.loadChunkMesh();
-	}
-	
+	updateChunks();
 }
 
 std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks()
@@ -120,3 +209,4 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	chunk.setBlock(chunk_block_pos, type);
 	chunk.updateChunk();
 }
+

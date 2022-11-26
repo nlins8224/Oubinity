@@ -12,24 +12,29 @@ Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos)
 
 }
 
-//this is unused?
 Chunk::Chunk(const Chunk& chunk)
 	:
+	m_is_visible{ chunk.m_is_visible },
 	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
 	m_mesh_textures_positions{chunk.m_mesh_textures_positions},
+	m_mesh_shading_positions{chunk.m_mesh_shading_positions},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_loader{chunk.m_loader},
-	m_blocks{chunk.m_blocks},
-	m_texture_manager{chunk.m_texture_manager}
+	m_texture_manager{chunk.m_texture_manager},
+	m_blocks{ chunk.m_blocks }
 {
 
 }
 
 void Chunk::updateChunk()
 {
+	if (m_is_visible)
+		return;
+
 	prepareChunkMesh();
 	loadChunkMesh();
-	renderChunk();
+
+	m_is_visible = true;
 }
 
 void Chunk::prepareChunkMesh()

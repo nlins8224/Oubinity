@@ -11,6 +11,7 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "optick.h"
 
 const int scr_width = 1200;
 const int scr_height = 1600;
@@ -22,9 +23,9 @@ float fov = 90.0f;
 
 int main()
 {
+    OPTICK_FRAME("MainThread");
     Window window{ scr_width, scr_height, "Minecraft" };
     window.windowInit();
-
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -35,19 +36,9 @@ int main()
     Shader shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl");
 
     std::cout << glGetError() << std::endl;
-    ChunkManager chunk_manager(shader);
-    PlayerInput player_input{window.getWindow(), chunk_manager};
-
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version = glGetString(GL_VERSION);
-    const GLubyte* glsl_ver = glGetString(GL_SHADING_LANGUAGE_VERSION);
-
-    printf("%s : %s (%s)\n >> GLSL: %s\n",
-        vendor,
-        renderer,
-        version,
-        glsl_ver);
+    Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
+    ChunkManager chunk_manager(shader, camera);
+    PlayerInput player_input{window.getWindow(), chunk_manager, camera};
 
     glEnable(GL_DEPTH_TEST);
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
@@ -55,6 +46,7 @@ int main()
 
     while (!glfwWindowShouldClose(window.getWindow()))
     {
+        OPTICK_FRAME("MainThread");
         float current_frame = static_cast<float>(glfwGetTime());
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
@@ -76,35 +68,12 @@ int main()
         view = player_input.getCamera().getViewMatrix();
         shader.setUniformMat4("view", view);
 
-        for (auto& chunk : chunk_manager.getChunks())
-        {
-            chunk.second.renderChunk();
-        }
+        chunk_manager.refreshChunks();
+        chunk_manager.updateChunks();
+        chunk_manager.renderChunks();
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
 
-        glm::vec3 last_player_pos{ -1, -1, -1 };
-        glm::vec3 player_pos = player_input.getCamera().getCameraPos();
-
-        if (player_pos != last_player_pos)
-        {
-     /*       std::cout << "Player pos x: " << 
-                player_pos.x << " y: " <<
-                player_pos.y << " z: " <<
-                player_pos.z << std::endl;*/
-        /*    std::cout << "Chunk position x: " <<
-                chunk_manager.getChunkPosition(player_pos).x << " y: " <<
-                chunk_manager.getChunkPosition(player_pos).y << " z: " <<
-                chunk_manager.getChunkPosition(player_pos).z << std::endl;*/
-
-           /* std::cout << "Chunk local position x: " <<
-                chunk_manager.getLocalChunkPosition(player_pos).x << " y: " <<
-                chunk_manager.getLocalChunkPosition(player_pos).y << " z: " <<
-                chunk_manager.getLocalChunkPosition(player_pos).z << std::endl;*/
-        }
-
-        last_player_pos = player_pos;
-        //chunk_manager.updateBlock(player_pos, Block::PLANKS);
     }
 
     return 0;
