@@ -41,6 +41,7 @@ int main()
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
