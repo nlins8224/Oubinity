@@ -10,8 +10,7 @@ class TextureManager
 {
 public:
 	TextureManager(Shader& shader, int texture_witdh, int texture_height, int textures_max_amount);
-	int getTextureIndex(std::string texture);
-	void addTexture(std::string texture);
+	void addTexture(std::string texture, int texture_id);
 	void loadTexture();
 	void generateMipmap();
 

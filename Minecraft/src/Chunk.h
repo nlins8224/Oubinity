@@ -8,6 +8,7 @@
 #include <vector>
 #include <array>
 #include <functional>
+#include "optick.h"
 
 struct glm_ivec3_hasher
 {
@@ -62,5 +63,4 @@ private:
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 block_pos);
 	void addFace(BlockMesh::block_mesh face_side, glm::ivec3 block_pos);
-	int setFaceTexture(Block::block_id type);	
 };

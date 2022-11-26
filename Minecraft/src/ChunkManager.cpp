@@ -125,8 +125,9 @@ void ChunkManager::addTextures()
 	std::string texture_name;
 	for (int i = Block::DIRT; i != Block::AMOUNT; i++)
 	{
-		texture_name = Block::getBlockType(static_cast<Block::block_id>(i)).texture;
-		m_texture_manager.addTexture(texture_name);
+		Block::block_id id = static_cast<Block::block_id>(i);
+		texture_name = Block::getBlockType(id).texture;
+		m_texture_manager.addTexture(texture_name, id);
 	}
 }
 

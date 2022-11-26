@@ -35,7 +35,7 @@ void TextureManager::generateMipmap()
 	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 }
 
-void TextureManager::addTexture(std::string texture)
+void TextureManager::addTexture(std::string texture, int texture_id)
 {
 	OPTICK_EVENT();
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
@@ -51,14 +51,13 @@ void TextureManager::addTexture(std::string texture)
 		std::cout << "Failed to generate texture" << std::endl;
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-	int texture_index = getTextureIndex(texture);
 	// insert texture to texture array
 	glTexSubImage3D(
 		GL_TEXTURE_2D_ARRAY,
 		0,
 		0,
 		0,
-		texture_index,
+		texture_id,
 		m_texture_width,
 		m_texture_height,
 		1,
@@ -77,11 +76,4 @@ void TextureManager::loadTexture()
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	int sampler_location = m_shader.getUniformLocation(texture_array_sampler);
 	glUniform1i(sampler_location, 0);
-}
-
-int TextureManager::getTextureIndex(std::string texture)
-{
-	OPTICK_EVENT();
-	auto itr = std::find(m_textures.begin(), m_textures.end(), texture);
-	return std::distance(m_textures.begin(), itr);
 }
