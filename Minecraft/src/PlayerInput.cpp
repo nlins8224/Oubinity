@@ -2,7 +2,8 @@
 #include <iostream>
 
 
-PlayerInput::PlayerInput(GLFWwindow* window, ChunkManager& world, Camera default_camera): m_window{window}, m_world{ world }, m_default_camera{default_camera}
+PlayerInput::PlayerInput(GLFWwindow* window, ChunkManager& world, Camera& default_camera)
+    : m_window{window}, m_world{ world }, m_default_camera{default_camera}
 {
     setWindowCallbacks();
 }

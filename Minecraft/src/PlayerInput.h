@@ -12,12 +12,13 @@
 class PlayerInput
 {
 public:
-	PlayerInput(GLFWwindow* window, ChunkManager& world, Camera default_camera = glm::vec3(0.0f, 0.0f, 3.0f));
+	// TODO: ChunkManager should not be in this constructor
+	PlayerInput(GLFWwindow* window, ChunkManager& world, Camera& default_camera);
 	void processInput(float delta_time);
 	Camera& getCamera();
-	Camera m_default_camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
 
 private:
+	Camera& m_default_camera;
 	GLFWwindow* m_window;
 	ChunkManager& m_world;
 	void setWindowCallbacks();
