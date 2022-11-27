@@ -17,9 +17,7 @@ Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager
 Chunk::Chunk(const Chunk& chunk)
 	:
 	m_is_visible{ chunk.m_is_visible },
-	m_mesh_vertex_positions{chunk.m_mesh_vertex_positions},
-	m_mesh_textures_positions{chunk.m_mesh_textures_positions},
-	m_mesh_shading_positions{chunk.m_mesh_shading_positions},
+	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
 	m_loader{chunk.m_loader},
@@ -44,9 +42,7 @@ void Chunk::updateChunk()
 void Chunk::prepareChunkMesh()
 {
 	OPTICK_EVENT();
-	m_mesh_vertex_positions.clear();
-	m_mesh_textures_positions.clear();
-	m_mesh_shading_positions.clear();
+	m_mesh.clear();
 
 	int block;
 	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
@@ -67,7 +63,7 @@ void Chunk::prepareChunkMesh()
 void Chunk::loadChunkMesh()
 {
 	OPTICK_EVENT();
-	m_loader.loadMesh(m_mesh_vertex_positions, m_mesh_textures_positions, m_mesh_shading_positions);
+	m_loader.loadMesh(m_mesh);
 }
 
 
@@ -77,7 +73,7 @@ void Chunk::renderChunk()
 	m_loader.bindVAO();
 	// This could be moved to renderer later
 	uint8_t vertices_per_triangle{ 3 };
-	uint64_t amount_of_triangles{ m_mesh_vertex_positions.size() / vertices_per_triangle };
+	uint64_t amount_of_triangles{ m_mesh.vertex_positions.size() / vertices_per_triangle };
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
@@ -151,13 +147,13 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		y_world_pos = m_world_pos.y + block_pos.y + face[y_coord];
 		z_world_pos = m_world_pos.z + block_pos.z + face[z_coord];
 
-		m_mesh_vertex_positions.emplace_back(x_world_pos);
-		m_mesh_vertex_positions.emplace_back(y_world_pos);
-		m_mesh_vertex_positions.emplace_back(z_world_pos);
-		m_mesh_textures_positions.emplace_back(face[u_coord]);
-		m_mesh_textures_positions.emplace_back(face[v_coord]);
-		m_mesh_textures_positions.emplace_back(texture_id);
-		m_mesh_shading_positions.emplace_back(face[shading_coord]);
+		m_mesh.vertex_positions.emplace_back(x_world_pos);
+		m_mesh.vertex_positions.emplace_back(y_world_pos);
+		m_mesh.vertex_positions.emplace_back(z_world_pos);
+		m_mesh.textures_positions.emplace_back(face[u_coord]);
+		m_mesh.textures_positions.emplace_back(face[v_coord]);
+		m_mesh.textures_positions.emplace_back(texture_id);
+		m_mesh.shading_positions.emplace_back(face[shading_coord]);
 	}
 }
 

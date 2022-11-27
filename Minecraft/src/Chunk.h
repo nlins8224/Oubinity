@@ -1,6 +1,7 @@
 #pragma once
 #include "Block.h"
 #include "BlockMesh.h"
+#include "Mesh.h"
 #include "Loader.h"
 #include "Shader.h"
 #include "TextureManager.h"
@@ -51,19 +52,17 @@ public:
 	glm::ivec3 getPosition();
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
+	// m_is_visible -> m_loaded
 	bool m_is_visible{ false };
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
 private:
-	std::vector<float> m_mesh_vertex_positions;
-	std::vector<float> m_mesh_textures_positions;
-	std::vector<float> m_mesh_shading_positions;
+	Mesh m_mesh;
 	glm::ivec3 m_chunk_pos{0, 0, 0};
 	glm::ivec3 m_world_pos;
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
-	// block_id should be here instead of int?
 
 	void prepareChunkMesh();
 	void loadChunkMesh();
