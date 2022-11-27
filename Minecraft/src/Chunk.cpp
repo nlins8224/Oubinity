@@ -147,13 +147,9 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		y_world_pos = m_world_pos.y + block_pos.y + face[y_coord];
 		z_world_pos = m_world_pos.z + block_pos.z + face[z_coord];
 
-		m_mesh.vertex_positions.emplace_back(x_world_pos);
-		m_mesh.vertex_positions.emplace_back(y_world_pos);
-		m_mesh.vertex_positions.emplace_back(z_world_pos);
-		m_mesh.textures_positions.emplace_back(face[u_coord]);
-		m_mesh.textures_positions.emplace_back(face[v_coord]);
-		m_mesh.textures_positions.emplace_back(texture_id);
-		m_mesh.shading_positions.emplace_back(face[shading_coord]);
+		m_mesh.addVertex(x_world_pos, y_world_pos, z_world_pos);
+		m_mesh.addTexture(face[u_coord], face[v_coord], texture_id);
+		m_mesh.addShading(face[shading_coord]);
 	}
 }
 
