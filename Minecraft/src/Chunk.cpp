@@ -8,7 +8,8 @@ Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager
 	: 
 	m_texture_manager{ texture_manager },
 	m_chunk_pos{ chunk_pos },
-	m_chunk_manager{ chunk_manager }
+	m_chunk_manager{ chunk_manager },
+	m_world_pos{glm::ivec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
 {
 
 }
@@ -111,10 +112,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
 	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z)
 	{
-		int world_x = CHUNK_SIZE_X * m_chunk_pos.x + x;
-		int world_y = CHUNK_SIZE_Y * m_chunk_pos.y + y;
-		int world_z = CHUNK_SIZE_Z * m_chunk_pos.z + z;
-		glm::ivec3 world_pos{world_x, world_y, world_z};
+		glm::ivec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
 		return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
 	}
 	return m_blocks[x][y][z] != block_id::AIR;
@@ -149,9 +147,9 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		v_coord = (i * 7) + 4;
 		shading_coord = (i * 7) + 6;
 		
-		x_world_pos = m_chunk_pos.x * CHUNK_SIZE_X + block_pos.x + face[x_coord];
-		y_world_pos = m_chunk_pos.y * CHUNK_SIZE_Y + block_pos.y + face[y_coord];
-		z_world_pos = m_chunk_pos.z * CHUNK_SIZE_Z + block_pos.z + face[z_coord];
+		x_world_pos = m_world_pos.x + block_pos.x + face[x_coord];
+		y_world_pos = m_world_pos.y + block_pos.y + face[y_coord];
+		z_world_pos = m_world_pos.z + block_pos.z + face[z_coord];
 
 		m_mesh_vertex_positions.emplace_back(x_world_pos);
 		m_mesh_vertex_positions.emplace_back(y_world_pos);
