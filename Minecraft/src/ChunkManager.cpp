@@ -53,7 +53,7 @@ void ChunkManager::refreshChunks()
 			glm::vec3 new_chunk_pos{ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z };
 			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
 			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
 				generateChunk(new_chunk, 1234);
 				m_chunks[new_chunk_pos] = *new_chunk;
 			}
@@ -61,21 +61,21 @@ void ChunkManager::refreshChunks()
 			new_chunk_pos = { player_chunk_pos_x - m_render_distance, 0, chunk_pos_z };
 			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
 			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
 				generateChunk(new_chunk, 1234);
 				m_chunks[new_chunk_pos] = *new_chunk;
 			}
 			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z + m_render_distance };
 			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
 			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
 				generateChunk(new_chunk, 1234);
 				m_chunks[new_chunk_pos] = *new_chunk;
 			}
 			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z - m_render_distance };
 			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
 			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos) };
+				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
 				generateChunk(new_chunk, 1234);
 				m_chunks[new_chunk_pos] = *new_chunk;
 			}
@@ -143,7 +143,7 @@ void ChunkManager::generateWorld()
 		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
-			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos));
+			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos, this));
 			generateChunk(current_chunk, seed);
 			m_chunks[chunk_pos] = *current_chunk;		
 		}
@@ -161,13 +161,11 @@ std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks(
 
 TextureManager ChunkManager::getTextureManager()
 {
-	OPTICK_EVENT();
 	return this->m_texture_manager;
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
-	OPTICK_EVENT();
 	int x = floor(world_pos.x / Chunk::CHUNK_SIZE_X);
 	int y = floor(world_pos.y / Chunk::CHUNK_SIZE_Y);
 	int z = floor(world_pos.z / Chunk::CHUNK_SIZE_Z);
@@ -178,7 +176,6 @@ glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
-	OPTICK_EVENT();
 	glm::ivec3 world_pos_int = world_pos;
 	int M_X = Chunk::CHUNK_SIZE_X;
 	int M_Y = Chunk::CHUNK_SIZE_Y;
@@ -195,11 +192,10 @@ glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 
 Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 {
-	OPTICK_EVENT();
 	glm::ivec3 chunk_pos = getChunkPosition(world_pos);
 	bool is_in = m_chunks.count(chunk_pos);
 	if (!is_in)
-		return Block::NONE;
+		return Block::AIR;
 
 	glm::ivec3 block_pos = getChunkBlockPosition(world_pos);
 	return m_chunks.at(chunk_pos).getBlockId(block_pos);
@@ -211,7 +207,7 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
 	{
-		std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos) };
+		std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
 		m_chunks[chunk_pos] = *chunk;
 	}
 		
