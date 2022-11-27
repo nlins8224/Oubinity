@@ -1,12 +1,14 @@
 #include "Chunk.h"
+#include "ChunkManager.h"
 using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos)
+Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	: 
 	m_texture_manager{ texture_manager },
-	m_chunk_pos{ chunk_pos }
+	m_chunk_pos{ chunk_pos },
+	m_chunk_manager{ chunk_manager }
 {
 
 }
@@ -18,6 +20,7 @@ Chunk::Chunk(const Chunk& chunk)
 	m_mesh_textures_positions{chunk.m_mesh_textures_positions},
 	m_mesh_shading_positions{chunk.m_mesh_shading_positions},
 	m_chunk_pos{chunk.m_chunk_pos},
+	m_chunk_manager{chunk.m_chunk_manager},
 	m_loader{chunk.m_loader},
 	m_texture_manager{chunk.m_texture_manager},
 	m_blocks{ chunk.m_blocks }
@@ -39,12 +42,11 @@ void Chunk::updateChunk()
 
 void Chunk::prepareChunkMesh()
 {
-	OPTICK_EVENT("Clear Vectors");
+	OPTICK_EVENT();
 	m_mesh_vertex_positions.clear();
 	m_mesh_textures_positions.clear();
 	m_mesh_shading_positions.clear();
 
-	OPTICK_EVENT("Loop")
 	int block;
 	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
 	{
@@ -52,6 +54,7 @@ void Chunk::prepareChunkMesh()
 		{
 			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
 			{
+				
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
 					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
@@ -94,21 +97,26 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 	OPTICK_EVENT();
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT,  glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x - 1, y, z))) addFace(block_mesh::LEFT,   glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y + 1, z))) addFace(block_mesh::TOP,	 glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT, glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x - 1, y, z))) addFace(block_mesh::LEFT, glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y + 1, z))) addFace(block_mesh::TOP, glm::ivec3(x, y, z));
 	if (!isFaceVisible(glm::ivec3(x, y - 1, z))) addFace(block_mesh::BOTTOM, glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y, z + 1))) addFace(block_mesh::FRONT,	 glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK,	 glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y, z + 1))) addFace(block_mesh::FRONT, glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK, glm::ivec3(x, y, z));
 }
 
 bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 {
-	OPTICK_EVENT();
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	// out of bounds check for example...
-	if (x < 0 || y < 0 || z < 0) return false; // ...x - 1 = -1 < 0
-	if (x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z) return false; // ...x + 1 = 16 > 15
+	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
+	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z)
+	{
+		int world_x = CHUNK_SIZE_X * m_chunk_pos.x + x;
+		int world_y = CHUNK_SIZE_Y * m_chunk_pos.y + y;
+		int world_z = CHUNK_SIZE_Z * m_chunk_pos.z + z;
+		glm::ivec3 world_pos{world_x, world_y, world_z};
+		return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
+	}
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 

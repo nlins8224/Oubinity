@@ -10,6 +10,9 @@
 #include <functional>
 #include "optick.h"
 
+
+class ChunkManager;
+
 struct glm_ivec3_hasher
 {
 	size_t operator()(const glm::ivec3& p) const
@@ -36,7 +39,8 @@ public:
 	static const int CHUNK_SIZE_Y{ 64 };
 	static const int CHUNK_SIZE_Z{ 16 };
 
-	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos);
+	//TODO: Chunk needs only ChunkManager and chunk_pos now
+	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -48,6 +52,8 @@ public:
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
 	bool m_is_visible{ false };
+	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
+
 private:
 	std::vector<float> m_mesh_vertex_positions;
 	std::vector<float> m_mesh_textures_positions;
@@ -55,12 +61,12 @@ private:
 	glm::ivec3 m_chunk_pos{0, 0, 0};
 	Loader m_loader;
 	TextureManager* m_texture_manager;
+	ChunkManager* m_chunk_manager;
 	// block_id should be here instead of int?
-	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
 	void prepareChunkMesh();
 	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
-	bool isFaceVisible(glm::ivec3 block_pos);
+	bool isFaceVisible(glm::ivec3 world_pos);
 	void addFace(BlockMesh::block_mesh face_side, glm::ivec3 block_pos);
 };
