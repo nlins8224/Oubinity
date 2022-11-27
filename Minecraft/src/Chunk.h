@@ -59,6 +59,7 @@ private:
 	std::vector<float> m_mesh_textures_positions;
 	std::vector<float> m_mesh_shading_positions;
 	glm::ivec3 m_chunk_pos{0, 0, 0};
+	glm::ivec3 m_world_pos;
 	Loader m_loader;
 	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
