@@ -26,9 +26,9 @@ void ChunkManager::prepareChunksMesh()
 void ChunkManager::refreshChunks()
 {
 	OPTICK_EVENT();
-	for (auto it = m_chunks.begin(); it != m_chunks.end();)
+	for (auto& it : m_chunks)
 	{
-		Chunk& chunk = it->second;
+		Chunk& chunk = it.second;
 
 		int player_chunk_pos_x = m_camera.getCameraPos().x / Chunk::CHUNK_SIZE_X;
 		int player_chunk_pos_z = m_camera.getCameraPos().z / Chunk::CHUNK_SIZE_Z;
@@ -49,48 +49,22 @@ void ChunkManager::refreshChunks()
 			chunk_pos_z > max_z
 			)
 		{
-			it = m_chunks.erase(it);
+			addChunkToUnloadList(chunk.getPosition());
 		}
 		else
 		{
-			// I'm sorry for this...
-			++it;
-			glm::vec3 new_chunk_pos{ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z };
-			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
-			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
-				generateChunk(new_chunk, 1234);
-				m_chunks[new_chunk_pos] = *new_chunk;
-			}
-
-			new_chunk_pos = { player_chunk_pos_x - m_render_distance, 0, chunk_pos_z };
-			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
-			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
-				generateChunk(new_chunk, 1234);
-				m_chunks[new_chunk_pos] = *new_chunk;
-			}
-			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z + m_render_distance };
-			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
-			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
-				generateChunk(new_chunk, 1234);
-				m_chunks[new_chunk_pos] = *new_chunk;
-			}
-			new_chunk_pos = { chunk_pos_x, 0, player_chunk_pos_z - m_render_distance };
-			if (m_chunks.find(new_chunk_pos) == m_chunks.end())
-			{
-				std::unique_ptr<Chunk> new_chunk{ new Chunk(&m_texture_manager, new_chunk_pos, this) };
-				generateChunk(new_chunk, 1234);
-				m_chunks[new_chunk_pos] = *new_chunk;
-			}
-			// ...but this will not be here after refactor right? RIGHT!?
+			addChunkToLoadList({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
+			addChunkToLoadList({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
+			addChunkToLoadList({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
+			addChunkToLoadList({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
 		}
 	}
+
+	loadAllChunksFromLoadList();
+	unloadAllChunksFromUnloadList();
 }
 
-
-// TODO: this should be part of WorldGenerator
+// TODO: this should be deprecated soon
 void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
 {
 	OPTICK_EVENT();
@@ -116,9 +90,15 @@ void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
 	}
 }
 
+// TODO: this should be part of WorldGenerator
+// TODO: this should be at the first stage of prepareChunkMesh? 
 void ChunkManager::generateChunk(Chunk& chunk, int seed)
 {
 	OPTICK_EVENT();
+
+	if (chunk.m_generated)
+		return;
+
 	WorldGenerator world_generator;
 	height_map h_map = world_generator.generateChunkHeightMap(chunk.getPosition(), seed);
 	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
@@ -139,6 +119,7 @@ void ChunkManager::generateChunk(Chunk& chunk, int seed)
 			}
 		}
 	}
+	chunk.m_generated = true;
 }
 
 void ChunkManager::renderChunks()
@@ -161,40 +142,43 @@ void ChunkManager::addTextures()
 	}
 }
 
-void ChunkManager::addChunkToLoadQueue(glm::ivec3 chunk_pos)
+void ChunkManager::addChunkToLoadList(glm::ivec3 chunk_pos)
 {
-	m_chunks_to_load.push(chunk_pos);
+	m_chunks_to_load.insert(chunk_pos);
 }
 
-void ChunkManager::addChunkToUnloadQueue(glm::ivec3 chunk_pos)
+void ChunkManager::addChunkToUnloadList(glm::ivec3 chunk_pos)
 {
-	m_chunks_to_load.push(chunk_pos);
+	m_chunks_to_unload.insert(chunk_pos);
 }
 
-void ChunkManager::loadAllChunksFromLoadQueue()
+void ChunkManager::loadAllChunksFromLoadList()
 {
-	while (!m_chunks_to_load.empty())
+	for (auto it = m_chunks_to_load.begin(), end = m_chunks_to_load.end(); it != end;)
 	{
-		glm::ivec3 chunk_pos = m_chunks_to_load.front();
-		if (m_chunks.find(chunk_pos) != m_chunks.end())
+		glm::ivec3 chunk_pos = *it;
+		if (m_chunks.find(chunk_pos) == m_chunks.end())
 		{
 			std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
 			m_chunks[chunk_pos] = *chunk;
 		}
 		m_chunks.at(chunk_pos).prepareChunkMesh();
 		generateChunk(m_chunks.at(chunk_pos), m_seed);
-		m_chunks_to_load.pop();
+		it = m_chunks_to_load.erase(it);
 	}
+	std::cout << "LOADED!" << std::endl;
 }
 
-void ChunkManager::unloadAllChunksFromUnloadQueue()
+// are chunks resources freed?
+void ChunkManager::unloadAllChunksFromUnloadList()
 {
-	while (!m_chunks_to_unload.empty())
+	for (auto it = m_chunks_to_unload.begin(), end = m_chunks_to_unload.end(); it != end;)
 	{
-		glm::ivec3 chunk_pos = m_chunks_to_unload.front();
+		glm::ivec3 chunk_pos = *it;
 		m_chunks.erase(chunk_pos);
-		m_chunks_to_unload.pop();
+		it = m_chunks_to_unload.erase(it);
 	}
+	std::cout << "ERASED!" << std::endl;
 }
 
 void ChunkManager::generateWorld()
