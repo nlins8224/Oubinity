@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <cmath>
 #include <optional>
-#include <queue>
+#include <unordered_set>
 #include "Chunk.h"
 #include "Shader.h"
 #include "TextureManager.h"
@@ -30,6 +30,22 @@ block_pos is position of a block inside the chunk
 
 */
 
+namespace std
+{
+	template<>
+	struct hash<glm::ivec3>
+	{
+		const size_t operator()(const glm::ivec3& vec) const
+		{
+			size_t res = 17;
+			res = res * 31 + std::hash<int>()(vec.x);
+			res = res * 31 + std::hash<int>()(vec.y);
+			res = res * 31 + std::hash<int>()(vec.z);
+			return res;
+		};
+	};
+}
+
 using ChunksMap = std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher>;
 
 class ChunkManager
@@ -50,16 +66,16 @@ public:
 	void generateChunk(Chunk& chunk, int seed);
 	void renderChunks();
 	void addTextures();
-	void addChunkToLoadQueue(glm::ivec3 chunk_pos);
-	void addChunkToUnloadQueue(glm::ivec3 chunk_pos);
-	void loadAllChunksFromLoadQueue();
-	void unloadAllChunksFromUnloadQueue();
+	void addChunkToLoadList(glm::ivec3 chunk_pos);
+	void addChunkToUnloadList(glm::ivec3 chunk_pos);
+	void loadAllChunksFromLoadList();
+	void unloadAllChunksFromUnloadList();
 
 private:
 	 ChunksMap m_chunks;
 
-	 std::queue<glm::ivec3> m_chunks_to_load;
-	 std::queue<glm::ivec3> m_chunks_to_unload;
+	 std::unordered_set<glm::ivec3> m_chunks_to_load;
+	 std::unordered_set<glm::ivec3> m_chunks_to_unload;
 	 //TODO: pass those values in constructor 
 	 int m_render_distance{ 16 };
 	 int m_seed{ 1234 };

@@ -53,6 +53,7 @@ public:
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
 	bool m_loaded{ false };
+	bool m_generated{ false };
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
 private:
