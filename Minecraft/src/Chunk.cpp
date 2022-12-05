@@ -16,7 +16,7 @@ Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager
 
 Chunk::Chunk(const Chunk& chunk)
 	:
-	m_is_visible{ chunk.m_is_visible },
+	m_loaded{ chunk.m_loaded },
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
@@ -27,19 +27,19 @@ Chunk::Chunk(const Chunk& chunk)
 
 }
 
-void Chunk::updateChunk()
+void Chunk::prepareChunkMesh()
 {
 	OPTICK_EVENT();
-	if (m_is_visible)
+	if (m_loaded)
 		return;
 
-	prepareChunkMesh();
+	addChunkMesh();
 	loadChunkMesh();
 
-	m_is_visible = true;
+	m_loaded = true;
 }
 
-void Chunk::prepareChunkMesh()
+void Chunk::addChunkMesh()
 {
 	OPTICK_EVENT();
 	m_mesh.clear();
@@ -114,6 +114,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 
+// Should that be in Mesh?
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 {
 	OPTICK_EVENT();

@@ -46,14 +46,13 @@ public:
 	Chunk() = default;
 	~Chunk() = default;
 
-	void updateChunk();
+	void prepareChunkMesh();
 	void renderChunk();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPosition();
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
-	// m_is_visible -> m_loaded
-	bool m_is_visible{ false };
+	bool m_loaded{ false };
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 
 private:
@@ -64,7 +63,7 @@ private:
 	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
 
-	void prepareChunkMesh();
+	void addChunkMesh();
 	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 world_pos);

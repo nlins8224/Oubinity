@@ -8,16 +8,21 @@ ChunkManager::ChunkManager(Shader shader, Camera& camera)
 	generateWorld();
 }
 
-void ChunkManager::updateChunks()
+void ChunkManager::prepareChunksMesh()
 {
-	OPTICK_EVENT();
 	for (auto& chunk : m_chunks)
 	{
-		chunk.second.updateChunk();
+		chunk.second.prepareChunkMesh();
 	}
 }
 
 // This can be opitimised
+// Split this into:
+// 1. Add chunks to add-list
+// 2. Add chunks to remove-list
+// 3. Batch-add chunks
+// 4. Batch-remove chunks
+
 void ChunkManager::refreshChunks()
 {
 	OPTICK_EVENT();
@@ -111,6 +116,31 @@ void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
 	}
 }
 
+void ChunkManager::generateChunk(Chunk& chunk, int seed)
+{
+	OPTICK_EVENT();
+	WorldGenerator world_generator;
+	height_map h_map = world_generator.generateChunkHeightMap(chunk.getPosition(), seed);
+	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
+	{
+		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
+		{
+			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
+			{
+				glm::ivec3 block_pos{ x, y, z };
+				if (y == h_map[x][z])
+					chunk.setBlock(block_pos, Block::GRASS);
+				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
+					chunk.setBlock(block_pos, Block::DIRT);
+				else if (y < h_map[x][z])
+					chunk.setBlock(block_pos, Block::STONE);
+				else
+					chunk.setBlock(block_pos, Block::AIR);
+			}
+		}
+	}
+}
+
 void ChunkManager::renderChunks()
 {
 	OPTICK_EVENT();
@@ -131,12 +161,47 @@ void ChunkManager::addTextures()
 	}
 }
 
+void ChunkManager::addChunkToLoadQueue(glm::ivec3 chunk_pos)
+{
+	m_chunks_to_load.push(chunk_pos);
+}
+
+void ChunkManager::addChunkToUnloadQueue(glm::ivec3 chunk_pos)
+{
+	m_chunks_to_load.push(chunk_pos);
+}
+
+void ChunkManager::loadAllChunksFromLoadQueue()
+{
+	while (!m_chunks_to_load.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_load.front();
+		if (m_chunks.find(chunk_pos) != m_chunks.end())
+		{
+			std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
+			m_chunks[chunk_pos] = *chunk;
+		}
+		m_chunks.at(chunk_pos).prepareChunkMesh();
+		generateChunk(m_chunks.at(chunk_pos), m_seed);
+		m_chunks_to_load.pop();
+	}
+}
+
+void ChunkManager::unloadAllChunksFromUnloadQueue()
+{
+	while (!m_chunks_to_unload.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_unload.front();
+		m_chunks.erase(chunk_pos);
+		m_chunks_to_unload.pop();
+	}
+}
+
 void ChunkManager::generateWorld()
 {
 	OPTICK_EVENT();
 	addTextures();
 	WorldGenerator world_generator;
-	int seed = 1234;
 
 	for (int i = -m_render_distance; i < m_render_distance; i++)
 	{
@@ -144,13 +209,13 @@ void ChunkManager::generateWorld()
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos, this));
-			generateChunk(current_chunk, seed);
+			generateChunk(current_chunk, m_seed);
 			m_chunks[chunk_pos] = *current_chunk;		
 		}
 	}
 
 	m_texture_manager.generateMipmap();
-	updateChunks();
+	prepareChunksMesh();
 }
 
 std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks()
@@ -218,6 +283,6 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 		return;
 	
 	chunk.setBlock(chunk_block_pos, type);
-	chunk.updateChunk();
+	chunk.prepareChunkMesh();
 }
 
