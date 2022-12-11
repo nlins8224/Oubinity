@@ -163,6 +163,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\renderer\MasterRenderer.cpp" />
+    <ClCompile Include="src\renderer\ChunkRenderer.cpp" />
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\ChunkManager.cpp" />
     <ClCompile Include="src\Chunk.cpp" />
@@ -180,7 +183,12 @@
     <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\MeshData.h" />
+    <ClInclude Include="src\renderer\MasterRenderer.h" />
+    <ClInclude Include="src\renderer\ChunkRenderer.h" />
+    <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\FastNoiseLite.h" />
+    <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\ChunkManager.h" />
     <ClInclude Include="src\Block.h" />

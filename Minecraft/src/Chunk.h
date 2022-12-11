@@ -55,12 +55,13 @@ public:
 	bool m_loaded{ false };
 	bool m_generated{ false };
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
+	Mesh& getMesh();
+	TextureManager* getTextureManager();
 
 private:
-	Mesh m_mesh;
-	glm::ivec3 m_chunk_pos{0, 0, 0};
+	glm::ivec3 m_chunk_pos{ 0, 0, 0 };
 	glm::ivec3 m_world_pos;
-	Loader m_loader;
+	Mesh m_mesh;
 	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
 

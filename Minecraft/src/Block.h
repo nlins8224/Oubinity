@@ -13,7 +13,8 @@ namespace Block {
 		SAND,
 		PLANKS,
 		STONE,
-		GRASS
+		GRASS,
+		AMOUNT
 	};
 
 	struct Block

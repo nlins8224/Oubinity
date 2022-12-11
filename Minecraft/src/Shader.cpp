@@ -13,7 +13,7 @@ unsigned int Shader::getID()
 	return m_id;
 }
 
-void Shader::useProgram()
+void Shader::bind()
 {
 	glUseProgram(m_id);
 }
@@ -133,7 +133,7 @@ void Shader::checkCompileErrors(unsigned int shader_id, int program_type)
 	}
 }
 
-void Shader::clean()
+void Shader::unbind()
 {
-
+	glUseProgram(0);
 }

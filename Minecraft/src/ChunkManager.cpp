@@ -5,6 +5,7 @@ ChunkManager::ChunkManager(Shader shader, Camera& camera)
 	m_shader{shader},
 	m_camera{camera}
 {
+	//is that chunk manager responsibility?
 	generateWorld();
 }
 
@@ -65,9 +66,13 @@ void ChunkManager::refreshChunks()
 }
 
 // TODO: this should be deprecated soon
-void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
+void ChunkManager::generateChunkTerrain(std::unique_ptr<Chunk>& chunk, int seed)
 {
 	OPTICK_EVENT();
+
+	if (chunk->m_generated)
+		return;
+
 	WorldGenerator world_generator;
 	height_map h_map = world_generator.generateChunkHeightMap(chunk->getPosition(), seed);
 	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
@@ -88,11 +93,13 @@ void ChunkManager::generateChunk(std::unique_ptr<Chunk>& chunk, int seed)
 			}
 		}
 	}
+
+	chunk->m_generated = true;
 }
 
-// TODO: this should be part of WorldGenerator
+// TODO: this should be part of WorldGenerator and Chunk class should call it
 // TODO: this should be at the first stage of prepareChunkMesh? 
-void ChunkManager::generateChunk(Chunk& chunk, int seed)
+void ChunkManager::generateChunkTerrain(Chunk& chunk, int seed)
 {
 	OPTICK_EVENT();
 
@@ -119,9 +126,11 @@ void ChunkManager::generateChunk(Chunk& chunk, int seed)
 			}
 		}
 	}
+
 	chunk.m_generated = true;
 }
 
+// Pass this data to renderer instead
 void ChunkManager::renderChunks()
 {
 	OPTICK_EVENT();
@@ -131,6 +140,7 @@ void ChunkManager::renderChunks()
 	}
 }
 
+// Maybe texture manager could do that at it's initialization?
 void ChunkManager::addTextures()
 {
 	std::string texture_name;
@@ -152,6 +162,7 @@ void ChunkManager::addChunkToUnloadList(glm::ivec3 chunk_pos)
 	m_chunks_to_unload.insert(chunk_pos);
 }
 
+// Is that ChunkManager responsibility?
 void ChunkManager::loadAllChunksFromLoadList()
 {
 	for (auto it = m_chunks_to_load.begin(), end = m_chunks_to_load.end(); it != end;)
@@ -162,14 +173,14 @@ void ChunkManager::loadAllChunksFromLoadList()
 			std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
 			m_chunks[chunk_pos] = *chunk;
 		}
+		generateChunkTerrain(m_chunks.at(chunk_pos), m_seed);
 		m_chunks.at(chunk_pos).prepareChunkMesh();
-		generateChunk(m_chunks.at(chunk_pos), m_seed);
 		it = m_chunks_to_load.erase(it);
 	}
-	std::cout << "LOADED!" << std::endl;
 }
 
 // are chunks resources freed?
+// Is that ChunkManager responsibility?
 void ChunkManager::unloadAllChunksFromUnloadList()
 {
 	for (auto it = m_chunks_to_unload.begin(), end = m_chunks_to_unload.end(); it != end;)
@@ -178,9 +189,9 @@ void ChunkManager::unloadAllChunksFromUnloadList()
 		m_chunks.erase(chunk_pos);
 		it = m_chunks_to_unload.erase(it);
 	}
-	std::cout << "ERASED!" << std::endl;
 }
 
+// Is that ChunkManager responsibility?
 void ChunkManager::generateWorld()
 {
 	OPTICK_EVENT();
@@ -193,7 +204,7 @@ void ChunkManager::generateWorld()
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos, this));
-			generateChunk(current_chunk, m_seed);
+			generateChunkTerrain(current_chunk, m_seed);
 			m_chunks[chunk_pos] = *current_chunk;		
 		}
 	}
@@ -267,6 +278,7 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 		return;
 	
 	chunk.setBlock(chunk_block_pos, type);
+	//TODO: add to load list probably should be here
 	chunk.prepareChunkMesh();
 }
 

@@ -24,7 +24,7 @@ public:
 	void setUniformFloat(const std::string& name, float value) const;
 	void setUniformMat4(const std::string& name, const glm::mat4& mat) const;
 	GLint getUniformLocation(const std::string& name) const;
-	void useProgram();
+	void bind();
 private:
 	unsigned int m_id;
 
@@ -32,6 +32,6 @@ private:
 	unsigned int compileShader(int type, const std::string code);
 	void createShaderProgram(unsigned int vertex_shader, unsigned int fragment_shader);
 	void checkCompileErrors(unsigned int id, int program_type);
-	void clean();
+	void unbind();
 
 };

@@ -62,8 +62,8 @@ public:
 	void updateBlock(glm::vec3 pos, Block::block_id block_id);
 	void prepareChunksMesh();
 	void refreshChunks();
-	void generateChunk(std::unique_ptr<Chunk>& chunk, int seed);
-	void generateChunk(Chunk& chunk, int seed);
+	void generateChunkTerrain(std::unique_ptr<Chunk>& chunk, int seed);
+	void generateChunkTerrain(Chunk& chunk, int seed);
 	void renderChunks();
 	void addTextures();
 	void addChunkToLoadList(glm::ivec3 chunk_pos);
@@ -79,8 +79,10 @@ private:
 	 //TODO: pass those values in constructor 
 	 int m_render_distance{ 16 };
 	 int m_seed{ 1234 };
+	 // TODO: ChunkManager should not have resposibility to know what Shaders are
 	 Shader m_shader;
 	 Camera& m_camera;
+	 // TODO: ChunkManager should not have responsibility to know what TextureManager is
 	 TextureManager m_texture_manager{m_shader, 16, 16, 256 };
 };
 

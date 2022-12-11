@@ -2,21 +2,22 @@
 #include <vector>
 #include <glad/glad.h>
 #include <optick.h>
-#include "Mesh.h"
+#include "MeshData.h"
+
 
 class Loader 
 {
 public:
-	void loadMesh(Mesh& mesh);
-	void bindVAO();
 	Loader() = default;
 	~Loader() = default;
-
+	void loadMesh(MeshData& mesh);
+	void bindVAO();
+	
 private:
 	GLuint m_vao;
 	GLuint m_vertex_vbo, m_texture_vbo, m_shading_vbo;
 
 	void createVAO();
-	void storeDataInVAO(int attribute_number, Mesh& mesh);
+	void storeDataInVAO(int attribute_number, MeshData& mesh);
 	void unbindVAO();
 };
