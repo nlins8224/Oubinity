@@ -2,6 +2,7 @@
 
 height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const
 {
+	OPTICK_EVENT("Generate noise");
 	FastNoiseLite noise(world_seed);
 	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 	noise.SetFrequency(0.005);
@@ -12,6 +13,7 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	height_map h_map{};
 	double target_height = 0.0;
 
+	OPTICK_EVENT("World Gen Loop");
 	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
 	{
 		for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)

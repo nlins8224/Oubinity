@@ -1,6 +1,6 @@
 #include "Loader.h"
 
-void Loader::loadMesh(Mesh& mesh)
+void Loader::loadMesh(MeshData& mesh)
 {
 	OPTICK_EVENT();
 	createVAO();
@@ -14,7 +14,7 @@ void Loader::createVAO() {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::storeDataInVAO(int attribute_number, Mesh& mesh) {
+void Loader::storeDataInVAO(int attribute_number, MeshData& mesh) {
 	OPTICK_EVENT();
 	glGenBuffers(1, &m_vertex_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_vbo);

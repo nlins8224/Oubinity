@@ -6,7 +6,8 @@ Camera::Camera(glm::vec3 position)
     m_yaw(-90.0f),
     m_pitch(0.0f),
     m_speed(2.5f),
-    m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f))
+    m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    m_fov(90.0f)
 {
     updateCameraVectors();
 }
@@ -14,6 +15,11 @@ Camera::Camera(glm::vec3 position)
 glm::mat4 Camera::getViewMatrix()
 {
     return glm::lookAt(m_camera_pos, m_camera_pos + m_camera_front, m_camera_up);
+}
+
+glm::mat4 Camera::getProjectionMatrix()
+{
+    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 200.0f);
 }
 
 float Camera::getZoom()

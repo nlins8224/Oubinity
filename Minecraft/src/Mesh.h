@@ -1,35 +1,30 @@
 #pragma once
-#include <vector>
+#include "Loader.h"
+#include "MeshData.h"
 
-struct Mesh
+class Mesh
 {
-	std::vector<float> vertex_positions;
-	std::vector<float> textures_positions;
-	std::vector<float> shading_positions;
+public:
+	Mesh();
+	~Mesh() = default;
+	void clear();
+	void addVertex(float x, float y, float z);
+	void addTexture(float u, float v, float id);
+	void addShading(float s);
 
-	inline void clear()
-	{
-		vertex_positions.clear();
-		textures_positions.clear();
-		shading_positions.clear();
-	}
+	void loadMesh();
 
-	inline void addVertex(float x, float y, float z)
-	{
-		vertex_positions.emplace_back(x);
-		vertex_positions.emplace_back(y);
-		vertex_positions.emplace_back(z);
-	}
-
-	inline void addTexture(float u, float v, float id)
-	{
-		textures_positions.emplace_back(u);
-		textures_positions.emplace_back(v);
-		textures_positions.emplace_back(id);
-	}
-
-	inline void addShading(float s)
-	{
-		shading_positions.emplace_back(s);
-	}
+	MeshData& getMesh();
+	Loader getLoader();
+	std::vector<float> getMeshVertexPositions();
+	std::vector<float> getMeshTexturesPositions();
+	std::vector<float> getMeshShadingPositions();
+	
+private:
+	Loader m_loader;
+	MeshData m_mesh_data;
+	bool m_is_buffer_loaded;
+	std::vector<float> m_vertex_positions;
+	std::vector<float> m_textures_positions;
+	std::vector<float> m_shading_positions;
 };

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,7 +25,7 @@ float fov = 90.0f;
 int main()
 {
     OPTICK_FRAME("MainThread");
-    Window window{ scr_width, scr_height, "Minecraft" };
+    Window window{"Minecraft" };
     window.windowInit();
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -57,7 +58,7 @@ int main()
         glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.useProgram();
+        shader.bind();
        
         glm::mat4 model = glm::mat4(1.0f);
         shader.setUniformMat4("model", model);
@@ -70,10 +71,13 @@ int main()
         shader.setUniformMat4("view", view);
 
         chunk_manager.refreshChunks();
-        chunk_manager.updateChunks();
         chunk_manager.renderChunks();
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
+
+        // 1. Player is updated
+        // 2. ChunkManager decides what to load
+        // 3. Renderer renders mesh data
 
     }
 

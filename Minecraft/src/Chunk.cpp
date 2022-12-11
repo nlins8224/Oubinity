@@ -20,7 +20,6 @@ Chunk::Chunk(const Chunk& chunk)
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
-	m_loader{chunk.m_loader},
 	m_texture_manager{chunk.m_texture_manager},
 	m_blocks{ chunk.m_blocks }
 {
@@ -60,20 +59,21 @@ void Chunk::addChunkMesh()
 	}
 }
 
+// TODO: This is not responsibility of this class anymore. Move it to renderer
 void Chunk::loadChunkMesh()
 {
 	OPTICK_EVENT();
-	m_loader.loadMesh(m_mesh);
+	m_mesh.loadMesh();
 }
 
-
+// This should be in renderer
 void Chunk::renderChunk()
 {
 	OPTICK_EVENT();
-	m_loader.bindVAO();
+	m_mesh.getLoader().bindVAO();
 	// This could be moved to renderer later
 	uint8_t vertices_per_triangle{ 3 };
-	uint64_t amount_of_triangles{ m_mesh.vertex_positions.size() / vertices_per_triangle };
+	uint64_t amount_of_triangles{ m_mesh.getMeshVertexPositions().size() / vertices_per_triangle};
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
@@ -164,4 +164,14 @@ bool Chunk::isTransparent(glm::ivec3 block_pos)
 {
 	OPTICK_EVENT();
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
+}
+
+Mesh& Chunk::getMesh()
+{
+	return m_mesh;
+}
+
+TextureManager* Chunk::getTextureManager()
+{
+	return m_texture_manager;
 }
