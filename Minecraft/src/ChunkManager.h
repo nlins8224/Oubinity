@@ -63,7 +63,6 @@ public:
 	void prepareChunksMesh();
 	void refreshChunks();
 	void renderChunks();
-	void addTextures();
 	void addChunkToLoadList(glm::ivec3 chunk_pos);
 	void addChunkToUnloadList(glm::ivec3 chunk_pos);
 	void loadAllChunksFromLoadList();

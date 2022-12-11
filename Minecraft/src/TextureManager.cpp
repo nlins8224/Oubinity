@@ -28,11 +28,23 @@ TextureManager::TextureManager(Shader& shader, int texture_width, int texture_he
 		nullptr
 	);
 
+	addTextures();
 }
 
 void TextureManager::generateMipmap()
 {
 	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+}
+
+void TextureManager::addTextures()
+{
+	std::string texture_name;
+	for (int i = Block::DIRT; i != Block::AMOUNT; i++)
+	{
+		Block::block_id id = static_cast<Block::block_id>(i);
+		texture_name = Block::getBlockType(id).texture;
+		addTexture(texture_name, id);
+	}
 }
 
 void TextureManager::addTexture(std::string texture, int texture_id)
@@ -77,3 +89,5 @@ void TextureManager::loadTexture()
 	int sampler_location = m_shader.getUniformLocation(texture_array_sampler);
 	glUniform1i(sampler_location, 0);
 }
+
+
