@@ -2,14 +2,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <optick.h>
 #include <glad/glad.h>
+#include "Block.h"
 #include "stb_image.h"
 #include "Shader.h"
-#include <optick.h>
 class TextureManager
 {
 public:
 	TextureManager(Shader& shader, int texture_witdh, int texture_height, int textures_max_amount);
+	void addTextures();
 	void addTexture(std::string texture, int texture_id);
 	void loadTexture();
 	void generateMipmap();
