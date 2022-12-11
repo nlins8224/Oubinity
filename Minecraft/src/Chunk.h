@@ -52,8 +52,9 @@ public:
 	glm::ivec3 getPosition();
 	Block::block_id getBlockId(glm::ivec3 block_pos);
 	bool isTransparent(glm::ivec3 block_pos);
-	bool m_loaded{ false };
-	bool m_generated{ false };
+	bool isMeshLoaded();
+	bool isTerrainGenerated();
+	void setIsTerrainGenerated(bool is_generated);
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 	Mesh& getMesh();
 	TextureManager* getTextureManager();
@@ -64,6 +65,8 @@ private:
 	Mesh m_mesh;
 	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
+	bool m_is_mesh_buffer_loaded{ false };
+	bool m_is_terrain_generated{ false };
 
 	void addChunkMesh();
 	void loadChunkMesh();

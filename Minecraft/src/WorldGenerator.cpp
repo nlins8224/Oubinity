@@ -13,7 +13,6 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	height_map h_map{};
 	double target_height = 0.0;
 
-	OPTICK_EVENT("World Gen Loop");
 	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
 	{
 		for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
@@ -27,4 +26,39 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	}
 
 	return h_map;
+}
+
+WorldGenerator::WorldGenerator(int world_seed)
+	: m_world_seed{world_seed}
+{
+}
+
+void WorldGenerator::generateChunkTerrain(Chunk& chunk)
+{
+	OPTICK_EVENT();
+
+	if (chunk.isTerrainGenerated())
+		return;
+
+	height_map h_map = generateChunkHeightMap(chunk.getPosition(), m_world_seed);
+	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
+	{
+		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
+		{
+			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
+			{
+				glm::ivec3 block_pos{ x, y, z };
+				if (y == h_map[x][z])
+					chunk.setBlock(block_pos, Block::GRASS);
+				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
+					chunk.setBlock(block_pos, Block::DIRT);
+				else if (y < h_map[x][z])
+					chunk.setBlock(block_pos, Block::STONE);
+				else
+					chunk.setBlock(block_pos, Block::AIR);
+			}
+		}
+	}
+
+	chunk.setIsTerrainGenerated(true);
 }

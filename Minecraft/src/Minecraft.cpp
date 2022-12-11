@@ -38,7 +38,9 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
-    ChunkManager chunk_manager(shader, camera);
+    WorldGenerator world_generator{ 1234 };
+    //TODO: should shader, camera and world_generator be properties of chunk_manager?
+    ChunkManager chunk_manager(shader, camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
 
     glEnable(GL_DEPTH_TEST);
