@@ -12,6 +12,7 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "renderer/MasterRenderer.h"
 #include "optick.h"
 
 const int scr_width = 1200;
@@ -42,9 +43,8 @@ int main()
     //TODO: should shader, camera and world_generator be properties of chunk_manager?
     ChunkManager chunk_manager(shader, camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    MasterRenderer master_renderer;
+    master_renderer.initConfig();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -57,8 +57,7 @@ int main()
 
         player_input.processInput(delta_time);
 
-        glClearColor(0.2f, 0.3f, 0.7f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        master_renderer.clear();
 
         shader.bind();
        

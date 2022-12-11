@@ -138,6 +138,5 @@
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
-    <None Include="Readme.md" />
   </ItemGroup>
 </Project>
