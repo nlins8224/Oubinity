@@ -51,7 +51,7 @@ using ChunksMap = std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher>;
 class ChunkManager
 {
 public:
-	ChunkManager(Shader shader, Camera& camera);
+	ChunkManager(Shader shader, Camera& camera, WorldGenerator world_generator);
 	~ChunkManager() = default;
 	void generateWorld();
 	std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> getChunks();
@@ -62,8 +62,6 @@ public:
 	void updateBlock(glm::vec3 pos, Block::block_id block_id);
 	void prepareChunksMesh();
 	void refreshChunks();
-	void generateChunkTerrain(std::unique_ptr<Chunk>& chunk, int seed);
-	void generateChunkTerrain(Chunk& chunk, int seed);
 	void renderChunks();
 	void addTextures();
 	void addChunkToLoadList(glm::ivec3 chunk_pos);
@@ -82,6 +80,7 @@ private:
 	 // TODO: ChunkManager should not have resposibility to know what Shaders are
 	 Shader m_shader;
 	 Camera& m_camera;
+	 WorldGenerator m_world_generator;
 	 // TODO: ChunkManager should not have responsibility to know what TextureManager is
 	 TextureManager m_texture_manager{m_shader, 16, 16, 256 };
 };

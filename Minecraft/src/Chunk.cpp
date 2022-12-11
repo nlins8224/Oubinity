@@ -16,7 +16,7 @@ Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager
 
 Chunk::Chunk(const Chunk& chunk)
 	:
-	m_loaded{ chunk.m_loaded },
+	m_is_mesh_buffer_loaded{ chunk.m_is_mesh_buffer_loaded },
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
@@ -29,13 +29,13 @@ Chunk::Chunk(const Chunk& chunk)
 void Chunk::prepareChunkMesh()
 {
 	OPTICK_EVENT();
-	if (m_loaded)
+	if (m_is_mesh_buffer_loaded)
 		return;
 
 	addChunkMesh();
 	loadChunkMesh();
 
-	m_loaded = true;
+	m_is_mesh_buffer_loaded = true;
 }
 
 void Chunk::addChunkMesh()
@@ -71,7 +71,6 @@ void Chunk::renderChunk()
 {
 	OPTICK_EVENT();
 	m_mesh.getLoader().bindVAO();
-	// This could be moved to renderer later
 	uint8_t vertices_per_triangle{ 3 };
 	uint64_t amount_of_triangles{ m_mesh.getMeshVertexPositions().size() / vertices_per_triangle};
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
@@ -164,6 +163,21 @@ bool Chunk::isTransparent(glm::ivec3 block_pos)
 {
 	OPTICK_EVENT();
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
+}
+
+bool Chunk::isMeshLoaded()
+{
+	return m_is_mesh_buffer_loaded;
+}
+
+bool Chunk::isTerrainGenerated()
+{
+	return m_is_terrain_generated;
+}
+
+void Chunk::setIsTerrainGenerated(bool is_generated)
+{
+	m_is_terrain_generated = is_generated;
 }
 
 Mesh& Chunk::getMesh()

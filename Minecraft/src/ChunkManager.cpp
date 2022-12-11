@@ -1,9 +1,10 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Shader shader, Camera& camera)
+ChunkManager::ChunkManager(Shader shader, Camera& camera, WorldGenerator world_generator)
 	:
 	m_shader{shader},
-	m_camera{camera}
+	m_camera{camera},
+	m_world_generator{world_generator}
 {
 	//is that chunk manager responsibility?
 	generateWorld();
@@ -16,13 +17,6 @@ void ChunkManager::prepareChunksMesh()
 		chunk.second.prepareChunkMesh();
 	}
 }
-
-// This can be opitimised
-// Split this into:
-// 1. Add chunks to add-list
-// 2. Add chunks to remove-list
-// 3. Batch-add chunks
-// 4. Batch-remove chunks
 
 void ChunkManager::refreshChunks()
 {
@@ -63,71 +57,6 @@ void ChunkManager::refreshChunks()
 
 	loadAllChunksFromLoadList();
 	unloadAllChunksFromUnloadList();
-}
-
-// TODO: this should be deprecated soon
-void ChunkManager::generateChunkTerrain(std::unique_ptr<Chunk>& chunk, int seed)
-{
-	OPTICK_EVENT();
-
-	if (chunk->m_generated)
-		return;
-
-	WorldGenerator world_generator;
-	height_map h_map = world_generator.generateChunkHeightMap(chunk->getPosition(), seed);
-	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
-	{
-		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
-		{
-			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
-			{
-				glm::ivec3 block_pos{ x, y, z };
-				if (y == h_map[x][z])
-					chunk->setBlock(block_pos, Block::GRASS);
-				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
-					chunk->setBlock(block_pos, Block::DIRT);
-				else if (y < h_map[x][z])
-					chunk->setBlock(block_pos, Block::STONE);
-				else
-					chunk->setBlock(block_pos, Block::AIR);
-			}
-		}
-	}
-
-	chunk->m_generated = true;
-}
-
-// TODO: this should be part of WorldGenerator and Chunk class should call it
-// TODO: this should be at the first stage of prepareChunkMesh? 
-void ChunkManager::generateChunkTerrain(Chunk& chunk, int seed)
-{
-	OPTICK_EVENT();
-
-	if (chunk.m_generated)
-		return;
-
-	WorldGenerator world_generator;
-	height_map h_map = world_generator.generateChunkHeightMap(chunk.getPosition(), seed);
-	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
-	{
-		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
-		{
-			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
-			{
-				glm::ivec3 block_pos{ x, y, z };
-				if (y == h_map[x][z])
-					chunk.setBlock(block_pos, Block::GRASS);
-				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
-					chunk.setBlock(block_pos, Block::DIRT);
-				else if (y < h_map[x][z])
-					chunk.setBlock(block_pos, Block::STONE);
-				else
-					chunk.setBlock(block_pos, Block::AIR);
-			}
-		}
-	}
-
-	chunk.m_generated = true;
 }
 
 // Pass this data to renderer instead
@@ -173,7 +102,8 @@ void ChunkManager::loadAllChunksFromLoadList()
 			std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
 			m_chunks[chunk_pos] = *chunk;
 		}
-		generateChunkTerrain(m_chunks.at(chunk_pos), m_seed);
+		//TODO: is that ChunkManager responsibility to generate chunk terrain?
+		m_world_generator.generateChunkTerrain(m_chunks.at(chunk_pos));
 		m_chunks.at(chunk_pos).prepareChunkMesh();
 		it = m_chunks_to_load.erase(it);
 	}
@@ -196,7 +126,6 @@ void ChunkManager::generateWorld()
 {
 	OPTICK_EVENT();
 	addTextures();
-	WorldGenerator world_generator;
 
 	for (int i = -m_render_distance; i < m_render_distance; i++)
 	{
@@ -204,7 +133,7 @@ void ChunkManager::generateWorld()
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos, this));
-			generateChunkTerrain(current_chunk, m_seed);
+			m_world_generator.generateChunkTerrain(*current_chunk);
 			m_chunks[chunk_pos] = *current_chunk;		
 		}
 	}
@@ -213,6 +142,7 @@ void ChunkManager::generateWorld()
 	prepareChunksMesh();
 }
 
+//TODO: override this hash in namespace::std
 std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks()
 {
 	OPTICK_EVENT();
