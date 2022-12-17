@@ -41,17 +41,17 @@ Loader Mesh::getLoader()
 	return m_loader;
 }
 
-std::vector<float> Mesh::getMeshVertexPositions()
+std::vector<float>& Mesh::getMeshVertexPositions()
 {
 	return m_mesh_data.vertex_positions;
 }
 
-std::vector<float> Mesh::getMeshTexturesPositions()
+std::vector<float>& Mesh::getMeshTexturesPositions()
 {
 	return m_mesh_data.textures_positions;
 }
 
-std::vector<float> Mesh::getMeshShadingPositions()
+std::vector<float>& Mesh::getMeshShadingPositions()
 {
 	return m_mesh_data.shading_positions;
 }

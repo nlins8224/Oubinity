@@ -16,9 +16,9 @@ public:
 
 	MeshData& getMesh();
 	Loader getLoader();
-	std::vector<float> getMeshVertexPositions();
-	std::vector<float> getMeshTexturesPositions();
-	std::vector<float> getMeshShadingPositions();
+	std::vector<float>& getMeshVertexPositions();
+	std::vector<float>& getMeshTexturesPositions();
+	std::vector<float>& getMeshShadingPositions();
 	
 private:
 	Loader m_loader;

@@ -39,7 +39,6 @@ void ChunkRenderer::setChunks(ChunksMap* chunks_map)
 
 void ChunkRenderer::draw(Mesh& mesh) const
 {
-	OPTICK_EVENT();
 	mesh.getLoader().bindVAO();
 	uint8_t vertices_per_triangle{ 3 };
 	uint64_t amount_of_triangles{ mesh.getMeshVertexPositions().size() / vertices_per_triangle};
@@ -48,6 +47,5 @@ void ChunkRenderer::draw(Mesh& mesh) const
 
 void ChunkRenderer::renderChunk(Camera& camera, Chunk chunk)
 {
-	OPTICK_EVENT();
 	draw(chunk.getMesh());
 }
