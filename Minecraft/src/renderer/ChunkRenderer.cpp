@@ -45,7 +45,7 @@ void ChunkRenderer::draw(Mesh& mesh) const
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
-void ChunkRenderer::renderChunk(Camera& camera, Chunk chunk)
+void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk)
 {
 	draw(chunk.getMesh());
 }
