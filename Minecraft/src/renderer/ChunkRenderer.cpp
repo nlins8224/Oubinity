@@ -6,8 +6,14 @@ ChunkRenderer::ChunkRenderer(Shader shader)
 	m_chunks_map = nullptr;
 }
 
+ChunkRenderer::~ChunkRenderer()
+{
+	delete m_chunks_map;
+}
+
 void ChunkRenderer::render(Camera& camera)
 {
+	OPTICK_EVENT();
 	if (m_chunks_map->empty())
 		return;
 
@@ -25,13 +31,15 @@ void ChunkRenderer::render(Camera& camera)
 	}
 }
 
-void ChunkRenderer::setChunks(ChunksMap& chunks_map)
+void ChunkRenderer::setChunks(ChunksMap* chunks_map)
 {
-	m_chunks_map = std::make_unique<ChunksMap>(chunks_map);
+	OPTICK_EVENT();
+	m_chunks_map = chunks_map;
 }
 
 void ChunkRenderer::draw(Mesh& mesh) const
 {
+	OPTICK_EVENT();
 	mesh.getLoader().bindVAO();
 	uint8_t vertices_per_triangle{ 3 };
 	uint64_t amount_of_triangles{ mesh.getMeshVertexPositions().size() / vertices_per_triangle};
@@ -40,5 +48,6 @@ void ChunkRenderer::draw(Mesh& mesh) const
 
 void ChunkRenderer::renderChunk(Camera& camera, Chunk chunk)
 {
+	OPTICK_EVENT();
 	draw(chunk.getMesh());
 }

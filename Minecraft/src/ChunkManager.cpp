@@ -11,6 +11,7 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 
 void ChunkManager::prepareChunksMesh()
 {
+	OPTICK_EVENT();
 	for (auto& chunk : m_chunks_map)
 	{
 		chunk.second.prepareChunkMesh();
@@ -57,6 +58,7 @@ void ChunkManager::refreshChunks()
 
 void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 {
+	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
@@ -66,15 +68,17 @@ void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 
 void ChunkManager::deleteChunk(glm::ivec3 chunk_pos)
 {
+	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
 	m_chunks_map.erase(chunk_pos);
 }
 
-ChunksMap& ChunkManager::getChunksMap()
+ChunksMap* ChunkManager::getChunksMap()
 {
-	return m_chunks_map;
+	OPTICK_EVENT();
+	return &m_chunks_map;
 }
 
 // Is that ChunkManager responsibility?
