@@ -186,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ChunkShader.h" />
+    <ClInclude Include="src\ChunksMap.h" />
     <ClInclude Include="src\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />

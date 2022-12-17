@@ -11,20 +11,7 @@
 #include <functional>
 #include "optick.h"
 
-
 class ChunkManager;
-
-struct glm_ivec3_hasher
-{
-	size_t operator()(const glm::ivec3& p) const
-	{
-		size_t res = 17;
-		res = res * 31 + std::hash<int>()(p.x);
-		res = res * 31 + std::hash<int>()(p.y);
-		res = res * 31 + std::hash<int>()(p.z);
-		return res;
-	}
-};
 
 /* 
 Convention: 

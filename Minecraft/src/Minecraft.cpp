@@ -54,15 +54,10 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        // 1. Player is updated
-        player_input.processInput(delta_time);
-
         master_renderer.clear();
-       
-        // 2. Chunk manager decides what to load
+        player_input.processInput(delta_time);       
         chunk_manager.refreshChunks();
-        // 3. Chunks are rendered
-        master_renderer.render(camera, std::move(chunk_manager.getChunks()));
+        master_renderer.render(camera, chunk_manager.getChunksMap());
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
     }

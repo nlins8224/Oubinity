@@ -18,9 +18,9 @@ void MasterRenderer::clear() const
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void MasterRenderer::render(Camera& camera, std::vector<Chunk> chunks)
+void MasterRenderer::render(Camera& camera, ChunksMap& chunks_map)
 {
-	m_chunk_renderer.setChunks(chunks);
+	m_chunk_renderer.setChunks(chunks_map);
 	m_chunk_renderer.render(camera);
 }
 

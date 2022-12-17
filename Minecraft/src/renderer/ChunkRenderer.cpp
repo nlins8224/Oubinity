@@ -3,23 +3,31 @@
 ChunkRenderer::ChunkRenderer(Shader shader)
 	: Renderer(shader)
 {
+	m_chunks_map = nullptr;
 }
 
 void ChunkRenderer::render(Camera& camera)
 {
-	if (m_chunks.empty())
+	if (m_chunks_map->empty())
 		return;
 
 	m_shader.bind();
-	for (Chunk chunk : m_chunks)
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 view = camera.getViewMatrix();
+	glm::mat4 projection = camera.getProjectionMatrix();
+	m_shader.setUniformMat4("model", model);
+	m_shader.setUniformMat4("view", view);
+	m_shader.setUniformMat4("projection", projection);
+
+	for (auto& [_, chunk] : *m_chunks_map)
 	{
 		renderChunk(camera, chunk);
 	}
 }
 
-void ChunkRenderer::setChunks(std::vector<Chunk> chunks)
+void ChunkRenderer::setChunks(ChunksMap& chunks_map)
 {
-	m_chunks = chunks;
+	m_chunks_map = std::make_unique<ChunksMap>(chunks_map);
 }
 
 void ChunkRenderer::draw(Mesh& mesh) const
@@ -32,11 +40,5 @@ void ChunkRenderer::draw(Mesh& mesh) const
 
 void ChunkRenderer::renderChunk(Camera& camera, Chunk chunk)
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = camera.getViewMatrix();
-	glm::mat4 projection = camera.getProjectionMatrix();
-	m_shader.setUniformMat4("model", model);
-	m_shader.setUniformMat4("view", view);
-	m_shader.setUniformMat4("projection", projection);
 	draw(chunk.getMesh());
 }
