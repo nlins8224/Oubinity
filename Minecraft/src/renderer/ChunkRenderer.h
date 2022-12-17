@@ -2,16 +2,19 @@
 #include "Renderer.h"
 #include "../Chunk.h"
 #include "../Camera.h"
+#include "../Shader.h"
+#include "../ChunkShader.h"
 
 class ChunkRenderer : public Renderer
 {
 public:
+	ChunkRenderer(Shader shader);
+	ChunkRenderer() = delete;
+	~ChunkRenderer() = default;
 	void render(Camera& camera) override;
-	void add(Chunk* chunk);
+	void setChunks(std::vector<Chunk> chunks);
 private:
 	void draw(Mesh& mesh) const override;
-	void renderChunk(Camera& camera, Chunk* chunk);
-	//TODO: Better to have smart pointers here?
-	std::vector<Chunk*> m_chunks;
-	Shader m_shader;
+	void renderChunk(Camera& camera, Chunk chunk);
+	std::vector<Chunk> m_chunks;
 };

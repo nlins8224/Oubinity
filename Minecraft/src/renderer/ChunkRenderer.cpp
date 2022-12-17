@@ -1,20 +1,25 @@
 #include "ChunkRenderer.h"
 
+ChunkRenderer::ChunkRenderer(Shader shader)
+	: Renderer(shader)
+{
+}
+
 void ChunkRenderer::render(Camera& camera)
 {
 	if (m_chunks.empty())
 		return;
 
 	m_shader.bind();
-	for (Chunk* chunk : m_chunks)
+	for (Chunk chunk : m_chunks)
 	{
 		renderChunk(camera, chunk);
 	}
 }
 
-void ChunkRenderer::add(Chunk* chunk)
+void ChunkRenderer::setChunks(std::vector<Chunk> chunks)
 {
-	m_chunks.emplace_back(chunk);
+	m_chunks = chunks;
 }
 
 void ChunkRenderer::draw(Mesh& mesh) const
@@ -25,7 +30,7 @@ void ChunkRenderer::draw(Mesh& mesh) const
 	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
-void ChunkRenderer::renderChunk(Camera& camera, Chunk* chunk)
+void ChunkRenderer::renderChunk(Camera& camera, Chunk chunk)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 view = camera.getViewMatrix();
@@ -33,5 +38,5 @@ void ChunkRenderer::renderChunk(Camera& camera, Chunk* chunk)
 	m_shader.setUniformMat4("model", model);
 	m_shader.setUniformMat4("view", view);
 	m_shader.setUniformMat4("projection", projection);
-	draw(chunk->getMesh());
+	draw(chunk.getMesh());
 }

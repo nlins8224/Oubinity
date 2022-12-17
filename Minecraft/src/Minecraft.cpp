@@ -35,15 +35,14 @@ int main()
         return -1;
     }
 
-    Shader shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl");
-
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
+    TextureManager m_texture_manager{ 16, 16, 256 };
     WorldGenerator world_generator{ 1234 };
-    //TODO: should shader, camera and world_generator be properties of chunk_manager?
-    ChunkManager chunk_manager(shader, camera, world_generator);
+    ChunkManager chunk_manager(camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
     MasterRenderer master_renderer;
+
     master_renderer.initConfig();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -55,31 +54,17 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
+        // 1. Player is updated
         player_input.processInput(delta_time);
 
         master_renderer.clear();
-
-        shader.bind();
        
-        glm::mat4 model = glm::mat4(1.0f);
-        shader.setUniformMat4("model", model);
-        glm::mat4 view  = glm::mat4(1.0f);
-
-        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)scr_width / (float)scr_height, 0.1f, 200.0f);  
-        shader.setUniformMat4("projection", projection); 
-
-        view = player_input.getCamera().getViewMatrix();
-        shader.setUniformMat4("view", view);
-
+        // 2. Chunk manager decides what to load
         chunk_manager.refreshChunks();
-        chunk_manager.renderChunks();
+        // 3. Chunks are rendered
+        master_renderer.render(camera, std::move(chunk_manager.getChunks()));
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
-
-        // 1. Player is updated
-        // 2. ChunkManager decides what to load
-        // 3. Renderer renders mesh data
-
     }
 
     return 0;
