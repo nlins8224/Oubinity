@@ -1,8 +1,7 @@
 #include "TextureManager.h"
 
-TextureManager::TextureManager(Shader& shader, int texture_width, int texture_height, int textures_max_amount) 
+TextureManager::TextureManager(int texture_width, int texture_height, int textures_max_amount) 
 	: 
-	m_shader{shader},
 	m_texture_width{texture_width},
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
@@ -80,13 +79,12 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 	stbi_image_free(texture_image);
 }
 
-void TextureManager::loadTexture()
+void TextureManager::loadTexture(int sampler_location)
 {
 	OPTICK_EVENT();
 	const std::string& texture_array_sampler = "texture_array_sampler";
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-	int sampler_location = m_shader.getUniformLocation(texture_array_sampler);
 	glUniform1i(sampler_location, 0);
 }
 

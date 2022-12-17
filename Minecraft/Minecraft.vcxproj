@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ChunkShader.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\renderer\MasterRenderer.cpp" />
     <ClCompile Include="src\renderer\ChunkRenderer.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
+    <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -183,6 +185,7 @@
     <ClCompile Include="src\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ChunkShader.h" />
     <ClInclude Include="src\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />

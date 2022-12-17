@@ -1,8 +1,7 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Shader shader, Camera& camera, WorldGenerator world_generator)
+ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 	:
-	m_shader{shader},
 	m_camera{camera},
 	m_world_generator{world_generator}
 {
@@ -44,69 +43,38 @@ void ChunkManager::refreshChunks()
 			chunk_pos_z > max_z
 			)
 		{
-			addChunkToUnloadList(chunk.getPosition());
+			deleteChunk(chunk.getPosition());
 		}
 		else
 		{
-			addChunkToLoadList({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
-			addChunkToLoadList({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
-			addChunkToLoadList({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
-			addChunkToLoadList({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
+			addChunk({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
+			addChunk({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
+			addChunk({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
+			addChunk({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
 		}
 	}
-
-	loadAllChunksFromLoadList();
-	unloadAllChunksFromUnloadList();
 }
 
-// Pass this data to renderer instead
-void ChunkManager::renderChunks()
+void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 {
-	OPTICK_EVENT();
-	for (auto& chunk : m_chunks)
-	{
-		chunk.second.renderChunk();
-	}
+	if (m_chunks.find(chunk_pos) != m_chunks.end())
+		return;
+
+	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
+	m_chunks[chunk_pos] = *chunk;
 }
 
-void ChunkManager::addChunkToLoadList(glm::ivec3 chunk_pos)
+void ChunkManager::deleteChunk(glm::ivec3 chunk_pos)
 {
-	m_chunks_to_load.insert(chunk_pos);
+	if (m_chunks.find(chunk_pos) != m_chunks.end())
+		return;
+
+	m_chunks.erase(chunk_pos);
 }
 
-void ChunkManager::addChunkToUnloadList(glm::ivec3 chunk_pos)
+ChunksMap& ChunkManager::getChunksMap()
 {
-	m_chunks_to_unload.insert(chunk_pos);
-}
-
-// Is that ChunkManager responsibility?
-void ChunkManager::loadAllChunksFromLoadList()
-{
-	for (auto it = m_chunks_to_load.begin(), end = m_chunks_to_load.end(); it != end;)
-	{
-		glm::ivec3 chunk_pos = *it;
-		if (m_chunks.find(chunk_pos) == m_chunks.end())
-		{
-			std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
-			m_chunks[chunk_pos] = *chunk;
-		}
-		//TODO: is that ChunkManager responsibility to generate chunk terrain?
-		m_world_generator.generateChunkTerrain(m_chunks.at(chunk_pos));
-		m_chunks.at(chunk_pos).prepareChunkMesh();
-		it = m_chunks_to_load.erase(it);
-	}
-}
-
-// are chunks resources freed?
-// Is that ChunkManager responsibility?
-void ChunkManager::unloadAllChunksFromUnloadList()
-{
-	for (auto it = m_chunks_to_unload.begin(), end = m_chunks_to_unload.end(); it != end;)
-	{
-		glm::ivec3 chunk_pos = *it;
-		m_chunks.erase(chunk_pos);
-		it = m_chunks_to_unload.erase(it);
-	}
+	return m_chunks;
 }
 
 // Is that ChunkManager responsibility?
@@ -119,26 +87,25 @@ void ChunkManager::generateWorld()
 		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
-			std::unique_ptr<Chunk> current_chunk(new Chunk (&m_texture_manager, chunk_pos, this));
+			std::unique_ptr<Chunk> current_chunk(new Chunk (chunk_pos, this));
 			m_world_generator.generateChunkTerrain(*current_chunk);
 			m_chunks[chunk_pos] = *current_chunk;		
 		}
 	}
 
-	m_texture_manager.generateMipmap();
 	prepareChunksMesh();
 }
 
-//TODO: override this hash in namespace::std
-std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher> ChunkManager::getChunks()
+//TODO: is there better way to do that?
+std::vector<Chunk> ChunkManager::getChunks()
 {
 	OPTICK_EVENT();
-	return m_chunks;
-}
-
-TextureManager ChunkManager::getTextureManager()
-{
-	return this->m_texture_manager;
+	std::vector<Chunk> chunks(m_chunks.size());
+	for (auto& [chunk_pos, chunk] : m_chunks)
+	{
+		chunks.emplace_back(chunk);
+	}
+	return chunks;
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
@@ -184,7 +151,7 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks.find(chunk_pos) == m_chunks.end())
 	{
-		std::unique_ptr<Chunk> chunk{ new Chunk(&m_texture_manager, chunk_pos, this) };
+		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
 		m_chunks[chunk_pos] = *chunk;
 	}
 		
@@ -198,4 +165,3 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	//TODO: add to load list probably should be here
 	chunk.prepareChunkMesh();
 }
-

@@ -4,9 +4,8 @@ using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
+Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	: 
-	m_texture_manager{ texture_manager },
 	m_chunk_pos{ chunk_pos },
 	m_chunk_manager{ chunk_manager },
 	m_world_pos{glm::ivec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
@@ -20,7 +19,6 @@ Chunk::Chunk(const Chunk& chunk)
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
-	m_texture_manager{chunk.m_texture_manager},
 	m_blocks{ chunk.m_blocks }
 {
 
@@ -183,9 +181,4 @@ void Chunk::setIsTerrainGenerated(bool is_generated)
 Mesh& Chunk::getMesh()
 {
 	return m_mesh;
-}
-
-TextureManager* Chunk::getTextureManager()
-{
-	return m_texture_manager;
 }

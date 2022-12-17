@@ -41,7 +41,7 @@ public:
 	static const int CHUNK_SIZE_Z{ 16 };
 
 	//TODO: Chunk needs only ChunkManager and chunk_pos now
-	Chunk(TextureManager* texture_manager, glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
+	Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -57,15 +57,16 @@ public:
 	void setIsTerrainGenerated(bool is_generated);
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 	Mesh& getMesh();
-	TextureManager* getTextureManager();
 
 private:
+	// TODO: Move initialization to constructor with default value
 	glm::ivec3 m_chunk_pos{ 0, 0, 0 };
 	glm::ivec3 m_world_pos;
 	Mesh m_mesh;
-	TextureManager* m_texture_manager;
 	ChunkManager* m_chunk_manager;
+	// TODO: Move initialization to constructor with default value
 	bool m_is_mesh_buffer_loaded{ false };
+	// TODO: Move initialization to constructor with default value
 	bool m_is_terrain_generated{ false };
 
 	void addChunkMesh();
