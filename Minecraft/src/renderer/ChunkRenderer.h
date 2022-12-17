@@ -11,11 +11,11 @@ class ChunkRenderer : public Renderer
 public:
 	ChunkRenderer(Shader shader);
 	ChunkRenderer() = delete;
-	~ChunkRenderer() = default;
+	~ChunkRenderer();
 	void render(Camera& camera) override;
-	void setChunks(ChunksMap& chunks);
+	void setChunks(ChunksMap* chunks);
 private:
 	void draw(Mesh& mesh) const override;
 	void renderChunk(Camera& camera, Chunk chunk);
-	std::unique_ptr<ChunksMap> m_chunks_map;
+	ChunksMap* m_chunks_map;
 };
