@@ -11,7 +11,7 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 
 void ChunkManager::prepareChunksMesh()
 {
-	for (auto& chunk : m_chunks)
+	for (auto& chunk : m_chunks_map)
 	{
 		chunk.second.prepareChunkMesh();
 	}
@@ -20,7 +20,7 @@ void ChunkManager::prepareChunksMesh()
 void ChunkManager::refreshChunks()
 {
 	OPTICK_EVENT();
-	for (auto& it : m_chunks)
+	for (auto& it : m_chunks_map)
 	{
 		Chunk& chunk = it.second;
 
@@ -57,24 +57,24 @@ void ChunkManager::refreshChunks()
 
 void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 {
-	if (m_chunks.find(chunk_pos) != m_chunks.end())
+	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-	m_chunks[chunk_pos] = *chunk;
+	m_chunks_map[chunk_pos] = *chunk;
 }
 
 void ChunkManager::deleteChunk(glm::ivec3 chunk_pos)
 {
-	if (m_chunks.find(chunk_pos) != m_chunks.end())
+	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
-	m_chunks.erase(chunk_pos);
+	m_chunks_map.erase(chunk_pos);
 }
 
 ChunksMap& ChunkManager::getChunksMap()
 {
-	return m_chunks;
+	return m_chunks_map;
 }
 
 // Is that ChunkManager responsibility?
@@ -89,23 +89,11 @@ void ChunkManager::generateWorld()
 			glm::ivec3 chunk_pos(i, 0, j);
 			std::unique_ptr<Chunk> current_chunk(new Chunk (chunk_pos, this));
 			m_world_generator.generateChunkTerrain(*current_chunk);
-			m_chunks[chunk_pos] = *current_chunk;		
+			m_chunks_map[chunk_pos] = *current_chunk;		
 		}
 	}
 
 	prepareChunksMesh();
-}
-
-//TODO: is there better way to do that?
-std::vector<Chunk> ChunkManager::getChunks()
-{
-	OPTICK_EVENT();
-	std::vector<Chunk> chunks(m_chunks.size());
-	for (auto& [chunk_pos, chunk] : m_chunks)
-	{
-		chunks.emplace_back(chunk);
-	}
-	return chunks;
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
@@ -137,25 +125,25 @@ glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 {
 	glm::ivec3 chunk_pos = getChunkPosition(world_pos);
-	bool is_in = m_chunks.count(chunk_pos);
+	bool is_in = m_chunks_map.count(chunk_pos);
 	if (!is_in)
 		return Block::AIR;
 
 	glm::ivec3 block_pos = getChunkBlockPosition(world_pos);
-	return m_chunks.at(chunk_pos).getBlockId(block_pos);
+	return m_chunks_map.at(chunk_pos).getBlockId(block_pos);
 }
 
 void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	OPTICK_EVENT();
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
-	if (m_chunks.find(chunk_pos) == m_chunks.end())
+	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
 	{
 		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-		m_chunks[chunk_pos] = *chunk;
+		m_chunks_map[chunk_pos] = *chunk;
 	}
 		
-	Chunk& chunk = m_chunks.at(chunk_pos);
+	Chunk& chunk = m_chunks_map.at(chunk_pos);
 	glm::ivec3 chunk_block_pos = getChunkBlockPosition(world_pos);
 
 	if (chunk.getBlockId(chunk_block_pos) == type)

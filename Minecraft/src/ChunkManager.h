@@ -11,6 +11,7 @@
 #include "WorldGenerator.h"
 #include "Camera.h"
 #include "optick.h"
+#include "ChunksMap.h"
 
 /*
 				
@@ -21,31 +22,12 @@ block_pos is position of a block inside the chunk
 
 */
 
-namespace std
-{
-	template<>
-	struct hash<glm::ivec3>
-	{
-		const size_t operator()(const glm::ivec3& vec) const
-		{
-			size_t res = 17;
-			res = res * 31 + std::hash<int>()(vec.x);
-			res = res * 31 + std::hash<int>()(vec.y);
-			res = res * 31 + std::hash<int>()(vec.z);
-			return res;
-		};
-	};
-}
-
-using ChunksMap = std::unordered_map<glm::ivec3, Chunk, glm_ivec3_hasher>;
-
 class ChunkManager
 {
 public:
 	ChunkManager(Camera& camera, WorldGenerator world_generator);
 	~ChunkManager() = default;
 	void generateWorld();
-	std::vector<Chunk> getChunks();
 	ChunksMap& getChunksMap();
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
@@ -57,7 +39,7 @@ public:
 	void deleteChunk(glm::ivec3 chunk_pos);
 
 private:
-	 ChunksMap m_chunks;
+	 ChunksMap m_chunks_map;
 	 //TODO: pass this value in constructor 
 	 int m_render_distance{ 16 };
 	 Camera& m_camera;

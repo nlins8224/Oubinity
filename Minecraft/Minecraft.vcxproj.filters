@@ -143,6 +143,9 @@
     <ClInclude Include="src\ChunkShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ChunksMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
