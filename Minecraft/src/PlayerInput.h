@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include "Camera.h"
-#include "Keyboard.h"
-#include "Mouse.h"
+#include "io/Keyboard.h"
+#include "io/Mouse.h"
 #include "Ray.h"
 
 class PlayerInput

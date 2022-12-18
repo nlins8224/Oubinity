@@ -1,14 +1,14 @@
 #pragma once
-#include "Block.h"
-#include "BlockMesh.h"
-#include "Mesh.h"
-#include "Loader.h"
-#include "Shader.h"
-#include "TextureManager.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include <array>
 #include <functional>
+#include "Mesh.h"
+#include "../block/Block.h"
+#include "../block/BlockMesh.h"
+#include "../Loader.h"
+#include "../shader/Shader.h"
+#include "../TextureManager.h"
 #include "optick.h"
 
 class ChunkManager;

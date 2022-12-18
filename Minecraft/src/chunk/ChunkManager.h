@@ -4,14 +4,14 @@
 #include <optional>
 #include <unordered_set>
 #include "Chunk.h"
-#include "Shader.h"
-#include "TextureManager.h"
-#include "Block.h"
-#include "FastNoiseLite.h"
-#include "WorldGenerator.h"
-#include "Camera.h"
-#include "optick.h"
 #include "ChunksMap.h"
+#include "WorldGenerator.h"
+#include "../shader/Shader.h"
+#include "../TextureManager.h"
+#include "../block/Block.h"
+#include "../Camera.h"
+#include "../third_party/FastNoiseLite.h"
+#include "optick.h"
 
 /*
 				

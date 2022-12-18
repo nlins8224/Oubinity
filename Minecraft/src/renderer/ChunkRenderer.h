@@ -1,10 +1,9 @@
 #pragma once
 #include "Renderer.h"
-#include "../Chunk.h"
 #include "../Camera.h"
-#include "../Shader.h"
-#include "../ChunkShader.h"
-#include "../ChunksMap.h"
+#include "../shader/ChunkShader.h"
+#include "../chunk/ChunksMap.h"
+#include "../chunk/Chunk.h"
 
 class ChunkRenderer : public Renderer
 {

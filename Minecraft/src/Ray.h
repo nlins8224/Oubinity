@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <cmath>
 #include <functional>
-#include "ChunkManager.h"
+#include "chunk/ChunkManager.h"
 #include <iostream>
 class Ray
 {

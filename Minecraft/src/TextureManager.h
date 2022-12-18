@@ -4,9 +4,10 @@
 #include <iostream>
 #include <optick.h>
 #include <glad/glad.h>
-#include "Block.h"
-#include "stb_image.h"
-#include "Shader.h"
+#include "block/Block.h"
+#include "third_party/stb_image.h"
+#include "shader/Shader.h"
+
 class TextureManager
 {
 public:

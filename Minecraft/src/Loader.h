@@ -2,7 +2,7 @@
 #include <vector>
 #include <glad/glad.h>
 #include <optick.h>
-#include "MeshData.h"
+#include "chunk/MeshData.h"
 
 
 class Loader 

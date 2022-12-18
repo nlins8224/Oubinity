@@ -1,8 +1,8 @@
 #pragma once
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
-#include "../Camera.h"
 #include "ChunkRenderer.h"
+#include "../Camera.h"
 
 class MasterRenderer
 {
