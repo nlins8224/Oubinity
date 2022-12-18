@@ -27,7 +27,6 @@ public:
 	static const int CHUNK_SIZE_Y{ 64 };
 	static const int CHUNK_SIZE_Z{ 16 };
 
-	//TODO: Chunk needs only ChunkManager and chunk_pos now
 	Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -61,5 +60,5 @@ private:
 	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 world_pos);
-	void addFace(BlockMesh::block_mesh face_side, glm::ivec3 block_pos);
+	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
 };
