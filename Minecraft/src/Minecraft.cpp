@@ -7,10 +7,10 @@
 #include <GLFW/glfw3.h>
 #include <filesystem>
 
-#include "ChunkManager.h"
+#include "chunk/ChunkManager.h"
 #include "PlayerInput.h"
-#include "Window.h"
-#include "Shader.h"
+#include "io/Window.h"
+#include "shader/Shader.h"
 #include "Camera.h"
 #include "renderer/MasterRenderer.h"
 #include "optick.h"

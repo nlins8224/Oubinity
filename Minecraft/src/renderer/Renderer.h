@@ -1,8 +1,8 @@
 #pragma once
 #include "../Camera.h"
 #include "../Loader.h"
-#include "../Mesh.h"
-#include "../Shader.h"
+#include "../chunk/Mesh.h"
+#include "../shader/Shader.h"
 
 class Renderer
 {

@@ -169,51 +169,51 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\ChunkShader.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\shader\ChunkShader.cpp" />
+    <ClCompile Include="src\chunk\Mesh.cpp" />
     <ClCompile Include="src\renderer\MasterRenderer.cpp" />
     <ClCompile Include="src\renderer\ChunkRenderer.cpp" />
     <ClCompile Include="src\Ray.cpp" />
-    <ClCompile Include="src\ChunkManager.cpp" />
-    <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\chunk\ChunkManager.cpp" />
+    <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\glad.cpp" />
-    <ClCompile Include="src\Keyboard.cpp" />
+    <ClCompile Include="src\third_party\glad.cpp" />
+    <ClCompile Include="src\io\Keyboard.cpp" />
     <ClCompile Include="src\Loader.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
-    <ClCompile Include="src\Mouse.cpp" />
+    <ClCompile Include="src\io\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
-    <ClCompile Include="src\Shader.cpp" />
-    <ClCompile Include="src\stb_image.cpp" />
-    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\shader\Shader.cpp" />
+    <ClCompile Include="src\third_party\stb_image.cpp" />
+    <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
-    <ClCompile Include="src\WorldGenerator.cpp" />
+    <ClCompile Include="src\chunk\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ChunkShader.h" />
-    <ClInclude Include="src\ChunksMap.h" />
-    <ClInclude Include="src\MeshData.h" />
+    <ClInclude Include="src\shader\ChunkShader.h" />
+    <ClInclude Include="src\chunk\ChunksMap.h" />
+    <ClInclude Include="src\chunk\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
-    <ClInclude Include="src\FastNoiseLite.h" />
-    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\third_party\FastNoiseLite.h" />
+    <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\Ray.h" />
-    <ClInclude Include="src\ChunkManager.h" />
-    <ClInclude Include="src\Block.h" />
-    <ClInclude Include="src\Chunk.h" />
+    <ClInclude Include="src\chunk\ChunkManager.h" />
+    <ClInclude Include="src\block\Block.h" />
+    <ClInclude Include="src\chunk\Chunk.h" />
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\BlockMesh.h" />
-    <ClInclude Include="src\Keyboard.h" />
+    <ClInclude Include="src\block\BlockMesh.h" />
+    <ClInclude Include="src\io\Keyboard.h" />
     <ClInclude Include="src\Loader.h" />
-    <ClInclude Include="src\Mouse.h" />
+    <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
-    <ClInclude Include="src\Shader.h" />
-    <ClInclude Include="src\stb_image.h" />
-    <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\shader\Shader.h" />
+    <ClInclude Include="src\third_party\stb_image.h" />
+    <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
-    <ClInclude Include="src\WorldGenerator.h" />
+    <ClInclude Include="src\chunk\WorldGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />

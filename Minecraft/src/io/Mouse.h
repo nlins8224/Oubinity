@@ -1,10 +1,8 @@
 #pragma once
 
 #include <GLAD/glad.h>
-#pragma once
 #include <GLFW/glfw3.h>
-#include "PlayerInput.h"
-#include <iostream>
+#include "../PlayerInput.h"
 
 class Mouse
 {
