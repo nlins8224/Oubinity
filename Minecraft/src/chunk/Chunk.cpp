@@ -1,6 +1,6 @@
 #include "Chunk.h"
 #include "ChunkManager.h"
-using BlockMesh::faces, BlockMesh::block_mesh, BlockMesh::FACE_SIZE;
+using Block::faces, Block::block_mesh, Block::FACE_SIZE;
 using Block::block_id;
 
 

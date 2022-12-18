@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-namespace BlockMesh
+namespace Block
 {
     static const int FACE_SIZE{ 6 * 7 };
     static const int FACE_AMOUNT{ 6 };
