@@ -19,14 +19,14 @@ namespace Block
 
 	int BlockArray::getBlockIndex(glm::ivec3 block_pos)
 	{
-		return block_pos.x * Chunk::CHUNK_SIZE_Y * Chunk::CHUNK_SIZE_Z + block_pos.y * Chunk::CHUNK_SIZE_Z + block_pos.z;
+		return block_pos.x * CHUNK_SIZE_Y * CHUNK_SIZE_Z + block_pos.y * CHUNK_SIZE_Z + block_pos.z;
 	}
 
 	bool BlockArray::outOfBounds(glm::ivec3 block_pos)
 	{
-		return outOfBounds(block_pos.x, Chunk::CHUNK_SIZE_X) 
-			|| outOfBounds(block_pos.y, Chunk::CHUNK_SIZE_Y)
-			|| outOfBounds(block_pos.z, Chunk::CHUNK_SIZE_Z);
+		return outOfBounds(block_pos.x, CHUNK_SIZE_X) 
+			|| outOfBounds(block_pos.y, CHUNK_SIZE_Y)
+			|| outOfBounds(block_pos.z, CHUNK_SIZE_Z);
 	}
 
 	bool BlockArray::outOfBounds(int coord, int chunk_size)

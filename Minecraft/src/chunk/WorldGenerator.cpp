@@ -13,12 +13,12 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	height_map h_map{};
 	double target_height = 0.0;
 
-	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
+	for (int x = 0; x < CHUNK_SIZE_X; x++)
 	{
-		for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
+		for (int z = 0; z < CHUNK_SIZE_Z; z++)
 		{
-			float x_world_pos = x + chunk_pos.x * Chunk::CHUNK_SIZE_X;
-			float z_world_pos = z + chunk_pos.z * Chunk::CHUNK_SIZE_Z;
+			float x_world_pos = x + chunk_pos.x * CHUNK_SIZE_X;
+			float z_world_pos = z + chunk_pos.z * CHUNK_SIZE_Z;
 
 			target_height = 30 * noise.GetNoise(x_world_pos, z_world_pos) + 40;
 			h_map[x][z] = target_height;
@@ -41,11 +41,11 @@ void WorldGenerator::generateChunkTerrain(Chunk& chunk)
 		return;
 
 	height_map h_map = generateChunkHeightMap(chunk.getPosition(), m_world_seed);
-	for (int x = 0; x < Chunk::CHUNK_SIZE_X; x++)
+	for (int x = 0; x < CHUNK_SIZE_X; x++)
 	{
-		for (int y = 0; y < Chunk::CHUNK_SIZE_Y; y++)
+		for (int y = 0; y < CHUNK_SIZE_Y; y++)
 		{
-			for (int z = 0; z < Chunk::CHUNK_SIZE_Z; z++)
+			for (int z = 0; z < CHUNK_SIZE_Z; z++)
 			{
 				glm::ivec3 block_pos{ x, y, z };
 				if (y == h_map[x][z])

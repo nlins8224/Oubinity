@@ -193,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\block\BlockArray.h" />
+    <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />
     <ClInclude Include="src\chunk\ChunksMap.h" />
     <ClInclude Include="src\chunk\MeshData.h" />
