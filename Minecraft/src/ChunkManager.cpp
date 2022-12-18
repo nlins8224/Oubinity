@@ -11,15 +11,18 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 void ChunkManager::updateChunksMap()
 {
 	OPTICK_EVENT();
+	int player_chunk_pos_x = m_camera.getCameraPos().x / Chunk::CHUNK_SIZE_X;
+	int player_chunk_pos_z = m_camera.getCameraPos().z / Chunk::CHUNK_SIZE_Z;
+
 	for (auto& it : m_chunks_map)
 	{
 		Chunk& chunk = it.second;
 
-		int player_chunk_pos_x = m_camera.getCameraPos().x / Chunk::CHUNK_SIZE_X;
-		int player_chunk_pos_z = m_camera.getCameraPos().z / Chunk::CHUNK_SIZE_Z;
-
 		int chunk_pos_x = chunk.getPosition().x;
 		int chunk_pos_z = chunk.getPosition().z;
+
+		if (player_chunk_pos_x != chunk_pos_x && player_chunk_pos_z != chunk_pos_z)
+			continue;
 
 		int min_x = player_chunk_pos_x - m_render_distance;
 		int max_x = player_chunk_pos_x + m_render_distance;
@@ -38,10 +41,10 @@ void ChunkManager::updateChunksMap()
 		}
 		else
 		{
-			tryAddChunk({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
-			tryAddChunk({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
-			tryAddChunk({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
-			tryAddChunk({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
+			tryAddChunk({ max_x, 0, chunk_pos_z });
+			tryAddChunk({ min_x, 0, chunk_pos_z });
+			tryAddChunk({ chunk_pos_x, 0, max_z });
+			tryAddChunk({ chunk_pos_x, 0, min_z });
 		}
 	}
 }
