@@ -2,20 +2,17 @@
 
 void Loader::loadMesh(MeshData& mesh)
 {
-	OPTICK_EVENT();
 	createVAO();
 	storeDataInVAO(0, mesh);
 	unbindVAO();
 }
 
 void Loader::createVAO() {
-	OPTICK_EVENT();
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 }
 
 void Loader::storeDataInVAO(int attribute_number, MeshData& mesh) {
-	OPTICK_EVENT();
 	glGenBuffers(1, &m_vertex_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh.vertex_positions.size() * sizeof(float), mesh.vertex_positions.data(), GL_STATIC_DRAW);
@@ -40,11 +37,9 @@ void Loader::storeDataInVAO(int attribute_number, MeshData& mesh) {
 }
 
 void Loader::bindVAO() {
-	OPTICK_EVENT();
 	glBindVertexArray(m_vao);
 }
 
 void Loader::unbindVAO() {
-	OPTICK_EVENT();
 	glBindVertexArray(0);
 }

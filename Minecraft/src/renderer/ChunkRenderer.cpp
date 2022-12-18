@@ -13,7 +13,6 @@ ChunkRenderer::~ChunkRenderer()
 
 void ChunkRenderer::render(Camera& camera)
 {
-	OPTICK_EVENT();
 	if (m_chunks_map->empty())
 		return;
 
@@ -33,7 +32,6 @@ void ChunkRenderer::render(Camera& camera)
 
 void ChunkRenderer::setChunks(ChunksMap* chunks_map)
 {
-	OPTICK_EVENT();
 	m_chunks_map = chunks_map;
 }
 

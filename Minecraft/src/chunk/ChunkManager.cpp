@@ -10,7 +10,6 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 
 void ChunkManager::updateChunksMap()
 {
-	OPTICK_EVENT();
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
@@ -51,7 +50,6 @@ void ChunkManager::updateChunksMap()
 
 void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 {
-	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
@@ -62,7 +60,6 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 
 void ChunkManager::tryDeleteChunk(glm::ivec3 chunk_pos)
 {
-	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
@@ -71,13 +68,11 @@ void ChunkManager::tryDeleteChunk(glm::ivec3 chunk_pos)
 
 ChunksMap* ChunkManager::getChunksMap()
 {
-	OPTICK_EVENT();
 	return &m_chunks_map;
 }
 
 void ChunkManager::generateWorld()
 {
-	OPTICK_EVENT();
 
 	for (int i = -m_render_distance; i < m_render_distance; i++)
 	{
@@ -128,7 +123,6 @@ Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 
 void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
-	OPTICK_EVENT();
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
 	{
