@@ -4,8 +4,10 @@
 #include <array>
 #include <functional>
 #include "Mesh.h"
+#include "ChunkSize.h"
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
+#include "../block/BlockArray.h"
 #include "../Loader.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
@@ -23,10 +25,7 @@ block_pos is position of a block inside the chunk, calculated by: floor(world_po
 class Chunk
 {
 public:
-	static const int CHUNK_SIZE_X{ 16 };
-	static const int CHUNK_SIZE_Y{ 64 };
-	static const int CHUNK_SIZE_Z{ 16 };
-
+	
 	Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -42,7 +41,7 @@ public:
 	bool isTerrainGenerated();
 	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
-	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
+	Block::BlockArray m_blocks;
 	Mesh& getMesh();
 
 private:

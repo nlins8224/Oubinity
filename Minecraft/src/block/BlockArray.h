@@ -1,5 +1,8 @@
 #pragma once
-#include "../chunk/Chunk.h"
+#include <glm/glm.hpp>
+#include "Block.h"
+#include "../chunk/ChunkSize.h"
+
 
 namespace Block
 {
@@ -12,7 +15,7 @@ private:
 	int getBlockIndex(glm::ivec3 block_pos);
 	bool outOfBounds(glm::ivec3 block_pos);
 	bool outOfBounds(int coord, int chunk_size);
-	block_id block_array[Chunk::CHUNK_SIZE_X * Chunk::CHUNK_SIZE_Y * Chunk::CHUNK_SIZE_Z];
+	block_id block_array[CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
 };
 
 }

@@ -77,7 +77,7 @@ void Chunk::renderChunk()
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
 	OPTICK_EVENT();
-	m_blocks[block_pos.x][block_pos.y][block_pos.z] = type;
+	m_blocks.set(block_pos, type);
 }
 
 glm::ivec3 Chunk::getPosition()
@@ -108,7 +108,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 		glm::ivec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
 		return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
 	}
-	return m_blocks[x][y][z] != block_id::AIR;
+	return m_blocks.get(block_pos) != block_id::AIR;
 }
 
 // Should that be in Mesh?
@@ -154,7 +154,7 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos)
 {
 	OPTICK_EVENT();
-	return m_blocks[block_pos.x][block_pos.y][block_pos.z];
+	return m_blocks.get(block_pos);
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos)

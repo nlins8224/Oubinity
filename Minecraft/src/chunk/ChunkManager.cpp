@@ -11,8 +11,8 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 void ChunkManager::updateChunksMap()
 {
 	OPTICK_EVENT();
-	int player_chunk_pos_x = m_camera.getCameraPos().x / Chunk::CHUNK_SIZE_X;
-	int player_chunk_pos_z = m_camera.getCameraPos().z / Chunk::CHUNK_SIZE_Z;
+	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
+	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
 	for (auto& it : m_chunks_map)
 	{
@@ -91,9 +91,9 @@ void ChunkManager::generateWorld()
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
-	int x = floor(world_pos.x / Chunk::CHUNK_SIZE_X);
-	int y = floor(world_pos.y / Chunk::CHUNK_SIZE_Y);
-	int z = floor(world_pos.z / Chunk::CHUNK_SIZE_Z);
+	int x = floor(world_pos.x / CHUNK_SIZE_X);
+	int y = floor(world_pos.y / CHUNK_SIZE_Y);
+	int z = floor(world_pos.z / CHUNK_SIZE_Z);
 
 	return glm::ivec3(x, y, z);
 }
@@ -102,9 +102,9 @@ glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
 	glm::ivec3 world_pos_int = world_pos;
-	int M_X = Chunk::CHUNK_SIZE_X;
-	int M_Y = Chunk::CHUNK_SIZE_Y;
-	int M_Z = Chunk::CHUNK_SIZE_Z;
+	int M_X = CHUNK_SIZE_X;
+	int M_Y = CHUNK_SIZE_Y;
+	int M_Z = CHUNK_SIZE_Z;
 
 	
 	// true modulo instead of C++ remainder modulo
