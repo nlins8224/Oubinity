@@ -55,7 +55,7 @@ int main()
         last_frame = current_frame;
 
         player_input.processInput(delta_time);       
-        chunk_manager.refreshChunks();
+        chunk_manager.updateChunksMap();
         master_renderer.clear();
         master_renderer.render(camera, chunk_manager.getChunksMap());
         glfwSwapBuffers(window.getWindow());
