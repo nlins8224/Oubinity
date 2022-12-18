@@ -33,7 +33,6 @@ public:
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);
 	void updateBlock(glm::vec3 pos, Block::block_id block_id);
-	void prepareChunksMesh();
 	void refreshChunks();
 	void addChunk(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);

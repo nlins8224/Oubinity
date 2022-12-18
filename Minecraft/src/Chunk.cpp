@@ -173,6 +173,11 @@ bool Chunk::isTerrainGenerated()
 	return m_is_terrain_generated;
 }
 
+void Chunk::setIsMeshLoaded(bool is_loaded)
+{
+	m_is_mesh_buffer_loaded = is_loaded;
+}
+
 void Chunk::setIsTerrainGenerated(bool is_generated)
 {
 	m_is_terrain_generated = is_generated;
