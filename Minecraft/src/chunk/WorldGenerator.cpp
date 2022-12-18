@@ -2,7 +2,6 @@
 
 height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const
 {
-	OPTICK_EVENT("Generate noise");
 	FastNoiseLite noise(world_seed);
 	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 	noise.SetFrequency(0.005);
@@ -35,7 +34,6 @@ WorldGenerator::WorldGenerator(int world_seed)
 
 void WorldGenerator::generateChunkTerrain(Chunk& chunk)
 {
-	OPTICK_EVENT();
 
 	if (chunk.isTerrainGenerated())
 		return;

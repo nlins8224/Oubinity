@@ -26,7 +26,6 @@ Chunk::Chunk(const Chunk& chunk)
 
 void Chunk::prepareChunkMesh()
 {
-	OPTICK_EVENT();
 	if (m_is_mesh_buffer_loaded)
 		return;
 
@@ -38,7 +37,6 @@ void Chunk::prepareChunkMesh()
 
 void Chunk::addChunkMesh()
 {
-	OPTICK_EVENT();
 	m_mesh.clear();
 
 	int block;
@@ -60,35 +58,21 @@ void Chunk::addChunkMesh()
 // TODO: This is not responsibility of this class anymore. Move it to renderer
 void Chunk::loadChunkMesh()
 {
-	OPTICK_EVENT();
 	m_mesh.loadMesh();
-}
-
-// This should be in renderer
-void Chunk::renderChunk()
-{
-	OPTICK_EVENT();
-	m_mesh.getLoader().bindVAO();
-	uint8_t vertices_per_triangle{ 3 };
-	uint64_t amount_of_triangles{ m_mesh.getMeshVertexPositions().size() / vertices_per_triangle};
-	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
-	OPTICK_EVENT();
 	m_blocks.set(block_pos, type);
 }
 
 glm::ivec3 Chunk::getPosition()
 {
-	OPTICK_EVENT();
 	return m_chunk_pos;
 }
 
 void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 {
-	OPTICK_EVENT();
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
 	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT, glm::ivec3(x, y, z));
@@ -114,7 +98,6 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos)
 // Should that be in Mesh?
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 {
-	OPTICK_EVENT();
 	const uint8_t FACE_ROWS{ 6 };
 	Block::block_id block_id{ getBlockId(block_pos) };
 	int texture_id{ static_cast<int>(block_id) };
@@ -153,13 +136,11 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos)
 {
-	OPTICK_EVENT();
 	return m_blocks.get(block_pos);
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos)
 {
-	OPTICK_EVENT();
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
 

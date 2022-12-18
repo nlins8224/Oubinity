@@ -6,7 +6,6 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
 {
-	OPTICK_EVENT();
 	glGenTextures(1, &m_texture_array);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 
@@ -48,7 +47,6 @@ void TextureManager::addTextures()
 
 void TextureManager::addTexture(std::string texture, int texture_id)
 {
-	OPTICK_EVENT();
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (is_in)
 		return;
@@ -81,7 +79,6 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 
 void TextureManager::loadTexture(int sampler_location)
 {
-	OPTICK_EVENT();
 	const std::string& texture_array_sampler = "texture_array_sampler";
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);

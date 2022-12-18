@@ -25,7 +25,6 @@ float fov = 90.0f;
 
 int main()
 {
-    OPTICK_FRAME("MainThread");
     Window window{"Minecraft" };
     window.windowInit();
 

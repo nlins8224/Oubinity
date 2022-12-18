@@ -32,7 +32,6 @@ public:
 	~Chunk() = default;
 
 	void prepareChunkMesh();
-	void renderChunk();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPosition();
 	Block::block_id getBlockId(glm::ivec3 block_pos);
