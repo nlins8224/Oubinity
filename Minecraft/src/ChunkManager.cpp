@@ -8,7 +8,7 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 	generateWorld();
 }
 
-void ChunkManager::refreshChunks()
+void ChunkManager::updateChunksMap()
 {
 	OPTICK_EVENT();
 	for (auto& it : m_chunks_map)
@@ -34,19 +34,19 @@ void ChunkManager::refreshChunks()
 			chunk_pos_z > max_z
 			)
 		{
-			deleteChunk(chunk.getPosition());
+			tryDeleteChunk(chunk.getPosition());
 		}
 		else
 		{
-			addChunk({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
-			addChunk({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
-			addChunk({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
-			addChunk({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
+			tryAddChunk({ player_chunk_pos_x + m_render_distance, 0, chunk_pos_z });
+			tryAddChunk({ player_chunk_pos_x - m_render_distance, 0, chunk_pos_z });
+			tryAddChunk({ chunk_pos_x, 0, player_chunk_pos_z + m_render_distance });
+			tryAddChunk({ chunk_pos_x, 0, player_chunk_pos_z - m_render_distance });
 		}
 	}
 }
 
-void ChunkManager::addChunk(glm::ivec3 chunk_pos)
+void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
@@ -57,7 +57,7 @@ void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 	m_chunks_map[chunk_pos] = *chunk;
 }
 
-void ChunkManager::deleteChunk(glm::ivec3 chunk_pos)
+void ChunkManager::tryDeleteChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT();
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
@@ -72,7 +72,6 @@ ChunksMap* ChunkManager::getChunksMap()
 	return &m_chunks_map;
 }
 
-//TODO: Move this to WorldGenerator | is that chunk manager responsibility?
 void ChunkManager::generateWorld()
 {
 	OPTICK_EVENT();
@@ -82,7 +81,7 @@ void ChunkManager::generateWorld()
 		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
-			addChunk(chunk_pos);
+			tryAddChunk(chunk_pos);
 		}
 	}
 }
