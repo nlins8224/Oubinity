@@ -41,6 +41,7 @@ public:
 	bool isTransparent(glm::ivec3 block_pos);
 	bool isMeshLoaded();
 	bool isTerrainGenerated();
+	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE_X>, CHUNK_SIZE_Y>, CHUNK_SIZE_Z> m_blocks{ Block::AIR };
 	Mesh& getMesh();

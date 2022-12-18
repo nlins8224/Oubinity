@@ -54,9 +54,9 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        master_renderer.clear();
         player_input.processInput(delta_time);       
         chunk_manager.refreshChunks();
+        master_renderer.clear();
         master_renderer.render(camera, chunk_manager.getChunksMap());
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();

@@ -5,17 +5,7 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
 	m_camera{camera},
 	m_world_generator{world_generator}
 {
-	//is that chunk manager responsibility?
 	generateWorld();
-}
-
-void ChunkManager::prepareChunksMesh()
-{
-	OPTICK_EVENT();
-	for (auto& chunk : m_chunks_map)
-	{
-		chunk.second.prepareChunkMesh();
-	}
 }
 
 void ChunkManager::refreshChunks()
@@ -63,6 +53,7 @@ void ChunkManager::addChunk(glm::ivec3 chunk_pos)
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
+	m_world_generator.generateChunkTerrain(*chunk);
 	m_chunks_map[chunk_pos] = *chunk;
 }
 
@@ -81,7 +72,7 @@ ChunksMap* ChunkManager::getChunksMap()
 	return &m_chunks_map;
 }
 
-// Is that ChunkManager responsibility?
+//TODO: Move this to WorldGenerator | is that chunk manager responsibility?
 void ChunkManager::generateWorld()
 {
 	OPTICK_EVENT();
@@ -91,13 +82,9 @@ void ChunkManager::generateWorld()
 		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
 			glm::ivec3 chunk_pos(i, 0, j);
-			std::unique_ptr<Chunk> current_chunk(new Chunk (chunk_pos, this));
-			m_world_generator.generateChunkTerrain(*current_chunk);
-			m_chunks_map[chunk_pos] = *current_chunk;		
+			addChunk(chunk_pos);
 		}
 	}
-
-	prepareChunksMesh();
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
@@ -154,6 +141,5 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 		return;
 	
 	chunk.setBlock(chunk_block_pos, type);
-	//TODO: add to load list probably should be here
-	chunk.prepareChunkMesh();
+	chunk.setIsMeshLoaded(false);
 }
