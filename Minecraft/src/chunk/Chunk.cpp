@@ -12,6 +12,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 {
 	m_is_mesh_buffer_loaded = false;
 	m_is_terrain_generated = false;
+	m_blocks = Block::BlockArray();
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -20,7 +21,14 @@ Chunk::Chunk(const Chunk& chunk)
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
-	m_blocks{ chunk.m_blocks }
+	m_blocks{ chunk.m_blocks },
+	m_world_pos{chunk.m_world_pos},
+	m_is_terrain_generated{chunk.m_is_terrain_generated}
+{
+
+}
+
+Chunk::~Chunk()
 {
 
 }
