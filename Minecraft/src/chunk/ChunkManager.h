@@ -25,7 +25,7 @@ block_pos is position of a block inside the chunk
 class ChunkManager
 {
 public:
-	ChunkManager(Camera& camera, WorldGenerator world_generator);
+	ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance = 16);
 	~ChunkManager() = default;
 	void generateWorld();
 	ChunksMap* getChunksMap();
@@ -39,8 +39,7 @@ public:
 
 private:
 	 ChunksMap m_chunks_map;
-	 //TODO: pass this value in constructor 
-	 int m_render_distance{ 16 };
+	 int m_render_distance;
 	 Camera& m_camera;
 	 WorldGenerator m_world_generator;
 };

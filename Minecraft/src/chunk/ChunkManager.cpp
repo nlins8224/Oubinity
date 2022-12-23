@@ -1,9 +1,10 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator)
+ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance)
 	:
 	m_camera{camera},
-	m_world_generator{world_generator}
+	m_world_generator{world_generator},
+	m_render_distance{render_distance}
 {
 	generateWorld();
 }
