@@ -18,20 +18,20 @@ class Shader
 {
 public:
 	Shader(std::string vertex_path, std::string fragment_path);
-	unsigned int getID();
+	unsigned int getID() const;
 	void setUniformBool(const std::string& name, bool value) const;
 	void setUniformInt(const std::string& name, int value) const;
 	void setUniformFloat(const std::string& name, float value) const;
 	void setUniformMat4(const std::string& name, const glm::mat4& mat) const;
 	GLint getUniformLocation(const std::string& name) const;
-	void bind();
+	void bind() const;
 private:
 	unsigned int m_id;
 
 	shader_code parseShader(std::string vertex_path, std::string fragment_path);
 	unsigned int compileShader(int type, const std::string code);
 	void createShaderProgram(unsigned int vertex_shader, unsigned int fragment_shader);
-	void checkCompileErrors(unsigned int id, int program_type);
-	void unbind();
+	void checkCompileErrors(unsigned int id, int program_type) const;
+	void unbind() const;
 
 };

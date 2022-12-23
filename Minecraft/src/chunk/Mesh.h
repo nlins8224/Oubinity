@@ -14,11 +14,11 @@ public:
 
 	void loadMesh();
 
-	MeshData& getMesh();
-	Loader getLoader();
-	std::vector<float>& getMeshVertexPositions();
-	std::vector<float>& getMeshTexturesPositions();
-	std::vector<float>& getMeshShadingPositions();
+	const MeshData& getMesh() const;
+	const Loader& getLoader() const;
+	const std::vector<float>& getMeshVertexPositions() const;
+	const std::vector<float>& getMeshTexturesPositions() const;
+	const std::vector<float>& getMeshShadingPositions() const;
 	
 private:
 	Loader m_loader;

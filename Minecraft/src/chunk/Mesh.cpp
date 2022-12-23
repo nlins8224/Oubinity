@@ -31,27 +31,27 @@ void Mesh::addShading(float s)
 	m_mesh_data.shading_positions.emplace_back(s);
 }
 
-MeshData& Mesh::getMesh()
+const MeshData& Mesh::getMesh() const 
 {
 	return m_mesh_data;
 }
 
-Loader Mesh::getLoader()
+const Loader& Mesh::getLoader() const
 {
 	return m_loader;
 }
 
-std::vector<float>& Mesh::getMeshVertexPositions()
+const std::vector<float>& Mesh::getMeshVertexPositions() const
 {
 	return m_mesh_data.vertex_positions;
 }
 
-std::vector<float>& Mesh::getMeshTexturesPositions()
+const std::vector<float>& Mesh::getMeshTexturesPositions() const
 {
 	return m_mesh_data.textures_positions;
 }
 
-std::vector<float>& Mesh::getMeshShadingPositions()
+const std::vector<float>& Mesh::getMeshShadingPositions() const
 {
 	return m_mesh_data.shading_positions;
 }

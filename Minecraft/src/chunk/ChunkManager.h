@@ -39,8 +39,8 @@ public:
 
 private:
 	 ChunksMap m_chunks_map;
-	 int m_render_distance;
 	 Camera& m_camera;
 	 WorldGenerator m_world_generator;
+	 int m_render_distance;
 };
 

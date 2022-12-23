@@ -10,7 +10,8 @@ Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	m_chunk_manager{ chunk_manager },
 	m_world_pos{glm::ivec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
 {
-
+	m_is_mesh_buffer_loaded = false;
+	m_is_terrain_generated = false;
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -66,7 +67,7 @@ void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 	m_blocks.set(block_pos, type);
 }
 
-glm::ivec3 Chunk::getPosition()
+glm::ivec3 Chunk::getPosition() const
 {
 	return m_chunk_pos;
 }
@@ -83,7 +84,7 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK, glm::ivec3(x, y, z));
 }
 
-bool Chunk::isFaceVisible(glm::ivec3 block_pos)
+bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
@@ -134,22 +135,22 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	}
 }
 
-Block::block_id Chunk::getBlockId(glm::ivec3 block_pos)
+Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 {
 	return m_blocks.get(block_pos);
 }
 
-bool Chunk::isTransparent(glm::ivec3 block_pos)
+bool Chunk::isTransparent(glm::ivec3 block_pos) const
 {
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
 
-bool Chunk::isMeshLoaded()
+bool Chunk::isMeshLoaded() const
 {
 	return m_is_mesh_buffer_loaded;
 }
 
-bool Chunk::isTerrainGenerated()
+bool Chunk::isTerrainGenerated() const
 {
 	return m_is_terrain_generated;
 }
@@ -164,7 +165,7 @@ void Chunk::setIsTerrainGenerated(bool is_generated)
 	m_is_terrain_generated = is_generated;
 }
 
-Mesh& Chunk::getMesh()
+const Mesh& Chunk::getMesh() const
 {
 	return m_mesh;
 }

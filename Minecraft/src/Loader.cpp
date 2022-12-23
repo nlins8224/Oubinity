@@ -1,9 +1,9 @@
 #include "Loader.h"
 
-void Loader::loadMesh(MeshData& mesh)
+void Loader::loadMesh(const MeshData& mesh)
 {
 	createVAO();
-	storeDataInVAO(0, mesh);
+	storeDataInVAO(mesh);
 	unbindVAO();
 }
 
@@ -12,7 +12,7 @@ void Loader::createVAO() {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::storeDataInVAO(int attribute_number, MeshData& mesh) {
+void Loader::storeDataInVAO(const MeshData& mesh) {
 	glGenBuffers(1, &m_vertex_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh.vertex_positions.size() * sizeof(float), mesh.vertex_positions.data(), GL_STATIC_DRAW);
@@ -36,10 +36,10 @@ void Loader::storeDataInVAO(int attribute_number, MeshData& mesh) {
 	glEnableVertexAttribArray(2);
 }
 
-void Loader::bindVAO() {
+void Loader::bindVAO() const {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::unbindVAO() {
+void Loader::unbindVAO() const {
 	glBindVertexArray(0);
 }
