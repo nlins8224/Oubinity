@@ -10,14 +10,14 @@ class Loader
 public:
 	Loader() = default;
 	~Loader() = default;
-	void loadMesh(MeshData& mesh);
-	void bindVAO();
+	void loadMesh(const MeshData& mesh);
+	void bindVAO() const;
+	void unbindVAO() const;
 	
 private:
 	GLuint m_vao;
 	GLuint m_vertex_vbo, m_texture_vbo, m_shading_vbo;
 
 	void createVAO();
-	void storeDataInVAO(int attribute_number, MeshData& mesh);
-	void unbindVAO();
+	void storeDataInVAO(const MeshData& mesh);
 };

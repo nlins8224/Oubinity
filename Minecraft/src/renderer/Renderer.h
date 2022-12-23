@@ -13,6 +13,6 @@ public:
 protected:
 	Shader m_shader;
 private:
-	virtual void draw(Mesh& mesh) const = 0;
+	virtual void draw(const Mesh& mesh) const = 0;
 };
 

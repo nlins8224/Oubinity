@@ -8,12 +8,12 @@ Shader::Shader(std::string vertex_path, std::string fragment_path)
 	createShaderProgram(vertex_shader, fragment_shader);
 }
 
-unsigned int Shader::getID()
+unsigned int Shader::getID() const
 {
 	return m_id;
 }
 
-void Shader::bind()
+void Shader::bind() const
 {
 	glUseProgram(m_id);
 }
@@ -97,7 +97,7 @@ void Shader::createShaderProgram(unsigned int vertex_shader, unsigned int fragme
 	glDeleteShader(fragment_shader);
 }
 
-void Shader::checkCompileErrors(unsigned int shader_id, int program_type)
+void Shader::checkCompileErrors(unsigned int shader_id, int program_type) const 
 {
 	int success;
 	char infoLog[1024];
@@ -133,7 +133,7 @@ void Shader::checkCompileErrors(unsigned int shader_id, int program_type)
 	}
 }
 
-void Shader::unbind()
+void Shader::unbind() const
 {
 	glUseProgram(0);
 }

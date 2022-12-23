@@ -14,7 +14,7 @@ public:
 	void render(Camera& camera) override;
 	void setChunks(ChunksMap* chunks);
 private:
-	void draw(Mesh& mesh) const override;
-	void renderChunk(Camera& camera, Chunk& chunk);
+	void draw(const Mesh& mesh) const override;
+	void renderChunk(Camera& camera, Chunk& chunk) const;
 	ChunksMap* m_chunks_map;
 };

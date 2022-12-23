@@ -33,30 +33,27 @@ public:
 
 	void prepareChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
-	glm::ivec3 getPosition();
-	Block::block_id getBlockId(glm::ivec3 block_pos);
-	bool isTransparent(glm::ivec3 block_pos);
-	bool isMeshLoaded();
-	bool isTerrainGenerated();
+	glm::ivec3 getPosition() const;
+	Block::block_id getBlockId(glm::ivec3 block_pos) const;
+	bool isTransparent(glm::ivec3 block_pos) const;
+	bool isMeshLoaded() const;
+	bool isTerrainGenerated() const;
 	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
-	Block::BlockArray m_blocks;
-	Mesh& getMesh();
+	const Mesh& getMesh() const;
 
 private:
-	// TODO: Move initialization to constructor with default value
-	glm::ivec3 m_chunk_pos{ 0, 0, 0 };
-	glm::ivec3 m_world_pos;
-	Mesh m_mesh;
 	ChunkManager* m_chunk_manager;
-	// TODO: Move initialization to constructor with default value
-	bool m_is_mesh_buffer_loaded{ false };
-	// TODO: Move initialization to constructor with default value
-	bool m_is_terrain_generated{ false };
+	Mesh m_mesh;
+	Block::BlockArray m_blocks;
+	glm::ivec3 m_chunk_pos;
+	glm::ivec3 m_world_pos;
+	bool m_is_mesh_buffer_loaded;
+	bool m_is_terrain_generated;
 
 	void addChunkMesh();
 	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
-	bool isFaceVisible(glm::ivec3 world_pos);
+	bool isFaceVisible(glm::ivec3 world_pos) const;
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
 };
