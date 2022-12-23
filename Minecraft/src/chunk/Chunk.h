@@ -53,7 +53,6 @@ private:
 	bool m_is_terrain_generated;
 
 	void addChunkMesh();
-	void loadChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 world_pos) const;
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);

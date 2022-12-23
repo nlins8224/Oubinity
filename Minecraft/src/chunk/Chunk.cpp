@@ -39,7 +39,7 @@ void Chunk::prepareChunkMesh()
 		return;
 
 	addChunkMesh();
-	loadChunkMesh();
+	m_mesh.loadMesh();
 
 	m_is_mesh_buffer_loaded = true;
 }
@@ -62,12 +62,6 @@ void Chunk::addChunkMesh()
 			}
 		}
 	}
-}
-
-// TODO: This is not responsibility of this class anymore. Move it to renderer
-void Chunk::loadChunkMesh()
-{
-	m_mesh.loadMesh();
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
