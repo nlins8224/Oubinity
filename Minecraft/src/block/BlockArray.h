@@ -9,6 +9,9 @@ namespace Block
 class BlockArray
 {
 public:
+	BlockArray() = default;
+	~BlockArray() = default;
+
 	block_id get(glm::ivec3 block_pos) const;
 	void set(glm::ivec3 block_pos, block_id block_type);
 private:

@@ -29,7 +29,7 @@ public:
 	Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
-	~Chunk() = default;
+	~Chunk();
 
 	void prepareChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
@@ -43,6 +43,7 @@ public:
 	const Mesh& getMesh() const;
 
 private:
+	// TODO: m_chunk_manager should be const ref?
 	ChunkManager* m_chunk_manager;
 	Mesh m_mesh;
 	Block::BlockArray m_blocks;
