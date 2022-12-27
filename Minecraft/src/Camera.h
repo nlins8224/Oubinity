@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "io/Window.h"
 
 enum CameraDirection {
     NONE,
@@ -20,10 +21,13 @@ public:
     Camera(glm::vec3 position = glm::vec3(0.0f, 1.0f, 0.0f));
 
     glm::mat4 getViewMatrix();
+    glm::mat4 getProjectionMatrix();
     float getZoom();
     void updateCameraDirection(double dx, double dy);
     void updateCameraPos(CameraDirection direction, double dt);
     void updateCameraZoom(double dy);
+    glm::vec3 getCameraPos();
+    glm::vec3 getCameraDirection();
 
 private:
     glm::vec3 m_camera_pos;
@@ -37,6 +41,7 @@ private:
 
     float m_speed;
     float m_zoom;
+    float m_fov;
 
     void updateCameraVectors();
 };

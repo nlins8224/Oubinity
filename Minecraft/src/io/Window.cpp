@@ -1,5 +1,8 @@
 #include "Window.h"
 
+const float Window::SCREEN_WIDTH = 1600.0f;
+const float Window::SCREEN_HEIGHT = 1200.0f;
+
 void Window::processInput()
 {
     if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -13,7 +16,7 @@ void Window::windowInit()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    m_window = glfwCreateWindow(m_screen_width, m_screen_width, m_screen_title.c_str(), NULL, NULL);
+    m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_WIDTH, m_screen_title.c_str(), NULL, NULL);
     if (m_window == NULL)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -27,10 +30,8 @@ void Window::windowInit()
 
 }
 
-Window::Window(int p_screen_width, int p_screen_height, std::string p_screen_title)
-    : m_screen_width{ p_screen_width },
-    m_screen_height{ p_screen_height },
-    m_screen_title{ p_screen_title } {}
+Window::Window(std::string screen_title)
+    : m_screen_title{ screen_title } {}
 
 Window::~Window()
 {

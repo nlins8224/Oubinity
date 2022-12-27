@@ -6,7 +6,8 @@ Camera::Camera(glm::vec3 position)
     m_yaw(-90.0f),
     m_pitch(0.0f),
     m_speed(2.5f),
-    m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f))
+    m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    m_fov(90.0f)
 {
     updateCameraVectors();
 }
@@ -14,6 +15,11 @@ Camera::Camera(glm::vec3 position)
 glm::mat4 Camera::getViewMatrix()
 {
     return glm::lookAt(m_camera_pos, m_camera_pos + m_camera_front, m_camera_up);
+}
+
+glm::mat4 Camera::getProjectionMatrix()
+{
+    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 200.0f);
 }
 
 float Camera::getZoom()
@@ -56,11 +62,11 @@ void Camera::updateCameraPos(CameraDirection direction, double dt)
     case CameraDirection::LEFT:
         m_camera_pos -= m_camera_right * velocity;
         break;
-    case CameraDirection::UP: // could be multiplied by world_up instead of camera_up?
-        m_camera_pos += m_camera_up * velocity;
+    case CameraDirection::UP:
+        m_camera_pos += m_world_up * velocity;
         break;
     case CameraDirection::DOWN:
-        m_camera_pos -= m_camera_up * velocity;
+        m_camera_pos -= m_world_up * velocity;
         break;
     }
 }
@@ -79,6 +85,16 @@ void Camera::updateCameraZoom(double dy)
     {
         m_zoom = 45.0f;
     }
+}
+
+glm::vec3 Camera::getCameraPos()
+{
+    return m_camera_pos;
+}
+
+glm::vec3 Camera::getCameraDirection()
+{
+    return m_camera_front;
 }
 
 void Camera::updateCameraVectors()

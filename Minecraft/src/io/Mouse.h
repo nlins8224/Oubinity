@@ -1,10 +1,8 @@
 #pragma once
 
 #include <GLAD/glad.h>
-#pragma once
 #include <GLFW/glfw3.h>
-#include "PlayerInput.h"
-#include <iostream>
+#include "../PlayerInput.h"
 
 class Mouse
 {
@@ -23,7 +21,7 @@ public:
 	double getScrollDX();
 	double getScrollDY();
 
-	bool button(int button);
+	static bool button(int button);
 	bool buttonChanged(int button);
 	bool buttonWentUp(int button);
 	bool buttonWentDown(int button);

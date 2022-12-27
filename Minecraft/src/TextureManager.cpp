@@ -1,8 +1,7 @@
 #include "TextureManager.h"
 
-TextureManager::TextureManager(Shader& shader, int texture_width, int texture_height, int textures_max_amount) 
+TextureManager::TextureManager(int texture_width, int texture_height, int textures_max_amount) 
 	: 
-	m_shader{shader},
 	m_texture_width{texture_width},
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
@@ -27,6 +26,7 @@ TextureManager::TextureManager(Shader& shader, int texture_width, int texture_he
 		nullptr
 	);
 
+	addTextures();
 }
 
 void TextureManager::generateMipmap()
@@ -34,7 +34,18 @@ void TextureManager::generateMipmap()
 	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 }
 
-void TextureManager::addTexture(std::string texture)
+void TextureManager::addTextures()
+{
+	std::string texture_name;
+	for (int i = Block::DIRT; i != Block::AMOUNT; i++)
+	{
+		Block::block_id id = static_cast<Block::block_id>(i);
+		texture_name = Block::getBlockType(id).texture;
+		addTexture(texture_name, id);
+	}
+}
+
+void TextureManager::addTexture(std::string texture, int texture_id)
 {
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (is_in)
@@ -49,14 +60,13 @@ void TextureManager::addTexture(std::string texture)
 		std::cout << "Failed to generate texture" << std::endl;
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-	int texture_index = getTextureIndex(texture);
 	// insert texture to texture array
 	glTexSubImage3D(
 		GL_TEXTURE_2D_ARRAY,
 		0,
 		0,
 		0,
-		texture_index,
+		texture_id,
 		m_texture_width,
 		m_texture_height,
 		1,
@@ -67,17 +77,12 @@ void TextureManager::addTexture(std::string texture)
 	stbi_image_free(texture_image);
 }
 
-void TextureManager::loadTexture()
+void TextureManager::loadTexture(int sampler_location)
 {
 	const std::string& texture_array_sampler = "texture_array_sampler";
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-	int sampler_location = m_shader.getUniformLocation(texture_array_sampler);
 	glUniform1i(sampler_location, 0);
 }
 
-int TextureManager::getTextureIndex(std::string texture)
-{
-	auto itr = std::find(m_textures.begin(), m_textures.end(), texture);
-	return std::distance(m_textures.begin(), itr);
-}
+

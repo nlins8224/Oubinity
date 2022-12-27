@@ -7,15 +7,15 @@
 class Window
 {
 public:
-	Window(int p_screen_width, int p_screen_height, std::string p_screen_title);
+	Window(std::string screen_title);
 	~Window();
 
 	void windowInit();
 	void processInput();
 	GLFWwindow* getWindow();
+	static const float SCREEN_WIDTH, SCREEN_HEIGHT;
 
 private:
 	GLFWwindow* m_window{};
 	std::string m_screen_title{};
-	int m_screen_width{}, m_screen_height{};
 };

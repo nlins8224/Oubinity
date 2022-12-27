@@ -6,10 +6,14 @@ namespace Block {
 
 	enum block_id
 	{
+		NONE = -1,
 		AIR,
 		DIRT,
 		COBBLESTONE,
 		SAND,
+		PLANKS,
+		STONE,
+		GRASS,
 		AMOUNT
 	};
 
@@ -18,6 +22,12 @@ namespace Block {
 		block_id id;
 		bool transparent{ false };
 		std::string texture{ "" };
+	};
+
+	static const Block None
+	{
+		.id{ NONE },
+		.texture{ "not_found" }
 	};
 
 	static const Block Air
@@ -44,7 +54,25 @@ namespace Block {
 		.texture{ "sand" }
 	};
 
-	inline Block getBlockType(int block_id)
+	static const Block Planks
+	{
+		.id{ PLANKS },
+		.texture{ "planks" }
+	};
+
+	static const Block Stone
+	{
+		.id{ STONE },
+		.texture{ "stone" }
+	};
+
+	static const Block Grass
+	{
+		.id{ GRASS },
+		.texture{ "grass" }
+	};
+
+	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
 		{
@@ -52,7 +80,10 @@ namespace Block {
 		case DIRT:        return Dirt;
 		case COBBLESTONE: return Cobblestone;
 		case SAND:        return Sand;
-		default:		  return Air; // "not_found.png" could be here
+		case PLANKS:      return Planks;
+		case STONE:		  return Stone;
+		case GRASS:		  return Grass;
+		default:		  return None;
 		}
 	}
 

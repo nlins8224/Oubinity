@@ -97,13 +97,15 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,15 +117,16 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,13 +136,15 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,51 +156,71 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\ChunkManager.cpp" />
-    <ClCompile Include="src\Chunk.cpp" />
+    <ClCompile Include="src\block\BlockArray.cpp" />
+    <ClCompile Include="src\shader\ChunkShader.cpp" />
+    <ClCompile Include="src\chunk\Mesh.cpp" />
+    <ClCompile Include="src\renderer\MasterRenderer.cpp" />
+    <ClCompile Include="src\renderer\ChunkRenderer.cpp" />
+    <ClCompile Include="src\Ray.cpp" />
+    <ClCompile Include="src\chunk\ChunkManager.cpp" />
+    <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\Keyboard.cpp" />
+    <ClCompile Include="src\third_party\glad.cpp" />
+    <ClCompile Include="src\io\Keyboard.cpp" />
     <ClCompile Include="src\Loader.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
-    <ClCompile Include="src\Mouse.cpp" />
+    <ClCompile Include="src\io\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
-    <ClCompile Include="src\Shader.cpp" />
-    <ClCompile Include="src\stb_image.cpp" />
-    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\renderer\Renderer.cpp" />
+    <ClCompile Include="src\shader\Shader.cpp" />
+    <ClCompile Include="src\third_party\stb_image.cpp" />
+    <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="src\chunk\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ChunkManager.h" />
-    <ClInclude Include="src\Block.h" />
-    <ClInclude Include="src\Chunk.h" />
+    <ClInclude Include="src\block\BlockArray.h" />
+    <ClInclude Include="src\chunk\ChunkSize.h" />
+    <ClInclude Include="src\shader\ChunkShader.h" />
+    <ClInclude Include="src\chunk\ChunksMap.h" />
+    <ClInclude Include="src\chunk\MeshData.h" />
+    <ClInclude Include="src\renderer\MasterRenderer.h" />
+    <ClInclude Include="src\renderer\ChunkRenderer.h" />
+    <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\third_party\FastNoiseLite.h" />
+    <ClInclude Include="src\chunk\Mesh.h" />
+    <ClInclude Include="src\Ray.h" />
+    <ClInclude Include="src\chunk\ChunkManager.h" />
+    <ClInclude Include="src\block\Block.h" />
+    <ClInclude Include="src\chunk\Chunk.h" />
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\BlockMesh.h" />
-    <ClInclude Include="src\Keyboard.h" />
+    <ClInclude Include="src\block\BlockMesh.h" />
+    <ClInclude Include="src\io\Keyboard.h" />
     <ClInclude Include="src\Loader.h" />
-    <ClInclude Include="src\Mouse.h" />
+    <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
-    <ClInclude Include="src\Shader.h" />
-    <ClInclude Include="src\stb_image.h" />
-    <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\shader\Shader.h" />
+    <ClInclude Include="src\third_party\stb_image.h" />
+    <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
+    <ClInclude Include="src\chunk\WorldGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
-    <None Include="Readme.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

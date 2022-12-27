@@ -2,16 +2,19 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <optick.h>
 #include <glad/glad.h>
-#include "stb_image.h"
-#include "Shader.h"
+#include "block/Block.h"
+#include "third_party/stb_image.h"
+#include "shader/Shader.h"
+
 class TextureManager
 {
 public:
-	TextureManager(Shader& shader, int texture_witdh, int texture_height, int textures_max_amount);
-	int getTextureIndex(std::string texture);
-	void addTexture(std::string texture);
-	void loadTexture();
+	TextureManager(int texture_witdh, int texture_height, int textures_max_amount);
+	void addTextures();
+	void addTexture(std::string texture, int texture_id);
+	void loadTexture(int sampler_location);
 	void generateMipmap();
 
 private:
@@ -20,7 +23,6 @@ private:
 	int m_textures_max_amount;
 	int m_stb_nr_channels{ 0 };
 	GLuint m_texture_array{ 0 };
-	Shader& m_shader;
 
 	std::vector<std::string> m_textures{};
 };
