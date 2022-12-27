@@ -23,7 +23,6 @@ public:
 private:
 	Loader m_loader;
 	MeshData m_mesh_data;
-	bool m_is_buffer_loaded;
 	std::vector<float> m_vertex_positions;
 	std::vector<float> m_textures_positions;
 	std::vector<float> m_shading_positions;
