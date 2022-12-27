@@ -171,3 +171,8 @@ const Mesh& Chunk::getMesh() const
 {
 	return m_mesh;
 }
+
+Mesh& Chunk::getMesh()
+{
+	return m_mesh;
+}

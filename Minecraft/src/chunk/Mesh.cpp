@@ -2,7 +2,6 @@
 
 Mesh::Mesh()
 {
-	m_is_buffer_loaded = false;
 }
 
 void Mesh::clear()
@@ -58,9 +57,5 @@ const std::vector<float>& Mesh::getMeshShadingPositions() const
 
 void Mesh::loadMesh()
 {
-	if (m_is_buffer_loaded)
-		return;
-
 	m_loader.loadMesh(m_mesh_data);
-	m_is_buffer_loaded = true;
 }

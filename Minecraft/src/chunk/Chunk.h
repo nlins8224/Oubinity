@@ -41,6 +41,7 @@ public:
 	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
 	const Mesh& getMesh() const;
+	Mesh& getMesh();
 
 private:
 	// TODO: m_chunk_manager should be const ref?
