@@ -157,6 +157,11 @@ bool Chunk::isTerrainGenerated() const
 	return m_is_terrain_generated;
 }
 
+bool Chunk::isChunkVisible() const
+{
+	return m_is_chunk_visible;
+}
+
 void Chunk::setIsMeshLoaded(bool is_loaded)
 {
 	m_is_mesh_buffer_loaded = is_loaded;
@@ -165,6 +170,11 @@ void Chunk::setIsMeshLoaded(bool is_loaded)
 void Chunk::setIsTerrainGenerated(bool is_generated)
 {
 	m_is_terrain_generated = is_generated;
+}
+
+void Chunk::setIsChunkVisible(bool is_visible)
+{
+	m_is_chunk_visible = is_visible;
 }
 
 const Mesh& Chunk::getMesh() const

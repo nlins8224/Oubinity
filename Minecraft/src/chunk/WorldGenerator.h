@@ -9,9 +9,9 @@ using height_map = std::array<std::array<uint8_t, CHUNK_SIZE_X>, CHUNK_SIZE_Z>;
 class WorldGenerator
 {
 public:
-	WorldGenerator(int world_seed);
+	WorldGenerator(int world_seed, const int render_distance);
 	~WorldGenerator() = default;
-	void generateChunkTerrain(Chunk& chunk);
+	void generateChunkTerrain(Chunk& chunk, const int render_distance);
 private:
 	height_map generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const;
 	int m_world_seed;
