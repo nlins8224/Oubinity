@@ -19,7 +19,7 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 			float x_world_pos = x + chunk_pos.x * CHUNK_SIZE_X;
 			float z_world_pos = z + chunk_pos.z * CHUNK_SIZE_Z;
 
-			target_height = 30 * noise.GetNoise(x_world_pos, z_world_pos) + 40;
+			target_height = 10 * noise.GetNoise(x_world_pos, z_world_pos) + 15;
 			h_map[x][z] = target_height;
 		}
 	}
