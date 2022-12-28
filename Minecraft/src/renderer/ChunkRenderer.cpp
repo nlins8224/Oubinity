@@ -46,5 +46,9 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
 	chunk.prepareChunkMesh();
+
+	if (!chunk.isMeshLoaded())
+		return;
+
 	draw(chunk.getMesh());
 }
