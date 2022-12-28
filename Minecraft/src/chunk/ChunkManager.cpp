@@ -20,6 +20,7 @@ void ChunkManager::updateChunksMap()
 
 		int chunk_pos_x = chunk.getPosition().x;
 		int chunk_pos_z = chunk.getPosition().z;
+		int chunk_pos_y = chunk.getPosition().y;
 
 		if (player_chunk_pos_x != chunk_pos_x && player_chunk_pos_z != chunk_pos_z)
 			continue;
@@ -41,10 +42,10 @@ void ChunkManager::updateChunksMap()
 		}
 		else
 		{
-			tryAddChunk({ max_x, 0, chunk_pos_z });
-			tryAddChunk({ min_x, 0, chunk_pos_z });
-			tryAddChunk({ chunk_pos_x, 0, max_z });
-			tryAddChunk({ chunk_pos_x, 0, min_z });
+			tryAddChunk({ max_x, chunk_pos_y, chunk_pos_z });
+			tryAddChunk({ min_x, chunk_pos_y, chunk_pos_z });
+			tryAddChunk({ chunk_pos_x, chunk_pos_y, max_z });
+			tryAddChunk({ chunk_pos_x, chunk_pos_y, min_z });
 		}
 	}
 }
@@ -55,7 +56,7 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-	m_world_generator.generateChunkTerrain(*chunk);
+	m_world_generator.generateChunkTerrain(*chunk, this->m_render_distance);
 	m_chunks_map[chunk_pos] = *chunk;
 }
 
@@ -79,8 +80,11 @@ void ChunkManager::generateWorld()
 	{
 		for (int j = -m_render_distance; j < m_render_distance; j++)
 		{
-			glm::ivec3 chunk_pos(i, 0, j);
-			tryAddChunk(chunk_pos);
+			for (int k = -m_render_distance; k < m_render_distance; k++)
+			{
+				glm::ivec3 chunk_pos(i, j, k);
+				tryAddChunk(chunk_pos);
+			}	
 		}
 	}
 }
