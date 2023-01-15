@@ -76,13 +76,13 @@ ChunksMap* ChunkManager::getChunksMap()
 void ChunkManager::generateWorld()
 {
 
-	for (int i = -m_render_distance; i < m_render_distance; i++)
+	for (int x = -m_render_distance; x < m_render_distance; x++)
 	{
-		for (int j = -m_render_distance; j < m_render_distance; j++)
+		for (int y = -m_render_distance; y < m_render_distance; y++)
 		{
-			for (int k = -m_render_distance; k < m_render_distance; k++)
+			for (int z = -m_render_distance; z < m_render_distance; z++)
 			{
-				glm::ivec3 chunk_pos(i, j, k);
+				glm::ivec3 chunk_pos(x, y, z);
 				tryAddChunk(chunk_pos);
 			}	
 		}

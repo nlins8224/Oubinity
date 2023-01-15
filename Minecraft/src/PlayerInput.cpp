@@ -58,17 +58,17 @@ void PlayerInput::processInput(float delta_time)
         glfwSetWindowShouldClose(m_window, true);
 
     if (Keyboard::key(GLFW_KEY_W))
-        m_default_camera.updateCameraPos(FORWARD, speed);
+        m_default_camera.updateCameraPos(CameraDirection::FORWARD, speed);
     if (Keyboard::key(GLFW_KEY_S))
-        m_default_camera.updateCameraPos(BACKWARD, speed);
+        m_default_camera.updateCameraPos(CameraDirection::BACKWARD, speed);
     if (Keyboard::key(GLFW_KEY_A))
-        m_default_camera.updateCameraPos(LEFT, speed);
+        m_default_camera.updateCameraPos(CameraDirection::LEFT, speed);
     if (Keyboard::key(GLFW_KEY_D))
-        m_default_camera.updateCameraPos(RIGHT, speed);
+        m_default_camera.updateCameraPos(CameraDirection::RIGHT, speed);
     if (Keyboard::key(GLFW_KEY_E))
-        m_default_camera.updateCameraPos(UP, speed);
+        m_default_camera.updateCameraPos(CameraDirection::UP, speed);
     if (Keyboard::key(GLFW_KEY_Q))
-        m_default_camera.updateCameraPos(DOWN, speed);
+        m_default_camera.updateCameraPos(CameraDirection::DOWN, speed);
 
     if (Mouse::button(GLFW_MOUSE_BUTTON_LEFT))
         onMouseLeftPress();

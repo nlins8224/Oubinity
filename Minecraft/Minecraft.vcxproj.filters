@@ -78,6 +78,15 @@
     <ClCompile Include="src\block\BlockArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\frustum\Frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\frustum\AABox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\frustum\Plane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -153,6 +162,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\ChunkSize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\frustum\Frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\frustum\AABox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\frustum\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
