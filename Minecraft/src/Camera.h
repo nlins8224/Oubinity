@@ -3,8 +3,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "io/Window.h"
+#include "./frustum/Frustum.h"
 
-enum CameraDirection {
+enum class CameraDirection {
     NONE,
     FORWARD,
     BACKWARD,
@@ -28,8 +29,11 @@ public:
     void updateCameraZoom(double dy);
     glm::vec3 getCameraPos();
     glm::vec3 getCameraDirection();
+    Frustum getFrustum();
+    void updateFrustum();
 
 private:
+    Frustum m_frustum;
     glm::vec3 m_camera_pos;
     glm::vec3 m_camera_front;
     glm::vec3 m_camera_up;

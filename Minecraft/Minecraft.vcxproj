@@ -169,7 +169,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\frustum\Plane.cpp" />
+    <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
+    <ClCompile Include="src\frustum\Frustum.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
     <ClCompile Include="src\chunk\Mesh.cpp" />
     <ClCompile Include="src\renderer\MasterRenderer.cpp" />
@@ -192,8 +195,11 @@
     <ClCompile Include="src\chunk\WorldGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\frustum\Plane.h" />
+    <ClInclude Include="src\frustum\AABox.h" />
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
+    <ClInclude Include="src\frustum\Frustum.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />
     <ClInclude Include="src\chunk\ChunksMap.h" />
     <ClInclude Include="src\chunk\MeshData.h" />
