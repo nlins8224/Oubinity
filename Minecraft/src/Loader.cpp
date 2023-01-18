@@ -1,13 +1,25 @@
 #include "Loader.h"
 
+Loader::Loader()
+{
+	m_vao = 0;
+	m_vertex_vbo = 0;
+	m_texture_vbo = 0;
+	m_shading_vbo = 0;
+}
+
 void Loader::loadMesh(const MeshData& mesh)
 {
+	OPTICK_EVENT();
 	createVAO();
 	storeDataInVAO(mesh);
 	unbindVAO();
 }
 
 void Loader::createVAO() {
+	if (m_vao != 0)
+		cleanBuffers();
+
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 }
@@ -42,4 +54,12 @@ void Loader::bindVAO() const {
 
 void Loader::unbindVAO() const {
 	glBindVertexArray(0);
+}
+
+void Loader::cleanBuffers() const {
+
+	glDeleteBuffers(1, &m_vertex_vbo);
+	glDeleteBuffers(1, &m_texture_vbo);
+	glDeleteBuffers(1, &m_shading_vbo);
+	glDeleteVertexArrays(1, &m_vao);
 }

@@ -8,7 +8,7 @@
 class Loader 
 {
 public:
-	Loader() = default;
+	Loader();
 	~Loader() = default;
 	void loadMesh(const MeshData& mesh);
 	void bindVAO() const;
@@ -20,4 +20,5 @@ private:
 
 	void createVAO();
 	void storeDataInVAO(const MeshData& mesh);
+	void cleanBuffers() const;
 };

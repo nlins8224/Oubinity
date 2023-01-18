@@ -3,7 +3,9 @@
 #include "../Camera.h"
 #include "../shader/ChunkShader.h"
 #include "../chunk/ChunksMap.h"
+#include "../chunk/ChunkSize.h"
 #include "../chunk/Chunk.h"
+#include "../frustum/AABox.h"
 
 class ChunkRenderer : public Renderer
 {
