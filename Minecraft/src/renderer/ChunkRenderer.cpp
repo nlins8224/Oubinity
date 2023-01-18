@@ -46,5 +46,14 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
 	chunk.prepareChunkMesh();
+
+	if (!chunk.isMeshLoaded())
+		return;
+
+	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z)};
+	bool chunk_in_frustum = camera.getFrustum().isBoxInFrustum(box);
+	if (!chunk_in_frustum)
+		return;
+
 	draw(chunk.getMesh());
 }

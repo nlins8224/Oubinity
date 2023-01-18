@@ -8,7 +8,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	: 
 	m_chunk_pos{ chunk_pos },
 	m_chunk_manager{ chunk_manager },
-	m_world_pos{glm::ivec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
+	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
 {
 	m_is_mesh_buffer_loaded = false;
 	m_is_terrain_generated = false;
@@ -157,6 +157,11 @@ bool Chunk::isTerrainGenerated() const
 	return m_is_terrain_generated;
 }
 
+bool Chunk::isChunkVisible() const
+{
+	return m_is_chunk_visible;
+}
+
 void Chunk::setIsMeshLoaded(bool is_loaded)
 {
 	m_is_mesh_buffer_loaded = is_loaded;
@@ -167,6 +172,11 @@ void Chunk::setIsTerrainGenerated(bool is_generated)
 	m_is_terrain_generated = is_generated;
 }
 
+void Chunk::setIsChunkVisible(bool is_visible)
+{
+	m_is_chunk_visible = is_visible;
+}
+
 const Mesh& Chunk::getMesh() const
 {
 	return m_mesh;
@@ -175,4 +185,9 @@ const Mesh& Chunk::getMesh() const
 Mesh& Chunk::getMesh()
 {
 	return m_mesh;
+}
+
+const glm::vec3 Chunk::getWorldPos() const
+{
+	return m_world_pos;
 }

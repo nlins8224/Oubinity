@@ -13,19 +13,19 @@
 #include "../TextureManager.h"
 #include "optick.h"
 
-class ChunkManager;
-
-/* 
-Convention: 
+/*
+Convention:
 world_pos is what it seems to be
-chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE 
+chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE
 block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
 */
+
+class ChunkManager;
 
 class Chunk
 {
 public:
-	
+
 	Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
@@ -38,10 +38,13 @@ public:
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isMeshLoaded() const;
 	bool isTerrainGenerated() const;
+	bool isChunkVisible() const;
 	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
+	void setIsChunkVisible(bool is_visible);
 	const Mesh& getMesh() const;
 	Mesh& getMesh();
+	const glm::vec3 getWorldPos() const;
 
 private:
 	// TODO: m_chunk_manager should be const ref?
@@ -49,9 +52,10 @@ private:
 	Mesh m_mesh;
 	Block::BlockArray m_blocks;
 	glm::ivec3 m_chunk_pos;
-	glm::ivec3 m_world_pos;
+	glm::vec3 m_world_pos;
 	bool m_is_mesh_buffer_loaded;
 	bool m_is_terrain_generated;
+	bool m_is_chunk_visible;
 
 	void addChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);

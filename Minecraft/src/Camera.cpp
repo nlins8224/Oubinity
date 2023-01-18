@@ -7,7 +7,8 @@ Camera::Camera(glm::vec3 position)
     m_pitch(0.0f),
     m_speed(2.5f),
     m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    m_fov(90.0f)
+    m_fov(100.0f),
+    m_frustum(Frustum(getProjectionMatrix() * getViewMatrix()))
 {
     updateCameraVectors();
 }
@@ -19,7 +20,7 @@ glm::mat4 Camera::getViewMatrix()
 
 glm::mat4 Camera::getProjectionMatrix()
 {
-    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 200.0f);
+    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 1000.0f);
 }
 
 float Camera::getZoom()
@@ -69,6 +70,8 @@ void Camera::updateCameraPos(CameraDirection direction, double dt)
         m_camera_pos -= m_world_up * velocity;
         break;
     }
+
+    updateFrustum();
 }
 
 void Camera::updateCameraZoom(double dy)
@@ -97,6 +100,11 @@ glm::vec3 Camera::getCameraDirection()
     return m_camera_front;
 }
 
+Frustum Camera::getFrustum()
+{
+    return m_frustum;
+}
+
 void Camera::updateCameraVectors()
 {
     glm::vec3 front_direction;
@@ -107,4 +115,12 @@ void Camera::updateCameraVectors()
     // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     m_camera_right = glm::normalize(glm::cross(m_camera_front, m_world_up));  
     m_camera_up = glm::normalize(glm::cross(m_camera_right, m_camera_front));
+
+    updateFrustum();
+}
+
+void Camera::updateFrustum()
+{
+    m_frustum.setViewProjection(getProjectionMatrix() * getViewMatrix());
+    m_frustum.update();
 }

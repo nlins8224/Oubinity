@@ -19,7 +19,7 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 			float x_world_pos = x + chunk_pos.x * CHUNK_SIZE_X;
 			float z_world_pos = z + chunk_pos.z * CHUNK_SIZE_Z;
 
-			target_height = 30 * noise.GetNoise(x_world_pos, z_world_pos) + 40;
+			target_height = 10 * noise.GetNoise(x_world_pos, z_world_pos) + 15;
 			h_map[x][z] = target_height;
 		}
 	}
@@ -27,36 +27,56 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	return h_map;
 }
 
-WorldGenerator::WorldGenerator(int world_seed)
+WorldGenerator::WorldGenerator(int world_seed, const int render_distance)
 	: m_world_seed{world_seed}
 {
 }
 
-void WorldGenerator::generateChunkTerrain(Chunk& chunk)
+void WorldGenerator::generateChunkTerrain(Chunk& chunk, const int render_distance)
 {
 
 	if (chunk.isTerrainGenerated())
 		return;
 
-	height_map h_map = generateChunkHeightMap(chunk.getPosition(), m_world_seed);
-	for (int x = 0; x < CHUNK_SIZE_X; x++)
+	glm::ivec3 chunk_pos{ chunk.getPosition() };
+	//TODO: this is temporary, proper alhorithm should be here
+	if (chunk_pos.y == render_distance - 1)
 	{
-		for (int y = 0; y < CHUNK_SIZE_Y; y++)
+		height_map h_map = generateChunkHeightMap(chunk_pos, m_world_seed);
+		for (int x = 0; x < CHUNK_SIZE_X; x++)
 		{
-			for (int z = 0; z < CHUNK_SIZE_Z; z++)
+			for (int y = 0; y < CHUNK_SIZE_Y; y++)
 			{
-				glm::ivec3 block_pos{ x, y, z };
-				if (y == h_map[x][z])
-					chunk.setBlock(block_pos, Block::GRASS);
-				else if (y < h_map[x][z] && y > h_map[x][z] - 10)
-					chunk.setBlock(block_pos, Block::DIRT);
-				else if (y < h_map[x][z])
-					chunk.setBlock(block_pos, Block::STONE);
-				else
-					chunk.setBlock(block_pos, Block::AIR);
+				for (int z = 0; z < CHUNK_SIZE_Z; z++)
+				{
+					glm::ivec3 block_pos{ x, y, z };
+					if (y == h_map[x][z])
+						chunk.setBlock(block_pos, Block::GRASS);
+					else if (y < h_map[x][z] && y > h_map[x][z] - 10)
+						chunk.setBlock(block_pos, Block::DIRT);
+					else if (y < h_map[x][z])
+						chunk.setBlock(block_pos, Block::STONE);
+					else
+						chunk.setBlock(block_pos, Block::AIR);
+				}
 			}
 		}
 	}
+	else
+	{
+		for (int x = 0; x < CHUNK_SIZE_X; x++)
+		{
+			for (int y = 0; y < CHUNK_SIZE_Y; y++)
+			{
+				for (int z = 0; z < CHUNK_SIZE_Z; z++)
+				{
+					glm::ivec3 block_pos{ x, y, z };
+					chunk.setBlock(block_pos, Block::STONE);
+				}
+			}
+		}
+	}
+	
 
 	chunk.setIsTerrainGenerated(true);
 }
