@@ -39,7 +39,7 @@ void WorldGenerator::generateChunkTerrain(Chunk& chunk, const int render_distanc
 		return;
 
 	glm::ivec3 chunk_pos{ chunk.getPosition() };
-
+	//TODO: this is temporary, proper alhorithm should be here
 	if (chunk_pos.y == render_distance - 1)
 	{
 		height_map h_map = generateChunkHeightMap(chunk_pos, m_world_seed);

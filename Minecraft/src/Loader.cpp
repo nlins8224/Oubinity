@@ -10,6 +10,7 @@ Loader::Loader()
 
 void Loader::loadMesh(const MeshData& mesh)
 {
+	OPTICK_EVENT();
 	createVAO();
 	storeDataInVAO(mesh);
 	unbindVAO();
