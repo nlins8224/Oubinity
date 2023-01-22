@@ -87,6 +87,9 @@
     <ClCompile Include="src\frustum\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\block\VertexPacker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -173,9 +176,14 @@
     <ClInclude Include="src\frustum\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\block\VertexPacker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
+    <None Include="shaders\chunkVertex.glsl" />
+    <None Include="shaders\chunkFragment.glsl" />
   </ItemGroup>
 </Project>

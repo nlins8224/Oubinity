@@ -9,7 +9,7 @@ MasterRenderer::MasterRenderer()
 void MasterRenderer::initConfig() const
 {
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 }
 
 void MasterRenderer::clear() const

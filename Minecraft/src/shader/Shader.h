@@ -7,6 +7,8 @@
 #include <sstream>
 #include <iostream>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 typedef struct
 {
@@ -23,6 +25,8 @@ public:
 	void setUniformInt(const std::string& name, int value) const;
 	void setUniformFloat(const std::string& name, float value) const;
 	void setUniformMat4(const std::string& name, const glm::mat4& mat) const;
+	void setUniformVec3f(const std::string& name, const glm::vec3& vec) const;
+	void setUniformVec3i(const std::string& name, const glm::ivec3& vec) const;
 	GLint getUniformLocation(const std::string& name) const;
 	void bind() const;
 private:

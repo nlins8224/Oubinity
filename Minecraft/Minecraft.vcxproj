@@ -193,6 +193,7 @@
     <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\chunk\WorldGenerator.cpp" />
+    <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\frustum\Plane.h" />
@@ -223,10 +224,13 @@
     <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\chunk\WorldGenerator.h" />
+    <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
+    <None Include="shaders\chunkFragment.glsl" />
+    <None Include="shaders\chunkVertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
