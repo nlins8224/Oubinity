@@ -2,10 +2,13 @@
 
 Loader::Loader()
 {
+	// TODO initializer list?
 	m_vao = 0;
 	m_vertex_vbo = 0;
 	m_texture_vbo = 0;
 	m_shading_vbo = 0;
+	m_xyzs_vbo = 0;
+	m_uvw_vbo = 0;
 }
 
 void Loader::loadMesh(const MeshData& mesh)
@@ -13,6 +16,13 @@ void Loader::loadMesh(const MeshData& mesh)
 	OPTICK_EVENT();
 	createVAO();
 	storeDataInVAO(mesh);
+	unbindVAO();
+}
+
+void Loader::loadPackedMesh(const PackedMeshData& packed_mesh)
+{
+	createVAO();
+	storePackedDataInVAO(packed_mesh);
 	unbindVAO();
 }
 
@@ -48,6 +58,25 @@ void Loader::storeDataInVAO(const MeshData& mesh) {
 	glEnableVertexAttribArray(2);
 }
 
+void Loader::storePackedDataInVAO(const PackedMeshData& packed_mesh)
+{
+	// store xyzs
+	glGenBuffers(1, &m_xyzs_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_xyzs_vbo);
+	glBufferData(GL_ARRAY_BUFFER, packed_mesh.xyzs_positions.size() * sizeof(GLuint), packed_mesh.xyzs_positions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	// store uvw
+	glGenBuffers(1, &m_uvw_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_uvw_vbo);
+	glBufferData(GL_ARRAY_BUFFER, packed_mesh.uvw_positions.size() * sizeof(GLuint), packed_mesh.uvw_positions.data(), GL_STATIC_DRAW);
+
+	glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+}
+
 void Loader::bindVAO() const {
 	glBindVertexArray(m_vao);
 }
@@ -61,5 +90,7 @@ void Loader::cleanBuffers() const {
 	glDeleteBuffers(1, &m_vertex_vbo);
 	glDeleteBuffers(1, &m_texture_vbo);
 	glDeleteBuffers(1, &m_shading_vbo);
+	glDeleteBuffers(1, &m_xyzs_vbo);
+	glDeleteBuffers(1, &m_uvw_vbo);
 	glDeleteVertexArrays(1, &m_vao);
 }

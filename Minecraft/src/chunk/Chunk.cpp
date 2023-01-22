@@ -39,7 +39,7 @@ void Chunk::prepareChunkMesh()
 		return;
 
 	addChunkMesh();
-	m_mesh.loadMesh();
+	m_mesh.loadPackedMesh();
 
 	m_is_mesh_buffer_loaded = true;
 }
@@ -103,7 +103,7 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 {
 	const uint8_t FACE_ROWS{ 6 };
 	Block::block_id block_id{ getBlockId(block_pos) };
-	int texture_id{ static_cast<int>(block_id) };
+	GLubyte texture_id{ static_cast<GLubyte>(block_id) };
 
 	std::array<float, FACE_SIZE> face{ faces[face_side] };
 
@@ -114,9 +114,12 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	uint8_t v_coord;
 	uint8_t shading_coord;
 
-	float x_world_pos;
-	float y_world_pos;
-	float z_world_pos;
+	GLubyte x_local_pos;
+	GLubyte y_local_pos;
+	GLubyte z_local_pos;
+
+	GLubyte u;
+	GLubyte v;
 
 	for (uint8_t i = 0; i < FACE_ROWS; i++)
 	{
@@ -127,13 +130,16 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		v_coord = (i * 7) + 4;
 		shading_coord = (i * 7) + 6;
 		
-		x_world_pos = m_world_pos.x + block_pos.x + face[x_coord];
-		y_world_pos = m_world_pos.y + block_pos.y + face[y_coord];
-		z_world_pos = m_world_pos.z + block_pos.z + face[z_coord];
+		x_local_pos = static_cast<GLubyte>(block_pos.x) + static_cast<GLubyte>(face[x_coord]);
+		y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
+		z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
 
-		m_mesh.addVertex(x_world_pos, y_world_pos, z_world_pos);
-		m_mesh.addTexture(face[u_coord], face[v_coord], texture_id);
-		m_mesh.addShading(face[shading_coord]);
+		m_mesh.addPacked_xyzs(x_local_pos, y_local_pos, z_local_pos, face[shading_coord]);
+
+		u = static_cast<GLubyte>(face[u_coord]);
+		v = static_cast<GLubyte>(face[v_coord]);
+
+		m_mesh.addPacked_uvw(u, v, texture_id);
 	}
 }
 

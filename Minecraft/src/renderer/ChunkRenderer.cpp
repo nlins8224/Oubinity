@@ -38,13 +38,12 @@ void ChunkRenderer::setChunks(ChunksMap* chunks_map)
 void ChunkRenderer::draw(const Mesh& mesh) const
 {
 	mesh.getLoader().bindVAO();
-	uint8_t vertices_per_triangle{ 3 };
-	uint64_t amount_of_triangles{ mesh.getMeshVertexPositions().size() / vertices_per_triangle};
-	glDrawArrays(GL_TRIANGLES, 0, amount_of_triangles);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.getTrianglesCount());
 }
 
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
+	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
 	chunk.prepareChunkMesh();
 
 	if (!chunk.isMeshLoaded())

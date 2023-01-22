@@ -32,66 +32,72 @@ namespace Block
     right-top-far     = (1, 1, 0)
     left-top-far      = (0, 1, 0)
 
+    Shading values are mapped from [0.4, 0.6, 0.8, 1.0] to [2.0, 3.0, 4.0, 5.0] (each respectively),
+    casted to integer, passed to vertex shader, casted to float and divided by 5 in vertex shader.
+    This is because [2, 3, 4, 5] values can be stored in 3 bits instead of 4*8 bits float.
+
+    Example: 2.0 / 5.0 = 0.4, thus 2.0 value represents 0.4 shading value
+
     */
 
     const std::array<float, FACE_SIZE> BACK_FACE
     { //  x      y      z      u     v     w   shading
-        0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.8f, // left-bottom-far
-        1.0f,  1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.8f, // right-top-far
-        1.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f, 0.8f, // right-bottom-far     
-        1.0f,  1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.8f, // right-top-far
-        0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.8f, // left-bottom-far
-        0.0f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 0.8f  // left-top-far
+        0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 4.0f, // left-bottom-far
+        1.0f,  1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 4.0f, // right-top-far
+        1.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f, 4.0f, // right-bottom-far     
+        1.0f,  1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 4.0f, // right-top-far
+        0.0f,  0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 4.0f, // left-bottom-far
+        0.0f,  1.0f, 0.0f,  0.0f, 1.0f, 0.0f, 4.0f  // left-top-far
     };
 
     const std::array<float, FACE_SIZE> FRONT_FACE
     {
-        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 0.8f, // left-bottom-near
-        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.8f, // right-bottom-near
-        1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 0.8f, // right-top-near
-        1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 0.8f, // right-top-near
-        0.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f, 0.8f, // left-top-near
-        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 0.8f  // left-bottom-near
+        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 4.0f, // left-bottom-near
+        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 4.0f, // right-bottom-near
+        1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 4.0f, // right-top-near
+        1.0f,  1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 4.0f, // right-top-near
+        0.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f, 4.0f, // left-top-near
+        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 4.0f  // left-bottom-near
     };
 
     const std::array<float, FACE_SIZE> LEFT_FACE
     {
-        0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.6f, // left-top-near
-        0.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 0.6f, // left-top-far
-        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.6f, // left-bottom-far
-        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.6f, // left-bottom-far
-        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 0.6f, // left-bottom-near
-        0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.6f  // left-top-near
+        0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 3.0f, // left-top-near
+        0.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 3.0f, // left-top-far
+        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 3.0f, // left-bottom-far
+        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 3.0f, // left-bottom-far
+        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 3.0f, // left-bottom-near
+        0.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 3.0f  // left-top-near
     };
 
     const std::array<float, FACE_SIZE> RIGHT_FACE
     {
-        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.6f, // right-top-near
-        1.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.6f, // right-bottom-far
-        1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 0.6f, // right-top-far      
-        1.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.6f, // left-bottom-far
-        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.6f, // right-top-near
-        1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 0.6f  // right-bottom-near
+        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 3.0f, // right-top-near
+        1.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 3.0f, // right-bottom-far
+        1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 3.0f, // right-top-far      
+        1.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 3.0f, // left-bottom-far
+        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 3.0f, // right-top-near
+        1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 3.0f  // right-bottom-near
     };
 
     const std::array<float, FACE_SIZE> BOTTOM_FACE
     {
-        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.4f, // left-bottom-far
-        1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, 0.4f, // right-bottom-far
-        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.4f, // right-bottom-near
-        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 0.4f, // right-bottom-near
-        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 0.4f, // left-bottom-near
-        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.4f  // left-bottom-far
+        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 2.0f, // left-bottom-far
+        1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, 2.0f, // right-bottom-far
+        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 2.0f, // right-bottom-near
+        1.0f,  0.0f,  1.0f,  1.0f, 0.0f, 0.0f, 2.0f, // right-bottom-near
+        0.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f, 2.0f, // left-bottom-near
+        0.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 2.0f  // left-bottom-far
     };
 
     const std::array<float, FACE_SIZE> TOP_FACE
     {
-        0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, 1.0f, // left-top-far
-        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // right-top-near
-        1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 1.0f, // right-top-far
-        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 1.0f, // right-top-near
-        0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, 1.0f, // left-top-far
-        0.0f,  1.0f,  1.0f,  0.0f, 0.0f, 0.0f, 1.0f  // left-top-near
+        0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, 5.0f, // left-top-far
+        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 5.0f, // right-top-near
+        1.0f,  1.0f,  0.0f,  1.0f, 1.0f, 0.0f, 5.0f, // right-top-far
+        1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f, 5.0f, // right-top-near
+        0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, 5.0f, // left-top-far
+        0.0f,  1.0f,  1.0f,  0.0f, 0.0f, 0.0f, 5.0f  // left-top-near
     };
 
     enum block_mesh
