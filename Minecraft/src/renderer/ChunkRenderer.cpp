@@ -1,19 +1,18 @@
 #include "ChunkRenderer.h"
 
-ChunkRenderer::ChunkRenderer(Shader shader)
-	: Renderer(shader)
+ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map)
+	: Renderer(shader),
+	  m_chunks_map(chunks_map)
 {
-	m_chunks_map = nullptr;
 }
 
 ChunkRenderer::~ChunkRenderer()
 {
-	delete m_chunks_map;
 }
 
 void ChunkRenderer::render(Camera& camera)
 {
-	if (m_chunks_map->empty())
+	if (m_chunks_map.empty())
 		return;
 
 	m_shader.bind();
@@ -24,15 +23,17 @@ void ChunkRenderer::render(Camera& camera)
 	m_shader.setUniformMat4("view", view);
 	m_shader.setUniformMat4("projection", projection);
 
-	for (auto& [_, chunk] : *m_chunks_map)
+	processChunksMesh();
+
+	for (auto& [_, chunk] : m_chunks_map)
+	{
+		loadChunkMesh(chunk);
+	}
+
+	for (auto& [_, chunk] : m_chunks_map)
 	{
 		renderChunk(camera, chunk);
 	}
-}
-
-void ChunkRenderer::setChunks(ChunksMap* chunks_map)
-{
-	m_chunks_map = chunks_map;
 }
 
 void ChunkRenderer::draw(const Mesh& mesh) const
@@ -41,26 +42,47 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 	glDrawArrays(GL_TRIANGLES, 0, mesh.getTrianglesCount());
 }
 
-void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
+void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 {
-	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
-
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
 	{
 		chunk.addChunkMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
 	}
+	
+}
 
+void ChunkRenderer::processChunksMesh()
+{
+	if (m_chunks_map.empty())
+		return;
+
+	for (auto& [_, chunk] : m_chunks_map)
+	{
+		processChunkMesh(chunk);
+	}
+}
+
+void ChunkRenderer::loadChunkMesh(Chunk& chunk) const
+{
 	if (chunk.getMesh().getMeshState() == MeshState::PROCESSED)
 	{
 		chunk.getMesh().loadPackedMesh();
 		chunk.getMesh().setMeshState(MeshState::LOADED);
 	}
+}
 
+bool ChunkRenderer::isInFrustum(Camera& camera, Chunk& chunk) const
+{
+	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z) };
+	return camera.getFrustum().isBoxInFrustum(box);
+}
+
+void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
+{
+	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
 	
-	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z)};
-	bool chunk_in_frustum = camera.getFrustum().isBoxInFrustum(box);
-	if (!chunk_in_frustum)
+	if (!isInFrustum(camera, chunk))
 		return;
 
 	draw(chunk.getMesh());

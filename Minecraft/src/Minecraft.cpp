@@ -40,7 +40,7 @@ int main()
     WorldGenerator world_generator{ 1234, 8 };
     ChunkManager chunk_manager(camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-    MasterRenderer master_renderer;
+    MasterRenderer master_renderer(chunk_manager.getChunksMap());
 
     master_renderer.initConfig();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
@@ -56,7 +56,7 @@ int main()
         player_input.processInput(delta_time);       
         chunk_manager.updateChunksMap();
         master_renderer.clear();
-        master_renderer.render(camera, chunk_manager.getChunksMap());
+        master_renderer.render(camera);
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
     }

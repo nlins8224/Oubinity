@@ -9,6 +9,7 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator, int r
 	generateWorld();
 }
 
+//TODO: Refactor
 void ChunkManager::updateChunksMap()
 {
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
@@ -68,9 +69,9 @@ void ChunkManager::tryDeleteChunk(glm::ivec3 chunk_pos)
 	m_chunks_map.erase(chunk_pos);
 }
 
-ChunksMap* ChunkManager::getChunksMap()
+ChunksMap& ChunkManager::getChunksMap()
 {
-	return &m_chunks_map;
+	return m_chunks_map;
 }
 
 void ChunkManager::generateWorld()

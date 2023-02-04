@@ -28,7 +28,7 @@ public:
 	ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance = 4);
 	~ChunkManager() = default;
 	void generateWorld();
-	ChunksMap* getChunksMap();
+	ChunksMap& getChunksMap();
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);

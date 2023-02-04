@@ -1,7 +1,8 @@
 #include "MasterRenderer.h"
 
-MasterRenderer::MasterRenderer()
-	: m_chunk_renderer{ ChunkShader() }
+MasterRenderer::MasterRenderer(ChunksMap& chunks_map)
+	: m_chunk_renderer{ ChunkRenderer(ChunkShader(), chunks_map) }
+
 {
 	
 }
@@ -18,9 +19,8 @@ void MasterRenderer::clear() const
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void MasterRenderer::render(Camera& camera, ChunksMap* chunks_map)
+void MasterRenderer::render(Camera& camera)
 {
-	m_chunk_renderer.setChunks(chunks_map);
 	m_chunk_renderer.render(camera);
 }
 
