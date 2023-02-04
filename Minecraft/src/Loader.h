@@ -11,14 +11,17 @@ public:
 	Loader();
 	~Loader() = default;
 	void loadMesh(const MeshData& mesh);
+	void loadPackedMesh(const PackedMeshData& packed_mesh);
 	void bindVAO() const;
 	void unbindVAO() const;
 	
 private:
 	GLuint m_vao;
 	GLuint m_vertex_vbo, m_texture_vbo, m_shading_vbo;
+	GLuint m_xyzs_vbo, m_uvw_vbo;
 
 	void createVAO();
 	void storeDataInVAO(const MeshData& mesh);
+	void storePackedDataInVAO(const PackedMeshData& packed_mesh);
 	void cleanBuffers() const;
 };
