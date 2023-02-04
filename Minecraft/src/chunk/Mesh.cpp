@@ -1,6 +1,7 @@
 #include "Mesh.h"
 
 Mesh::Mesh()
+	: m_mesh_state{0}
 {
 }
 
@@ -87,6 +88,16 @@ const std::vector<float>& Mesh::getMeshShadingPositions() const
 const float Mesh::getTrianglesCount() const
 {
 	return m_packed_mesh_data.xyzs_positions.size();
+}
+
+const MeshState Mesh::getMeshState() const
+{
+	return m_mesh_state;
+}
+
+void Mesh::setMeshState(MeshState state)
+{
+	m_mesh_state = state;
 }
 
 void Mesh::loadMesh()

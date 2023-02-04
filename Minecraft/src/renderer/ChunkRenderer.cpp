@@ -44,11 +44,20 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
 	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
-	chunk.prepareChunkMesh();
 
-	if (!chunk.isMeshLoaded())
-		return;
+	if (chunk.getMesh().getMeshState() == MeshState::READY)
+	{
+		chunk.addChunkMesh();
+		chunk.getMesh().setMeshState(MeshState::PROCESSED);
+	}
 
+	if (chunk.getMesh().getMeshState() == MeshState::PROCESSED)
+	{
+		chunk.getMesh().loadPackedMesh();
+		chunk.getMesh().setMeshState(MeshState::LOADED);
+	}
+
+	
 	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z)};
 	bool chunk_in_frustum = camera.getFrustum().isBoxInFrustum(box);
 	if (!chunk_in_frustum)

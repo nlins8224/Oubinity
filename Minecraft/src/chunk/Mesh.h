@@ -4,6 +4,13 @@
 #include "MeshData.h"
 #include "ChunkMeshPacker.h"
 
+enum class MeshState
+{
+	READY = 0,
+	PROCESSED,
+	LOADED
+};
+
 class Mesh
 {
 public:
@@ -31,9 +38,12 @@ public:
 	const std::vector<float>& getMeshShadingPositions() const;
 
 	const float getTrianglesCount() const;
+	const MeshState getMeshState() const;
+	void setMeshState(MeshState state);
 	
 private:
 	Loader m_loader;
 	MeshData m_mesh_data;
 	PackedMeshData m_packed_mesh_data;
+	MeshState m_mesh_state;
 };

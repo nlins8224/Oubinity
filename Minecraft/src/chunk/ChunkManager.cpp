@@ -142,5 +142,5 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 		return;
 	
 	chunk.setBlock(chunk_block_pos, type);
-	chunk.setIsMeshLoaded(false);
+	chunk.getMesh().setMeshState(MeshState::READY);
 }
