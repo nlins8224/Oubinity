@@ -18,8 +18,6 @@
 const int scr_width = 1200;
 const int scr_height = 1600;
 
-float delta_time = 0.0f;
-float last_frame = 0.0f;
 
 float fov = 90.0f;
 
@@ -35,16 +33,23 @@ int main()
     }
 
     std::cout << glGetError() << std::endl;
-    Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
+    Camera camera{ glm::vec3(0.0f, 128.0f, 3.0f) };
     TextureManager m_texture_manager{ 16, 16, 256 };
     WorldGenerator world_generator{ 1234, 8 };
     ChunkManager chunk_manager(camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-    MasterRenderer master_renderer(chunk_manager.getChunksMap());
+    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getChunksMapMutex(), chunk_manager.getShouldProcessChunks(), chunk_manager.getIsReadyToProcessChunks());
 
     master_renderer.initConfig();
+    master_renderer.getChunkRenderer().launchChunkProcessingTask();
+    chunk_manager.launchHandleTasks();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    float delta_time = 0.0f;
+    float last_frame = 0.0f;
+    float seconds_elapsed = 0.0f;
+    int frames_per_second = 0;
 
     while (!glfwWindowShouldClose(window.getWindow()))
     {
@@ -53,8 +58,17 @@ int main()
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
+        frames_per_second++;
+        // Once per second
+        if (current_frame - seconds_elapsed >= 1.0f)
+        {
+            std::cout << "FPS: " << frames_per_second << std::endl;
+            seconds_elapsed += 1.0f;
+            frames_per_second = 0;
+        }
+
+
         player_input.processInput(delta_time);       
-        chunk_manager.updateChunksMap();
         master_renderer.clear();
         master_renderer.render(camera);
         glfwSwapBuffers(window.getWindow());

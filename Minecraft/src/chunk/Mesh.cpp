@@ -1,7 +1,6 @@
 #include "Mesh.h"
 
 Mesh::Mesh()
-	: m_mesh_state{0}
 {
 }
 

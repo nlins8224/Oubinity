@@ -1,14 +1,25 @@
 #include "ChunkRenderer.h"
 
-ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map)
+
+ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::shared_mutex& chunks_map_mutex, std::condition_variable_any& should_process_chunks, std::atomic<bool>& is_ready_to_process_chunks)
 	: Renderer(shader),
-	  m_chunks_map(chunks_map)
+	  m_chunks_map(chunks_map),
+	  m_chunks_map_mutex(chunks_map_mutex),
+	  m_should_process_chunks{should_process_chunks},
+	  m_is_ready_to_process_chunks{is_ready_to_process_chunks}
+	  
 {
 }
 
 ChunkRenderer::~ChunkRenderer()
 {
 }
+
+void ChunkRenderer::launchChunkProcessingTask()
+{
+	std::thread(&ChunkRenderer::processChunksMeshTask, this).detach();
+}
+
 
 void ChunkRenderer::render(Camera& camera)
 {
@@ -22,8 +33,6 @@ void ChunkRenderer::render(Camera& camera)
 	m_shader.setUniformMat4("model", model);
 	m_shader.setUniformMat4("view", view);
 	m_shader.setUniformMat4("projection", projection);
-
-	processChunksMesh();
 
 	for (auto& [_, chunk] : m_chunks_map)
 	{
@@ -45,21 +54,27 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 {
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
-	{
+	{	
 		chunk.addChunkMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
-	}
-	
+	}	
 }
 
-void ChunkRenderer::processChunksMesh()
+void ChunkRenderer::processChunksMeshTask() const
 {
-	if (m_chunks_map.empty())
-		return;
-
-	for (auto& [_, chunk] : m_chunks_map)
+	while (true)
 	{
-		processChunkMesh(chunk);
+		if (m_chunks_map.empty())
+			continue;
+
+		std::unique_lock<std::shared_mutex> lock(m_chunks_map_mutex);
+		m_should_process_chunks.wait(lock, [&]{ return m_is_ready_to_process_chunks.load();  });
+
+		for (auto& [_, chunk] : m_chunks_map)
+		{
+			processChunkMesh(chunk);
+		}
+		m_is_ready_to_process_chunks = false;
 	}
 }
 
@@ -81,7 +96,10 @@ bool ChunkRenderer::isInFrustum(Camera& camera, Chunk& chunk) const
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
 	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
-	
+
+	if (chunk.getMesh().getMeshState() != MeshState::LOADED)
+		return;
+
 	if (!isInFrustum(camera, chunk))
 		return;
 

@@ -1,5 +1,8 @@
 #pragma once
 #include <unordered_map>
+#include <shared_mutex>
+#include <condition_variable>
+#include <atomic>
 #include <cmath>
 #include <optional>
 #include <unordered_set>
@@ -27,20 +30,29 @@ class ChunkManager
 public:
 	ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance = 4);
 	~ChunkManager() = default;
-	void generateWorld();
+	void launchHandleTasks();
+	void handleTasks();
 	ChunksMap& getChunksMap();
+	std::shared_mutex& getChunksMapMutex();
+	std::condition_variable_any& getShouldProcessChunks();
+
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);
+	std::atomic<bool>& getIsReadyToProcessChunks();
 	void updateBlock(glm::vec3 pos, Block::block_id block_id);
-	void updateChunksMap();
+	void addToChunksMap();
+	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
-	void tryDeleteChunk(glm::ivec3 chunk_pos);
 
 private:
+	 //TODO: Write ConcurrentChunksMap
 	 ChunksMap m_chunks_map;
+	 std::shared_mutex m_chunks_map_mutex;
+	 std::atomic<bool> m_ready_to_process_chunks{ false };
+	 std::condition_variable_any m_should_process_chunks;
 	 Camera& m_camera;
 	 WorldGenerator m_world_generator;
-	 int m_render_distance;
+	 int m_render_distance_halved;
 };
 

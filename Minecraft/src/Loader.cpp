@@ -85,12 +85,17 @@ void Loader::unbindVAO() const {
 	glBindVertexArray(0);
 }
 
+void Loader::cleanPackedBuffers() const
+{
+	glDeleteBuffers(1, &m_xyzs_vbo);
+	glDeleteBuffers(1, &m_uvw_vbo);
+	glDeleteVertexArrays(1, &m_vao);
+}
+
 void Loader::cleanBuffers() const {
 
 	glDeleteBuffers(1, &m_vertex_vbo);
 	glDeleteBuffers(1, &m_texture_vbo);
 	glDeleteBuffers(1, &m_shading_vbo);
-	glDeleteBuffers(1, &m_xyzs_vbo);
-	glDeleteBuffers(1, &m_uvw_vbo);
 	glDeleteVertexArrays(1, &m_vao);
 }

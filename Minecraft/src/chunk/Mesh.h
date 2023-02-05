@@ -1,14 +1,18 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <atomic>
 #include "../Loader.h"
 #include "MeshData.h"
 #include "ChunkMeshPacker.h"
 
 enum class MeshState
 {
-	READY = 0,
+	NEW = 0,
+	READY,
 	PROCESSED,
-	LOADED
+	LOADED,
+	TO_DELETE,
+	DELETED
 };
 
 class Mesh
@@ -45,5 +49,5 @@ private:
 	Loader m_loader;
 	MeshData m_mesh_data;
 	PackedMeshData m_packed_mesh_data;
-	MeshState m_mesh_state;
+	MeshState m_mesh_state{MeshState::NEW};
 };
