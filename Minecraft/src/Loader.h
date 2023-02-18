@@ -14,6 +14,8 @@ public:
 	void loadPackedMesh(const PackedMeshData& packed_mesh);
 	void bindVAO() const;
 	void unbindVAO() const;
+
+	void cleanPackedBuffers() const;
 	
 private:
 	GLuint m_vao;

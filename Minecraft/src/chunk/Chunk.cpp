@@ -10,14 +10,12 @@ Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	m_chunk_manager{ chunk_manager },
 	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
 {
-	m_is_mesh_buffer_loaded = false;
 	m_is_terrain_generated = false;
 	m_blocks = Block::BlockArray();
 }
 
 Chunk::Chunk(const Chunk& chunk)
 	:
-	m_is_mesh_buffer_loaded{ chunk.m_is_mesh_buffer_loaded },
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
 	m_chunk_manager{chunk.m_chunk_manager},
@@ -31,17 +29,6 @@ Chunk::Chunk(const Chunk& chunk)
 Chunk::~Chunk()
 {
 
-}
-
-void Chunk::prepareChunkMesh()
-{
-	if (m_is_mesh_buffer_loaded)
-		return;
-
-	addChunkMesh();
-	m_mesh.loadPackedMesh();
-
-	m_is_mesh_buffer_loaded = true;
 }
 
 void Chunk::addChunkMesh()
@@ -153,34 +140,14 @@ bool Chunk::isTransparent(glm::ivec3 block_pos) const
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
 
-bool Chunk::isMeshLoaded() const
-{
-	return m_is_mesh_buffer_loaded;
-}
-
 bool Chunk::isTerrainGenerated() const
 {
 	return m_is_terrain_generated;
 }
 
-bool Chunk::isChunkVisible() const
-{
-	return m_is_chunk_visible;
-}
-
-void Chunk::setIsMeshLoaded(bool is_loaded)
-{
-	m_is_mesh_buffer_loaded = is_loaded;
-}
-
 void Chunk::setIsTerrainGenerated(bool is_generated)
 {
 	m_is_terrain_generated = is_generated;
-}
-
-void Chunk::setIsChunkVisible(bool is_visible)
-{
-	m_is_chunk_visible = is_visible;
 }
 
 const Mesh& Chunk::getMesh() const

@@ -31,17 +31,13 @@ public:
 	Chunk() = default;
 	~Chunk();
 
-	void prepareChunkMesh();
+	void addChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPosition() const;
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
 	bool isTransparent(glm::ivec3 block_pos) const;
-	bool isMeshLoaded() const;
 	bool isTerrainGenerated() const;
-	bool isChunkVisible() const;
-	void setIsMeshLoaded(bool is_loaded);
 	void setIsTerrainGenerated(bool is_generated);
-	void setIsChunkVisible(bool is_visible);
 	const Mesh& getMesh() const;
 	Mesh& getMesh();
 	const glm::vec3 getWorldPos() const;
@@ -53,11 +49,8 @@ private:
 	Block::BlockArray m_blocks;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
-	bool m_is_mesh_buffer_loaded;
 	bool m_is_terrain_generated;
-	bool m_is_chunk_visible;
 
-	void addChunkMesh();
 	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 world_pos) const;
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);

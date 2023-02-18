@@ -4,32 +4,74 @@ ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator, int r
 	:
 	m_camera{camera},
 	m_world_generator{world_generator},
-	m_render_distance{render_distance}
+	m_render_distance_halved{render_distance}
 {
-	generateWorld();
 }
 
-void ChunkManager::updateChunksMap()
+void ChunkManager::launchHandleTasks()
+{
+	std::thread(&ChunkManager::handleTasks, this).detach();
+}
+
+//TODO: Fix active waiting
+void ChunkManager::handleTasks()
+{
+	while (true)
+	{
+		if (m_ready_to_process_chunks.load())
+			continue;
+
+		addToChunksMap();
+		deleteFromChunksMap();
+		m_ready_to_process_chunks = true;
+		m_should_process_chunks.notify_one();
+	}	
+}
+
+void ChunkManager::addToChunksMap()
+{
+	OPTICK_EVENT();
+	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
+	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
+
+	int min_x = player_chunk_pos_x - m_render_distance_halved;
+	int max_x = player_chunk_pos_x + m_render_distance_halved;
+
+	int min_z = player_chunk_pos_z - m_render_distance_halved;
+	int max_z = player_chunk_pos_z + m_render_distance_halved;
+
+	for (int x = min_x; x < max_x; x++)
+	{
+		for (int z = min_z; z < max_z; z++)
+		{
+			for (int y = -m_render_distance_halved; y < m_render_distance_halved; y++)
+			{
+				tryAddChunk({ x, y, z });
+			}
+		}
+	}
+}
+
+void ChunkManager::deleteFromChunksMap()
 {
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
-	for (auto& it : m_chunks_map)
+	int min_x = player_chunk_pos_x - m_render_distance_halved;
+	int max_x = player_chunk_pos_x + m_render_distance_halved;
+
+	int min_z = player_chunk_pos_z - m_render_distance_halved;
+	int max_z = player_chunk_pos_z + m_render_distance_halved;
+
+	for (auto it = m_chunks_map.begin(); it != m_chunks_map.end();)
 	{
-		Chunk& chunk = it.second;
+		auto& chunk = it->second;
 
 		int chunk_pos_x = chunk.getPosition().x;
-		int chunk_pos_z = chunk.getPosition().z;
 		int chunk_pos_y = chunk.getPosition().y;
+		int chunk_pos_z = chunk.getPosition().z;
 
-		if (player_chunk_pos_x != chunk_pos_x && player_chunk_pos_z != chunk_pos_z)
-			continue;
-
-		int min_x = player_chunk_pos_x - m_render_distance;
-		int max_x = player_chunk_pos_x + m_render_distance;
-
-		int min_z = player_chunk_pos_z - m_render_distance;
-		int max_z = player_chunk_pos_z + m_render_distance;
+		glm::ivec3 chunk_pos{ chunk_pos_x, chunk_pos_y, chunk_pos_z };
 
 		if (
 			chunk_pos_x < min_x ||
@@ -38,16 +80,16 @@ void ChunkManager::updateChunksMap()
 			chunk_pos_z > max_z
 			)
 		{
-			tryDeleteChunk(chunk.getPosition());
+			std::lock_guard<std::shared_mutex> lock(m_chunks_map_mutex);
+			it = m_chunks_map.erase(it);
+
 		}
 		else
 		{
-			tryAddChunk({ max_x, chunk_pos_y, chunk_pos_z });
-			tryAddChunk({ min_x, chunk_pos_y, chunk_pos_z });
-			tryAddChunk({ chunk_pos_x, chunk_pos_y, max_z });
-			tryAddChunk({ chunk_pos_x, chunk_pos_y, min_z });
+			++it;
 		}
 	}
+
 }
 
 void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
@@ -56,37 +98,26 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-	m_world_generator.generateChunkTerrain(*chunk, this->m_render_distance);
+	m_world_generator.generateChunkTerrain(*chunk, this->m_render_distance_halved);
+
+	std::lock_guard<std::shared_mutex> lock(m_chunks_map_mutex);
 	m_chunks_map[chunk_pos] = *chunk;
+	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
 }
 
-void ChunkManager::tryDeleteChunk(glm::ivec3 chunk_pos)
+ChunksMap& ChunkManager::getChunksMap()
 {
-	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
-		return;
-
-	m_chunks_map.erase(chunk_pos);
+	return m_chunks_map;
 }
 
-ChunksMap* ChunkManager::getChunksMap()
+std::shared_mutex& ChunkManager::getChunksMapMutex()
 {
-	return &m_chunks_map;
+	return m_chunks_map_mutex;
 }
 
-void ChunkManager::generateWorld()
+std::condition_variable_any& ChunkManager::getShouldProcessChunks()
 {
-
-	for (int x = -m_render_distance; x < m_render_distance; x++)
-	{
-		for (int y = -m_render_distance; y < m_render_distance; y++)
-		{
-			for (int z = -m_render_distance; z < m_render_distance; z++)
-			{
-				glm::ivec3 chunk_pos(x, y, z);
-				tryAddChunk(chunk_pos);
-			}	
-		}
-	}
+	return m_should_process_chunks;
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
@@ -126,6 +157,11 @@ Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
 	return m_chunks_map.at(chunk_pos).getBlockId(block_pos);
 }
 
+std::atomic<bool>& ChunkManager::getIsReadyToProcessChunks()
+{
+	return m_ready_to_process_chunks;
+}
+
 void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 {
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
@@ -142,5 +178,5 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 		return;
 	
 	chunk.setBlock(chunk_block_pos, type);
-	chunk.setIsMeshLoaded(false);
+	chunk.getMesh().setMeshState(MeshState::READY);
 }

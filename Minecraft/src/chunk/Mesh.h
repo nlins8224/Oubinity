@@ -1,8 +1,19 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <atomic>
 #include "../Loader.h"
 #include "MeshData.h"
 #include "ChunkMeshPacker.h"
+
+enum class MeshState
+{
+	NEW = 0,
+	READY,
+	PROCESSED,
+	LOADED,
+	TO_DELETE,
+	DELETED
+};
 
 class Mesh
 {
@@ -31,9 +42,12 @@ public:
 	const std::vector<float>& getMeshShadingPositions() const;
 
 	const float getTrianglesCount() const;
+	const MeshState getMeshState() const;
+	void setMeshState(MeshState state);
 	
 private:
 	Loader m_loader;
 	MeshData m_mesh_data;
 	PackedMeshData m_packed_mesh_data;
+	MeshState m_mesh_state{MeshState::NEW};
 };
