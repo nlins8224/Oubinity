@@ -1,6 +1,6 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance)
+ChunkManager::ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance)
 	:
 	m_camera{camera},
 	m_world_generator{world_generator},

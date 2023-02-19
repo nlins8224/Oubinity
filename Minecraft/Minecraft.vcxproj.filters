@@ -57,7 +57,7 @@
     <ClCompile Include="src\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\chunk\WorldGenerator.cpp">
+    <ClCompile Include="src\chunk\TerrainGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\ChunkRenderer.cpp">
@@ -87,7 +87,7 @@
     <ClCompile Include="src\frustum\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\block\VertexPacker.cpp">
+    <ClCompile Include="src\chunk\ChunkMeshPacker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,7 +137,7 @@
     <ClInclude Include="src\third_party\FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\chunk\WorldGenerator.h">
+    <ClInclude Include="src\chunk\TerrainGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\Mesh.h">
@@ -176,7 +176,7 @@
     <ClInclude Include="src\frustum\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\block\VertexPacker.h">
+    <ClInclude Include="src\chunk\ChunkMeshPacker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
-#include "WorldGenerator.h"
+#include "TerrainGenerator.h"
 
-height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const
+height_map TerrainGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const
 {
 	FastNoiseLite noise(world_seed);
 	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
@@ -27,12 +27,12 @@ height_map WorldGenerator::generateChunkHeightMap(glm::ivec3 chunk_pos, const in
 	return h_map;
 }
 
-WorldGenerator::WorldGenerator(int world_seed, const int render_distance)
+TerrainGenerator::TerrainGenerator(int world_seed, const int render_distance)
 	: m_world_seed{world_seed}
 {
 }
 
-void WorldGenerator::generateChunkTerrain(Chunk& chunk, const int render_distance)
+void TerrainGenerator::generateChunkTerrain(Chunk& chunk, const int render_distance)
 {
 
 	if (chunk.isTerrainGenerated())
