@@ -1,6 +1,6 @@
 #pragma once
-#include "Chunk.h"
-#include "ChunkSize.h"
+#include "../chunk/Chunk.h"
+#include "../chunk/ChunkSize.h"
 #include "../third_party/FastNoiseLite.h"
 #include <optick.h>
 

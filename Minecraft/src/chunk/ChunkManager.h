@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include "Chunk.h"
 #include "ChunksMap.h"
-#include "TerrainGenerator.h"
+#include "../terrain_generation/TerrainGenerator.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
 #include "../block/Block.h"

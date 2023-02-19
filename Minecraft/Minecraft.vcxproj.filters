@@ -57,7 +57,7 @@
     <ClCompile Include="src\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\chunk\TerrainGenerator.cpp">
+    <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\ChunkRenderer.cpp">
@@ -137,7 +137,7 @@
     <ClInclude Include="src\third_party\FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\chunk\TerrainGenerator.h">
+    <ClInclude Include="src\terrain_generation\TerrainGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\Mesh.h">
