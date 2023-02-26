@@ -90,6 +90,12 @@
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chunk\ChunkColumn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -177,6 +183,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\ChunkMeshPacker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\BiomeGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chunk\ChunkColumn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\NoiseGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\NoiseSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

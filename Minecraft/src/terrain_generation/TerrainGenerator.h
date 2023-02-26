@@ -2,7 +2,7 @@
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
 #include "../third_party/FastNoiseLite.h"
-#include <optick.h>
+#include "BiomeGenerator.h";
 
 using height_map = std::array<std::array<uint8_t, CHUNK_SIZE_X>, CHUNK_SIZE_Z>;
 

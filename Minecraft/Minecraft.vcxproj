@@ -169,6 +169,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\chunk\ChunkColumn.cpp" />
     <ClCompile Include="src\frustum\Plane.cpp" />
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="src\chunk\ChunkManager.cpp" />
     <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
     <ClCompile Include="src\Loader.cpp" />
@@ -196,6 +198,7 @@
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\chunk\ChunkColumn.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />
     <ClInclude Include="src\block\BlockArray.h" />
@@ -207,6 +210,9 @@
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\NoiseGenerator.h" />
+    <ClInclude Include="src\terrain_generation\NoiseSettings.h" />
     <ClInclude Include="src\third_party\FastNoiseLite.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\Ray.h" />

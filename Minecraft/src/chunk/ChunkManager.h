@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include "Chunk.h"
 #include "ChunksMap.h"
+#include "ChunkColumn.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
@@ -44,6 +45,7 @@ public:
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
+
 
 private:
 	 //TODO: Write ConcurrentChunksMap
