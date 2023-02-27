@@ -1,16 +1,17 @@
 #pragma once
 #include <array>
+#include "HeightMap.h"
+#include "layers/AirLayerHandler.h"
+#include "layers/SurfaceLayerHandler.h"
+#include "layers/UndergroundLayerHandler.h"
 #include "../chunk/Chunk.h"
-
-using height_map = std::array<std::array<uint8_t, CHUNK_SIZE_X>, CHUNK_SIZE_Z>;
 
 class BiomeGenerator
 {
 public:
-	BiomeGenerator() = default;
+	BiomeGenerator(int seed);
 	~BiomeGenerator() = default;
-	void processChunk(Chunk& chunk, const height_map& height_map);
+	void processChunk(Chunk& chunk, const HeightMap& height_map);
 private:
-	double m_noise_factor;
-	int m_water_threshold;
+	int m_seed;
 };

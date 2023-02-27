@@ -1,8 +1,17 @@
 #include "BiomeGenerator.h"
 
-void BiomeGenerator::processChunk(Chunk& chunk, const height_map& height_map)
+BiomeGenerator::BiomeGenerator(int seed)
+	: m_seed{seed}
 {
-	glm::ivec3 chunk_pos{ chunk.getPosition() };
+}
+
+void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
+{
+	auto layer_handler = std::make_shared<AirLayerHandler>();
+	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
+	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
+
+	layer_handler->addNextLayer(surface_layer)->addNextLayer(underground_layer);
 
 	for (int x = 0; x < CHUNK_SIZE_X; x++)
 	{
@@ -10,17 +19,7 @@ void BiomeGenerator::processChunk(Chunk& chunk, const height_map& height_map)
 		{
 			for (int z = 0; z < CHUNK_SIZE_Z; z++)
 			{
-				glm::ivec3 block_pos{ x, y, z };
-				glm::ivec3 block_world_pos = static_cast<glm::ivec3>(chunk.getWorldPos()) + block_pos;
-
-				if (block_world_pos.y == height_map[x][z])
-					chunk.setBlock(block_pos, Block::GRASS);
-				else if (block_world_pos.y < height_map[x][z] && block_world_pos.y > height_map[x][z] - 10)
-					chunk.setBlock(block_pos, Block::DIRT);
-				else if (block_world_pos.y < height_map[x][z])
-					chunk.setBlock(block_pos, Block::STONE);
-				else
-					chunk.setBlock(block_pos, Block::AIR);
+				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
 			}
 		}
 	}
