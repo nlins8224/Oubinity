@@ -2,9 +2,10 @@
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
 #include "../third_party/FastNoiseLite.h"
+#include "shapes/NoiseGenerator.h"
+#include "shapes/Spline.h"
 #include "BiomeGenerator.h";
-
-using height_map = std::array<std::array<uint8_t, CHUNK_SIZE_X>, CHUNK_SIZE_Z>;
+#include "ShapeGenerator.h"
 
 class TerrainGenerator
 {
@@ -13,7 +14,7 @@ public:
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk, const int render_distance);
 private:
-	height_map generateChunkHeightMap(glm::ivec3 chunk_pos, const int world_seed) const;
 	int m_world_seed;
+	HeightMap m_height_map;
 };
 

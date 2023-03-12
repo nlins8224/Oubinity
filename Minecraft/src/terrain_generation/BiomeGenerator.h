@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "HeightMap.h"
+#include "NoiseMapTypes.h"
 #include "layers/AirLayerHandler.h"
 #include "layers/SurfaceLayerHandler.h"
 #include "layers/UndergroundLayerHandler.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "../HeightMap.h"
+#include "../NoiseMapTypes.h"
 #include "../../chunk/Chunk.h"
 
 class ChunkLayerHandler
