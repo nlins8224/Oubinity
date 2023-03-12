@@ -4,6 +4,7 @@
 #include "shapes/Nodes.h"
 #include "../block/Block.h"
 #include "../chunk/Chunk.h"
+#include "shapes/effects/DiscreteEffect.h"
 
 class ShapeGenerator
 {

@@ -120,6 +120,9 @@
     <ClCompile Include="src\terrain_generation\shapes\Nodes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -246,6 +249,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\shapes\effects\Effect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\shapes\effects\DiscreteEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

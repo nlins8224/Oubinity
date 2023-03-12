@@ -15,6 +15,8 @@ HeightMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 
 	HeightMap continentalness_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::ContinentalnessSettings, m_seed);
 	HeightMap surface_map{};
+	DiscreteEffect discrete_effect;
+	discrete_effect.addEffect(continentalness_map);
 
 	for (int x = 0; x < CHUNK_SIZE_X; x++)
 	{
