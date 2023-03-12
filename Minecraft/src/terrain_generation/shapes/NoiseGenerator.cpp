@@ -1,14 +1,9 @@
 #include "NoiseGenerator.h"
 
-DensityMap NoiseGenerator::generateDensityMap(glm::ivec3 chunk_pos, int seed)
+DensityMap NoiseGenerator::generateDensityMap(glm::ivec3 chunk_pos, NoiseSettings::Settings noise_settings, int seed)
 {
 	FastNoiseLite noise(seed);
-	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-	noise.SetFrequency(0.005);
-	noise.SetFractalType(FastNoiseLite::FractalType_FBm);
-	noise.SetFractalOctaves(3);
-	noise.SetFractalLacunarity(2.5);
-	noise.SetFractalGain(0.5f);
+	setSettings(noise, noise_settings);
 
 	DensityMap density_map{};
 
@@ -33,13 +28,7 @@ DensityMap NoiseGenerator::generateDensityMap(glm::ivec3 chunk_pos, int seed)
 HeightMap NoiseGenerator::generateHeightMap(glm::ivec3 chunk_pos, NoiseSettings::Settings noise_settings, int seed)
 {
 	FastNoiseLite noise(seed);
-	noise.SetNoiseType(noise_settings.noise_type);
-	noise.SetFractalType(noise_settings.fractal_type);
-	noise.SetFrequency(noise_settings.frequency);
-	noise.SetFractalOctaves(noise_settings.octaves);
-	noise.SetFractalLacunarity(noise_settings.lacunarity);
-	noise.SetFractalGain(noise_settings.fractal_gain);
-	noise.SetFractalWeightedStrength(noise_settings.weighted_strength);
+	setSettings(noise, noise_settings);
 
 	HeightMap height_map{};
 
@@ -55,6 +44,17 @@ HeightMap NoiseGenerator::generateHeightMap(glm::ivec3 chunk_pos, NoiseSettings:
 	}
 
 	return height_map;
+}
+
+void NoiseGenerator::setSettings(FastNoiseLite& noise, NoiseSettings::Settings settings)
+{
+	noise.SetNoiseType(settings.noise_type);
+	noise.SetFractalType(settings.fractal_type);
+	noise.SetFrequency(settings.frequency);
+	noise.SetFractalOctaves(settings.octaves);
+	noise.SetFractalLacunarity(settings.lacunarity);
+	noise.SetFractalGain(settings.fractal_gain);
+	noise.SetFractalWeightedStrength(settings.weighted_strength);
 }
 
 
