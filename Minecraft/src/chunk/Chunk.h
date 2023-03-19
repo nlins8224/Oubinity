@@ -33,7 +33,8 @@ public:
 
 	void addChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
-	glm::ivec3 getPosition() const;
+	glm::ivec3 getPos() const;
+	glm::ivec2 getPosXZ() const;
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isTerrainGenerated() const;

@@ -44,7 +44,7 @@ void ChunkManager::addToChunksMap()
 	{
 		for (int z = min_z; z < max_z; z++)
 		{
-			for (int y = -m_render_distance_halved; y < m_render_distance_halved; y++)
+			for (int y = 0; y < m_render_distance_halved * 2; y++)
 			{
 				tryAddChunk({ x, y, z });
 			}
@@ -67,9 +67,9 @@ void ChunkManager::deleteFromChunksMap()
 	{
 		auto& chunk = it->second;
 
-		int chunk_pos_x = chunk.getPosition().x;
-		int chunk_pos_y = chunk.getPosition().y;
-		int chunk_pos_z = chunk.getPosition().z;
+		int chunk_pos_x = chunk.getPos().x;
+		int chunk_pos_y = chunk.getPos().y;
+		int chunk_pos_z = chunk.getPos().z;
 
 		glm::ivec3 chunk_pos{ chunk_pos_x, chunk_pos_y, chunk_pos_z };
 
@@ -108,6 +108,11 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 ChunksMap& ChunkManager::getChunksMap()
 {
 	return m_chunks_map;
+}
+
+TerrainGenerator& ChunkManager::getTerrainGenerator()
+{
+	return m_world_generator;
 }
 
 std::shared_mutex& ChunkManager::getChunksMapMutex()

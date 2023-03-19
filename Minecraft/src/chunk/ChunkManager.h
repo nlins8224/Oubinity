@@ -33,6 +33,7 @@ public:
 	void launchHandleTasks();
 	void handleTasks();
 	ChunksMap& getChunksMap();
+	TerrainGenerator& getTerrainGenerator();
 	std::shared_mutex& getChunksMapMutex();
 	std::condition_variable_any& getShouldProcessChunks();
 

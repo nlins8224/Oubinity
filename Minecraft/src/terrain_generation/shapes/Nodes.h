@@ -6,6 +6,7 @@
 
 namespace Nodes
 {
-	extern std::array<glm::vec2, 4> continentalness;
-	extern std::array<glm::vec2, 4> erosion;
+	extern std::array<glm::vec2, 4> flat;
+	extern std::array<glm::vec2, 4> mountain;
+	extern std::array<glm::vec2, 4> base;
 }

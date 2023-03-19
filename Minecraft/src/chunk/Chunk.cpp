@@ -56,9 +56,14 @@ void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 	m_blocks.set(block_pos, type);
 }
 
-glm::ivec3 Chunk::getPosition() const
+glm::ivec3 Chunk::getPos() const
 {
 	return m_chunk_pos;
+}
+
+glm::ivec2 Chunk::getPosXZ() const
+{
+	return { m_chunk_pos.x, m_chunk_pos.z };
 }
 
 void Chunk::addVisibleFaces(glm::ivec3 block_pos)

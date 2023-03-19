@@ -13,5 +13,5 @@ void DiscreteEffect::addEffect(HeightMap& height_map)
 
 double DiscreteEffect::truncate(double value)
 {
-	return floorf(value * 100) / 100;
+	return floorf(value * 1000) / 1000;
 }

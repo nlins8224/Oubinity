@@ -39,7 +39,8 @@ HeightMap NoiseGenerator::generateHeightMap(glm::ivec3 chunk_pos, NoiseSettings:
 			float x_world_pos = x + chunk_pos.x;
 			float z_world_pos = z + chunk_pos.z;
 
-			height_map[x][z] = noise.GetNoise(x_world_pos, z_world_pos);
+			// translate [-1.0, 1.0] -> [0.0, 1.0]
+			height_map[x][z] = (noise.GetNoise(x_world_pos, z_world_pos) + 1.0f) / 2.0f;
 		}	
 	}
 
