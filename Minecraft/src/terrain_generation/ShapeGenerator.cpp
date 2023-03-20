@@ -6,8 +6,8 @@ ShapeGenerator::ShapeGenerator(int seed)
 	m_spline{},
 	m_surface_maps{}
 {
-	m_base_range = m_spline.getLinearRange(Nodes::base);
-	m_flat_range = m_spline.getLinearRange(Nodes::flat);
+	m_base_range = m_spline.getLinearRange(SplineControlPoints::base);
+	m_flat_range = m_spline.getLinearRange(SplineControlPoints::flat);
 }
 
 void ShapeGenerator::generateSurfaceMap(Chunk& chunk)

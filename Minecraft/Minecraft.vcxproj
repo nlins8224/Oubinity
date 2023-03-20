@@ -195,7 +195,7 @@
     <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\effects\MaskEffect.cpp" />
-    <ClCompile Include="src\terrain_generation\shapes\Nodes.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\NoiseGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\Spline.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
@@ -236,7 +236,7 @@
     <ClInclude Include="src\terrain_generation\shapes\effects\DiscreteEffect.h" />
     <ClInclude Include="src\terrain_generation\shapes\effects\Effect.h" />
     <ClInclude Include="src\terrain_generation\shapes\effects\MaskEffect.h" />
-    <ClInclude Include="src\terrain_generation\shapes\Nodes.h" />
+    <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
     <ClInclude Include="src\terrain_generation\shapes\Spline.h" />

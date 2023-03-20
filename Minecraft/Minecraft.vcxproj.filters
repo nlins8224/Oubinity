@@ -117,7 +117,7 @@
     <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\Nodes.cpp">
+    <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp">
@@ -245,7 +245,7 @@
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\Nodes.h">
+    <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\shapes\Spline.h">

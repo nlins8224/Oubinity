@@ -4,7 +4,7 @@
 #include "../NoiseMapTypes.h"
 #include "Spline.h"
 
-namespace Nodes
+namespace SplineControlPoints
 {
 	extern std::array<glm::vec2, 4> flat;
 	extern std::array<glm::vec2, 4> mountain;
