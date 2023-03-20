@@ -8,10 +8,13 @@ BiomeGenerator::BiomeGenerator(int seed)
 void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
 	auto layer_handler = std::make_shared<AirLayerHandler>();
+	auto ocean_layer = std::make_shared<OceanLayerHandler>(84);
 	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 
-	layer_handler->addNextLayer(surface_layer)->addNextLayer(underground_layer);
+	ocean_layer
+		->addNextLayer(surface_layer)
+		->addNextLayer(underground_layer);
 
 	for (int x = 0; x < CHUNK_SIZE_X; x++)
 	{
@@ -19,7 +22,7 @@ void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 		{
 			for (int z = 0; z < CHUNK_SIZE_Z; z++)
 			{
-				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
+				ocean_layer->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
 			}
 		}
 	}

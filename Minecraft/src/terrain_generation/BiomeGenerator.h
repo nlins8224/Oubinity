@@ -4,6 +4,7 @@
 #include "layers/AirLayerHandler.h"
 #include "layers/SurfaceLayerHandler.h"
 #include "layers/UndergroundLayerHandler.h"
+#include "layers/OceanLayerHandler.h"
 #include "../chunk/Chunk.h"
 
 class BiomeGenerator
