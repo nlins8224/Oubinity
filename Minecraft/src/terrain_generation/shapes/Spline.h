@@ -8,8 +8,8 @@ class Spline
 {
 public:
 	Spline();
-	SplineRange getBezierRange(std::array<glm::vec2, 4> points);
-	SplineRange getLinearRange(std::array<glm::vec2, 4> points);
+	SplineRange getBezierRange(std::vector<glm::vec2> points);
+	SplineRange getLinearRange(std::vector<glm::vec2> points);
 	int translateToKey(double value);
 	double translateToValue(int value);
 	int getKeyTranslateValue();

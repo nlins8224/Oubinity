@@ -6,7 +6,8 @@
 
 namespace SplineControlPoints
 {
-	extern std::array<glm::vec2, 4> flat;
-	extern std::array<glm::vec2, 4> mountain;
-	extern std::array<glm::vec2, 4> base;
+	extern std::vector<glm::vec2> flat;
+	extern std::vector<glm::vec2> mountain;
+	extern std::vector<glm::vec2> base;
+	extern std::vector<glm::vec2> test;
 }

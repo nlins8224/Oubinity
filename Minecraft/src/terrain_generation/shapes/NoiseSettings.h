@@ -14,6 +14,17 @@ namespace NoiseSettings
 		float weighted_strength;
 	};
 
+	static const Settings TestSettings
+	{
+		.noise_type{ FastNoiseLite::NoiseType_Value },
+		.fractal_type{ FastNoiseLite::FractalType_FBm },
+		.frequency{ 0.006 },
+		.octaves{ 4 },
+		.lacunarity{ 2.5 },
+		.fractal_gain{ 0.7 },
+		.weighted_strength{ 0.8 },
+	};
+
 	static const Settings BaseSettings
 	{
 		.noise_type{ FastNoiseLite::NoiseType_Value },

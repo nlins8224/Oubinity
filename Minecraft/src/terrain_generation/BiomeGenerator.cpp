@@ -8,7 +8,7 @@ BiomeGenerator::BiomeGenerator(int seed)
 void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
 	auto layer_handler = std::make_shared<AirLayerHandler>();
-	auto ocean_layer = std::make_shared<OceanLayerHandler>(84);
+	auto ocean_layer = std::make_shared<OceanLayerHandler>(35);
 	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 

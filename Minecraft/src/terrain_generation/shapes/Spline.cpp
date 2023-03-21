@@ -24,7 +24,7 @@ int Spline::getKeyTranslateValue()
 	return m_key_translate_value;
 }
 
-SplineRange Spline::getBezierRange(std::array<glm::vec2, 4> points)
+SplineRange Spline::getBezierRange(std::vector<glm::vec2> points)
 {
 	Bezier::Bezier<3> cubicBezier({ 
 		{points[0].x, points[0].y}, 
@@ -45,7 +45,7 @@ SplineRange Spline::getBezierRange(std::array<glm::vec2, 4> points)
 	return spline_map;
 }
 
-SplineRange Spline::getLinearRange(std::array<glm::vec2, 4> points)
+SplineRange Spline::getLinearRange(std::vector<glm::vec2> points)
 {
 	SplineRange spline_map;
 	double t = 1.0f / static_cast<double>(m_key_translate_value);

@@ -173,6 +173,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\entity\Entity.cpp" />
+    <ClCompile Include="src\entity\Tree.cpp" />
     <ClCompile Include="src\frustum\Plane.cpp" />
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
@@ -213,6 +215,8 @@
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\entity\Entity.h" />
+    <ClInclude Include="src\entity\Tree.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />
     <ClInclude Include="src\block\BlockArray.h" />

@@ -6,7 +6,7 @@ ShapeGenerator::ShapeGenerator(int seed)
 	m_spline{},
 	m_surface_maps{}
 {
-	m_base_range = m_spline.getLinearRange(SplineControlPoints::base);
+	m_base_range = m_spline.getLinearRange(SplineControlPoints::test);
 	m_flat_range = m_spline.getLinearRange(SplineControlPoints::flat);
 }
 
@@ -14,7 +14,7 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 {
 	NoiseGenerator noise_generator;
 
-	HeightMap base_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::BaseSettings, m_seed);
+	HeightMap base_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::TestSettings, m_seed);
 	HeightMap flat_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::FlatSettings, m_seed);
 	HeightMap mountain_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::MountainSettings, m_seed);
 
@@ -37,10 +37,10 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 			float base_height = m_base_range[height_key_base];
 			float flat_height = m_flat_range[height_key_flat];
 
-			if (base_height < 60.0f)
-			{
-				base_height = flat_height;
-			}
+			//if (base_height < 60.0f)
+			//{
+			//	base_height = flat_height;
+			//}
 
 			surface_map[x][z] = base_height;
 		}
