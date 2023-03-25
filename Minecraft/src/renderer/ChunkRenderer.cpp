@@ -53,6 +53,7 @@ void ChunkRenderer::draw(const Mesh& mesh) const
 
 void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 {
+	OPTICK_EVENT();
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
 	{	
 		chunk.addChunkMesh();

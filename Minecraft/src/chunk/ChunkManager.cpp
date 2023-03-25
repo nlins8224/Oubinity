@@ -1,20 +1,20 @@
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance)
+ChunkManager::ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz, int render_distance_height)
 	:
 	m_camera{camera},
-	m_world_generator{world_generator},
-	m_render_distance_halved{render_distance}
+	m_terrain_generator{world_generator},
+	m_render_distance_halved{ render_distance_halved_xz },
+	m_render_distance_height{ render_distance_height }
 {
 }
 
-void ChunkManager::launchHandleTasks()
+void ChunkManager::launchAddToChunksMapTask()
 {
-	std::thread(&ChunkManager::handleTasks, this).detach();
+	std::thread(&ChunkManager::addToChunksMapTask, this).detach();
 }
 
-//TODO: Fix active waiting
-void ChunkManager::handleTasks()
+void ChunkManager::addToChunksMapTask()
 {
 	while (true)
 	{
@@ -22,7 +22,6 @@ void ChunkManager::handleTasks()
 			continue;
 
 		addToChunksMap();
-		//deleteFromChunksMap();
 		m_ready_to_process_chunks = true;
 		m_should_process_chunks.notify_one();
 	}	
@@ -30,6 +29,7 @@ void ChunkManager::handleTasks()
 
 void ChunkManager::addToChunksMap()
 {
+	OPTICK_EVENT();
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
@@ -39,11 +39,11 @@ void ChunkManager::addToChunksMap()
 	int min_z = player_chunk_pos_z - m_render_distance_halved;
 	int max_z = player_chunk_pos_z + m_render_distance_halved;
 
-	for (int x = min_x; x < max_x; x++)
+	for (int x = max_x; x > min_x; x--)
 	{
-		for (int z = min_z; z < max_z; z++)
+		for (int z = max_z; z > min_z; z--)
 		{
-			for (int y = 0; y < 8; y++)
+			for (int y = m_render_distance_height - 1; y >= 0; y--)
 			{
 				tryAddChunk({ x, y, z });
 			}
@@ -79,7 +79,6 @@ void ChunkManager::deleteFromChunksMap()
 			chunk_pos_z > max_z
 			)
 		{
-			std::lock_guard<std::shared_mutex> lock(m_chunks_map_mutex);
 			it = m_chunks_map.erase(it);
 		}
 		else
@@ -96,7 +95,7 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-	m_world_generator.generateChunkTerrain(*chunk);
+	m_terrain_generator.generateChunkTerrain(*chunk);
 
 	m_chunks_map[chunk_pos] = *chunk;
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
@@ -109,7 +108,7 @@ ChunksMap& ChunkManager::getChunksMap()
 
 TerrainGenerator& ChunkManager::getTerrainGenerator()
 {
-	return m_world_generator;
+	return m_terrain_generator;
 }
 
 std::shared_mutex& ChunkManager::getChunksMapMutex()

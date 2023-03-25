@@ -28,10 +28,10 @@ block_pos is position of a block inside the chunk
 class ChunkManager
 {
 public:
-	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance = 4);
+	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz = 4, int render_distance_height = 6);
 	~ChunkManager() = default;
-	void launchHandleTasks();
-	void handleTasks();
+	void launchAddToChunksMapTask();
+	void addToChunksMapTask();
 	ChunksMap& getChunksMap();
 	TerrainGenerator& getTerrainGenerator();
 	std::shared_mutex& getChunksMapMutex();
@@ -48,13 +48,13 @@ public:
 
 
 private:
-	 //TODO: Write ConcurrentChunksMap
 	 ChunksMap m_chunks_map;
 	 std::shared_mutex m_chunks_map_mutex;
 	 std::atomic<bool> m_ready_to_process_chunks{ false };
 	 std::condition_variable_any m_should_process_chunks;
 	 Camera& m_camera;
-	 TerrainGenerator m_world_generator;
+	 TerrainGenerator m_terrain_generator;
 	 int m_render_distance_halved;
+	 int m_render_distance_height;
 };
 

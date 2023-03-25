@@ -43,7 +43,7 @@ int main()
 
     master_renderer.initConfig();
     master_renderer.getChunkRenderer().launchChunkProcessingTask();
-    chunk_manager.launchHandleTasks();
+    chunk_manager.launchAddToChunksMapTask();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
