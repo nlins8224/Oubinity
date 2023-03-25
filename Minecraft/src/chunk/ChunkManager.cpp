@@ -44,7 +44,7 @@ void ChunkManager::addToChunksMap()
 	{
 		for (int z = min_z; z < max_z; z++)
 		{
-			for (int y = 0; y < m_render_distance_halved * 2; y++)
+			for (int y = 0; y < 8; y++)
 			{
 				tryAddChunk({ x, y, z });
 			}

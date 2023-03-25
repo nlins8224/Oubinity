@@ -37,11 +37,6 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 			float base_height = m_base_range[height_key_base];
 			float flat_height = m_flat_range[height_key_flat];
 
-			//if (base_height < 60.0f)
-			//{
-			//	base_height = flat_height;
-			//}
-
 			surface_map[x][z] = base_height;
 		}
 	}

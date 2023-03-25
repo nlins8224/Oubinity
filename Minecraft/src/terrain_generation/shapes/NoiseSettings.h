@@ -40,7 +40,7 @@ namespace NoiseSettings
 	{
 		.noise_type{ FastNoiseLite::NoiseType_OpenSimplex2 },
 		.fractal_type{ FastNoiseLite::FractalType_FBm },
-		.frequency{ 0.006 },
+		.frequency{ 0.0012 },
 		.octaves{ 4 },
 		.lacunarity{ 2.5 },
 		.fractal_gain{ 0.6 },

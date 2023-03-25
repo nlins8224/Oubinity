@@ -99,9 +99,6 @@
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\layers\StoneLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\layers\SurfaceLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,12 +124,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\entity\Tree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\entity\Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -242,9 +233,6 @@
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\layers\StoneLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -273,12 +261,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\entity\Tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\entity\Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
