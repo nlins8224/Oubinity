@@ -8,6 +8,7 @@
 #include <filesystem>
 
 #include "chunk/ChunkManager.h"
+#include "terrain_generation/TerrainGenerator.h"
 #include "PlayerInput.h"
 #include "io/Window.h"
 #include "shader/Shader.h"
@@ -33,9 +34,9 @@ int main()
     }
 
     std::cout << glGetError() << std::endl;
-    Camera camera{ glm::vec3(0.0f, 128.0f, 3.0f) };
+    Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
     TextureManager m_texture_manager{ 16, 16, 256 };
-    WorldGenerator world_generator{ 1234, 8 };
+    TerrainGenerator world_generator{ 1337, 8 };
     ChunkManager chunk_manager(camera, world_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
     MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getChunksMapMutex(), chunk_manager.getShouldProcessChunks(), chunk_manager.getIsReadyToProcessChunks());
@@ -62,7 +63,18 @@ int main()
         // Once per second
         if (current_frame - seconds_elapsed >= 1.0f)
         {
+            glm::vec3 player_pos = player_input.getCamera().getCameraPos();
+            glm::ivec3 current_chunk_pos = chunk_manager.getChunkPosition(player_pos);
+            glm::ivec3 current_block_pos = chunk_manager.getChunkBlockPosition(player_pos);
+            float surface_height = chunk_manager.getTerrainGenerator().getSurfaceHeight({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
+            float basic_noise_value = chunk_manager.getTerrainGenerator().getShapeGenerator().getBasicNoiseValue({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
             std::cout << "FPS: " << frames_per_second << std::endl;
+            std::cout << "CURRENT CHUNK XZ: " << current_chunk_pos.x << " " << current_chunk_pos.z << std::endl;
+            std::cout << "CURRENT BLOCK XZ: " << current_block_pos.x << " " << current_block_pos.z << std::endl;
+            std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
+            std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
+            std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
+
             seconds_elapsed += 1.0f;
             frames_per_second = 0;
         }

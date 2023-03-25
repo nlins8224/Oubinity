@@ -100,6 +100,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +120,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +141,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -158,6 +161,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,6 +185,18 @@
     <ClCompile Include="src\chunk\ChunkManager.cpp" />
     <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\layers\SurfaceLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\layers\UndergroundLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\effects\MaskEffect.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\NoiseGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\Spline.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
     <ClCompile Include="src\Loader.cpp" />
@@ -192,7 +208,7 @@
     <ClCompile Include="src\third_party\stb_image.cpp" />
     <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
-    <ClCompile Include="src\chunk\WorldGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp" />
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +223,22 @@
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\NoiseMapTypes.h" />
+    <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\shapes\effects\DiscreteEffect.h" />
+    <ClInclude Include="src\terrain_generation\shapes\effects\Effect.h" />
+    <ClInclude Include="src\terrain_generation\shapes\effects\MaskEffect.h" />
+    <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h" />
+    <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
+    <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
+    <ClInclude Include="src\terrain_generation\shapes\Spline.h" />
+    <ClInclude Include="src\third_party\bezier.h" />
     <ClInclude Include="src\third_party\FastNoiseLite.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\Ray.h" />
@@ -223,7 +255,7 @@
     <ClInclude Include="src\third_party\stb_image.h" />
     <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
-    <ClInclude Include="src\chunk\WorldGenerator.h" />
+    <ClInclude Include="src\terrain_generation\TerrainGenerator.h" />
     <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
   </ItemGroup>
   <ItemGroup>

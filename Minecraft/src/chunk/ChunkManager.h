@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include "Chunk.h"
 #include "ChunksMap.h"
-#include "WorldGenerator.h"
+#include "../terrain_generation/TerrainGenerator.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
 #include "../block/Block.h"
@@ -28,11 +28,12 @@ block_pos is position of a block inside the chunk
 class ChunkManager
 {
 public:
-	ChunkManager(Camera& camera, WorldGenerator world_generator, int render_distance = 4);
+	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance = 4);
 	~ChunkManager() = default;
 	void launchHandleTasks();
 	void handleTasks();
 	ChunksMap& getChunksMap();
+	TerrainGenerator& getTerrainGenerator();
 	std::shared_mutex& getChunksMapMutex();
 	std::condition_variable_any& getShouldProcessChunks();
 
@@ -45,6 +46,7 @@ public:
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
 
+
 private:
 	 //TODO: Write ConcurrentChunksMap
 	 ChunksMap m_chunks_map;
@@ -52,7 +54,7 @@ private:
 	 std::atomic<bool> m_ready_to_process_chunks{ false };
 	 std::condition_variable_any m_should_process_chunks;
 	 Camera& m_camera;
-	 WorldGenerator m_world_generator;
+	 TerrainGenerator m_world_generator;
 	 int m_render_distance_halved;
 };
 

@@ -80,6 +80,7 @@ void ChunkRenderer::processChunksMeshTask() const
 
 void ChunkRenderer::loadChunkMesh(Chunk& chunk) const
 {
+	std::unique_lock<std::shared_mutex> lock(m_chunks_map_mutex);
 	if (chunk.getMesh().getMeshState() == MeshState::PROCESSED)
 	{
 		chunk.getMesh().loadPackedMesh();
@@ -96,7 +97,7 @@ bool ChunkRenderer::isInFrustum(Camera& camera, Chunk& chunk) const
 void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 {
 	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
-
+	std::unique_lock<std::shared_mutex> lock(m_chunks_map_mutex);
 	if (chunk.getMesh().getMeshState() != MeshState::LOADED)
 		return;
 
