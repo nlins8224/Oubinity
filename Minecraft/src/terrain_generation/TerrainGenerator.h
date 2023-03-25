@@ -11,9 +11,9 @@
 class TerrainGenerator
 {
 public:
-	TerrainGenerator(int world_seed, const int render_distance);
+	TerrainGenerator(int world_seed);
 	~TerrainGenerator() = default;
-	void generateChunkTerrain(Chunk& chunk, const int render_distance);
+	void generateChunkTerrain(Chunk& chunk);
 	ShapeGenerator& getShapeGenerator();
 	float getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
 private:
