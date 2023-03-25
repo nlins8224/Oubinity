@@ -1,12 +1,12 @@
 #include "TerrainGenerator.h"
 
-TerrainGenerator::TerrainGenerator(int world_seed, const int render_distance)
+TerrainGenerator::TerrainGenerator(int world_seed)
 	: m_world_seed{world_seed},
 	m_shape_generator{world_seed}
 {
 }
 
-void TerrainGenerator::generateChunkTerrain(Chunk& chunk, const int render_distance)
+void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
 	if (chunk.isTerrainGenerated())
 		return;

@@ -22,7 +22,7 @@ void ChunkManager::handleTasks()
 			continue;
 
 		addToChunksMap();
-		deleteFromChunksMap();
+		//deleteFromChunksMap();
 		m_ready_to_process_chunks = true;
 		m_should_process_chunks.notify_one();
 	}	
@@ -30,7 +30,6 @@ void ChunkManager::handleTasks()
 
 void ChunkManager::addToChunksMap()
 {
-	OPTICK_EVENT();
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
@@ -82,7 +81,6 @@ void ChunkManager::deleteFromChunksMap()
 		{
 			std::lock_guard<std::shared_mutex> lock(m_chunks_map_mutex);
 			it = m_chunks_map.erase(it);
-
 		}
 		else
 		{
@@ -98,9 +96,8 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 		return;
 
 	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
-	m_world_generator.generateChunkTerrain(*chunk, this->m_render_distance_halved);
+	m_world_generator.generateChunkTerrain(*chunk);
 
-	std::lock_guard<std::shared_mutex> lock(m_chunks_map_mutex);
 	m_chunks_map[chunk_pos] = *chunk;
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
 }
