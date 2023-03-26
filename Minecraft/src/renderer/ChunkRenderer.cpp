@@ -65,16 +65,14 @@ void ChunkRenderer::processChunksMeshTask() const
 {
 	while (true)
 	{
-		std::unique_lock<std::shared_mutex> lock(m_chunks_map_mutex);
-		if (m_chunks_map.empty())
+		if (m_chunks_map.empty() || !m_is_ready_to_process_chunks.load())
 			continue;
-
-		m_should_process_chunks.wait(lock, [&]{ return m_is_ready_to_process_chunks.load();  });
 
 		for (auto& [_, chunk] : m_chunks_map)
 		{
 			processChunkMesh(chunk);
 		}
+
 		m_is_ready_to_process_chunks.store(false, std::memory_order_relaxed);
 	}
 }

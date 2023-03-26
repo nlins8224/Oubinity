@@ -41,6 +41,7 @@ public:
 	void setIsTerrainGenerated(bool is_generated);
 	const Mesh& getMesh() const;
 	Mesh& getMesh();
+	Block::BlockArray& getBlockArray();
 	const glm::vec3 getWorldPos() const;
 
 private:

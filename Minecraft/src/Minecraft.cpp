@@ -36,7 +36,7 @@ int main()
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
     TextureManager m_texture_manager{ 16, 16, 256 };
-    TerrainGenerator terrain_generator{ 1337 };
+    TerrainGenerator terrain_generator{ 1337, 64, 67 };
     ChunkManager chunk_manager(camera, terrain_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
     MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getChunksMapMutex(), chunk_manager.getShouldProcessChunks(), chunk_manager.getIsReadyToProcessChunks());

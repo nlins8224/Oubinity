@@ -17,6 +17,11 @@ namespace Block
 		block_array[getBlockIndex(block_pos)] = block_type;
 	}
 
+	void BlockArray::fill(block_id block_type)
+	{
+		memset(block_array, block_type, sizeof(block_array));
+	}
+
 	int BlockArray::getBlockIndex(glm::ivec3 block_pos) const
 	{
 		return block_pos.x * CHUNK_SIZE_Y * CHUNK_SIZE_Z + block_pos.y * CHUNK_SIZE_Z + block_pos.z;
