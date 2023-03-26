@@ -75,7 +75,7 @@ void ChunkRenderer::processChunksMeshTask() const
 		{
 			processChunkMesh(chunk);
 		}
-		m_is_ready_to_process_chunks = false;
+		m_is_ready_to_process_chunks.store(false, std::memory_order_relaxed);
 	}
 }
 
