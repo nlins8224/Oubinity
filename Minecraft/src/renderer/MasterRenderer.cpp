@@ -1,7 +1,7 @@
 #include "MasterRenderer.h"
 
-MasterRenderer::MasterRenderer(ChunksMap& chunks_map, std::shared_mutex& chunks_map_mutex, std::condition_variable_any& should_process_chunks, std::atomic<bool>& is_ready_to_process_chunks)
-	: m_chunk_renderer{ ChunkRenderer(ChunkShader(), chunks_map, chunks_map_mutex, should_process_chunks, is_ready_to_process_chunks) }
+MasterRenderer::MasterRenderer(ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks)
+	: m_chunk_renderer{ ChunkRenderer(ChunkShader(), chunks_map, is_ready_to_process_chunks) }
 {
 	
 }

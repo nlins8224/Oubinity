@@ -39,7 +39,7 @@ int main()
     TerrainGenerator terrain_generator{ 1337, 64, 67 };
     ChunkManager chunk_manager(camera, terrain_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getChunksMapMutex(), chunk_manager.getShouldProcessChunks(), chunk_manager.getIsReadyToProcessChunks());
+    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks());
 
     master_renderer.initConfig();
     master_renderer.getChunkRenderer().launchChunkProcessingTask();

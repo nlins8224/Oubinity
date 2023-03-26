@@ -111,16 +111,6 @@ TerrainGenerator& ChunkManager::getTerrainGenerator()
 	return m_terrain_generator;
 }
 
-std::shared_mutex& ChunkManager::getChunksMapMutex()
-{
-	return m_chunks_map_mutex;
-}
-
-std::condition_variable_any& ChunkManager::getShouldProcessChunks()
-{
-	return m_should_process_chunks;
-}
-
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
 	int x = floor(world_pos.x / CHUNK_SIZE_X);

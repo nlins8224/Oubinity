@@ -1,11 +1,9 @@
 #include "ChunkRenderer.h"
 
 
-ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::shared_mutex& chunks_map_mutex, std::condition_variable_any& should_process_chunks, std::atomic<bool>& is_ready_to_process_chunks)
+ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks)
 	: Renderer(shader),
 	  m_chunks_map(chunks_map),
-	  m_chunks_map_mutex(chunks_map_mutex),
-	  m_should_process_chunks{should_process_chunks},
 	  m_is_ready_to_process_chunks{is_ready_to_process_chunks}
 	  
 {
