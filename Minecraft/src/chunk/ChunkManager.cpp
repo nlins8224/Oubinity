@@ -4,7 +4,7 @@ ChunkManager::ChunkManager(Camera& camera, TerrainGenerator world_generator, int
 	:
 	m_camera{camera},
 	m_terrain_generator{world_generator},
-	m_render_distance_halved{ render_distance_halved_xz },
+	m_render_distance_xz_halved{ render_distance_halved_xz },
 	m_render_distance_height{ render_distance_height }
 {
 }
@@ -18,12 +18,12 @@ void ChunkManager::addToChunksMapTask()
 {
 	while (true)
 	{
-		if (m_ready_to_process_chunks.load())
-			continue;
+		m_ready_to_process_chunks.wait(true);
 
 		addToChunksMap();
-		m_ready_to_process_chunks = true;
-		m_should_process_chunks.notify_one();
+
+		m_ready_to_process_chunks.store(true);
+		m_ready_to_process_chunks.notify_one();
 	}	
 }
 
@@ -33,11 +33,11 @@ void ChunkManager::addToChunksMap()
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
-	int min_x = player_chunk_pos_x - m_render_distance_halved;
-	int max_x = player_chunk_pos_x + m_render_distance_halved;
+	int min_x = player_chunk_pos_x - m_render_distance_xz_halved;
+	int max_x = player_chunk_pos_x + m_render_distance_xz_halved;
 
-	int min_z = player_chunk_pos_z - m_render_distance_halved;
-	int max_z = player_chunk_pos_z + m_render_distance_halved;
+	int min_z = player_chunk_pos_z - m_render_distance_xz_halved;
+	int max_z = player_chunk_pos_z + m_render_distance_xz_halved;
 
 	for (int x = max_x; x > min_x; x--)
 	{
@@ -56,11 +56,11 @@ void ChunkManager::deleteFromChunksMap()
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
 
-	int min_x = player_chunk_pos_x - m_render_distance_halved;
-	int max_x = player_chunk_pos_x + m_render_distance_halved;
+	int min_x = player_chunk_pos_x - m_render_distance_xz_halved;
+	int max_x = player_chunk_pos_x + m_render_distance_xz_halved;
 
-	int min_z = player_chunk_pos_z - m_render_distance_halved;
-	int max_z = player_chunk_pos_z + m_render_distance_halved;
+	int min_z = player_chunk_pos_z - m_render_distance_xz_halved;
+	int max_z = player_chunk_pos_z + m_render_distance_xz_halved;
 
 	for (auto it = m_chunks_map.begin(); it != m_chunks_map.end();)
 	{
@@ -109,16 +109,6 @@ ChunksMap& ChunkManager::getChunksMap()
 TerrainGenerator& ChunkManager::getTerrainGenerator()
 {
 	return m_terrain_generator;
-}
-
-std::shared_mutex& ChunkManager::getChunksMapMutex()
-{
-	return m_chunks_map_mutex;
-}
-
-std::condition_variable_any& ChunkManager::getShouldProcessChunks()
-{
-	return m_should_process_chunks;
 }
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)

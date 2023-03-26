@@ -165,6 +165,11 @@ Mesh& Chunk::getMesh()
 	return m_mesh;
 }
 
+Block::BlockArray& Chunk::getBlockArray()
+{
+	return m_blocks;
+}
+
 const glm::vec3 Chunk::getWorldPos() const
 {
 	return m_world_pos;

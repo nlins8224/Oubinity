@@ -1,11 +1,9 @@
 #include "ChunkRenderer.h"
 
 
-ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::shared_mutex& chunks_map_mutex, std::condition_variable_any& should_process_chunks, std::atomic<bool>& is_ready_to_process_chunks)
+ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks)
 	: Renderer(shader),
 	  m_chunks_map(chunks_map),
-	  m_chunks_map_mutex(chunks_map_mutex),
-	  m_should_process_chunks{should_process_chunks},
 	  m_is_ready_to_process_chunks{is_ready_to_process_chunks}
 	  
 {
@@ -65,17 +63,15 @@ void ChunkRenderer::processChunksMeshTask() const
 {
 	while (true)
 	{
-		std::unique_lock<std::shared_mutex> lock(m_chunks_map_mutex);
-		if (m_chunks_map.empty())
-			continue;
-
-		m_should_process_chunks.wait(lock, [&]{ return m_is_ready_to_process_chunks.load();  });
+		m_is_ready_to_process_chunks.wait(false);
 
 		for (auto& [_, chunk] : m_chunks_map)
 		{
 			processChunkMesh(chunk);
 		}
-		m_is_ready_to_process_chunks = false;
+
+		m_is_ready_to_process_chunks.store(false);
+		m_is_ready_to_process_chunks.notify_one();
 	}
 }
 

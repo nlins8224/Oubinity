@@ -8,7 +8,7 @@
 class MasterRenderer
 {
 public:
-	MasterRenderer(ChunksMap& chunks_map, std::shared_mutex& chunks_map_mutex, std::condition_variable_any& should_process_chunks, std::atomic<bool>& is_ready_to_process_chunks);
+	MasterRenderer(ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks);
 	~MasterRenderer() = default;
 	void initConfig() const;
 	void clear() const;

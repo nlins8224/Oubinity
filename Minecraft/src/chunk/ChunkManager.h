@@ -34,9 +34,6 @@ public:
 	void addToChunksMapTask();
 	ChunksMap& getChunksMap();
 	TerrainGenerator& getTerrainGenerator();
-	std::shared_mutex& getChunksMapMutex();
-	std::condition_variable_any& getShouldProcessChunks();
-
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);
@@ -49,12 +46,10 @@ public:
 
 private:
 	 ChunksMap m_chunks_map;
-	 std::shared_mutex m_chunks_map_mutex;
 	 std::atomic<bool> m_ready_to_process_chunks{ false };
-	 std::condition_variable_any m_should_process_chunks;
 	 Camera& m_camera;
 	 TerrainGenerator m_terrain_generator;
-	 int m_render_distance_halved;
+	 int m_render_distance_xz_halved;
 	 int m_render_distance_height;
 };
 

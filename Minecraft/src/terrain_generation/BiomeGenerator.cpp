@@ -1,17 +1,26 @@
 #include "BiomeGenerator.h"
 
-BiomeGenerator::BiomeGenerator(int seed)
-	: m_seed{seed}
+BiomeGenerator::BiomeGenerator(int seed, uint8_t surface_height, uint8_t water_height)
+	: m_seed{seed},
+	m_min_surface_height{surface_height},
+	m_water_height{water_height}
 {
 }
 
 void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
-	auto ocean_layer = std::make_shared<OceanLayerHandler>(63);
+	// This is for optimization purposes; processing each block separately is slow
+	if (isBelowSurface(chunk.getWorldPos().y))
+	{
+		chunk.getBlockArray().fill(Block::STONE);
+		return;
+	}
+
+	auto layer_handler = std::make_shared<OceanLayerHandler>(m_water_height);
 	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 
-	ocean_layer
+	layer_handler
 		->addNextLayer(surface_layer)
 		->addNextLayer(underground_layer);
 
@@ -21,8 +30,13 @@ void BiomeGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 		{
 			for (int z = 0; z < CHUNK_SIZE_Z; z++)
 			{
-				ocean_layer->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
+				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
 			}
 		}
 	}
+}
+
+bool BiomeGenerator::isBelowSurface(uint8_t height)
+{
+	return height < m_min_surface_height;
 }
