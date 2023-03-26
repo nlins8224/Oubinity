@@ -18,11 +18,12 @@ void ChunkManager::addToChunksMapTask()
 {
 	while (true)
 	{
-		if (m_ready_to_process_chunks.load())
-			continue;
+		m_ready_to_process_chunks.wait(true);
 
 		addToChunksMap();
-		m_ready_to_process_chunks.store(true, std::memory_order_relaxed);
+
+		m_ready_to_process_chunks.store(true);
+		m_ready_to_process_chunks.notify_one();
 	}	
 }
 

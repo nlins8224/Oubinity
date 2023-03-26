@@ -65,15 +65,15 @@ void ChunkRenderer::processChunksMeshTask() const
 {
 	while (true)
 	{
-		if (m_chunks_map.empty() || !m_is_ready_to_process_chunks.load())
-			continue;
+		m_is_ready_to_process_chunks.wait(false);
 
 		for (auto& [_, chunk] : m_chunks_map)
 		{
 			processChunkMesh(chunk);
 		}
 
-		m_is_ready_to_process_chunks.store(false, std::memory_order_relaxed);
+		m_is_ready_to_process_chunks.store(false);
+		m_is_ready_to_process_chunks.notify_one();
 	}
 }
 
