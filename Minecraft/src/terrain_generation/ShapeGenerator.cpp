@@ -14,9 +14,7 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 {
 	NoiseGenerator noise_generator;
 
-	HeightMap base_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::TestSettings, m_seed);
-	HeightMap flat_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::FlatSettings, m_seed);
-	HeightMap mountain_map = noise_generator.generateHeightMap(chunk.getWorldPos(), NoiseSettings::MountainSettings, m_seed);
+	HeightMap base_map = noise_generator.generateHeightMap(chunk.getPos(), m_seed);
 
 	HeightMap surface_map{};
 
@@ -32,10 +30,8 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 			//}
 		
 			int height_key_base = base_map[x][z] * m_spline.getKeyTranslateValue();
-			int height_key_flat = flat_map[x][z] * m_spline.getKeyTranslateValue();
 
-			float base_height = m_base_range[height_key_base];
-			float flat_height = m_flat_range[height_key_flat];
+			float base_height = ((base_map[x][z] + 1.0f) / 2) * 200.0f;
 
 			surface_map[x][z] = base_height;
 		}

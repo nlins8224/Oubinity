@@ -117,12 +117,6 @@
     <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\effects\MaskEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -168,9 +162,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\third_party\FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\TerrainGenerator.h">
@@ -251,16 +242,10 @@
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\effects\Effect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\effects\DiscreteEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\effects\MaskEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\shapes\HeightMapModulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -269,5 +254,13 @@
     <None Include="shaders\blockFragment.glsl" />
     <None Include="shaders\chunkVertex.glsl" />
     <None Include="shaders\chunkFragment.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoiseD.dll">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
