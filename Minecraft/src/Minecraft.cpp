@@ -35,12 +35,13 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
-    TextureManager m_texture_manager{ 16, 16, 256 };
     TerrainGenerator terrain_generator{ 1337, 64, 67 };
+    TextureManager m_texture_manager{ 16, 16, 256 };
     ChunkManager chunk_manager(camera, terrain_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks());
+    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks(), m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
 
+    master_renderer.getSkyboxRenderer().getSkyboxLoader().load();
     master_renderer.initConfig();
     master_renderer.getChunkRenderer().launchChunkProcessingTask();
     chunk_manager.launchAddToChunksMapTask();
@@ -74,6 +75,7 @@ int main()
             std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
             std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
             std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
+            
 
             seconds_elapsed += 1.0f;
             frames_per_second = 0;

@@ -18,7 +18,7 @@
     <ClCompile Include="src\io\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Loader.cpp">
+    <ClCompile Include="src\gpu_loader\Loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shader\Shader.cpp">
@@ -120,12 +120,24 @@
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shader\SkyboxShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\SkyboxRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu_loader\GPUSkyboxLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu_loader\VAOBinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Loader.h">
+    <ClInclude Include="src\gpu_loader\Loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shader\Shader.h">
@@ -248,12 +260,26 @@
     <ClInclude Include="src\terrain_generation\shapes\HeightMapModulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shader\SkyboxShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\SkyboxRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\GPUSkyboxLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\VAOBinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
     <None Include="shaders\chunkVertex.glsl" />
     <None Include="shaders\chunkFragment.glsl" />
+    <None Include="shaders\skyboxFragment.glsl" />
+    <None Include="shaders\skyboxVertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">

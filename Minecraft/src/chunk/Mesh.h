@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <atomic>
-#include "../Loader.h"
+#include "../gpu_loader/Loader.h"
 #include "MeshData.h"
 #include "ChunkMeshPacker.h"
 

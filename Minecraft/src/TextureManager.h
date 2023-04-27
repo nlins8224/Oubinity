@@ -14,8 +14,11 @@ public:
 	TextureManager(int texture_witdh, int texture_height, int textures_max_amount);
 	void addTextures();
 	void addTexture(std::string texture, int texture_id);
-	void loadTexture(int sampler_location);
+	//void loadTexture(int sampler_location);
+	void addCubemap(std::vector<std::string> texture_faces, GLuint& texture_id);
 	void generateMipmap();
+	GLuint getSkyboxTextureId();
+	GLuint getTextureArrayId();
 
 private:
 	int m_texture_width;
@@ -23,7 +26,7 @@ private:
 	int m_textures_max_amount;
 	int m_stb_nr_channels{ 0 };
 	GLuint m_texture_array{ 0 };
-
+	GLuint m_skybox_id;
 	std::vector<std::string> m_textures{};
 };
 

@@ -177,6 +177,9 @@
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
     <ClCompile Include="src\frustum\Frustum.cpp" />
+    <ClCompile Include="src\gpu_loader\GPUSkyboxLoader.cpp" />
+    <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
+    <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
     <ClCompile Include="src\chunk\Mesh.cpp" />
     <ClCompile Include="src\renderer\MasterRenderer.cpp" />
@@ -185,6 +188,7 @@
     <ClCompile Include="src\chunk\ChunkManager.cpp" />
     <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\shader\SkyboxShader.cpp" />
     <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
@@ -197,7 +201,7 @@
     <ClCompile Include="src\terrain_generation\shapes\Spline.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
-    <ClCompile Include="src\Loader.cpp" />
+    <ClCompile Include="src\gpu_loader\Loader.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\io\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
@@ -215,12 +219,16 @@
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\frustum\Frustum.h" />
+    <ClInclude Include="src\gpu_loader\GPUSkyboxLoader.h" />
+    <ClInclude Include="src\gpu_loader\VAOBinder.h" />
+    <ClInclude Include="src\renderer\SkyboxRenderer.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />
     <ClInclude Include="src\chunk\ChunksMap.h" />
     <ClInclude Include="src\chunk\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
@@ -243,7 +251,7 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\block\BlockMesh.h" />
     <ClInclude Include="src\io\Keyboard.h" />
-    <ClInclude Include="src\Loader.h" />
+    <ClInclude Include="src\gpu_loader\Loader.h" />
     <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
     <ClInclude Include="src\shader\Shader.h" />
@@ -280,6 +288,8 @@
     <None Include="shaders\blockFragment.glsl" />
     <None Include="shaders\chunkFragment.glsl" />
     <None Include="shaders\chunkVertex.glsl" />
+    <None Include="shaders\skyboxFragment.glsl" />
+    <None Include="shaders\skyboxVertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
