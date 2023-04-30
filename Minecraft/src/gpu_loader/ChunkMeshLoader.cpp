@@ -1,6 +1,6 @@
-#include "Loader.h"
+#include "ChunkMeshLoader.h"
 
-Loader::Loader()
+ChunkMeshLoader::ChunkMeshLoader()
 {
 	// TODO initializer list?
 	m_vao = 0;
@@ -11,21 +11,21 @@ Loader::Loader()
 	m_uvw_vbo = 0;
 }
 
-void Loader::loadMesh(const MeshData& mesh)
+void ChunkMeshLoader::loadMesh(const MeshData& mesh)
 {
 	createVAO();
 	storeDataInVAO(mesh);
 	unbindVAO();
 }
 
-void Loader::loadPackedMesh(const PackedMeshData& packed_mesh)
+void ChunkMeshLoader::loadPackedMesh(const PackedMeshData& packed_mesh)
 {
 	createVAO();
 	storePackedDataInVAO(packed_mesh);
 	unbindVAO();
 }
 
-void Loader::createVAO() {
+void ChunkMeshLoader::createVAO() {
 	if (m_vao != 0)
 		cleanBuffers();
 
@@ -33,7 +33,7 @@ void Loader::createVAO() {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::storeDataInVAO(const MeshData& mesh) {
+void ChunkMeshLoader::storeDataInVAO(const MeshData& mesh) {
 	glGenBuffers(1, &m_vertex_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh.vertex_positions.size() * sizeof(float), mesh.vertex_positions.data(), GL_STATIC_DRAW);
@@ -57,7 +57,7 @@ void Loader::storeDataInVAO(const MeshData& mesh) {
 	glEnableVertexAttribArray(2);
 }
 
-void Loader::storePackedDataInVAO(const PackedMeshData& packed_mesh)
+void ChunkMeshLoader::storePackedDataInVAO(const PackedMeshData& packed_mesh)
 {
 	// store xyzs
 	glGenBuffers(1, &m_xyzs_vbo);
@@ -76,22 +76,22 @@ void Loader::storePackedDataInVAO(const PackedMeshData& packed_mesh)
 	glEnableVertexAttribArray(1);
 }
 
-void Loader::bindVAO() const {
+void ChunkMeshLoader::bindVAO() const {
 	glBindVertexArray(m_vao);
 }
 
-void Loader::unbindVAO() const {
+void ChunkMeshLoader::unbindVAO() const {
 	glBindVertexArray(0);
 }
 
-void Loader::cleanPackedBuffers() const
+void ChunkMeshLoader::cleanPackedBuffers() const
 {
 	glDeleteBuffers(1, &m_xyzs_vbo);
 	glDeleteBuffers(1, &m_uvw_vbo);
 	glDeleteVertexArrays(1, &m_vao);
 }
 
-void Loader::cleanBuffers() const {
+void ChunkMeshLoader::cleanBuffers() const {
 
 	glDeleteBuffers(1, &m_vertex_vbo);
 	glDeleteBuffers(1, &m_texture_vbo);

@@ -64,7 +64,7 @@ const PackedMeshData& Mesh::getPackedMesh() const
 	return m_packed_mesh_data;
 }
 
-const Loader& Mesh::getLoader() const
+const ChunkMeshLoader& Mesh::getLoader() const
 {
 	return m_loader;
 }

@@ -18,7 +18,7 @@
     <ClCompile Include="src\io\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu_loader\Loader.cpp">
+    <ClCompile Include="src\gpu_loader\ChunkMeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shader\Shader.cpp">
@@ -143,7 +143,7 @@
     <ClInclude Include="src\io\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu_loader\Loader.h">
+    <ClInclude Include="src\gpu_loader\ChunkMeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shader\Shader.h">

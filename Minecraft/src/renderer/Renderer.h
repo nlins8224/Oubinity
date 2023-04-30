@@ -1,6 +1,6 @@
 #pragma once
 #include "../Camera.h"
-#include "../gpu_loader/Loader.h"
+#include "../gpu_loader/ChunkMeshLoader.h"
 #include "../chunk/Mesh.h"
 #include "../shader/Shader.h"
 

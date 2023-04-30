@@ -5,11 +5,11 @@
 #include "../chunk/MeshData.h"
 
 
-class Loader 
+class ChunkMeshLoader 
 {
 public:
-	Loader();
-	~Loader() = default;
+	ChunkMeshLoader();
+	~ChunkMeshLoader() = default;
 	void loadMesh(const MeshData& mesh);
 	void loadPackedMesh(const PackedMeshData& packed_mesh);
 	void bindVAO() const;
