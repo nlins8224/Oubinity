@@ -13,12 +13,6 @@ void MasterRenderer::initConfig()
 {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-
-	m_chunk_renderer.getShader().bind();
-	m_chunk_renderer.getShader().setUniformInt("texture_array_sampler", 0);
-
-	m_skybox_renderer.getShader().bind();
-	m_skybox_renderer.getShader().setUniformInt("skybox", 0);
 }
 
 void MasterRenderer::clear() const
