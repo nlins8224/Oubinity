@@ -13,7 +13,7 @@ void GPUSkyboxLoader::load()
     glEnableVertexAttribArray(0);
 }
 
-void GPUSkyboxLoader::bindVAO()
+void GPUSkyboxLoader::bindVAO() const
 {
 	m_vao_binder.bindVAO(m_vao);
 }

@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <optick.h>
 #include "../chunk/MeshData.h"
+#include "VAOBinder.h"
 
 
 class ChunkMeshLoader 
@@ -21,6 +22,8 @@ private:
 	GLuint m_vao;
 	GLuint m_vertex_vbo, m_texture_vbo, m_shading_vbo;
 	GLuint m_xyzs_vbo, m_uvw_vbo;
+
+	VAOBinder m_vao_binder;
 
 	void createVAO();
 	void storeDataInVAO(const MeshData& mesh);

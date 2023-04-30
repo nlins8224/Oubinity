@@ -5,6 +5,6 @@
 class VAOBinder
 {
 public:
-	void bindVAO(GLuint vao);
-	void unbindVAO();
+	void bindVAO(GLuint vao) const;
+	void unbindVAO() const;
 };

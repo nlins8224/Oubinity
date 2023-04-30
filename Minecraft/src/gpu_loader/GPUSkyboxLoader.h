@@ -8,7 +8,7 @@ class GPUSkyboxLoader
 {
 public:
 	void load();
-	void bindVAO();
+	void bindVAO() const;
 	GLuint getID();
 private:
 	GLuint m_vao, m_vbo;

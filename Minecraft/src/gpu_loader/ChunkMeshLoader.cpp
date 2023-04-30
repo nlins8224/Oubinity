@@ -77,11 +77,11 @@ void ChunkMeshLoader::storePackedDataInVAO(const PackedMeshData& packed_mesh)
 }
 
 void ChunkMeshLoader::bindVAO() const {
-	glBindVertexArray(m_vao);
+	m_vao_binder.bindVAO(m_vao);
 }
 
 void ChunkMeshLoader::unbindVAO() const {
-	glBindVertexArray(0);
+	m_vao_binder.unbindVAO();
 }
 
 void ChunkMeshLoader::cleanPackedBuffers() const
