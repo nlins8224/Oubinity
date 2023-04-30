@@ -11,6 +11,11 @@ uniform vec3 chunk_world_pos;
 
 out vec3 interpolated_tex_coords;
 out float interpolated_shading_values;
+out float visibility;
+out float height;
+
+const float fog_density = 0.0035;
+const float fog_gradient = 5.0;
 
 void main()
 {
@@ -31,4 +36,12 @@ void main()
 	float w = float((in_uvw & 0x3F000u) >> 12u);
 
 	interpolated_tex_coords = vec3(u, v, w);
+
+	// Calculate fog
+	vec4 pos_to_cam = view * vec4(x, y, z, 1.0);
+	float fog_distance = length(pos_to_cam.xyz);
+	visibility = exp(-pow((fog_distance * fog_density), fog_gradient));
+	visibility = clamp(visibility, 0.0, 1.0);
+
+	height = y;
 }
