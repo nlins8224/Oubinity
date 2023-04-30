@@ -4,7 +4,7 @@
 #include "VAOBinder.h"
 #include "../skybox/SkyboxMesh.h"
 
-class GPUSkyboxLoader
+class SkyboxLoader
 {
 public:
 	void load();

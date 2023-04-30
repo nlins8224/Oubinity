@@ -177,7 +177,7 @@
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
     <ClCompile Include="src\frustum\Frustum.cpp" />
-    <ClCompile Include="src\gpu_loader\GPUSkyboxLoader.cpp" />
+    <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
@@ -221,7 +221,7 @@
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\frustum\Frustum.h" />
-    <ClInclude Include="src\gpu_loader\GPUSkyboxLoader.h" />
+    <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
     <ClInclude Include="src\renderer\SkyboxRenderer.h" />

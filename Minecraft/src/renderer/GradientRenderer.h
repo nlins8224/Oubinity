@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 #include "../shader/GradientShader.h"
-#include "../gpu_loader/GPUSkyboxLoader.h"
+#include "../gpu_loader/SkyboxLoader.h"
 
 class GradientRenderer : public Renderer
 {
@@ -12,9 +12,9 @@ public:
 	~GradientRenderer() = default;
 	void render(Camera& camera);
 	void draw();
-	GPUSkyboxLoader& getGradientLoader();
+	SkyboxLoader& getGradientLoader();
 private:
 	// re-use SkyboxLoader as GradientLoader
-	GPUSkyboxLoader m_gradient_loader;
+	SkyboxLoader m_gradient_loader;
 	bool is_loaded{ false };
 };

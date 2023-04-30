@@ -32,7 +32,7 @@ void SkyboxRenderer::draw()
 	glDrawArrays(GL_TRIANGLES, 0, skybox_triangles_amount);
 }
 
-GPUSkyboxLoader& SkyboxRenderer::getSkyboxLoader()
+SkyboxLoader& SkyboxRenderer::getSkyboxLoader()
 {
 	return m_skybox_loader;
 }

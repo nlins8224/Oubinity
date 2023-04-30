@@ -29,7 +29,7 @@ void GradientRenderer::draw()
 	glDrawArrays(GL_TRIANGLES, 0, gradient_triangles_amount);
 }
 
-GPUSkyboxLoader& GradientRenderer::getGradientLoader()
+SkyboxLoader& GradientRenderer::getGradientLoader()
 {
 	return m_gradient_loader;
 }

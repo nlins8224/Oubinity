@@ -1,7 +1,7 @@
 #pragma once
 #include "Renderer.h"
 #include "../shader/SkyboxShader.h"
-#include "../gpu_loader/GPUSkyboxLoader.h"
+#include "../gpu_loader/SkyboxLoader.h"
 
 class SkyboxRenderer : public Renderer
 {
@@ -11,9 +11,9 @@ public:
 	~SkyboxRenderer() = default;
 	void render(Camera& camera);
 	void draw();
-	GPUSkyboxLoader& getSkyboxLoader();
+	SkyboxLoader& getSkyboxLoader();
 private:
-	GPUSkyboxLoader m_skybox_loader;
+	SkyboxLoader m_skybox_loader;
 	GLuint m_skybox_texture_id;
 	bool is_loaded{ false };
 };

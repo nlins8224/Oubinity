@@ -1,6 +1,6 @@
-#include "GPUSkyboxLoader.h"
+#include "SkyboxLoader.h"
 
-void GPUSkyboxLoader::load()
+void SkyboxLoader::load()
 {
 	glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
@@ -13,12 +13,12 @@ void GPUSkyboxLoader::load()
     glEnableVertexAttribArray(0);
 }
 
-void GPUSkyboxLoader::bindVAO() const
+void SkyboxLoader::bindVAO() const
 {
 	m_vao_binder.bindVAO(m_vao);
 }
 
-GLuint GPUSkyboxLoader::getID()
+GLuint SkyboxLoader::getID()
 {
     return m_vao;
 }
