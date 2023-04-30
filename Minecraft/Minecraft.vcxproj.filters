@@ -272,7 +272,7 @@
     <ClInclude Include="src\gpu_loader\VAOBinder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\skybox\Skybox.h">
+    <ClInclude Include="src\skybox\SkyboxMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

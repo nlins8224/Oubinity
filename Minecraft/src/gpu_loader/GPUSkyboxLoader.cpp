@@ -1,55 +1,5 @@
 #include "GPUSkyboxLoader.h"
 
-namespace Skybox
-{
-	const float SIZE = 200.0f;
-    std::array<float, 108> skybox_vertices
-    {
-        // positions xyz          
-		-SIZE,  SIZE, -SIZE,
-		-SIZE, -SIZE, -SIZE,
-		SIZE, -SIZE, -SIZE,
-		 SIZE, -SIZE, -SIZE,
-		 SIZE,  SIZE, -SIZE,
-		-SIZE,  SIZE, -SIZE,
-
-		-SIZE, -SIZE,  SIZE,
-		-SIZE, -SIZE, -SIZE,
-		-SIZE,  SIZE, -SIZE,
-		-SIZE,  SIZE, -SIZE,
-		-SIZE,  SIZE,  SIZE,
-		-SIZE, -SIZE,  SIZE,
-
-		 SIZE, -SIZE, -SIZE,
-		 SIZE, -SIZE,  SIZE,
-		 SIZE,  SIZE,  SIZE,
-		 SIZE,  SIZE,  SIZE,
-		 SIZE,  SIZE, -SIZE,
-		 SIZE, -SIZE, -SIZE,
-
-		-SIZE, -SIZE,  SIZE,
-		-SIZE,  SIZE,  SIZE,
-		 SIZE,  SIZE,  SIZE,
-		 SIZE,  SIZE,  SIZE,
-		 SIZE, -SIZE,  SIZE,
-		-SIZE, -SIZE,  SIZE,
-
-		-SIZE,  SIZE, -SIZE,
-		 SIZE,  SIZE, -SIZE,
-		 SIZE,  SIZE,  SIZE,
-		 SIZE,  SIZE,  SIZE,
-		-SIZE,  SIZE,  SIZE,
-		-SIZE,  SIZE, -SIZE,
-
-		-SIZE, -SIZE, -SIZE,
-		-SIZE, -SIZE,  SIZE,
-		 SIZE, -SIZE, -SIZE,
-		 SIZE, -SIZE, -SIZE,
-		-SIZE, -SIZE,  SIZE,
-		 SIZE, -SIZE,  SIZE
-    };
-}
-
 void GPUSkyboxLoader::load()
 {
 	glGenVertexArrays(1, &m_vao);

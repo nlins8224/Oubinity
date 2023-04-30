@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <array>
 #include "VAOBinder.h"
+#include "../skybox/SkyboxMesh.h"
 
 class GPUSkyboxLoader
 {
