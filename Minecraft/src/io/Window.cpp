@@ -1,7 +1,7 @@
 #include "Window.h"
 
 const float Window::SCREEN_WIDTH = 1600.0f;
-const float Window::SCREEN_HEIGHT = 1200.0f;
+const float Window::SCREEN_HEIGHT = 1600.0f;
 
 void Window::processInput()
 {

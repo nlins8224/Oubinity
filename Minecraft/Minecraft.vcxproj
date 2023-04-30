@@ -229,6 +229,7 @@
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\shader\SkyboxShader.h" />
+    <ClInclude Include="src\skybox\Skybox.h" />
     <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />

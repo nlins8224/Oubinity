@@ -4,7 +4,6 @@ SkyboxRenderer::SkyboxRenderer(Shader shader, GLuint skybox_texture_id)
 	: Renderer(shader),
 	m_skybox_texture_id{skybox_texture_id}
 {
-
 }
 
 void SkyboxRenderer::render(Camera& camera)
