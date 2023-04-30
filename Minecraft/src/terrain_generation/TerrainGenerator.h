@@ -1,7 +1,6 @@
 #pragma once
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
-#include "../third_party/FastNoiseLite.h"
 #include "shapes/NoiseGenerator.h"
 #include "shapes/Spline.h"
 #include "BiomeGenerator.h";

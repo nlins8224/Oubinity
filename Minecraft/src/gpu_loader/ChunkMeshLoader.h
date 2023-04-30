@@ -2,14 +2,15 @@
 #include <vector>
 #include <glad/glad.h>
 #include <optick.h>
-#include "chunk/MeshData.h"
+#include "../chunk/MeshData.h"
+#include "VAOBinder.h"
 
 
-class Loader 
+class ChunkMeshLoader 
 {
 public:
-	Loader();
-	~Loader() = default;
+	ChunkMeshLoader();
+	~ChunkMeshLoader() = default;
 	void loadMesh(const MeshData& mesh);
 	void loadPackedMesh(const PackedMeshData& packed_mesh);
 	void bindVAO() const;
@@ -21,6 +22,8 @@ private:
 	GLuint m_vao;
 	GLuint m_vertex_vbo, m_texture_vbo, m_shading_vbo;
 	GLuint m_xyzs_vbo, m_uvw_vbo;
+
+	VAOBinder m_vao_binder;
 
 	void createVAO();
 	void storeDataInVAO(const MeshData& mesh);

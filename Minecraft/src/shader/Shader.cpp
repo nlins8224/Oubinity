@@ -115,22 +115,24 @@ void Shader::checkCompileErrors(unsigned int shader_id, int program_type) const
 	if (GL_VERTEX_SHADER == program_type)
 	{
 		glGetProgramiv(shader_id, GL_COMPILE_STATUS, &success);
+		glGetShaderInfoLog(shader_id, 1024, NULL, infoLog);
 		if (!success)
 		{
 			std::cout << success << std::endl;
-			glGetShaderInfoLog(shader_id, 1024, NULL, infoLog);
 			std::cerr << "ERROR::VERTEX_SHADER_COMPILATION_ERROR: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 		}
+		std::cout << "INFO::VERTEX_SHADER_COMPILATION_RESULT: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 
 	}
 	else if (GL_FRAGMENT_SHADER == program_type)
 	{
 		glGetProgramiv(shader_id, GL_COMPILE_STATUS, &success);
+		glGetShaderInfoLog(shader_id, 1024, NULL, infoLog);
 		if (!success)
 		{
-			glGetShaderInfoLog(shader_id, 1024, NULL, infoLog);
 			std::cerr << "ERROR::FRAGMENT_SHADER_COMPILATION_ERROR: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 		}
+		std::cout << "INFO::FRAGMENT_SHADER_COMPILATION_RESULT: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 	}
 	else if (GL_PROGRAM == program_type)
 	{

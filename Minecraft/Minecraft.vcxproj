@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
@@ -105,8 +105,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\FastNoise2\lib;$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib;FastNoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -127,8 +127,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\FastNoise2\lib;$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib;FastNoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,7 +138,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
@@ -146,8 +146,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\FastNoise2\lib;$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib;FastNoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,7 +159,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -168,8 +168,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)dependencies\FastNoise2\lib;$(SolutionDir)dependencies\optick\lib\x64\release;$(SolutionDir)dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib;OptickCore.lib;FastNoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -177,6 +177,10 @@
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
     <ClCompile Include="src\frustum\Frustum.cpp" />
+    <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
+    <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
+    <ClCompile Include="src\renderer\GradientRenderer.cpp" />
+    <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
     <ClCompile Include="src\chunk\Mesh.cpp" />
     <ClCompile Include="src\renderer\MasterRenderer.cpp" />
@@ -185,6 +189,8 @@
     <ClCompile Include="src\chunk\ChunkManager.cpp" />
     <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\shader\GradientShader.cpp" />
+    <ClCompile Include="src\shader\SkyboxShader.cpp" />
     <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
@@ -192,14 +198,12 @@
     <ClCompile Include="src\terrain_generation\layers\SurfaceLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\UndergroundLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp" />
-    <ClCompile Include="src\terrain_generation\shapes\effects\DiscreteEffect.cpp" />
-    <ClCompile Include="src\terrain_generation\shapes\effects\MaskEffect.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\NoiseGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\shapes\Spline.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
-    <ClCompile Include="src\Loader.cpp" />
+    <ClCompile Include="src\gpu_loader\ChunkMeshLoader.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\io\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
@@ -217,12 +221,19 @@
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\frustum\Frustum.h" />
+    <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
+    <ClInclude Include="src\gpu_loader\VAOBinder.h" />
+    <ClInclude Include="src\renderer\GradientRenderer.h" />
+    <ClInclude Include="src\renderer\SkyboxRenderer.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />
     <ClInclude Include="src\chunk\ChunksMap.h" />
     <ClInclude Include="src\chunk\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\shader\GradientShader.h" />
+    <ClInclude Include="src\shader\SkyboxShader.h" />
+    <ClInclude Include="src\skybox\SkyboxMesh.h" />
     <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
@@ -231,15 +242,12 @@
     <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
-    <ClInclude Include="src\terrain_generation\shapes\effects\DiscreteEffect.h" />
-    <ClInclude Include="src\terrain_generation\shapes\effects\Effect.h" />
-    <ClInclude Include="src\terrain_generation\shapes\effects\MaskEffect.h" />
+    <ClInclude Include="src\terrain_generation\shapes\HeightMapModulator.h" />
     <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
     <ClInclude Include="src\terrain_generation\shapes\Spline.h" />
     <ClInclude Include="src\third_party\bezier.h" />
-    <ClInclude Include="src\third_party\FastNoiseLite.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\chunk\ChunkManager.h" />
@@ -248,7 +256,7 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\block\BlockMesh.h" />
     <ClInclude Include="src\io\Keyboard.h" />
-    <ClInclude Include="src\Loader.h" />
+    <ClInclude Include="src\gpu_loader\ChunkMeshLoader.h" />
     <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
     <ClInclude Include="src\shader\Shader.h" />
@@ -259,10 +267,36 @@
     <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoiseD.dll">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Platform)\$(Configuration)\</DestinationFolders>
+    </CopyFileToFolders>
     <None Include="shaders\blockVertex.glsl" />
     <None Include="shaders\blockFragment.glsl" />
     <None Include="shaders\chunkFragment.glsl" />
     <None Include="shaders\chunkVertex.glsl" />
+    <None Include="shaders\gradientFragment.glsl" />
+    <None Include="shaders\gradientVertex.glsl" />
+    <None Include="shaders\skyboxFragment.glsl" />
+    <None Include="shaders\skyboxVertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

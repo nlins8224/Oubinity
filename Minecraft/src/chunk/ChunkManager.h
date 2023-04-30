@@ -13,7 +13,6 @@
 #include "../TextureManager.h"
 #include "../block/Block.h"
 #include "../Camera.h"
-#include "../third_party/FastNoiseLite.h"
 #include "optick.h"
 
 /*

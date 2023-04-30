@@ -8,7 +8,6 @@
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
-#include "../Loader.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
 #include "optick.h"

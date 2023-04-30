@@ -1,10 +1,11 @@
 #include "ChunkRenderer.h"
 
 
-ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks)
+ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks, GLuint texture_array)
 	: Renderer(shader),
 	  m_chunks_map(chunks_map),
-	  m_is_ready_to_process_chunks{is_ready_to_process_chunks}
+	  m_is_ready_to_process_chunks{is_ready_to_process_chunks},
+	  m_texture_array{texture_array}
 	  
 {
 }
@@ -46,7 +47,11 @@ void ChunkRenderer::render(Camera& camera)
 void ChunkRenderer::draw(const Mesh& mesh) const
 {
 	mesh.getLoader().bindVAO();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
+
 	glDrawArrays(GL_TRIANGLES, 0, mesh.getTrianglesCount());
+	mesh.getLoader().unbindVAO();
 }
 
 void ChunkRenderer::processChunkMesh(Chunk& chunk) const

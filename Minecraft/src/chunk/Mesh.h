@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <atomic>
-#include "../Loader.h"
+#include "../gpu_loader/ChunkMeshLoader.h"
 #include "MeshData.h"
 #include "ChunkMeshPacker.h"
 
@@ -36,7 +36,7 @@ public:
 
 	const MeshData& getMesh() const;
 	const PackedMeshData& getPackedMesh() const;
-	const Loader& getLoader() const;
+	const ChunkMeshLoader& getLoader() const;
 	const std::vector<float>& getMeshVertexPositions() const;
 	const std::vector<float>& getMeshTexturesPositions() const;
 	const std::vector<float>& getMeshShadingPositions() const;
@@ -46,7 +46,7 @@ public:
 	void setMeshState(MeshState state);
 	
 private:
-	Loader m_loader;
+	ChunkMeshLoader m_loader;
 	MeshData m_mesh_data;
 	PackedMeshData m_packed_mesh_data;
 	MeshState m_mesh_state{MeshState::NEW};
