@@ -8,7 +8,7 @@ SkyboxRenderer::SkyboxRenderer(Shader shader, GLuint skybox_texture_id)
 
 void SkyboxRenderer::render(Camera& camera)
 {
-	//glDepthFunc(GL_LEQUAL);
+	glDepthFunc(GL_LEQUAL);
 	m_shader.bind();
 
 	// remove translation from view matrix by casting it out
@@ -20,7 +20,7 @@ void SkyboxRenderer::render(Camera& camera)
 	m_skybox_loader.bindVAO();
 	draw();
 	glBindVertexArray(0);
-	//glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LESS);
 }
 
 void SkyboxRenderer::draw()

@@ -27,8 +27,8 @@ void MasterRenderer::clear() const
 
 void MasterRenderer::render(Camera& camera)
 {
-	m_skybox_renderer.render(camera);
 	m_chunk_renderer.render(camera);
+	m_skybox_renderer.render(camera);
 }
 
 ChunkRenderer& MasterRenderer::getChunkRenderer()
