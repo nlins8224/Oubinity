@@ -42,6 +42,7 @@ int main()
     MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks(), m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
 
     master_renderer.getSkyboxRenderer().getSkyboxLoader().load();
+    master_renderer.getGradientRenderer().getGradientLoader().load();
     master_renderer.initConfig();
     master_renderer.getChunkRenderer().launchChunkProcessingTask();
     chunk_manager.launchAddToChunksMapTask();

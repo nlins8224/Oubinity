@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "ChunkRenderer.h"
 #include "SkyboxRenderer.h"
+#include "GradientRenderer.h"
 #include "../Camera.h"
 
 class MasterRenderer
@@ -16,9 +17,11 @@ public:
 	void render(Camera& camera);
 	ChunkRenderer& getChunkRenderer();
 	SkyboxRenderer& getSkyboxRenderer();
+	GradientRenderer& getGradientRenderer();
 
 private:
 	ChunkRenderer m_chunk_renderer;
 	SkyboxRenderer m_skybox_renderer;
+	GradientRenderer m_gradient_renderer;
 };
 

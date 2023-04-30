@@ -132,6 +132,12 @@
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shader\GradientShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\GradientRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -275,6 +281,12 @@
     <ClInclude Include="src\skybox\SkyboxMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shader\GradientShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\GradientRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blockVertex.glsl" />
@@ -283,6 +295,8 @@
     <None Include="shaders\chunkFragment.glsl" />
     <None Include="shaders\skyboxFragment.glsl" />
     <None Include="shaders\skyboxVertex.glsl" />
+    <None Include="shaders\gradientVertex.glsl" />
+    <None Include="shaders\gradientFragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">
