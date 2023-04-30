@@ -3,8 +3,8 @@ out vec4 frag_color;
 
 in vec3 tex_coords;
 
-uniform samplerCube skybox;
-uniform float size;
+uniform samplerCube u_skybox;
+uniform float u_size;
 
 float trunc_fallof( in float x, float m )
 {
@@ -15,7 +15,7 @@ float trunc_fallof( in float x, float m )
 
 void main()
 {    
-    vec3 st = tex_coords / 200.0f;
+    vec3 st = tex_coords / u_size;
     
     st = (st + 1.0) / 2.0;
 

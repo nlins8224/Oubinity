@@ -27,8 +27,9 @@ void SkyboxRenderer::draw()
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox_texture_id);
+	m_shader.setUniformFloat("u_size", Skybox::SIZE);
 
-	const GLuint skybox_triangles_amount = 36;
+	const GLuint skybox_triangles_amount = Skybox::vertices_amount / 3;
 	glDrawArrays(GL_TRIANGLES, 0, skybox_triangles_amount);
 }
 
