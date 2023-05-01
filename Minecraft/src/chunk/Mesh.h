@@ -7,12 +7,15 @@
 
 enum class MeshState
 {
-	NEW = 0,
-	READY,
-	PROCESSED,
-	LOADED,
+	NONE = 0,
+	NEW,
 	TO_DELETE,
-	DELETED
+	DELETED,
+	READY,
+	READY_TO_DECORATE,
+	DECORATED,
+	PROCESSED,
+	LOADED
 };
 
 class Mesh

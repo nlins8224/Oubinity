@@ -214,6 +214,7 @@
     <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp" />
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
+    <ClCompile Include="src\tree\Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\frustum\Plane.h" />
@@ -265,6 +266,7 @@
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerator.h" />
     <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
+    <ClInclude Include="src\tree\Tree.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">

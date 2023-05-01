@@ -27,20 +27,25 @@ block_pos is position of a block inside the chunk
 class ChunkManager
 {
 public:
-	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz = 8, int render_distance_height = 6);
+	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz = 4, int render_distance_height = 6);
 	~ChunkManager() = default;
 	void launchAddToChunksMapTask();
 	void addToChunksMapTask();
 	ChunksMap& getChunksMap();
+	MeshState getMeshState(glm::ivec3 chunk_pos);
 	TerrainGenerator& getTerrainGenerator();
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);
 	std::atomic<bool>& getIsReadyToProcessChunks();
+	bool getAllNeighborChunksStateEqualTo(glm::ivec3 chunk_pos, MeshState state);
+	bool getAllNeighborChunksStateGreaterOrEqualTo(glm::ivec3 chunk_pos, MeshState state);
+	bool getAllNeighborChunksStateGreaterOrEqual(glm::ivec3 chunk_pos, MeshState state);
 	void updateBlock(glm::vec3 pos, Block::block_id block_id);
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
+	void tryDecorateChunk(glm::ivec3 chunk_pos);
 
 
 private:

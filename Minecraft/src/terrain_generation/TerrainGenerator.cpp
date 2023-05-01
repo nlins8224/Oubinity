@@ -25,6 +25,24 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	chunk.setIsTerrainGenerated(true);
 }
 
+void TerrainGenerator::decorateChunkTerrain(Chunk& chunk)
+{
+	if (!chunk.isTerrainGenerated())
+		return;
+
+	glm::ivec3 chunk_pos = chunk.getPos();
+	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos.x, chunk_pos.z}) };
+
+	int chunk_world_y = chunk_pos.y * CHUNK_SIZE_Y;
+	if (isOnSurfaceChunk(chunk_world_y, surface_map[8][8]))
+	{
+		Tree tree{ 7 };
+		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[8][8]) % CHUNK_SIZE_Y;
+		tree.addTree(chunk, { 8, tree_plant_height, 8});
+	}
+		
+}
+
 ShapeGenerator& TerrainGenerator::getShapeGenerator()
 {
 	return m_shape_generator;
@@ -35,3 +53,7 @@ float TerrainGenerator::getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 blo
 	return m_shape_generator.getSurfaceHeight(chunk_pos_xz, block_pos_xz);
 }
 
+bool TerrainGenerator::isOnSurfaceChunk(int chunk_pos_y, int height)
+{
+	return height >= chunk_pos_y && height <= chunk_pos_y + CHUNK_SIZE_Y;
+}

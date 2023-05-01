@@ -31,6 +31,7 @@ public:
 	~Chunk();
 
 	void addChunkMesh();
+	void addChunkDecorationMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPos() const;
 	glm::ivec2 getPosXZ() const;

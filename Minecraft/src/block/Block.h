@@ -15,6 +15,7 @@ namespace Block {
 		STONE,
 		GRASS,
 		WATER,
+		OAK_LOG,
 		AMOUNT
 	};
 
@@ -79,6 +80,12 @@ namespace Block {
 		.texture{ "water" }
 	};
 
+	static const Block Oak_Log
+	{
+		.id{ OAK_LOG },
+		.texture{ "oak_log" }
+	};
+
 	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
@@ -91,6 +98,7 @@ namespace Block {
 		case STONE:		  return Stone;
 		case GRASS:		  return Grass;
 		case WATER:		  return Water;
+		case OAK_LOG:	  return Oak_Log;
 		default:		  return None;
 		}
 	}

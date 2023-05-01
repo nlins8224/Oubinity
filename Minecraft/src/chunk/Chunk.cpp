@@ -33,8 +33,6 @@ Chunk::~Chunk()
 
 void Chunk::addChunkMesh()
 {
-	m_mesh.clear();
-
 	int block;
 	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
 	{
@@ -42,7 +40,6 @@ void Chunk::addChunkMesh()
 		{
 			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
 			{
-				
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
 					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
@@ -50,6 +47,24 @@ void Chunk::addChunkMesh()
 		}
 	}
 }
+
+void Chunk::addChunkDecorationMesh()
+{
+	int block;
+	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	{
+		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		{
+			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			{
+				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
+				if (block == block_id::OAK_LOG)
+					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
+			}
+		}
+	}
+}
+
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
