@@ -12,7 +12,7 @@ MasterRenderer::MasterRenderer(ChunksMap& chunks_map, std::atomic<bool>& is_read
 void MasterRenderer::initConfig()
 {
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 }
 
 void MasterRenderer::clear() const

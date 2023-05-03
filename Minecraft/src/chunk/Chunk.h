@@ -43,7 +43,7 @@ public:
 	Mesh& getMesh();
 	Block::BlockArray& getBlockArray();
 	const glm::vec3 getWorldPos() const;
-
+	Chunk& getNeighborChunk(glm::ivec3 chunk_pos);
 private:
 	// TODO: m_chunk_manager should be const ref?
 	ChunkManager* m_chunk_manager;

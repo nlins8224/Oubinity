@@ -34,11 +34,18 @@ void TerrainGenerator::decorateChunkTerrain(Chunk& chunk)
 	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos.x, chunk_pos.z}) };
 
 	int chunk_world_y = chunk_pos.y * CHUNK_SIZE_Y;
-	if (isOnSurfaceChunk(chunk_world_y, surface_map[8][8]))
+	if (isOnSurfaceChunk(chunk_world_y, surface_map[31][31]))
 	{
-		Tree tree{ 7 };
-		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[8][8]) % CHUNK_SIZE_Y;
-		tree.addTree(chunk, { 8, tree_plant_height, 8});
+		Tree tree{ 8, 5, 3 };
+		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[31][31]) % CHUNK_SIZE_Y;
+		tree.addTree(chunk, { 31, tree_plant_height, 31 });
+	}
+
+	if (isOnSurfaceChunk(chunk_world_y, surface_map[3][3]))
+	{
+		Tree tree{ 8, 5, 5 };
+		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[3][3]) % CHUNK_SIZE_Y;
+		tree.addTree(chunk, { 3, tree_plant_height, 3 });
 	}
 		
 }
