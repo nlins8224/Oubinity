@@ -16,6 +16,7 @@ private:
 	glm::ivec3 placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type);
 	int determineChunkOffset(int block_pos);
 	int determineBlockOffset(int block_pos);
+	bool shouldCutBlock(int x, int y, int z);
 	uint8_t TRUNK_HEIGHT;
 	uint8_t CROWN_HEIGHT;
 	uint8_t CROWN_WIDTH;

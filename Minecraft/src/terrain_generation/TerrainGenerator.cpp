@@ -32,22 +32,24 @@ void TerrainGenerator::decorateChunkTerrain(Chunk& chunk)
 
 	glm::ivec3 chunk_pos = chunk.getPos();
 	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos.x, chunk_pos.z}) };
-
 	int chunk_world_y = chunk_pos.y * CHUNK_SIZE_Y;
-	if (isOnSurfaceChunk(chunk_world_y, surface_map[31][31]))
-	{
-		Tree tree{ 8, 5, 3 };
-		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[31][31]) % CHUNK_SIZE_Y;
-		tree.addTree(chunk, { 31, tree_plant_height, 31 });
-	}
 
-	if (isOnSurfaceChunk(chunk_world_y, surface_map[3][3]))
+	for (int i = 0; i < CHUNK_SIZE_X; i++)
 	{
-		Tree tree{ 8, 5, 5 };
-		uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[3][3]) % CHUNK_SIZE_Y;
-		tree.addTree(chunk, { 3, tree_plant_height, 3 });
-	}
-		
+		for (int j = 0; j < CHUNK_SIZE_X; j++)
+		{
+			if (i % 10 == 0 && j % 10 == 0)
+			{
+				if (isOnSurfaceChunk(chunk_world_y, surface_map[i][j]))
+				{
+					Tree tree{ 8, 5, 7 };
+					uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[i][j]) % CHUNK_SIZE_Y;
+					if (chunk.getBlockId({ i, tree_plant_height, j }) == Block::GRASS)
+						tree.addTree(chunk, { i, tree_plant_height, j });
+				}
+			}
+		}
+	}		
 }
 
 ShapeGenerator& TerrainGenerator::getShapeGenerator()

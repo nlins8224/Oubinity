@@ -41,14 +41,18 @@ std::unordered_set<glm::ivec3> Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos
 	std::unordered_set<glm::ivec3> chunks_to_update = {};
 	int crown_width_halved = CROWN_WIDTH / 2;
 	int odd_remainder = CROWN_WIDTH % 2;
-	for (uint8_t i = TRUNK_HEIGHT; i < TRUNK_HEIGHT + CROWN_HEIGHT; i++)
+	for (uint8_t y = TRUNK_HEIGHT; y < TRUNK_HEIGHT + CROWN_HEIGHT; y++)
 	{
-		for (int j = -crown_width_halved; j < crown_width_halved + odd_remainder; j++)
+		for (int x = -crown_width_halved; x < crown_width_halved + odd_remainder; x++)
 		{
-			for (int k = -crown_width_halved; k < crown_width_halved + odd_remainder; k++)
+			for (int z = -crown_width_halved; z < crown_width_halved + odd_remainder; z++)
 			{
-				glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x + j, block_pos.y + i, block_pos.z + k }, Block::OAK_LEAVES);
+				if (shouldCutBlock(x, y, z))
+					continue;
+
+				glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES);
 				chunks_to_update.insert(chunk_pos);
+				
 			}
 		}
 	}
@@ -92,4 +96,34 @@ int Tree::determineBlockOffset(int block_pos)
 {
 	if (block_pos < 0) return CHUNK_SIZE_X + ((block_pos - 1) % CHUNK_SIZE_X);
 	return block_pos % CHUNK_SIZE_X;
+}
+
+// Some programmer art to make trees look better
+bool Tree::shouldCutBlock(int x, int y, int z)
+{
+	int crown_width_halved = CROWN_WIDTH / 2;
+
+	if ((x == -crown_width_halved && z == -crown_width_halved) ||
+		(x == -crown_width_halved && z == crown_width_halved) ||
+		(x == crown_width_halved && z == -crown_width_halved) ||
+		(x == crown_width_halved && z == crown_width_halved))
+	{
+		return true;
+	}
+
+	if ((y == TRUNK_HEIGHT || y == TRUNK_HEIGHT + CROWN_HEIGHT - 1) &&
+		((x == -crown_width_halved && z == -crown_width_halved + 1) ||
+		(x == -crown_width_halved && z == crown_width_halved - 1) ||
+		(x == -crown_width_halved + 1 && z == -crown_width_halved) || 
+		(x == -crown_width_halved + 1 && z == crown_width_halved) ||
+		(x == crown_width_halved - 1 && z == -crown_width_halved) ||
+		(x == crown_width_halved - 1 && z == crown_width_halved) ||
+		(x == crown_width_halved && z == -crown_width_halved + 1) ||
+		(x == crown_width_halved && z == crown_width_halved - 1)))
+	{
+		return true;
+	}
+
+	return false;
+
 }
