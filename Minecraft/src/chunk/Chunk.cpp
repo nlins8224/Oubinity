@@ -33,16 +33,13 @@ Chunk::~Chunk()
 
 void Chunk::addChunkMesh()
 {
-	m_mesh.clear();
-
-	int block;
+	block_id block;
 	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
 	{
 		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
 		{
 			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
 			{
-				
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
 					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
@@ -50,6 +47,24 @@ void Chunk::addChunkMesh()
 		}
 	}
 }
+
+void Chunk::addChunkDecorationMesh()
+{
+	block_id block;
+	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	{
+		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		{
+			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			{
+				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
+				if (Block::decoration_set.contains(block))
+					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
+			}
+		}
+	}
+}
+
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
@@ -173,4 +188,9 @@ Block::BlockArray& Chunk::getBlockArray()
 const glm::vec3 Chunk::getWorldPos() const
 {
 	return m_world_pos;
+}
+
+Chunk& Chunk::getNeighborChunk(glm::ivec3 chunk_pos)
+{
+	return m_chunk_manager->getChunksMap().at(chunk_pos);
 }

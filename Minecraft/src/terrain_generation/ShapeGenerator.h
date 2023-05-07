@@ -20,7 +20,7 @@ namespace std
 	};
 }
 
-using ChunkHeightMaps = std::unordered_map<glm::ivec2, HeightMap>;
+using ChunkHeightMaps = std::unordered_map<glm::ivec2, NoiseMap>;
 
 class ShapeGenerator
 {
@@ -30,7 +30,7 @@ public:
 	void generateSurfaceMap(Chunk& chunk);
 	float getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
 	float getBasicNoiseValue(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
-	HeightMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
+	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
 	ChunkHeightMaps& getSurfaceMaps();
 	int getSeed();
 

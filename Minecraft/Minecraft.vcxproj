@@ -192,6 +192,7 @@
     <ClCompile Include="src\shader\GradientShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
     <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\shapes\DecorationGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp" />
@@ -214,6 +215,7 @@
     <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp" />
     <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
+    <ClCompile Include="src\tree\Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\frustum\Plane.h" />
@@ -235,6 +237,7 @@
     <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\skybox\SkyboxMesh.h" />
     <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\shapes\DecorationGenerator.h" />
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h" />
@@ -242,7 +245,7 @@
     <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
-    <ClInclude Include="src\terrain_generation\shapes\HeightMapModulator.h" />
+    <ClInclude Include="src\terrain_generation\shapes\NoiseMapEffect.h" />
     <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
@@ -265,6 +268,7 @@
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerator.h" />
     <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
+    <ClInclude Include="src\tree\Tree.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">

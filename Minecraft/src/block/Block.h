@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <set>
+
 namespace Block {
 
 	// later this could be moved to .json or .ini file
@@ -15,6 +17,8 @@ namespace Block {
 		STONE,
 		GRASS,
 		WATER,
+		OAK_LOG,
+		OAK_LEAVES,
 		AMOUNT
 	};
 
@@ -79,6 +83,18 @@ namespace Block {
 		.texture{ "water" }
 	};
 
+	static const Block Oak_Log
+	{
+		.id{ OAK_LOG },
+		.texture{ "oak_log" }
+	};
+	
+	static const Block Oak_Leaves
+	{
+		.id { OAK_LEAVES },
+		.texture{ "oak_leaves" }
+	};
+
 	inline Block getBlockType(block_id block_id)
 	{
 		switch (block_id)
@@ -91,9 +107,13 @@ namespace Block {
 		case STONE:		  return Stone;
 		case GRASS:		  return Grass;
 		case WATER:		  return Water;
+		case OAK_LOG:	  return Oak_Log;
+		case OAK_LEAVES:  return Oak_Leaves;
 		default:		  return None;
 		}
 	}
+
+	static const std::set<block_id> decoration_set{ OAK_LOG, OAK_LEAVES };
 
 }
 

@@ -60,8 +60,15 @@ void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
 	{	
 		chunk.addChunkMesh();
-		chunk.getMesh().setMeshState(MeshState::PROCESSED);
+		chunk.getMesh().setMeshState(MeshState::READY_TO_DECORATE);
+		//std::cout << "READY_TO_DECORATE!" << std::endl;
 	}	
+	if (chunk.getMesh().getMeshState() == MeshState::DECORATED)
+	{
+		chunk.addChunkDecorationMesh();
+		chunk.getMesh().setMeshState(MeshState::PROCESSED);
+		//std::cout << "PROCESSED!" << std::endl;
+	}
 }
 
 void ChunkRenderer::processChunksMeshTask() const

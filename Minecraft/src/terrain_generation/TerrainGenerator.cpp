@@ -14,15 +14,27 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	if (chunk.isTerrainGenerated())
 		return;
 
-
 	m_shape_generator.generateSurfaceMap(chunk);
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
-	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos_xz}) };
+	NoiseMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos_xz}) };
 	
 	BiomeGenerator biome_generator(m_world_seed, m_min_surface_height, m_water_height);
 	biome_generator.processChunk(chunk, surface_map);
 
 	chunk.setIsTerrainGenerated(true);
+}
+
+void TerrainGenerator::decorateChunkTerrain(Chunk& chunk)
+{
+	if (!chunk.isTerrainGenerated())
+		return;
+
+	TreeShape tree_shape{ 7, 5, 5 };
+	TreeHeightBoundaries tree_height_boundaries{ 0, 120 };
+	DecorationGenerator decoration_generator{tree_shape, tree_height_boundaries, m_world_seed};
+
+	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
+	decoration_generator.decorateChunkTerrain(chunk, m_shape_generator.getSurfaceMap({ chunk_pos_xz }));
 }
 
 ShapeGenerator& TerrainGenerator::getShapeGenerator()
@@ -34,4 +46,3 @@ float TerrainGenerator::getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 blo
 {
 	return m_shape_generator.getSurfaceHeight(chunk_pos_xz, block_pos_xz);
 }
-

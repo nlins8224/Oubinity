@@ -31,6 +31,7 @@ public:
 	~Chunk();
 
 	void addChunkMesh();
+	void addChunkDecorationMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
 	glm::ivec3 getPos() const;
 	glm::ivec2 getPosXZ() const;
@@ -42,7 +43,7 @@ public:
 	Mesh& getMesh();
 	Block::BlockArray& getBlockArray();
 	const glm::vec3 getWorldPos() const;
-
+	Chunk& getNeighborChunk(glm::ivec3 chunk_pos);
 private:
 	// TODO: m_chunk_manager should be const ref?
 	ChunkManager* m_chunk_manager;
