@@ -61,13 +61,13 @@ void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 	{	
 		chunk.addChunkMesh();
 		chunk.getMesh().setMeshState(MeshState::READY_TO_DECORATE);
-		std::cout << "READY_TO_DECORATE!" << std::endl;
+		//std::cout << "READY_TO_DECORATE!" << std::endl;
 	}	
 	if (chunk.getMesh().getMeshState() == MeshState::DECORATED)
 	{
 		chunk.addChunkDecorationMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
-		std::cout << "PROCESSED!" << std::endl;
+		//std::cout << "PROCESSED!" << std::endl;
 	}
 }
 

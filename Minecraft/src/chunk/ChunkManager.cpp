@@ -100,7 +100,6 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 
 	m_chunks_map[chunk_pos] = *chunk;
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
-	std::cout << "READY!" << std::endl;
 }
 
 void ChunkManager::tryDecorateChunk(glm::ivec3 chunk_pos)
@@ -116,7 +115,6 @@ void ChunkManager::tryDecorateChunk(glm::ivec3 chunk_pos)
 
 	m_terrain_generator.decorateChunkTerrain(m_chunks_map[chunk_pos]);
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::DECORATED);
-	std::cout << "DECORATED!" << std::endl;
 }
 
 ChunksMap& ChunkManager::getChunksMap()

@@ -81,8 +81,6 @@ glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id 
 
 	chunk_to_modify.setBlock({ x, y, z }, block_type);
 
-	// TODO: This should be set once, after whole tree is added
-	//chunk_to_modify.getMesh().setMeshState(MeshState::READY_TO_DECORATE);
 	return chunk_pos;
 }
 
@@ -94,7 +92,7 @@ int Tree::determineChunkOffset(int block_pos)
 
 int Tree::determineBlockOffset(int block_pos)
 {
-	if (block_pos < 0) return CHUNK_SIZE_X + ((block_pos - 1) % CHUNK_SIZE_X);
+	if (block_pos < 0) return CHUNK_SIZE_X + ((block_pos) % CHUNK_SIZE_X);
 	return block_pos % CHUNK_SIZE_X;
 }
 
@@ -125,5 +123,4 @@ bool Tree::shouldCutBlock(int x, int y, int z)
 	}
 
 	return false;
-
 }

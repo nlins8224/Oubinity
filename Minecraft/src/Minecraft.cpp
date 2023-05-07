@@ -70,12 +70,12 @@ int main()
             glm::ivec3 current_block_pos = chunk_manager.getChunkBlockPosition(player_pos);
             float surface_height = chunk_manager.getTerrainGenerator().getSurfaceHeight({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
             float basic_noise_value = chunk_manager.getTerrainGenerator().getShapeGenerator().getBasicNoiseValue({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
-            //std::cout << "FPS: " << frames_per_second << std::endl;
-            //std::cout << "CURRENT CHUNK XZ: " << current_chunk_pos.x << " " << current_chunk_pos.z << std::endl;
-            //std::cout << "CURRENT BLOCK XZ: " << current_block_pos.x << " " << current_block_pos.z << std::endl;
-            //std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
-            //std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
-            //std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
+            std::cout << "FPS: " << frames_per_second << std::endl;
+            std::cout << "CURRENT CHUNK XZ: " << current_chunk_pos.x << " " << current_chunk_pos.z << std::endl;
+            std::cout << "CURRENT BLOCK XZ: " << current_block_pos.x << " " << current_block_pos.z << std::endl;
+            std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
+            std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
+            std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
             
 
             seconds_elapsed += 1.0f;

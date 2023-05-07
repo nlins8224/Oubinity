@@ -3,17 +3,20 @@
 #include "../NoiseMapTypes.h"
 #include "../../chunk/ChunkSize.h"
 
-namespace HeightMapModulator
+namespace NoiseMapEffect
 {
-	void applyModulator(HeightMap& height_map, std::function<double(double)> modulator)
+	NoiseMap applyEffect(std::function<double(double)> effect)
 	{
+		NoiseMap noise_map = {};
 		for (int x = 0; x < CHUNK_SIZE_X; x++)
 		{
 			for (int z = 0; z < CHUNK_SIZE_Z; z++)
 			{
-				height_map[x][z] = modulator(height_map[x][z]);
+				noise_map[x][z] = effect(noise_map[x][z]);
 			}
 		}
+
+		return noise_map;
 	}
 
 	double easeInOutQuad(double x)

@@ -6,8 +6,6 @@
 class NoiseGenerator
 {
 public:
-	HeightMap generateHeightMap(glm::ivec3 chunk_pos, int seed, float frequency = 0.002);
-
+	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, NoiseSettings::Settings settings, int seed);
 private:
-	float m_frequency;
 };

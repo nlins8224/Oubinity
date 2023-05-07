@@ -12,7 +12,7 @@ class BiomeGenerator
 public:
 	BiomeGenerator(int seed, uint8_t surface_height, uint8_t water_height);
 	~BiomeGenerator() = default;
-	void processChunk(Chunk& chunk, const HeightMap& height_map);
+	void processChunk(Chunk& chunk, const NoiseMap& height_map);
 	bool isBelowSurface(uint8_t height);
 private:
 	int m_seed;

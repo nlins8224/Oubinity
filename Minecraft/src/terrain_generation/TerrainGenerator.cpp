@@ -14,10 +14,9 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	if (chunk.isTerrainGenerated())
 		return;
 
-
 	m_shape_generator.generateSurfaceMap(chunk);
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
-	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos_xz}) };
+	NoiseMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos_xz}) };
 	
 	BiomeGenerator biome_generator(m_world_seed, m_min_surface_height, m_water_height);
 	biome_generator.processChunk(chunk, surface_map);
@@ -30,26 +29,12 @@ void TerrainGenerator::decorateChunkTerrain(Chunk& chunk)
 	if (!chunk.isTerrainGenerated())
 		return;
 
-	glm::ivec3 chunk_pos = chunk.getPos();
-	HeightMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos.x, chunk_pos.z}) };
-	int chunk_world_y = chunk_pos.y * CHUNK_SIZE_Y;
+	TreeShape tree_shape{ 7, 5, 5 };
+	TreeHeightBoundaries tree_height_boundaries{ 0, 120 };
+	DecorationGenerator decoration_generator{tree_shape, tree_height_boundaries, m_world_seed};
 
-	for (int i = 0; i < CHUNK_SIZE_X; i++)
-	{
-		for (int j = 0; j < CHUNK_SIZE_X; j++)
-		{
-			if (i % 10 == 0 && j % 10 == 0)
-			{
-				if (isOnSurfaceChunk(chunk_world_y, surface_map[i][j]))
-				{
-					Tree tree{ 8, 5, 7 };
-					uint8_t tree_plant_height = static_cast<uint8_t>(surface_map[i][j]) % CHUNK_SIZE_Y;
-					if (chunk.getBlockId({ i, tree_plant_height, j }) == Block::GRASS)
-						tree.addTree(chunk, { i, tree_plant_height, j });
-				}
-			}
-		}
-	}		
+	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
+	decoration_generator.decorateChunkTerrain(chunk, m_shape_generator.getSurfaceMap({ chunk_pos_xz }));
 }
 
 ShapeGenerator& TerrainGenerator::getShapeGenerator()
@@ -60,9 +45,4 @@ ShapeGenerator& TerrainGenerator::getShapeGenerator()
 float TerrainGenerator::getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz)
 {
 	return m_shape_generator.getSurfaceHeight(chunk_pos_xz, block_pos_xz);
-}
-
-bool TerrainGenerator::isOnSurfaceChunk(int chunk_pos_y, int height)
-{
-	return height >= chunk_pos_y && height <= chunk_pos_y + CHUNK_SIZE_Y;
 }
