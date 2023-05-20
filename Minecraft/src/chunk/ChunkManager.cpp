@@ -30,8 +30,8 @@ void ChunkManager::addToChunksMapTask()
 void ChunkManager::addToChunksMap()
 {
 	OPTICK_EVENT();
-	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
-	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
+	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
+	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
 	int min_x = player_chunk_pos_x - m_render_distance_xz_halved;
 	int max_x = player_chunk_pos_x + m_render_distance_xz_halved;
@@ -54,8 +54,8 @@ void ChunkManager::addToChunksMap()
 
 void ChunkManager::deleteFromChunksMap()
 {
-	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE_X;
-	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE_Z;
+	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
+	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
 	int min_x = player_chunk_pos_x - m_render_distance_xz_halved;
 	int max_x = player_chunk_pos_x + m_render_distance_xz_halved;
@@ -129,9 +129,9 @@ TerrainGenerator& ChunkManager::getTerrainGenerator()
 
 glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 {
-	int x = floor(world_pos.x / CHUNK_SIZE_X);
-	int y = floor(world_pos.y / CHUNK_SIZE_Y);
-	int z = floor(world_pos.z / CHUNK_SIZE_Z);
+	int x = floor(world_pos.x / CHUNK_SIZE);
+	int y = floor(world_pos.y / CHUNK_SIZE);
+	int z = floor(world_pos.z / CHUNK_SIZE);
 
 	return glm::ivec3(x, y, z);
 }
@@ -181,9 +181,9 @@ MeshState ChunkManager::getMeshState(glm::ivec3 chunk_pos)
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
 	glm::ivec3 world_pos_int = world_pos;
-	int M_X = CHUNK_SIZE_X;
-	int M_Y = CHUNK_SIZE_Y;
-	int M_Z = CHUNK_SIZE_Z;
+	int M_X = CHUNK_SIZE;
+	int M_Y = CHUNK_SIZE;
+	int M_Z = CHUNK_SIZE;
 
 	
 	// true modulo instead of C++ remainder modulo

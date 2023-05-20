@@ -98,7 +98,7 @@ void ChunkRenderer::loadChunkMesh(Chunk& chunk) const
 
 bool ChunkRenderer::isInFrustum(Camera& camera, Chunk& chunk) const
 {
-	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z) };
+	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE) };
 	return camera.getFrustum().isBoxInFrustum(box);
 }
 

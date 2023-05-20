@@ -24,11 +24,11 @@ void BiomeGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
 		->addNextLayer(surface_layer)
 		->addNextLayer(underground_layer);
 
-	for (int x = 0; x < CHUNK_SIZE_X; x++)
+	for (int x = 0; x < CHUNK_SIZE; x++)
 	{
-		for (int y = 0; y < CHUNK_SIZE_Y; y++)
+		for (int y = 0; y < CHUNK_SIZE; y++)
 		{
-			for (int z = 0; z < CHUNK_SIZE_Z; z++)
+			for (int z = 0; z < CHUNK_SIZE; z++)
 			{
 				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
 			}

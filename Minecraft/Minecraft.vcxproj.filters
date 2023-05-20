@@ -144,6 +144,9 @@
     <ClCompile Include="src\terrain_generation\shapes\DecorationGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Quadtree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -297,6 +300,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\shapes\DecorationGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Quadtree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
 	: 
 	m_chunk_pos{ chunk_pos },
 	m_chunk_manager{ chunk_manager },
-	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
+	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} }
 {
 	m_is_terrain_generated = false;
 	m_blocks = Block::BlockArray();
@@ -34,11 +34,11 @@ Chunk::~Chunk()
 void Chunk::addChunkMesh()
 {
 	block_id block;
-	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
-		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
 		{
-			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
@@ -51,11 +51,11 @@ void Chunk::addChunkMesh()
 void Chunk::addChunkDecorationMesh()
 {
 	block_id block;
-	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
 	{
-		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
 		{
-			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (Block::decoration_set.contains(block))
@@ -97,7 +97,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
-	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z)
+	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE)
 	{
 		glm::ivec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
 		return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;

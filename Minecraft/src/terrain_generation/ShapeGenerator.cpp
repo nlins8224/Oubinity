@@ -19,9 +19,9 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	NoiseMap surface_map{};
 
 	// Temporary
-	for (int x = 0; x < CHUNK_SIZE_X; x++)
+	for (int x = 0; x < CHUNK_SIZE; x++)
 	{
-		for (int z = 0; z < CHUNK_SIZE_Z; z++)
+		for (int z = 0; z < CHUNK_SIZE; z++)
 		{
 			int height_key_base = base_map[x][z] * m_spline.getKeyTranslateValue();
 

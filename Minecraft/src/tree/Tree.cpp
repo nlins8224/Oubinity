@@ -86,14 +86,14 @@ glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id 
 
 int Tree::determineChunkOffset(int block_pos)
 {
-	if (block_pos < 0) return (block_pos / CHUNK_SIZE_X) - 1;
-	return block_pos / CHUNK_SIZE_X;
+	if (block_pos < 0) return (block_pos / CHUNK_SIZE) - 1;
+	return block_pos / CHUNK_SIZE;
 }
 
 int Tree::determineBlockOffset(int block_pos)
 {
-	if (block_pos < 0) return CHUNK_SIZE_X + ((block_pos) % CHUNK_SIZE_X);
-	return block_pos % CHUNK_SIZE_X;
+	if (block_pos < 0) return CHUNK_SIZE + ((block_pos) % CHUNK_SIZE);
+	return block_pos % CHUNK_SIZE;
 }
 
 // Some programmer art to make trees look better

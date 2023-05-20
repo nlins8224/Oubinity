@@ -19,7 +19,7 @@ private:
 	int getBlockIndex(glm::ivec3 block_pos) const;
 	bool outOfBounds(glm::ivec3 block_pos) const;
 	bool outOfBounds(int coord, int chunk_size) const;
-	block_id block_array[CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+	block_id block_array[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
 };
 
 }
