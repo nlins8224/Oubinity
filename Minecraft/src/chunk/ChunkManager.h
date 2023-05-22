@@ -27,7 +27,7 @@ block_pos is position of a block inside the chunk
 class ChunkManager
 {
 public:
-	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz = 4, int render_distance_height = 8);
+	ChunkManager(Camera& camera, TerrainGenerator world_generator, int render_distance_halved_xz = 4, int render_distance_height = 4);
 	~ChunkManager() = default;
 	void launchAddToChunksMapTask();
 	void addToChunksMapTask();
@@ -45,7 +45,6 @@ public:
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
 	void tryDecorateChunk(glm::ivec3 chunk_pos);
-
 
 private:
 	 ChunksMap m_chunks_map;

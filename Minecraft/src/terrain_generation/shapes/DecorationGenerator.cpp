@@ -11,7 +11,7 @@ void DecorationGenerator::decorateChunkTerrain(Chunk& chunk, NoiseMap& surface_m
 {
 	glm::ivec3 chunk_pos = chunk.getPos();
 	NoiseGenerator decoration_generator;
-	NoiseMap tree_map = decoration_generator.generateHeightMap(chunk_pos, NoiseSettings::TreeSettings, m_seed);
+	NoiseMap tree_map = decoration_generator.generateHeightMap(chunk_pos, chunk.getLevelOfDetail().block_amount, NoiseSettings::TreeSettings, m_seed);
 
 	int chunk_world_y = chunk_pos.y * CHUNK_SIZE;
 

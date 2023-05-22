@@ -30,8 +30,7 @@ std::unordered_set<glm::ivec3> Tree::addTrunk(Chunk& chunk, glm::ivec3 block_pos
 	std::unordered_set<glm::ivec3> chunks_to_update = {};
 	for (uint8_t i = 0; i < TRUNK_HEIGHT; i++)
 	{
-		glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x, block_pos.y + i, block_pos.z }, Block::OAK_LOG);
-		chunks_to_update.insert(chunk_pos);
+		placeBlock(chunk, { block_pos.x, block_pos.y + i, block_pos.z }, Block::OAK_LOG, chunks_to_update);
 	}
 	return chunks_to_update;
 }
@@ -50,16 +49,14 @@ std::unordered_set<glm::ivec3> Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos
 				if (shouldCutBlock(x, y, z))
 					continue;
 
-				glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES);
-				chunks_to_update.insert(chunk_pos);
-				
+				placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES, chunks_to_update);				
 			}
 		}
 	}
 	return chunks_to_update;
 }
 
-glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type)
+void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type, std::unordered_set<glm::ivec3>& chunks_to_update)
 {
 	int x, y, z;
 
@@ -73,6 +70,9 @@ glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id 
 	chunk_pos.y += determineChunkOffset(y);
 	chunk_pos.z += determineChunkOffset(z);
 
+	if (chunk.getChunksMap().find(chunk_pos) == chunk.getChunksMap().end())
+		return;
+
 	Chunk& chunk_to_modify = chunk.getNeighborChunk(chunk_pos);
 
 	x = determineBlockOffset(x);
@@ -80,8 +80,6 @@ glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id 
 	z = determineBlockOffset(z);
 
 	chunk_to_modify.setBlock({ x, y, z }, block_type);
-
-	return chunk_pos;
 }
 
 int Tree::determineChunkOffset(int block_pos)

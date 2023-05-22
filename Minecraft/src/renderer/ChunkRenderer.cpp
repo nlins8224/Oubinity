@@ -61,13 +61,11 @@ void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 	{	
 		chunk.addChunkMesh();
 		chunk.getMesh().setMeshState(MeshState::READY_TO_DECORATE);
-		//std::cout << "READY_TO_DECORATE!" << std::endl;
 	}	
 	if (chunk.getMesh().getMeshState() == MeshState::DECORATED)
 	{
 		chunk.addChunkDecorationMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
-		//std::cout << "PROCESSED!" << std::endl;
 	}
 }
 
@@ -108,8 +106,9 @@ void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
 	if (chunk.getMesh().getMeshState() != MeshState::LOADED)
 		return;
 
-	if (!isInFrustum(camera, chunk))
-		return;
+	//if (!isInFrustum(camera, chunk))
+	//	return;
 
+	m_shader.setUniformFloat("lod_scale", chunk.getLevelOfDetail().block_size);
 	draw(chunk.getMesh());
 }

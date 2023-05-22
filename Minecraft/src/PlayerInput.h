@@ -21,9 +21,13 @@ private:
 	Camera& m_default_camera;
 	GLFWwindow* m_window;
 	ChunkManager& m_world;
+	bool m_is_wireframe_enabled;
 	void setWindowCallbacks();
 	void onMouseLeftPress();
 	void onMouseRightPress();
+	void toggleWireframeMode();
+	void enableWireframeMode();
+	void disableWireframeMode();
 };
 
 

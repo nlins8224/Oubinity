@@ -179,7 +179,6 @@
     <ClCompile Include="src\frustum\Frustum.cpp" />
     <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
-    <ClCompile Include="src\Quadtree.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
@@ -226,7 +225,7 @@
     <ClInclude Include="src\frustum\Frustum.h" />
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
-    <ClInclude Include="src\Quadtree.h" />
+    <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
     <ClInclude Include="src\renderer\SkyboxRenderer.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />

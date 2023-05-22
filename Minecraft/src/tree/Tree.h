@@ -13,7 +13,7 @@ public:
 private:
 	std::unordered_set<glm::ivec3> addTrunk(Chunk& chunk, glm::ivec3 block_pos);
 	std::unordered_set<glm::ivec3> addCrown(Chunk& chunk, glm::ivec3 block_pos);
-	glm::ivec3 placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type);
+	void placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type, std::unordered_set<glm::ivec3>& chunks_to_update);
 	int determineChunkOffset(int block_pos);
 	int determineBlockOffset(int block_pos);
 	bool shouldCutBlock(int x, int y, int z);

@@ -14,7 +14,7 @@ public:
 		m_current_pos = origin;
 	};
 
-	bool step(std::function<void(glm::vec3, glm::vec3)> hit_callback);
+	bool step(std::function<void(glm::vec3, glm::vec3)> hit_callback, int block_amount);
 	double getDistance();
 private:
 	glm::vec3 m_origin;
@@ -25,6 +25,6 @@ private:
 	double m_distance_travelled{ 0 };
 	ChunkManager& m_world;
 
-	bool check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block_pos, glm::vec3 next_block_pos);
+	bool check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block_pos, glm::vec3 next_block_pos, int block_amount);
 };
 

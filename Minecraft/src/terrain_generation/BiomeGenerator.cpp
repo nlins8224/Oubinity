@@ -10,11 +10,11 @@ BiomeGenerator::BiomeGenerator(int seed, uint8_t surface_height, uint8_t water_h
 void BiomeGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
 {
 	// This is for optimization purposes; processing each block separately is slow
-	if (isBelowSurface(chunk.getWorldPos().y))
+	/*if (isBelowSurface(chunk.getWorldPos().y))
 	{
 		chunk.getBlockArray().fill(Block::STONE);
 		return;
-	}
+	}*/
 
 	auto layer_handler = std::make_shared<OceanLayerHandler>(m_water_height);
 	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
@@ -24,11 +24,12 @@ void BiomeGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
 		->addNextLayer(surface_layer)
 		->addNextLayer(underground_layer);
 
-	for (int x = 0; x < CHUNK_SIZE; x++)
+	int block_amount = chunk.getLevelOfDetail().block_amount;
+	for (int x = 0; x < block_amount; x++)
 	{
-		for (int y = 0; y < CHUNK_SIZE; y++)
+		for (int y = 0; y < block_amount; y++)
 		{
-			for (int z = 0; z < CHUNK_SIZE; z++)
+			for (int z = 0; z < block_amount; z++)
 			{
 				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
 			}

@@ -95,7 +95,8 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 	if (m_chunks_map.find(chunk_pos) != m_chunks_map.end())
 		return;
 
-	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod, this) };
 	m_terrain_generator.generateChunkTerrain(*chunk);
 
 	m_chunks_map[chunk_pos] = *chunk;
@@ -180,18 +181,20 @@ MeshState ChunkManager::getMeshState(glm::ivec3 chunk_pos)
 
 glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 {
+	glm::ivec3 chunk_pos = getChunkPosition(world_pos);
 	glm::ivec3 world_pos_int = world_pos;
+
 	int M_X = CHUNK_SIZE;
 	int M_Y = CHUNK_SIZE;
 	int M_Z = CHUNK_SIZE;
 
-	
 	// true modulo instead of C++ remainder modulo
 	int x = ((world_pos_int.x % M_X) + M_X) % M_X;
 	int y = ((world_pos_int.y % M_Y) + M_Y) % M_Y;
 	int z = ((world_pos_int.z % M_Z) + M_Z) % M_Z;
 
-	return glm::ivec3(x, y, z);
+	LevelOfDetail::LevelOfDetail lod = m_chunks_map.at(chunk_pos).getLevelOfDetail();
+	return glm::ivec3(x, y, z) / static_cast<int>(lod.block_size);
 }
 
 Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
@@ -215,12 +218,13 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	glm::vec3 chunk_pos = getChunkPosition(world_pos);
 	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
 	{
-		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, this) };
+		LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod, this) };
 		m_chunks_map[chunk_pos] = *chunk;
 	}
 		
-	Chunk& chunk = m_chunks_map.at(chunk_pos);
 	glm::ivec3 chunk_block_pos = getChunkBlockPosition(world_pos);
+	Chunk chunk = m_chunks_map.at(chunk_block_pos);
 
 	if (chunk.getBlockId(chunk_block_pos) == type)
 		return;

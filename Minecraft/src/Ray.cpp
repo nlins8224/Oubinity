@@ -5,7 +5,7 @@ double Ray::getDistance()
 	return m_distance_travelled;
 }
 
-bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
+bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback, int block_amount)
 {
 	glm::vec3 abs_direction = m_direction;
 	glm::vec3 abs_local_pos = m_current_pos - m_world_block_pos;
@@ -41,7 +41,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		{
 			double distance_squared = (x - lx) * (x - lx) + (y - ly) * (y - ly) + (z - lz) * (z - lz);
 			double distance = sqrt(distance_squared);
-			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(sign[0], 0.0, 0.0));
+			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(sign[0], 0.0, 0.0), block_amount);
 		}
 	}
 
@@ -56,7 +56,7 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		{
 			double distance_squared = (x - lx) * (x - lx) + (y - ly) * (y - ly) + (z - lz) * (z - lz);
 			double distance = sqrt(distance_squared);
-			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(0.0, sign[1], 0.0));
+			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(0.0, sign[1], 0.0), block_amount);
 		}
 	}
 
@@ -71,14 +71,14 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback)
 		{
 			double distance_squared = (x - lx) * (x - lx) + (y - ly) * (y - ly) + (z - lz) * (z - lz);
 			double distance = sqrt(distance_squared);
-			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(0.0, 0.0, sign[2]));
+			return check(hit_callback, distance, m_world_block_pos, m_world_block_pos + glm::vec3(0.0, 0.0, sign[2]), block_amount);
 		}
 	}
 
 	return true;
 }
 
-bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block, glm::vec3 next_block)
+bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback, double distance, glm::vec3 current_block, glm::vec3 next_block, int block_amount)
 {
 	if (m_world.getChunkBlockId(next_block) != Block::AIR)
 	{

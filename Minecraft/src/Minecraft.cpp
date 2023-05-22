@@ -35,7 +35,7 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
-    TerrainGenerator terrain_generator{ 1337, 64, 67 };
+    TerrainGenerator terrain_generator{ 1337, 4, 7 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     ChunkManager chunk_manager(camera, terrain_generator);
     PlayerInput player_input{window.getWindow(), chunk_manager, camera};
@@ -54,6 +54,8 @@ int main()
     float seconds_elapsed = 0.0f;
     int frames_per_second = 0;
 
+    glm::ivec3 current_block_pos{ 0, 0, 0 };
+
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");
@@ -63,16 +65,20 @@ int main()
 
         frames_per_second++;
         // Once per second
+        int block_amount = 1;
         if (current_frame - seconds_elapsed >= 1.0f)
         {
             glm::vec3 player_pos = player_input.getCamera().getCameraPos();
             glm::ivec3 current_chunk_pos = chunk_manager.getChunkPosition(player_pos);
-            glm::ivec3 current_block_pos = chunk_manager.getChunkBlockPosition(player_pos);
+            if (chunk_manager.getChunksMap().find(current_chunk_pos) != chunk_manager.getChunksMap().end())
+            {
+                current_block_pos = chunk_manager.getChunkBlockPosition(player_pos);
+            }
             float surface_height = chunk_manager.getTerrainGenerator().getSurfaceHeight({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
             float basic_noise_value = chunk_manager.getTerrainGenerator().getShapeGenerator().getBasicNoiseValue({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
             std::cout << "FPS: " << frames_per_second << std::endl;
-            std::cout << "CURRENT CHUNK XZ: " << current_chunk_pos.x << " " << current_chunk_pos.z << std::endl;
-            std::cout << "CURRENT BLOCK XZ: " << current_block_pos.x << " " << current_block_pos.z << std::endl;
+            std::cout << "CURRENT CHUNK XYZ: " << current_chunk_pos.x << " " << current_chunk_pos.y << " " << current_chunk_pos.z << std::endl;
+            std::cout << "CURRENT BLOCK XYZ: " << current_block_pos.x << " " << current_block_pos.y << " " << current_block_pos.z << std::endl;
             std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
             std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
             std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
