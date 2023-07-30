@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 #include "Mesh.h"
+#include "VertexCompresser.h"
 #include "ChunkSize.h"
 #include "ChunksMap.h"
 #include "../block/Block.h"
@@ -12,7 +13,7 @@
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
 #include "../level_of_detail/LevelOfDetail.h"
-#include "optick.h"
+
 
 /*
 Convention:
@@ -30,7 +31,7 @@ public:
 	Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, ChunkManager* chunk_manager);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
-	~Chunk();
+	~Chunk() = default;
 
 	void addChunkMesh();
 	void addChunkDecorationMesh();
@@ -41,13 +42,13 @@ public:
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isTerrainGenerated() const;
 	void setIsTerrainGenerated(bool is_generated);
-	const Mesh& getMesh() const;
 	Mesh& getMesh();
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& getBlockArray();
 	const glm::vec3 getWorldPos() const;
 	Chunk& getNeighborChunk(glm::ivec3 chunk_pos);
 	ChunksMap& getChunksMap();
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
+	unsigned int getAddedFacesAmount();
 private:
 	// TODO: m_chunk_manager should be const ref?
 	ChunkManager* m_chunk_manager;
@@ -57,8 +58,9 @@ private:
 	bool m_is_terrain_generated;
 	LevelOfDetail::LevelOfDetail m_lod;
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
+	unsigned int m_added_faces{ 0 };
 
-	void addVisibleFaces(glm::ivec3 block_pos);
 	bool isFaceVisible(glm::ivec3 world_pos) const;
+	void addVisibleFaces(glm::ivec3 block_pos);
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
 };

@@ -1,15 +1,13 @@
-#version 330 core
+#version 430 core
 
 layout (location = 0) in uint in_xyzs;
 layout (location = 1) in uint in_uvw;
+layout (location = 2) in uint lod_scale;
+layout (location = 3) in vec3 chunk_world_pos;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
-uniform vec3 chunk_world_pos;
-
-uniform float lod_scale;
 
 out vec3 interpolated_tex_coords;
 out float interpolated_shading_values;
@@ -27,20 +25,20 @@ void main()
 
 	interpolated_shading_values = float((in_xyzs & 0x1C0000u) >> 18u) / 5.0f;
 
-	x *= lod_scale;
-	y *= lod_scale;
-	z *= lod_scale;
+	//x *= lod_scale;
+	//y *= lod_scale;
+	//z *= lod_scale;
 
 	/*
 	Surface height is determined first, block is placed after calculations.
 	This means that larger blocks will not align with smaller blocks. Larger block bottom face
 	will be neighbour of smaller block top face.
 	*/
-	y -= lod_scale - 1;
+	//y -= lod_scale - 1;
 
-	x += chunk_world_pos.x;
-	y += chunk_world_pos.y;
-	z += chunk_world_pos.z;
+	x += chunk_world_pos[0];
+	y += chunk_world_pos[1];
+	z += chunk_world_pos[2];
 	
 	gl_Position = projection * view * model * vec4(x, y, z, 1.0);
 

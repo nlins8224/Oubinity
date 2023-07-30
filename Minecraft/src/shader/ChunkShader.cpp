@@ -1,6 +1,6 @@
 #include "ChunkShader.h"
 
 ChunkShader::ChunkShader()
-	: Shader("shaders/chunkVertex.glsl", "shaders/chunkFragment.glsl")
+	: Shader("shaders/blockVertex.glsl", "shaders/blockFragment.glsl")
 {
 }

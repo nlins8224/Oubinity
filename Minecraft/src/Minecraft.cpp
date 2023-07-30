@@ -14,7 +14,6 @@
 #include "shader/Shader.h"
 #include "Camera.h"
 #include "renderer/MasterRenderer.h"
-#include "optick.h"
 
 const int scr_width = 1200;
 const int scr_height = 1600;
@@ -24,7 +23,7 @@ float fov = 90.0f;
 
 int main()
 {
-    Window window{"Minecraft" };
+    Window window{"Voxel Engine"};
     window.windowInit();
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -56,9 +55,17 @@ int main()
 
     glm::ivec3 current_block_pos{ 0, 0, 0 };
 
+    const GLubyte* glVersion(glGetString(GL_VERSION));
+    int major = glVersion[0] - '0';
+    int minor = glVersion[2] - '0';
+    if (major < 4 || minor < 4)
+    {
+        std::cerr << "ERROR: Minimum OpenGL version required for this demo is 4.4. Your current version is " << major << "." << minor << std::endl;
+        exit(-1);
+    }
+
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-        OPTICK_FRAME("MainThread");
         float current_frame = static_cast<float>(glfwGetTime());
         delta_time = current_frame - last_frame;
         last_frame = current_frame;

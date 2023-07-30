@@ -1,5 +1,6 @@
 #include "Chunk.h"
 #include "ChunkManager.h"
+
 using Block::faces, Block::block_mesh, Block::FACE_SIZE;
 using Block::block_id;
 
@@ -22,11 +23,6 @@ Chunk::Chunk(const Chunk& chunk)
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
 	m_is_terrain_generated{chunk.m_is_terrain_generated}
-{
-
-}
-
-Chunk::~Chunk()
 {
 
 }
@@ -128,9 +124,9 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	uint8_t v_coord;
 	uint8_t shading_coord;
 
-	GLubyte x_local_pos;
-	GLubyte y_local_pos;
-	GLubyte z_local_pos;
+	float x_local_pos;
+	float y_local_pos;
+	float z_local_pos;
 
 	GLubyte u;
 	GLubyte v;
@@ -144,17 +140,29 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		v_coord = (i * 7) + 4;
 		shading_coord = (i * 7) + 6;
 		
-		x_local_pos = static_cast<GLubyte>(block_pos.x) + static_cast<GLubyte>(face[x_coord]);
-		y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
-		z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
+		//x_local_pos = static_cast<GLubyte>(block_pos.x) + static_cast<GLubyte>(face[x_coord]);
+		//y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
+		//z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
 
-		m_mesh.addPacked_xyzs(x_local_pos, y_local_pos, z_local_pos, face[shading_coord]);
+		x_local_pos = block_pos.x + face[x_coord] + m_world_pos.x;
+		y_local_pos = block_pos.y + face[y_coord] + m_world_pos.y;
+		z_local_pos = block_pos.z + face[z_coord] + m_world_pos.z;
 
 		u = static_cast<GLubyte>(face[u_coord]);
 		v = static_cast<GLubyte>(face[v_coord]);
 
-		m_mesh.addPacked_uvw(u, v, texture_id);
+		glm::vec3 xyz{ x_local_pos, y_local_pos, z_local_pos };
+		glm::vec3 uvw{ u, v, texture_id };
+		Vertex vertex(xyz, uvw);
+		/*vertex.xyzs = VertexCompresser::compress_xyzs(xyz, shading_coord);
+		vertex.uvw = VertexCompresser::compress_uvw(uvw);
+		vertex.lod_scale = m_lod.block_size;
+		vertex.chunk_world_pos[0] = m_world_pos.x;
+		vertex.chunk_world_pos[1] = m_world_pos.y;
+		vertex.chunk_world_pos[2] = m_world_pos.z;*/
+		m_mesh.addVertex(vertex);
 	}
+	m_added_faces++;
 }
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
@@ -175,11 +183,6 @@ bool Chunk::isTerrainGenerated() const
 void Chunk::setIsTerrainGenerated(bool is_generated)
 {
 	m_is_terrain_generated = is_generated;
-}
-
-const Mesh& Chunk::getMesh() const
-{
-	return m_mesh;
 }
 
 Mesh& Chunk::getMesh()
@@ -210,4 +213,9 @@ ChunksMap& Chunk::getChunksMap()
 LevelOfDetail::LevelOfDetail Chunk::getLevelOfDetail()
 {
 	return m_lod;
+}
+
+unsigned int Chunk::getAddedFacesAmount()
+{
+	return m_added_faces;
 }

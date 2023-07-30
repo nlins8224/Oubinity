@@ -1,6 +1,5 @@
 #include "ChunkRenderer.h"
-
-
+#include <iostream>
 ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks, GLuint texture_array)
 	: Renderer(shader),
 	  m_chunks_map(chunks_map),
@@ -8,10 +7,8 @@ ChunkRenderer::ChunkRenderer(Shader shader, ChunksMap& chunks_map, std::atomic<b
 	  m_texture_array{texture_array}
 	  
 {
-}
-
-ChunkRenderer::~ChunkRenderer()
-{
+	m_daic_offset_counter = 0;
+	m_vertexpool = new VertexPool{ };
 }
 
 void ChunkRenderer::launchChunkProcessingTask()
@@ -33,30 +30,36 @@ void ChunkRenderer::render(Camera& camera)
 	m_shader.setUniformMat4("view", view);
 	m_shader.setUniformMat4("projection", projection);
 
-	for (auto& [_, chunk] : m_chunks_map)
-	{
-		loadChunkMesh(chunk);
-	}
-
-	for (auto& [_, chunk] : m_chunks_map)
-	{
-		renderChunk(camera, chunk);
-	}
+	loadWorldMesh();
+	drawWorldMesh();
 }
 
-void ChunkRenderer::draw(const Mesh& mesh) const
+void ChunkRenderer::loadWorldMesh()
 {
-	mesh.getLoader().bindVAO();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
-
-	glDrawArrays(GL_TRIANGLES, 0, mesh.getTrianglesCount());
-	mesh.getLoader().unbindVAO();
+	//std::cout << "Mesh Data Size: " << m_world_mesh.getMeshData().size() << std::endl;
+	//std::cout << "DAIC amount: " << m_world_mesh_daic.size() << std::endl;
+	if (!buffer_loaded && m_world_mesh_daic.size() >= 92)
+	{
+		std::vector<Vertex> mesh_data = m_world_mesh.getMeshDataCopy();
+		std::cout << "Mesh size: " << mesh_data.size() << std::endl;
+		std::cout << "Daic size: " << m_world_mesh_daic.size() << std::endl;
+		m_vertexpool->updateBuffer(mesh_data, m_world_mesh_daic);
+		buffer_loaded = true;
+	}
+	
+	//m_daic_offset_counter = 0;
+	//m_world_mesh_test.clear();
+	//m_world_mesh_daic.clear();
 }
 
-void ChunkRenderer::processChunkMesh(Chunk& chunk) const
+void ChunkRenderer::drawWorldMesh()
 {
-	OPTICK_EVENT();
+	//std::cout << "Triangles amount: " << m_world_mesh.getMeshData().size() / 3 << std::endl;
+	m_vertexpool->draw(m_world_mesh_daic.size());
+}
+
+void ChunkRenderer::processChunkMesh(Chunk& chunk)
+{
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
 	{	
 		chunk.addChunkMesh();
@@ -66,10 +69,31 @@ void ChunkRenderer::processChunkMesh(Chunk& chunk) const
 	{
 		chunk.addChunkDecorationMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
+		
+		std::vector<Vertex> mesh_data = chunk.getMesh().getMeshDataCopy();
+
+		if (mesh_data.size() == 0)
+			return;
+
+		m_world_mesh.addMesh(mesh_data);
+		//std::cout << "Chunk mesh size: " << chunk.getMesh().getMeshData().size() << std::endl;
+		//std::cout << "Added faces amount: " << chunk.getAddedFacesAmount() << std::endl;
+		//std::cout << "World mesh size: " << m_world_mesh.getMeshDataCopy().size() << std::endl;
+		//std::cout << "DAIC offset counter: " << m_daic_offset_counter << std::endl;
+		unsigned int faces_added = chunk.getAddedFacesAmount();
+		DAIC daic {
+			6 * faces_added, // 6 vertices per face
+			1, 
+			m_daic_offset_counter * 6 * faces_added,
+			0
+		};
+		m_world_mesh_daic.emplace_back(daic);
+		m_daic_offset_counter++;
+		std::cout << m_daic_offset_counter << std::endl;
 	}
 }
 
-void ChunkRenderer::processChunksMeshTask() const
+void ChunkRenderer::processChunksMeshTask()
 {
 	while (true)
 	{
@@ -83,32 +107,4 @@ void ChunkRenderer::processChunksMeshTask() const
 		m_is_ready_to_process_chunks.store(false);
 		m_is_ready_to_process_chunks.notify_one();
 	}
-}
-
-void ChunkRenderer::loadChunkMesh(Chunk& chunk) const
-{
-	if (chunk.getMesh().getMeshState() == MeshState::PROCESSED)
-	{
-		chunk.getMesh().loadPackedMesh();
-		chunk.getMesh().setMeshState(MeshState::LOADED);
-	}
-}
-
-bool ChunkRenderer::isInFrustum(Camera& camera, Chunk& chunk) const
-{
-	AABox box{ chunk.getWorldPos(), glm::vec3(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE) };
-	return camera.getFrustum().isBoxInFrustum(box);
-}
-
-void ChunkRenderer::renderChunk(Camera& camera, Chunk& chunk) const
-{
-	m_shader.setUniformVec3f("chunk_world_pos", chunk.getWorldPos());
-	if (chunk.getMesh().getMeshState() != MeshState::LOADED)
-		return;
-
-	//if (!isInFrustum(camera, chunk))
-	//	return;
-
-	m_shader.setUniformFloat("lod_scale", chunk.getLevelOfDetail().block_size);
-	draw(chunk.getMesh());
 }

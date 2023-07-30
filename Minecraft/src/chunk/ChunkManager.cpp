@@ -29,7 +29,6 @@ void ChunkManager::addToChunksMapTask()
 
 void ChunkManager::addToChunksMap()
 {
-	OPTICK_EVENT();
 	int player_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
 	int player_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 

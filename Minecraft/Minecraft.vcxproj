@@ -179,6 +179,7 @@
     <ClCompile Include="src\frustum\Frustum.cpp" />
     <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
+    <ClCompile Include="src\gpu_loader\VertexPool.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
@@ -204,7 +205,6 @@
     <ClCompile Include="src\terrain_generation\shapes\Spline.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
-    <ClCompile Include="src\gpu_loader\ChunkMeshLoader.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
     <ClCompile Include="src\io\Mouse.cpp" />
     <ClCompile Include="src\PlayerInput.cpp" />
@@ -214,23 +214,25 @@
     <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp" />
-    <ClCompile Include="src\chunk\ChunkMeshPacker.cpp" />
+    <ClCompile Include="src\chunk\VertexCompresser.cpp" />
     <ClCompile Include="src\tree\Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\chunk\VertexCompresser.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\frustum\Frustum.h" />
+    <ClInclude Include="src\gpu_loader\DAIC.h" />
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
+    <ClInclude Include="src\gpu_loader\VertexPool.h" />
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
     <ClInclude Include="src\renderer\SkyboxRenderer.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />
     <ClInclude Include="src\chunk\ChunksMap.h" />
-    <ClInclude Include="src\chunk\MeshData.h" />
     <ClInclude Include="src\renderer\MasterRenderer.h" />
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
@@ -260,7 +262,6 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\block\BlockMesh.h" />
     <ClInclude Include="src\io\Keyboard.h" />
-    <ClInclude Include="src\gpu_loader\ChunkMeshLoader.h" />
     <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
     <ClInclude Include="src\shader\Shader.h" />
@@ -268,7 +269,7 @@
     <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerator.h" />
-    <ClInclude Include="src\chunk\ChunkMeshPacker.h" />
+    <ClInclude Include="src\chunk\Vertex.h" />
     <ClInclude Include="src\tree\Tree.h" />
   </ItemGroup>
   <ItemGroup>

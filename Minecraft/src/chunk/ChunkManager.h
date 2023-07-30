@@ -6,14 +6,12 @@
 #include <cmath>
 #include <optional>
 #include <unordered_set>
-#include "Chunk.h"
 #include "ChunksMap.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "../shader/Shader.h"
 #include "../TextureManager.h"
 #include "../block/Block.h"
 #include "../Camera.h"
-#include "optick.h"
 
 /*
 				
@@ -23,6 +21,8 @@ chunk_pos is position of a chunk in the world
 block_pos is position of a block inside the chunk
 
 */
+
+class Chunk;
 
 class ChunkManager
 {

@@ -59,14 +59,15 @@ namespace LevelOfDetail {
 	static LevelOfDetail chooseLevelOfDetail(Camera& camera, glm::ivec3 chunk_pos)
 	{
 		uint16_t draw_distance = distanceToCameraInChunks(camera, chunk_pos);
+		return One;
 
-		if (draw_distance < Two.draw_distance)
-			return One;
-		if (draw_distance < Three.draw_distance)
-			return Two;
-		if (draw_distance < Four.draw_distance)
-			return Three;
-		return Four;
+		//if (draw_distance < Two.draw_distance)
+		//	return One;
+		//if (draw_distance < Three.draw_distance)
+		//	return Two;
+		//if (draw_distance < Four.draw_distance)
+		//	return Three;
+		//return Four;
 	}
 }
 
