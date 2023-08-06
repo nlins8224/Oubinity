@@ -8,8 +8,7 @@ enum class MeshState
 	NONE = 0,
 	NEW,
 	READY,
-	READY_TO_DECORATE,
-	DECORATED,
+	MESHED,
 	PROCESSED
 };
 

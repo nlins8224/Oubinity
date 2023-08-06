@@ -38,7 +38,7 @@ void ChunkRenderer::loadWorldMesh()
 {
 	//std::cout << "Mesh Data Size: " << m_world_mesh.getMeshData().size() << std::endl;
 	//std::cout << "DAIC amount: " << m_world_mesh_daic.size() << std::endl;
-	if (!buffer_loaded && m_world_mesh_daic.size() >= 92)
+	if (!buffer_loaded && m_world_mesh_daic.size() >= 149)
 	{
 		std::vector<Vertex> mesh_data = m_world_mesh.getMeshDataCopy();
 		std::cout << "Mesh size: " << mesh_data.size() << std::endl;
@@ -63,11 +63,11 @@ void ChunkRenderer::processChunkMesh(Chunk& chunk)
 	if (chunk.getMesh().getMeshState() == MeshState::READY)
 	{	
 		chunk.addChunkMesh();
-		chunk.getMesh().setMeshState(MeshState::READY_TO_DECORATE);
+		chunk.getMesh().setMeshState(MeshState::MESHED);
 	}	
-	if (chunk.getMesh().getMeshState() == MeshState::DECORATED)
+	if (chunk.getMesh().getMeshState() == MeshState::MESHED)
 	{
-		chunk.addChunkDecorationMesh();
+		//chunk.addChunkDecorationMesh();
 		chunk.getMesh().setMeshState(MeshState::PROCESSED);
 		
 		std::vector<Vertex> mesh_data = chunk.getMesh().getMeshDataCopy();

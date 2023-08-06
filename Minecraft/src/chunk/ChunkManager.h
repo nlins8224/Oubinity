@@ -44,7 +44,7 @@ public:
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
-	void tryDecorateChunk(glm::ivec3 chunk_pos);
+	//void tryDecorateChunk(glm::ivec3 chunk_pos);
 
 private:
 	 ChunksMap m_chunks_map;

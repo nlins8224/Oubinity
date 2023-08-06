@@ -1,15 +1,13 @@
 #include "Chunk.h"
-#include "ChunkManager.h"
 
 using Block::faces, Block::block_mesh, Block::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, ChunkManager* chunk_manager)
+Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	: 
 	m_chunk_pos{ chunk_pos },
 	m_lod{ lod },
-	m_chunk_manager{ chunk_manager },
 	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} }
 {
 	m_is_terrain_generated = false;
@@ -19,7 +17,6 @@ Chunk::Chunk(const Chunk& chunk)
 	:
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
-	m_chunk_manager{chunk.m_chunk_manager},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
 	m_is_terrain_generated{chunk.m_is_terrain_generated}
@@ -198,16 +195,6 @@ std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUN
 const glm::vec3 Chunk::getWorldPos() const
 {
 	return m_world_pos;
-}
-
-Chunk& Chunk::getNeighborChunk(glm::ivec3 chunk_pos)
-{
-	return m_chunk_manager->getChunksMap().at(chunk_pos);
-}
-
-ChunksMap& Chunk::getChunksMap()
-{
-	return m_chunk_manager->getChunksMap();
 }
 
 LevelOfDetail::LevelOfDetail Chunk::getLevelOfDetail()

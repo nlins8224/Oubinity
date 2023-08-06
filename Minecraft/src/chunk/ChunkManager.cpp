@@ -45,7 +45,7 @@ void ChunkManager::addToChunksMap()
 			for (int y = m_render_distance_height - 1; y >= 0; y--)
 			{
 				tryAddChunk({ x, y, z });
-				tryDecorateChunk({ x, y, z });
+				//tryDecorateChunk({ x, y, z });
 			}
 		}
 	}
@@ -95,27 +95,27 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 		return;
 
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
-	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod, this) };
+	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod) };
 	m_terrain_generator.generateChunkTerrain(*chunk);
 
 	m_chunks_map[chunk_pos] = *chunk;
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
 }
 
-void ChunkManager::tryDecorateChunk(glm::ivec3 chunk_pos)
-{
-	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
-		return;
-
-	if (getMeshState(chunk_pos) != MeshState::READY_TO_DECORATE)
-		return;
-
-	if (!getAllNeighborChunksStateGreaterOrEqualTo(chunk_pos, MeshState::READY_TO_DECORATE))
-		return;
-
-	m_terrain_generator.decorateChunkTerrain(m_chunks_map[chunk_pos]);
-	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::DECORATED);
-}
+//void ChunkManager::tryDecorateChunk(glm::ivec3 chunk_pos)
+//{
+//	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
+//		return;
+//
+//	if (getMeshState(chunk_pos) != MeshState::READY_TO_DECORATE)
+//		return;
+//
+//	if (!getAllNeighborChunksStateGreaterOrEqualTo(chunk_pos, MeshState::READY_TO_DECORATE))
+//		return;
+//
+//	m_terrain_generator.decorateChunkTerrain(m_chunks_map[chunk_pos]);
+//	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::DECORATED);
+//}
 
 ChunksMap& ChunkManager::getChunksMap()
 {
@@ -218,7 +218,7 @@ void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
 	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
 	{
 		LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
-		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod, this) };
+		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod) };
 		m_chunks_map[chunk_pos] = *chunk;
 	}
 		

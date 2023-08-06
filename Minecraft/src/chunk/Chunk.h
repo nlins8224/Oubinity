@@ -22,13 +22,11 @@ chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) /
 block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
 */
 
-class ChunkManager;
-
 class Chunk
 {
 public:
 
-	Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, ChunkManager* chunk_manager);
+	Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
 	~Chunk() = default;
@@ -45,13 +43,9 @@ public:
 	Mesh& getMesh();
 	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& getBlockArray();
 	const glm::vec3 getWorldPos() const;
-	Chunk& getNeighborChunk(glm::ivec3 chunk_pos);
-	ChunksMap& getChunksMap();
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
 private:
-	// TODO: m_chunk_manager should be const ref?
-	ChunkManager* m_chunk_manager;
 	Mesh m_mesh;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
