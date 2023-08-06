@@ -257,9 +257,6 @@
     <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\NoiseMapEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\shader\SkyboxShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>

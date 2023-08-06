@@ -247,7 +247,6 @@
     <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
-    <ClInclude Include="src\terrain_generation\shapes\NoiseMapEffect.h" />
     <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
