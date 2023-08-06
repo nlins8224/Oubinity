@@ -1,7 +1,6 @@
 #pragma once
 #include "NoiseMapTypes.h"
 #include "shapes/NoiseGenerator.h"
-#include "shapes/SplineControlPoints.h"
 #include "../block/Block.h"
 #include "../chunk/Chunk.h"
 
@@ -38,9 +37,4 @@ private:
 	int m_seed;
 	ChunkHeightMaps m_surface_maps;
 	ChunkHeightMaps m_basic_layer_maps;
-	Spline m_spline;
-	SplineRange m_flat_range;
-	SplineRange m_mountain_range;
-	SplineRange m_base_range;
-
 };

@@ -102,13 +102,7 @@
     <ClCompile Include="src\terrain_generation\shapes\NoiseGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\Spline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\SplineControlPoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp">
@@ -240,12 +234,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\SplineControlPoints.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\Spline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\third_party\bezier.h">
