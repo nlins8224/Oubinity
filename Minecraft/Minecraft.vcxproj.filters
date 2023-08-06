@@ -230,9 +230,6 @@
     <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\third_party\bezier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -244,7 +244,6 @@
     <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h" />
     <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h" />
-    <ClInclude Include="src\third_party\bezier.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\chunk\ChunkManager.h" />
     <ClInclude Include="src\block\Block.h" />
