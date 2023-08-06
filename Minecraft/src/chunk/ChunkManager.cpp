@@ -211,23 +211,3 @@ std::atomic<bool>& ChunkManager::getIsReadyToProcessChunks()
 {
 	return m_ready_to_process_chunks;
 }
-
-void ChunkManager::updateBlock(glm::vec3 world_pos, Block::block_id type)
-{
-	glm::vec3 chunk_pos = getChunkPosition(world_pos);
-	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
-	{
-		LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
-		std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod) };
-		m_chunks_map[chunk_pos] = *chunk;
-	}
-		
-	glm::ivec3 chunk_block_pos = getChunkBlockPosition(world_pos);
-	Chunk chunk = m_chunks_map.at(chunk_block_pos);
-
-	if (chunk.getBlockId(chunk_block_pos) == type)
-		return;
-	
-	chunk.setBlock(chunk_block_pos, type);
-	chunk.getMesh().setMeshState(MeshState::READY);
-}

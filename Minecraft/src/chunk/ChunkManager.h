@@ -40,7 +40,6 @@ public:
 	std::atomic<bool>& getIsReadyToProcessChunks();
 	bool getAllNeighborChunksStateEqualTo(glm::ivec3 chunk_pos, MeshState state);
 	bool getAllNeighborChunksStateGreaterOrEqualTo(glm::ivec3 chunk_pos, MeshState state);
-	void updateBlock(glm::vec3 pos, Block::block_id block_id);
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
