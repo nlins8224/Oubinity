@@ -45,7 +45,6 @@ void ChunkManager::addToChunksMap()
 			for (int y = m_render_distance_height - 1; y >= 0; y--)
 			{
 				tryAddChunk({ x, y, z });
-				//tryDecorateChunk({ x, y, z });
 			}
 		}
 	}
@@ -102,21 +101,6 @@ void ChunkManager::tryAddChunk(glm::ivec3 chunk_pos)
 	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::READY);
 }
 
-//void ChunkManager::tryDecorateChunk(glm::ivec3 chunk_pos)
-//{
-//	if (m_chunks_map.find(chunk_pos) == m_chunks_map.end())
-//		return;
-//
-//	if (getMeshState(chunk_pos) != MeshState::READY_TO_DECORATE)
-//		return;
-//
-//	if (!getAllNeighborChunksStateGreaterOrEqualTo(chunk_pos, MeshState::READY_TO_DECORATE))
-//		return;
-//
-//	m_terrain_generator.decorateChunkTerrain(m_chunks_map[chunk_pos]);
-//	m_chunks_map[chunk_pos].getMesh().setMeshState(MeshState::DECORATED);
-//}
-
 ChunksMap& ChunkManager::getChunksMap()
 {
 	return m_chunks_map;
@@ -160,17 +144,6 @@ glm::vec3 ChunkManager::getChunkBlockPosition(glm::vec3 world_pos)
 
 	LevelOfDetail::LevelOfDetail lod = m_chunks_map.at(chunk_pos).getLevelOfDetail();
 	return glm::ivec3(x, y, z) / static_cast<int>(lod.block_size);
-}
-
-Block::block_id ChunkManager::getChunkBlockId(glm::vec3 world_pos)
-{
-	glm::ivec3 chunk_pos = getChunkPosition(world_pos);
-	bool is_in = m_chunks_map.count(chunk_pos);
-	if (!is_in)
-		return Block::AIR;
-
-	glm::ivec3 block_pos = getChunkBlockPosition(world_pos);
-	return m_chunks_map.at(chunk_pos).getBlockId(block_pos);
 }
 
 std::atomic<bool>& ChunkManager::getIsReadyToProcessChunks()

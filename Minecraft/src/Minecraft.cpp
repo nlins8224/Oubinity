@@ -37,7 +37,7 @@ int main()
     TerrainGenerator terrain_generator{ 1337, 4, 7 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     ChunkManager chunk_manager(camera, terrain_generator);
-    PlayerInput player_input{window.getWindow(), chunk_manager, camera};
+    PlayerInput player_input{window.getWindow(), camera};
     MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks(), m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
 
     master_renderer.getSkyboxRenderer().getSkyboxLoader().load();

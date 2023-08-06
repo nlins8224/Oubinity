@@ -1,9 +1,8 @@
 #include "PlayerInput.h"
-#include <iostream>
 
 
-PlayerInput::PlayerInput(GLFWwindow* window, ChunkManager& world, Camera& default_camera)
-    : m_window{window}, m_world{ world }, m_default_camera{default_camera}
+PlayerInput::PlayerInput(GLFWwindow* window, Camera& default_camera)
+    : m_window{window}, m_default_camera{default_camera}
 {
     setWindowCallbacks();
     m_is_wireframe_enabled = false;
@@ -17,41 +16,12 @@ void PlayerInput::setWindowCallbacks()
     glfwSetScrollCallback(m_window, Mouse::mouseWheelCallback);
 }
 
-void PlayerInput::onMouseLeftPress()
-{
-    //auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
-    //    this->m_world.updateBlock(next_block, Block::AIR);
-    //};
-
-    //Ray hit_ray{ this->m_world, m_default_camera.getCameraPos(), m_default_camera.getCameraDirection() };
-    //while (hit_ray.getDistance() < 10.0)
-    //{
-    //    if (hit_ray.step(hit_callback))
-    //        break;
-    //}
-}
-
-void PlayerInput::onMouseRightPress()
-{
-    //auto hit_callback = [&](glm::vec3 current_block, glm::vec3 next_block) mutable {
-    //    m_world.updateBlock(current_block, Block::PLANKS);
-    //};
-
-    //Ray hit_ray{ m_world, m_default_camera.getCameraPos(), m_default_camera.getCameraDirection() };
-    //while (hit_ray.getDistance() < 10.0)
-    //{
-    //    if (hit_ray.step(hit_callback))
-    //        break;
-    //}
-}
-
 void PlayerInput::toggleWireframeMode()
 {
     if (m_is_wireframe_enabled)
         disableWireframeMode();
     else
         enableWireframeMode();
-    std::cout << "toggleWireframeMode: " << m_is_wireframe_enabled << std::endl;
 }
 
 void PlayerInput::enableWireframeMode()
@@ -94,9 +64,5 @@ void PlayerInput::processInput(float delta_time)
     if (Keyboard::keyWentUp(GLFW_KEY_F1))
         toggleWireframeMode();
 
-    if (Mouse::button(GLFW_MOUSE_BUTTON_LEFT))
-        onMouseLeftPress();
-    if (Mouse::button(GLFW_MOUSE_BUTTON_RIGHT))
-        onMouseRightPress();
 }
 

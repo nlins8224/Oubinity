@@ -36,12 +36,10 @@ public:
 	TerrainGenerator& getTerrainGenerator();
 	glm::vec3 getChunkPosition(glm::vec3 world_pos);
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
-	Block::block_id getChunkBlockId(glm::vec3 world_pos);
 	std::atomic<bool>& getIsReadyToProcessChunks();
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);
-	//void tryDecorateChunk(glm::ivec3 chunk_pos);
 
 private:
 	 ChunksMap m_chunks_map;
