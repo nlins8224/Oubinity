@@ -38,8 +38,6 @@ public:
 	glm::vec3 getChunkBlockPosition(glm::vec3 world_pos);
 	Block::block_id getChunkBlockId(glm::vec3 world_pos);
 	std::atomic<bool>& getIsReadyToProcessChunks();
-	bool getAllNeighborChunksStateEqualTo(glm::ivec3 chunk_pos, MeshState state);
-	bool getAllNeighborChunksStateGreaterOrEqualTo(glm::ivec3 chunk_pos, MeshState state);
 	void addToChunksMap();
 	void deleteFromChunksMap();
 	void tryAddChunk(glm::ivec3 chunk_pos);

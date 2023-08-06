@@ -136,40 +136,6 @@ glm::vec3 ChunkManager::getChunkPosition(glm::vec3 world_pos)
 	return glm::ivec3(x, y, z);
 }
 
-bool ChunkManager::getAllNeighborChunksStateEqualTo(glm::ivec3 chunk_pos, MeshState state)
-{
-	int x = chunk_pos.x;
-	int y = chunk_pos.y;
-	int z = chunk_pos.z;
-
-	return
-		getMeshState({ x - 1, y, z - 1 }) == state &&
-		getMeshState({ x - 1, y, z })	  == state &&
-		getMeshState({ x - 1, y, z + 1 }) == state &&
-		getMeshState({ x, y, z - 1 })     == state &&
-		getMeshState({ x, y, z + 1 })     == state &&
-		getMeshState({ x + 1, y, z - 1 }) == state &&
-		getMeshState({ x + 1, y, z })     == state &&
-		getMeshState({ x + 1, y, z + 1 }) == state;	
-}
-
-bool ChunkManager::getAllNeighborChunksStateGreaterOrEqualTo(glm::ivec3 chunk_pos, MeshState state)
-{
-	int x = chunk_pos.x;
-	int y = chunk_pos.y;
-	int z = chunk_pos.z;
-
-	return
-		getMeshState({ x - 1, y, z - 1 }) >= state &&
-		getMeshState({ x - 1, y, z })     >= state &&
-		getMeshState({ x - 1, y, z + 1 }) >= state &&
-		getMeshState({ x, y, z - 1 })     >= state &&
-		getMeshState({ x, y, z + 1 })     >= state &&
-		getMeshState({ x + 1, y, z - 1 }) >= state &&
-		getMeshState({ x + 1, y, z })     >= state &&
-		getMeshState({ x + 1, y, z + 1 }) >= state;
-}
-
 MeshState ChunkManager::getMeshState(glm::ivec3 chunk_pos)
 {
 	if (!m_chunks_map.count(chunk_pos))
