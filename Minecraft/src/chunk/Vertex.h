@@ -11,15 +11,17 @@
 
 struct Vertex
 {
-	Vertex(glm::vec3 p, glm::vec3 t) {
+	Vertex(glm::vec3 p, glm::vec3 t, float s) {
 		position[0] = p.x;
 		position[1] = p.y;
 		position[2] = p.z;
 		texture[0] = t.x;
 		texture[1] = t.y;
 		texture[2] = t.z;
+		shading = s;
 	}
 
 	float position[3];
 	float texture[3];
+	float shading;
 };

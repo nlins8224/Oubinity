@@ -8,6 +8,7 @@
 class TerrainGenerator
 {
 public:
+	TerrainGenerator();
 	TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height);
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);

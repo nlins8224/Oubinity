@@ -8,9 +8,16 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t surface_height, uint8
 {
 }
 
+TerrainGenerator::TerrainGenerator()
+	: m_world_seed{ 1337 },
+	m_shape_generator{ 1337 },
+	m_min_surface_height{ 60 },
+	m_water_height{ 40 }
+{
+
+}
 void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
-	OPTICK_EVENT();
 	if (chunk.isTerrainGenerated())
 		return;
 

@@ -121,12 +121,13 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	uint8_t v_coord;
 	uint8_t shading_coord;
 
-	float x_local_pos;
-	float y_local_pos;
-	float z_local_pos;
+	float x_pos;
+	float y_pos;
+	float z_pos;
 
 	GLubyte u;
 	GLubyte v;
+	float s;
 
 	for (uint8_t i = 0; i < FACE_ROWS; i++)
 	{
@@ -141,16 +142,17 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		//y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
 		//z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
 
-		x_local_pos = block_pos.x + face[x_coord] + m_world_pos.x;
-		y_local_pos = block_pos.y + face[y_coord] + m_world_pos.y;
-		z_local_pos = block_pos.z + face[z_coord] + m_world_pos.z;
+		x_pos = block_pos.x + face[x_coord] + m_world_pos.x;
+		y_pos = block_pos.y + face[y_coord] + m_world_pos.y;
+		z_pos = block_pos.z + face[z_coord] + m_world_pos.z;
 
 		u = static_cast<GLubyte>(face[u_coord]);
 		v = static_cast<GLubyte>(face[v_coord]);
+		s = face[shading_coord];
 
-		glm::vec3 xyz{ x_local_pos, y_local_pos, z_local_pos };
+		glm::vec3 xyz{ x_pos, y_pos, z_pos };
 		glm::vec3 uvw{ u, v, texture_id };
-		Vertex vertex(xyz, uvw);
+		Vertex vertex(xyz, uvw, s);
 		/*vertex.xyzs = VertexCompresser::compress_xyzs(xyz, shading_coord);
 		vertex.uvw = VertexCompresser::compress_uvw(uvw);
 		vertex.lod_scale = m_lod.block_size;

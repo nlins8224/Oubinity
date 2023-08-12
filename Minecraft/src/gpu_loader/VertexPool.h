@@ -6,6 +6,8 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
+#include "optick.h"
+
 class VertexPool
 {
 public:
