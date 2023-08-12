@@ -130,7 +130,7 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 	{
 		6 * added_faces, // vertices in face * added_faces
 		1,
-		m_total_faces_added * 6, // TODO: is this correct?
+		6 * m_total_faces_added , // command offset in the buffer
 		0
 	};
 	m_world_mesh_daic.push_back(daic);

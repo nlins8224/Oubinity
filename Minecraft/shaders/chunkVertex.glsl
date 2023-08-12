@@ -1,4 +1,4 @@
-#version 430 core
+#version 460 core
 
 layout (location = 0) in uint in_xyzs;
 layout (location = 1) in uint in_uvw;

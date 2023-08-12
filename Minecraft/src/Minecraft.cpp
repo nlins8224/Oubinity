@@ -55,9 +55,9 @@ int main()
     const GLubyte* glVersion(glGetString(GL_VERSION));
     int major = glVersion[0] - '0';
     int minor = glVersion[2] - '0';
-    if (major < 4 || minor < 4)
+    if (major < 4 || minor < 6)
     {
-        std::cerr << "ERROR: Minimum OpenGL version required for this demo is 4.4. Your current version is " << major << "." << minor << std::endl;
+        std::cerr << "ERROR: Minimum OpenGL version required for this demo is 4.6. Your current version is " << major << "." << minor << std::endl;
         exit(-1);
     }
 
