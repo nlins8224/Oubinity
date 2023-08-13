@@ -30,16 +30,6 @@ void ChunkRenderer::drawChunksSceneMesh()
 	m_vertexpool->draw(m_world_mesh_daic.size());
 }
 
-void ChunkRenderer::createInRenderDistanceAndDestroyOutOfRenderDistanceChunks()
-{
-	destroyOutOfRenderDistanceChunks();
-	createInRenderDistanceChunks();
-	if (m_buffer_needs_update) {
-		m_vertexpool->updateBuffer(m_world_mesh, m_world_mesh_daic);
-		m_buffer_needs_update = false;
-	}
-}
-
 void ChunkRenderer::traverseScene()
 {
 	OPTICK_EVENT("traverseScene");
@@ -80,7 +70,9 @@ void ChunkRenderer::traverseScene()
 	}
 
 	if (m_buffer_needs_update) {
-		m_vertexpool->updateBuffer(m_world_mesh, m_world_mesh_daic);
+		m_vertexpool->updateDrawBuffer(m_world_mesh, m_world_mesh_daic);
+		m_vertexpool->createChunkInfoBuffer(m_chunks_info);
+		std::cout << "DRAW Commands: " << m_world_mesh_daic.size() << std::endl;
 		m_buffer_needs_update = false;
 	}
 }
@@ -93,10 +85,6 @@ void ChunkRenderer::createInRenderDistanceChunks()
 		createChunkIfNotPresent(chunk_pos);
 		m_chunks_to_create.pop();
 	}
-}
-
-void ChunkRenderer::destroyOutOfRenderDistanceChunks()
-{
 }
 
 void ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
@@ -118,14 +106,23 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 
 	// TODO: This needs to be done better, do after assembling working pipeline
 	chunk->addChunkMesh();
+	unsigned int added_faces = chunk->getAddedFacesAmount();
+
 	std::vector<Vertex> chunk_mesh{ chunk->getMesh().getMeshDataCopy() };
 	m_world_mesh.insert(m_world_mesh.end(), chunk_mesh.begin(), chunk_mesh.end());
 	//
-	unsigned int added_faces = chunk->getAddedFacesAmount();
-	m_total_faces_added += added_faces;
+
+	m_chunks_by_coord[chunk_pos] = *chunk;
+
+	m_all_chunks.emplace_back(*chunk);
+
+	if (added_faces == 0)
+	{
+		return;
+	}
 	
 	// TODO: mutex
-	unsigned int draw_commands_added = m_world_mesh_daic.size() - 1;
+	unsigned int draw_command_id = m_world_mesh_daic.size();
 	DAIC daic
 	{
 		6 * added_faces, // vertices in face * added_faces
@@ -133,22 +130,11 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		6 * m_total_faces_added , // command offset in the buffer
 		0
 	};
+	m_total_faces_added += added_faces;
 	m_world_mesh_daic.push_back(daic);
-	// TODO: mutex
-	m_all_chunks.emplace_back(*chunk);
-	// TODO: mutex
-	m_chunks_by_coord[chunk_pos] = *chunk;
-}
-
-void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
-{
-}
-
-void ChunkRenderer::processChunks()
-{
-
-}
-
-void ChunkRenderer::processChunk(Chunk& chunk)
-{
+	
+	m_chunks_info.chunk_pos[draw_command_id].x = std::floor(chunk->getWorldPos().x);
+	m_chunks_info.chunk_pos[draw_command_id].y = std::floor(chunk->getWorldPos().y);
+	m_chunks_info.chunk_pos[draw_command_id].z = std::floor(chunk->getWorldPos().z);
+	m_chunks_info.chunk_pos[draw_command_id].w = draw_command_id;
 }

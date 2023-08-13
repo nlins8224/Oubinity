@@ -90,7 +90,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
-	if (x < 0 || y < 0 || z < 0 || x >= m_lod.block_amount || y >= m_lod.block_amount || z >= m_lod.block_amount)
+	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE)
 	{
 		/* world_pos is incorrectly calculated */
 
@@ -121,13 +121,13 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	uint8_t v_coord;
 	uint8_t shading_coord;
 
-	float x_pos;
-	float y_pos;
-	float z_pos;
+	GLubyte x_local_pos;
+	GLubyte y_local_pos;
+	GLubyte z_local_pos;
 
 	GLubyte u;
 	GLubyte v;
-	float s;
+	int s;
 
 	for (uint8_t i = 0; i < FACE_ROWS; i++)
 	{
@@ -138,27 +138,17 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		v_coord = (i * 7) + 4;
 		shading_coord = (i * 7) + 6;
 		
-		//x_local_pos = static_cast<GLubyte>(block_pos.x) + static_cast<GLubyte>(face[x_coord]);
-		//y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
-		//z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
-
-		x_pos = block_pos.x + face[x_coord] + m_world_pos.x;
-		y_pos = block_pos.y + face[y_coord] + m_world_pos.y;
-		z_pos = block_pos.z + face[z_coord] + m_world_pos.z;
+		x_local_pos = static_cast<GLubyte>(block_pos.x) + static_cast<GLubyte>(face[x_coord]);
+		y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
+		z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
 
 		u = static_cast<GLubyte>(face[u_coord]);
 		v = static_cast<GLubyte>(face[v_coord]);
 		s = face[shading_coord];
 
-		glm::vec3 xyz{ x_pos, y_pos, z_pos };
-		glm::vec3 uvw{ u, v, texture_id };
-		Vertex vertex(xyz, uvw, s);
-		/*vertex.xyzs = VertexCompresser::compress_xyzs(xyz, shading_coord);
-		vertex.uvw = VertexCompresser::compress_uvw(uvw);
-		vertex.lod_scale = m_lod.block_size;
-		vertex.chunk_world_pos[0] = m_world_pos.x;
-		vertex.chunk_world_pos[1] = m_world_pos.y;
-		vertex.chunk_world_pos[2] = m_world_pos.z;*/
+		glm::ivec3 xyz{ x_local_pos, y_local_pos, z_local_pos };
+		glm::ivec3 uvw{ u, v, texture_id };
+		Vertex vertex{xyz, uvw, s};
 		m_mesh.addVertex(vertex);
 	}
 	m_added_faces++;

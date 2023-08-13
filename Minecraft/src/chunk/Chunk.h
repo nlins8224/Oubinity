@@ -4,14 +4,13 @@
 #include <array>
 #include <functional>
 #include "Mesh.h"
-#include "VertexCompresser.h"
+#include "Vertex.h"
 #include "ChunkSize.h"
 #include "ChunksMap.h"
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
 #include "../shader/Shader.h"
-#include "../TextureManager.h"
 #include "../level_of_detail/LevelOfDetail.h"
 
 

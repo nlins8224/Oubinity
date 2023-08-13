@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include "Renderer.h"
+#include "ChunkRendererSettings.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "../gpu_loader/VertexPool.h"
 #include "../Camera.h"
@@ -13,12 +14,6 @@
 #include "../frustum/AABox.h"
 
 #include "optick.h"
-
-namespace ChunkRendererSettings
-{
-	constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 32;
-	constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 1;
-}
 
 struct ChunkMessage
 {
@@ -38,7 +33,6 @@ public:
 	void render(Camera& camera) override;
 
 	void traverseScene();
-	void createInRenderDistanceAndDestroyOutOfRenderDistanceChunks();
 	void drawChunksSceneMesh();
 private:
 	void createInRenderDistanceChunks(); // called when scene was already traversed
@@ -46,8 +40,6 @@ private:
 	void createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
-	void processChunks();
-	void processChunk(Chunk& chunk);
 
 	Camera& m_camera;
 	GLuint m_texture_array;
@@ -59,6 +51,7 @@ private:
 
 	std::vector<Vertex> m_world_mesh;
 	std::vector<DAIC> m_world_mesh_daic;
+	ChunkInfo m_chunks_info;
 	VertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 

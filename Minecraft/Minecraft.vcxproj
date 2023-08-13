@@ -223,6 +223,7 @@
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
     <ClInclude Include="src\gpu_loader\VertexPool.h" />
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />
+    <ClInclude Include="src\renderer\ChunkRendererSettings.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
     <ClInclude Include="src\renderer\SkyboxRenderer.h" />
     <ClInclude Include="src\shader\ChunkShader.h" />

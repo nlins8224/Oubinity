@@ -14,6 +14,7 @@
 #include "shader/Shader.h"
 #include "Camera.h"
 #include "renderer/MasterRenderer.h"
+#include "TextureManager.h"
 
 const int scr_width = 1200;
 const int scr_height = 1600;
