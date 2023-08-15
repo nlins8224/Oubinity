@@ -15,14 +15,20 @@
 
 #include "optick.h"
 
-struct ChunkMessage
+/*
+DAIC and ChunkInfo need to have the same index.
+*/
+struct ChunkShaderMetadata
 {
-	glm::ivec3 chunk_pos;
-	enum class message
+	ChunkShaderMetadata() = default;
+	ChunkShaderMetadata(DAIC daic, glm::ivec3 chunk_world_pos)
 	{
-		CREATE,
-		DELETE
+		_daic = daic;
+		_chunk_world_pos = chunk_world_pos;
 	};
+
+	DAIC _daic;
+	glm::ivec3 _chunk_world_pos;
 };
 
 class ChunkRenderer : public Renderer
@@ -35,23 +41,27 @@ public:
 	void traverseScene();
 	void drawChunksSceneMesh();
 private:
-	void createInRenderDistanceChunks(); // called when scene was already traversed
-	void destroyOutOfRenderDistanceChunks(); // called when scene was already traversed
-	void createChunkIfNotPresent(glm::ivec3 chunk_pos);
+	bool createInRenderDistanceChunks(); // called when scene was already traversed
+	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
+	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
+	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
+	void collectChunkShaderMetadata();
 
 	Camera& m_camera;
 	GLuint m_texture_array;
 
 	std::unordered_map<glm::ivec3, Chunk> m_chunks_by_coord;
-	std::vector<Chunk> m_all_chunks;
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
 
-	std::vector<Vertex> m_world_mesh;
-	std::vector<DAIC> m_world_mesh_daic;
-	ChunkInfo m_chunks_info;
+	std::vector<Vertex> m_all_chunks_mesh;
+
+	std::unordered_map<glm::ivec3, ChunkShaderMetadata> m_chunks_shader_metadata;
+	std::vector<DAIC> m_active_daics;
+
+	ChunkInfo m_active_chunks_info;
 	VertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 

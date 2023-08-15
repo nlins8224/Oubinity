@@ -27,7 +27,7 @@ void ChunkRenderer::drawChunksSceneMesh()
 	m_shader.setUniformMat4("view", view);
 	m_shader.setUniformMat4("projection", projection);
 
-	m_vertexpool->draw(m_world_mesh_daic.size());
+	m_vertexpool->draw(m_active_daics.size());
 }
 
 void ChunkRenderer::traverseScene()
@@ -47,12 +47,12 @@ void ChunkRenderer::traverseScene()
 		{
 			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 			{
-				createChunkIfNotPresent({cx, cy, cz});
+				m_chunks_to_create.push({ cx, cy, cz });
 			}
 		}
 	}
 
-	for (Chunk& chunk : m_all_chunks)
+	for (auto& [chunk_pos, chunk] : m_chunks_by_coord)
 	{
 		int cx = chunk.getPos().x;
 		int cy = chunk.getPos().y;
@@ -69,32 +69,39 @@ void ChunkRenderer::traverseScene()
 		}
 	}
 
+	m_buffer_needs_update |= deleteOutOfRenderDistanceChunks();
+	m_buffer_needs_update = createInRenderDistanceChunks();
+
 	if (m_buffer_needs_update) {
-		m_vertexpool->updateDrawBuffer(m_world_mesh, m_world_mesh_daic);
-		m_vertexpool->createChunkInfoBuffer(m_chunks_info);
-		std::cout << "DRAW Commands: " << m_world_mesh_daic.size() << std::endl;
+		m_active_daics.clear();
+		collectChunkShaderMetadata();
+		m_vertexpool->updateDrawBuffer(m_all_chunks_mesh, m_active_daics);
+		m_vertexpool->createChunkInfoBuffer(m_active_chunks_info);
+		std::cout << "DRAW Commands: " << m_active_daics.size() << std::endl;
 		m_buffer_needs_update = false;
 	}
 }
 
-void ChunkRenderer::createInRenderDistanceChunks()
+bool ChunkRenderer::createInRenderDistanceChunks()
 {
+	bool anything_created = false;
 	while (!m_chunks_to_create.empty())
 	{
 		glm::ivec3 chunk_pos = m_chunks_to_create.front();
-		createChunkIfNotPresent(chunk_pos);
+		anything_created |= createChunkIfNotPresent(chunk_pos);
 		m_chunks_to_create.pop();
 	}
+	return anything_created;
 }
 
-void ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
+bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT("createChunkIfNotPresent");
 	if (m_chunks_by_coord.find(chunk_pos) != m_chunks_by_coord.end())
-		return;
+		return false;
 
-	m_buffer_needs_update = true;
 	createChunk(chunk_pos);
+	return true;
 }
 
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
@@ -109,32 +116,73 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 	unsigned int added_faces = chunk->getAddedFacesAmount();
 
 	std::vector<Vertex> chunk_mesh{ chunk->getMesh().getMeshDataCopy() };
-	m_world_mesh.insert(m_world_mesh.end(), chunk_mesh.begin(), chunk_mesh.end());
+	m_all_chunks_mesh.insert(m_all_chunks_mesh.end(), chunk_mesh.begin(), chunk_mesh.end());
 	//
 
 	m_chunks_by_coord[chunk_pos] = *chunk;
 
-	m_all_chunks.emplace_back(*chunk);
-
+	// There is no need to add chunk draw command if chunk is empty
 	if (added_faces == 0)
 	{
 		return;
 	}
 	
 	// TODO: mutex
-	unsigned int draw_command_id = m_world_mesh_daic.size();
 	DAIC daic
 	{
 		6 * added_faces, // vertices in face * added_faces
 		1,
-		6 * m_total_faces_added , // command offset in the buffer
+		6 * m_total_faces_added , // vertices in face * command offset in the buffer
 		0
 	};
 	m_total_faces_added += added_faces;
-	m_world_mesh_daic.push_back(daic);
 	
-	m_chunks_info.chunk_pos[draw_command_id].x = std::floor(chunk->getWorldPos().x);
-	m_chunks_info.chunk_pos[draw_command_id].y = std::floor(chunk->getWorldPos().y);
-	m_chunks_info.chunk_pos[draw_command_id].z = std::floor(chunk->getWorldPos().z);
-	m_chunks_info.chunk_pos[draw_command_id].w = draw_command_id;
+	ChunkShaderMetadata chunk_shader_metadata{daic, chunk->getWorldPos()};
+	m_chunks_shader_metadata[chunk_pos] = chunk_shader_metadata;
+
+}
+
+bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
+{
+	bool anything_deleted = false;
+	while (!m_chunks_to_delete.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_delete.front();
+		anything_deleted |= deleteChunkIfPresent(chunk_pos);
+		m_chunks_to_delete.pop();
+	}
+	return anything_deleted;
+}
+
+bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
+{
+	if (m_chunks_by_coord.find(chunk_pos) == m_chunks_by_coord.end())
+		return false;
+
+	deleteChunk(chunk_pos);
+	return true;
+}
+
+/*
+deleteChunk
+steps to do:
+1. set _chunk_active to false in m_chunks_shader_metadata
+2. delete chunk from m_chunks_by_coord 
+*/
+void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
+{
+	if (m_chunks_shader_metadata.find(chunk_pos) != m_chunks_shader_metadata.end())
+		m_chunks_shader_metadata.erase(chunk_pos);
+	m_chunks_by_coord.erase(chunk_pos);
+}
+
+void ChunkRenderer::collectChunkShaderMetadata()
+{
+	int index = 0;
+	for (auto& [chunk_pos, chunk_metadata] : m_chunks_shader_metadata)
+	{
+		m_active_daics.push_back(chunk_metadata._daic);
+		m_active_chunks_info.chunk_pos[index] = { chunk_metadata._chunk_world_pos, index };
+		index++;
+	}
 }

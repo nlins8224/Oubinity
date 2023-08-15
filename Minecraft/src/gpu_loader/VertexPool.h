@@ -10,10 +10,10 @@
 #include "optick.h"
 
 constexpr int CHUNKS_AMOUNT = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-
+constexpr int BACKUP_BUFFER = 2000;
 struct ChunkInfo
 {
-	glm::vec4 chunk_pos[CHUNKS_AMOUNT];
+	glm::vec4 chunk_pos[CHUNKS_AMOUNT + BACKUP_BUFFER];
 };
 
 class VertexPool
