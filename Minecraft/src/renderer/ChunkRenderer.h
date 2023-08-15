@@ -21,14 +21,16 @@ DAIC and ChunkInfo need to have the same index.
 struct ChunkShaderMetadata
 {
 	ChunkShaderMetadata() = default;
-	ChunkShaderMetadata(DAIC daic, glm::ivec3 chunk_world_pos)
+	ChunkShaderMetadata(DAIC daic, glm::ivec3 chunk_world_pos, GLuint lod)
 	{
 		_daic = daic;
 		_chunk_world_pos = chunk_world_pos;
+		_lod = lod;
 	};
 
 	DAIC _daic;
 	glm::ivec3 _chunk_world_pos;
+	GLuint _lod;
 };
 
 class ChunkRenderer : public Renderer
@@ -62,6 +64,7 @@ private:
 	std::vector<DAIC> m_active_daics;
 
 	ChunkInfo m_active_chunks_info;
+	ChunksLod m_active_chunks_lod;
 	VertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 

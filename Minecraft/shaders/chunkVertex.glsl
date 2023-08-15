@@ -25,9 +25,9 @@ void main()
 
 	interpolated_shading_values = float((in_xyzs & 0x1C0000u) >> 18u) / 5.0f;
 
-	//x *= lod_scale;
-	//y *= lod_scale;
-	//z *= lod_scale;
+	x *= lod_scale;
+	y *= lod_scale;
+	z *= lod_scale;
 
 	/*
 	Surface height is determined first, block is placed after calculations.

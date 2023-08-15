@@ -14,12 +14,28 @@ layout (std430, binding = 0) readonly buffer ChunkInfo
 	vec4 chunk_pos[];
 } chunkInfo;
 
+layout (std430, binding = 1) readonly buffer Lod
+{
+	uint block_size[];
+} lod;
+
 void main()
 {
 	float x = float(in_xyzs  & 0x3Fu);
 	float y = float((in_xyzs & 0xFC0u) >> 6u);
 	float z = float((in_xyzs & 0x3F000u) >> 12u);
 	interpolated_shading_values = float((in_xyzs & 0x1C0000u) >> 18u) / 5.0f;
+
+	x *= lod.block_size[gl_DrawID];
+	y *= lod.block_size[gl_DrawID];
+	z *= lod.block_size[gl_DrawID];
+
+	/*
+	Surface height is determined first, block is placed after calculations.
+	This means that larger blocks will not align with smaller blocks. Larger block bottom face
+	will be neighbour of smaller block top face.
+	*/
+	y -= lod.block_size[gl_DrawID] - 1;
 
 	x += chunkInfo.chunk_pos[gl_DrawID].x;
 	y += chunkInfo.chunk_pos[gl_DrawID].y;
