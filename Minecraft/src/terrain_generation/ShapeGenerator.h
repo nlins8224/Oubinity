@@ -2,6 +2,7 @@
 #include <FastNoise/FastNoise.h>
 #include "../block/Block.h"
 #include "../chunk/Chunk.h"
+#include "../level_of_detail/LevelOfDetail.h"
 
 namespace std
 {
@@ -60,7 +61,7 @@ public:
 	~ShapeGenerator() = default;
 	void generateSurfaceMap(Chunk& chunk);
 	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
-	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, int chunk_block_amount, NoiseSettings::Settings settings, int seed);
+	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;

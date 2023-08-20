@@ -21,8 +21,9 @@ void LayerGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 
 	layer_handler
-		->addNextLayer(surface_layer)
-		->addNextLayer(underground_layer);
+		->addNextLayer(underground_layer)
+		->addNextLayer(surface_layer);
+		
 
 	int block_amount = chunk.getLevelOfDetail().block_amount;
 	for (int x = 0; x < block_amount; x++)
