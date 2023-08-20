@@ -96,9 +96,6 @@
     <ClCompile Include="src\terrain_generation\layers\UndergroundLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\shapes\NoiseGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,16 +200,7 @@
     <ClInclude Include="src\terrain_generation\BiomeGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\NoiseGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\shapes\NoiseSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\NoiseMapTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h">

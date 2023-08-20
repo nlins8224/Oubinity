@@ -1,11 +1,12 @@
 #pragma once
 #include <array>
-#include "NoiseMapTypes.h"
 #include "layers/AirLayerHandler.h"
 #include "layers/SurfaceLayerHandler.h"
 #include "layers/UndergroundLayerHandler.h"
 #include "layers/OceanLayerHandler.h"
 #include "../chunk/Chunk.h"
+
+using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 
 class BiomeGenerator
 {

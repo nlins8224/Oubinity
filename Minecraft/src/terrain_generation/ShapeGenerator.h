@@ -1,6 +1,5 @@
 #pragma once
-#include "NoiseMapTypes.h"
-#include "shapes/NoiseGenerator.h"
+#include <FastNoise/FastNoise.h>
 #include "../block/Block.h"
 #include "../chunk/Chunk.h"
 
@@ -19,7 +18,40 @@ namespace std
 	};
 }
 
+using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 using ChunkHeightMaps = std::unordered_map<glm::ivec2, NoiseMap>;
+
+namespace NoiseSettings
+{
+	struct Settings
+	{
+		float frequency;
+		int octaves;
+		float lacunarity;
+		float fractal_gain;
+		float weighted_strength;
+	};
+
+	static const Settings TestSettings
+	{
+		.frequency{ 0.002 },
+		.octaves{ 5 },
+		.lacunarity{ 2.0 },
+		.fractal_gain{ 0.5 },
+		.weighted_strength{ 0.0 },
+	};
+
+	static const Settings TreeSettings
+	{
+		.frequency{ 0.02 },
+		.octaves{ 3 },
+		.lacunarity{ 2.0 },
+		.fractal_gain{ 0.5 },
+		.weighted_strength{ 0.0 },
+	};
+
+}
+
 
 class ShapeGenerator
 {
@@ -28,6 +60,7 @@ public:
 	~ShapeGenerator() = default;
 	void generateSurfaceMap(Chunk& chunk);
 	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
+	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, int chunk_block_amount, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;
