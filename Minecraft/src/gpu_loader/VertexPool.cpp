@@ -56,12 +56,12 @@ void VertexPool::updateDrawBuffer(std::vector<Vertex>& mesh, std::vector<DAIC>& 
     glBufferData(GL_DRAW_INDIRECT_BUFFER, daic.size() * sizeof(DAIC), daic.data(), GL_STATIC_DRAW);
 }
 
-void VertexPool::createChunkInfoBuffer(ChunkInfo chunk_info)
+void VertexPool::createChunkInfoBuffer(ChunkInfo* chunk_info)
 {
     m_chunk_info_ssbo = 0;
     glGenBuffers(1, &m_chunk_info_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(chunk_info), &chunk_info, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunk_info), chunk_info, GL_DYNAMIC_COPY);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
 }
