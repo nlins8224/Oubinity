@@ -46,7 +46,7 @@ NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 
 	std::vector<float> data_out(CHUNK_SIZE * CHUNK_SIZE);
 	glm::ivec3 world_pos = chunk_pos * CHUNK_SIZE;
-	fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount, chunk_pos.z * lod.block_amount, lod.block_amount, lod.block_amount, settings.frequency, seed);
+	fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount, chunk_pos.z * lod.block_amount, lod.block_amount, lod.block_amount, settings.frequency , seed);
 	NoiseMap height_map{};
 
 	for (int x = 0; x < lod.block_amount; x++)
@@ -54,6 +54,7 @@ NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 		for (int z = 0; z < lod.block_amount; z++)
 		{
 			height_map[x][z] = data_out[z * lod.block_amount + x];
+			//std::cout << "Lod level: " << lod.level << " Chunk Pos [X, Y]: [" << chunk_pos.x << ", " << chunk_pos.y << "] height map: " << height_map[x][z] << std::endl;
 		}
 	}
 
