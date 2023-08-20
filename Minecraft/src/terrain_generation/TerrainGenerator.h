@@ -13,7 +13,6 @@ public:
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);
 	ShapeGenerator& getShapeGenerator();
-	float getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
 private:
 	int m_world_seed;
 	uint8_t m_min_surface_height;

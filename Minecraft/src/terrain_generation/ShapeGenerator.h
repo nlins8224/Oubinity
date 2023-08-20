@@ -27,14 +27,9 @@ public:
 	ShapeGenerator(int seed);
 	~ShapeGenerator() = default;
 	void generateSurfaceMap(Chunk& chunk);
-	float getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
-	float getBasicNoiseValue(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
 	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
-	ChunkHeightMaps& getSurfaceMaps();
-	int getSeed();
 
 private:
 	int m_seed;
 	ChunkHeightMaps m_surface_maps;
-	ChunkHeightMaps m_basic_layer_maps;
 };

@@ -29,45 +29,9 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	}
 
 	m_surface_maps[chunk_pos_xz] = surface_map;
-	m_basic_layer_maps[chunk_pos_xz] = base_map;
 }
-
-float ShapeGenerator::getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz)
-{
-	if (m_surface_maps.find(chunk_pos_xz) == m_surface_maps.end())
-	{
-		std::cout << "Surface map at x: " << chunk_pos_xz.x << " z: " << chunk_pos_xz.y << " not found!" << std::endl;
-		return -1;
-	}
-		
-
-	int x = block_pos_xz[0];
-	int z = block_pos_xz[1];
-	return m_surface_maps[chunk_pos_xz][x][z];
-}
-
-float ShapeGenerator::getBasicNoiseValue(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz)
-{
-	if (m_basic_layer_maps.find(chunk_pos_xz) == m_basic_layer_maps.end())
-		return -1;
-
-	int x = block_pos_xz[0];
-	int z = block_pos_xz[1];
-	return m_basic_layer_maps[chunk_pos_xz][x][z];
-}
-
 
 NoiseMap& ShapeGenerator::getSurfaceMap(glm::ivec2 chunk_pos_xz)
 {
 	return m_surface_maps.at(chunk_pos_xz);
-}
-
-ChunkHeightMaps& ShapeGenerator::getSurfaceMaps()
-{
-	return m_surface_maps;
-}
-
-int ShapeGenerator::getSeed()
-{
-	return m_seed;
 }
