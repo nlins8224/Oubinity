@@ -81,7 +81,7 @@
     <ClCompile Include="src\chunk\VertexCompresser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp">
+    <ClCompile Include="src\terrain_generation\LayerGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp">
@@ -197,7 +197,7 @@
     <ClInclude Include="src\chunk\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\BiomeGenerator.h">
+    <ClInclude Include="src\terrain_generation\LayerGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h">

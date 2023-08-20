@@ -190,7 +190,7 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\shader\GradientShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
-    <ClCompile Include="src\terrain_generation\BiomeGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\LayerGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp" />
@@ -233,7 +233,7 @@
     <ClInclude Include="src\shader\GradientShader.h" />
     <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\skybox\SkyboxMesh.h" />
-    <ClInclude Include="src\terrain_generation\BiomeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\LayerGenerator.h" />
     <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h" />

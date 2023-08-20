@@ -1,7 +1,7 @@
 #pragma once
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
-#include "BiomeGenerator.h";
+#include "LayerGenerator.h";
 #include "ShapeGenerator.h";
 
 class TerrainGenerator

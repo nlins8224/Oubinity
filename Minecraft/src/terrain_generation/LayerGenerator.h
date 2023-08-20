@@ -8,11 +8,11 @@
 
 using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 
-class BiomeGenerator
+class LayerGenerator
 {
 public:
-	BiomeGenerator(int seed, uint8_t surface_height, uint8_t water_height);
-	~BiomeGenerator() = default;
+	LayerGenerator(int seed, uint8_t surface_height, uint8_t water_height);
+	~LayerGenerator() = default;
 	void processChunk(Chunk& chunk, const NoiseMap& height_map);
 	bool isBelowSurface(uint8_t height);
 private:
