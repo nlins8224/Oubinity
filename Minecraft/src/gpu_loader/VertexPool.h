@@ -29,7 +29,7 @@ public:
 	void updateDrawBuffer(std::vector<Vertex>& mesh, std::vector<DAIC>& daic);
 	void createChunkInfoBuffer(ChunkInfo* chunk_info);
 	void updateChunkInfoBuffer(ChunkInfo chunk_info);
-	void createChunkLodBuffer(ChunksLod chunks_lod);
+	void createChunkLodBuffer(ChunksLod* chunks_lod);
 private:
 	void formatVBO();
 

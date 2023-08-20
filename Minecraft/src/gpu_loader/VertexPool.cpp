@@ -74,12 +74,12 @@ void VertexPool::updateChunkInfoBuffer(ChunkInfo chunk_info)
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
 
-void VertexPool::createChunkLodBuffer(ChunksLod chunks_lod)
+void VertexPool::createChunkLodBuffer(ChunksLod* chunks_lod)
 {
     m_chunks_lod_ssbo = 1;
     glGenBuffers(1, &m_chunks_lod_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(chunks_lod), &chunks_lod, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunks_lod), chunks_lod, GL_DYNAMIC_COPY);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 1);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
 }

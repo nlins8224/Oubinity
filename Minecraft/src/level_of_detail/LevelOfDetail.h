@@ -27,7 +27,7 @@ namespace LevelOfDetail {
 		.level{ 2 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
-		.draw_distance{ 2 }
+		.draw_distance{ 12 }
 	};
 
 	static const LevelOfDetail Three
@@ -35,7 +35,7 @@ namespace LevelOfDetail {
 		.level{ 3 },
 		.block_amount{ CHUNK_SIZE / 4 },
 		.block_size{ 4.0f },
-		.draw_distance{ 4 }
+		.draw_distance{ 24 }
 	};
 
 	static const LevelOfDetail Four
@@ -43,7 +43,23 @@ namespace LevelOfDetail {
 		.level{ 4 },
 		.block_amount{ CHUNK_SIZE / 8 },
 		.block_size{ 8.0f },
-		.draw_distance{ 8 }
+		.draw_distance{ 36 }
+	};
+
+	static const LevelOfDetail Five
+	{
+		.level{ 5 },
+		.block_amount{ CHUNK_SIZE / 16 },
+		.block_size{ 16.0f },
+		.draw_distance{ 48 }
+	};
+
+	static const LevelOfDetail Six
+	{
+		.level{ 6 },
+		.block_amount{ CHUNK_SIZE / 32 },
+		.block_size{ 32.0f },
+		.draw_distance{ 64 }
 	};
 
 	static uint16_t distanceToCameraInChunks(Camera& camera, glm::ivec3 chunk_pos)
@@ -59,7 +75,6 @@ namespace LevelOfDetail {
 	static LevelOfDetail chooseLevelOfDetail(Camera& camera, glm::ivec3 chunk_pos)
 	{
 		uint16_t draw_distance = distanceToCameraInChunks(camera, chunk_pos);
-		//return One;
 
 		if (draw_distance < Two.draw_distance)
 			return One;
@@ -67,7 +82,12 @@ namespace LevelOfDetail {
 			return Two;
 		if (draw_distance < Four.draw_distance)
 			return Three;
-		return Four;
+		if (draw_distance < Five.draw_distance)
+			return Four;
+		if (draw_distance < Six.draw_distance)
+			return Five;
+
+		return Six;
 	}
 }
 

@@ -77,7 +77,7 @@ void ChunkRenderer::traverseScene()
 		collectChunkShaderMetadata();
 		m_vertexpool->updateDrawBuffer(m_all_chunks_mesh, m_active_daics);
 		m_vertexpool->createChunkInfoBuffer(&m_active_chunks_info);
-		m_vertexpool->createChunkLodBuffer(m_active_chunks_lod);
+		m_vertexpool->createChunkLodBuffer(&m_active_chunks_lod);
 		std::cout << "DRAW Commands: " << m_active_daics.size() << std::endl;
 		m_buffer_needs_update = false;
 	}
