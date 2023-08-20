@@ -1,4 +1,7 @@
 #pragma once
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include "optick.h"
 #include <iostream>
 #include <glm/glm.hpp>
@@ -62,6 +65,13 @@ int main()
         exit(-1);
     }
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+
 
     while (!glfwWindowShouldClose(window.getWindow()))
     {
@@ -84,12 +94,28 @@ int main()
             frames_per_second = 0;
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         player_input.processInput(delta_time);       
         master_renderer.clear();
         master_renderer.render(camera);
+
+        ImGui::Begin("Oubinity");
+        ImGui::Text("Hi");
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     return 0;
 }

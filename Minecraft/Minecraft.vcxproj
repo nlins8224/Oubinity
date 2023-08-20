@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -138,7 +138,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
@@ -159,7 +159,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>imgui;$(SolutionDir)dependencies\optick\include;$(SolutionDir)dependencies\GLFW\include;$(SolutionDir)dependencies\GLAD\include;$(SolutionDir)dependencies\FastNoise2\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalOptions>/analyze:stacksize 32768 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -173,6 +173,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\frustum\Plane.cpp" />
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
@@ -211,6 +218,15 @@
     <ClCompile Include="src\chunk\VertexCompresser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\chunk\VertexCompresser.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />
