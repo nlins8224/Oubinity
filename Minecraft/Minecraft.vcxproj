@@ -195,6 +195,7 @@
     <ClCompile Include="src\gui\ImGuiInfoWindow.cpp" />
     <ClCompile Include="src\gui\ImGuiUIManager.cpp" />
     <ClCompile Include="src\gui\ImGuiWindow.cpp" />
+    <ClCompile Include="src\loguru.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="src\gui\ImGuiWindow.h" />
     <ClInclude Include="src\gui\GuiLayout.h" />
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />
+    <ClInclude Include="src\loguru.hpp" />
     <ClInclude Include="src\renderer\ChunkRendererSettings.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
     <ClInclude Include="src\renderer\SkyboxRenderer.h" />

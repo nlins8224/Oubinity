@@ -177,6 +177,9 @@
     <ClCompile Include="src\gui\GuiLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\loguru.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -360,6 +363,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\GuiLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\loguru.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
