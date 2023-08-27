@@ -180,6 +180,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\frustum\Plane.cpp" />
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
@@ -187,6 +188,13 @@
     <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
     <ClCompile Include="src\gpu_loader\VertexPool.cpp" />
+    <ClCompile Include="src\gui\GuiLayout.cpp" />
+    <ClCompile Include="src\gui\ImGuiLogsWindow.cpp" />
+    <ClCompile Include="src\gui\ImGuiSceneWindow.cpp" />
+    <ClCompile Include="src\gui\ImGuiSettingsWindow.cpp" />
+    <ClCompile Include="src\gui\ImGuiInfoWindow.cpp" />
+    <ClCompile Include="src\gui\ImGuiUIManager.cpp" />
+    <ClCompile Include="src\gui\ImGuiWindow.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
@@ -196,6 +204,7 @@
     <ClCompile Include="src\chunk\Chunk.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\shader\GradientShader.cpp" />
+    <ClCompile Include="src\shader\SceneShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
     <ClCompile Include="src\terrain_generation\LayerGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
@@ -228,6 +237,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\chunk\VertexCompresser.h" />
+    <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />
     <ClInclude Include="src\block\BlockArray.h" />
@@ -237,6 +247,13 @@
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
     <ClInclude Include="src\gpu_loader\VertexPool.h" />
+    <ClInclude Include="src\gui\ImGuiLogsWindow.h" />
+    <ClInclude Include="src\gui\ImGuiSceneWindow.h" />
+    <ClInclude Include="src\gui\ImGuiSettingsWindow.h" />
+    <ClInclude Include="src\gui\ImGuiInfoWindow.h" />
+    <ClInclude Include="src\gui\ImGuiUIManager.h" />
+    <ClInclude Include="src\gui\ImGuiWindow.h" />
+    <ClInclude Include="src\gui\GuiLayout.h" />
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />
     <ClInclude Include="src\renderer\ChunkRendererSettings.h" />
     <ClInclude Include="src\renderer\GradientRenderer.h" />
@@ -247,6 +264,7 @@
     <ClInclude Include="src\renderer\ChunkRenderer.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\shader\GradientShader.h" />
+    <ClInclude Include="src\shader\SceneShader.h" />
     <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\skybox\SkyboxMesh.h" />
     <ClInclude Include="src\terrain_generation\LayerGenerator.h" />
@@ -300,6 +318,8 @@
     <None Include="shaders\chunkVertex.glsl" />
     <None Include="shaders\gradientFragment.glsl" />
     <None Include="shaders\gradientVertex.glsl" />
+    <None Include="shaders\sceneFragment.glsl" />
+    <None Include="shaders\sceneVertex.glsl" />
     <None Include="shaders\skyboxFragment.glsl" />
     <None Include="shaders\skyboxVertex.glsl" />
   </ItemGroup>

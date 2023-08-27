@@ -18,18 +18,16 @@
 #include "Camera.h"
 #include "renderer/MasterRenderer.h"
 #include "TextureManager.h"
-
-const int scr_width = 1200;
-const int scr_height = 1600;
-
-
-float fov = 90.0f;
+#include "FrameBuffer.h"
+#include "shader/SceneShader.h"
+#include "gui/ImGuiUIManager.h"
+#include "gui/GuiLayout.h"
 
 int main()
 {
-    Window window{"Voxel Engine"};
+    Window window{"Oubinity Engine"};
     window.windowInit();
-
+  
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -42,6 +40,14 @@ int main()
     TextureManager m_texture_manager{ 16, 16, 256 };
     PlayerInput player_input{window.getWindow(), camera};
     MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
+    FrameBuffer scene_buffer{ Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT };
+    ImGuiUIManager imgui_manager(&window);
+    GuiLayout gui_layout{ &imgui_manager, &scene_buffer };
+    gui_layout.createLayout();
+
+    SceneShader scene_shader{};
+    scene_shader.bind();
+    scene_shader.setUniformInt("screenTexture", 0);
 
     master_renderer.getSkyboxRenderer().getSkyboxLoader().load();
     master_renderer.getGradientRenderer().getGradientLoader().load();
@@ -65,17 +71,12 @@ int main()
         exit(-1);
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 460");
-
-
+   
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");
+        scene_buffer.bind();
+
         float current_frame = static_cast<float>(glfwGetTime());
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
@@ -94,29 +95,18 @@ int main()
             frames_per_second = 0;
         }
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
         player_input.processInput(delta_time);       
         master_renderer.clear();
         master_renderer.render(camera);
 
-        ImGui::Begin("Oubinity");
-        ImGui::Text("Hi");
-        ImGui::End();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        scene_buffer.unbind();
+        imgui_manager.update();
+        imgui_manager.render();
 
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
+
     }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
+    imgui_manager.shutDownImGui();
     return 0;
 }
-

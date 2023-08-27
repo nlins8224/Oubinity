@@ -9318,10 +9318,10 @@ static ImGuiWindow* FindBestWheelingWindow(const ImVec2& wheel)
 {
     // For each axis, find window in the hierarchy that may want to use scrolling
     ImGuiContext& g = *GImGui;
-    ImGuiWindow* windows[2] = { NULL, NULL };
+    ImGuiWindow* m_windows[2] = { NULL, NULL };
     for (int axis = 0; axis < 2; axis++)
         if (wheel[axis] != 0.0f)
-            for (ImGuiWindow* window = windows[axis] = g.HoveredWindow; window->Flags & ImGuiWindowFlags_ChildWindow; window = windows[axis] = window->ParentWindow)
+            for (ImGuiWindow* window = m_windows[axis] = g.HoveredWindow; window->Flags & ImGuiWindowFlags_ChildWindow; window = m_windows[axis] = window->ParentWindow)
             {
                 // Bubble up into parent window if:
                 // - a child window doesn't allow any scrolling.
@@ -9333,12 +9333,12 @@ static ImGuiWindow* FindBestWheelingWindow(const ImVec2& wheel)
                 if (has_scrolling && !inputs_disabled) // && !scrolling_past_limits)
                     break; // select this window
             }
-    if (windows[0] == NULL && windows[1] == NULL)
+    if (m_windows[0] == NULL && m_windows[1] == NULL)
         return NULL;
 
     // If there's only one window or only one axis then there's no ambiguity
-    if (windows[0] == windows[1] || windows[0] == NULL || windows[1] == NULL)
-        return windows[1] ? windows[1] : windows[0];
+    if (m_windows[0] == m_windows[1] || m_windows[0] == NULL || m_windows[1] == NULL)
+        return m_windows[1] ? m_windows[1] : m_windows[0];
 
     // If candidate are different windows we need to decide which one to prioritize
     // - First frame: only find a winner if one axis is zero.
@@ -9350,7 +9350,7 @@ static ImGuiWindow* FindBestWheelingWindow(const ImVec2& wheel)
         g.WheelingWindowWheelRemainder = wheel;
         return NULL;
     }
-    return (g.WheelingAxisAvg.x > g.WheelingAxisAvg.y) ? windows[0] : windows[1];
+    return (g.WheelingAxisAvg.x > g.WheelingAxisAvg.y) ? m_windows[0] : m_windows[1];
 }
 
 // Called by NewFrame()
@@ -20354,25 +20354,25 @@ void ImGui::DebugNodeWindowSettings(ImGuiWindowSettings* settings)
         EndDisabled();
 }
 
-void ImGui::DebugNodeWindowsList(ImVector<ImGuiWindow*>* windows, const char* label)
+void ImGui::DebugNodeWindowsList(ImVector<ImGuiWindow*>* m_windows, const char* label)
 {
-    if (!TreeNode(label, "%s (%d)", label, windows->Size))
+    if (!TreeNode(label, "%s (%d)", label, m_windows->Size))
         return;
-    for (int i = windows->Size - 1; i >= 0; i--) // Iterate front to back
+    for (int i = m_windows->Size - 1; i >= 0; i--) // Iterate front to back
     {
-        PushID((*windows)[i]);
-        DebugNodeWindow((*windows)[i], "Window");
+        PushID((*m_windows)[i]);
+        DebugNodeWindow((*m_windows)[i], "Window");
         PopID();
     }
     TreePop();
 }
 
 // FIXME-OPT: This is technically suboptimal, but it is simpler this way.
-void ImGui::DebugNodeWindowsListByBeginStackParent(ImGuiWindow** windows, int windows_size, ImGuiWindow* parent_in_begin_stack)
+void ImGui::DebugNodeWindowsListByBeginStackParent(ImGuiWindow** m_windows, int windows_size, ImGuiWindow* parent_in_begin_stack)
 {
     for (int i = 0; i < windows_size; i++)
     {
-        ImGuiWindow* window = windows[i];
+        ImGuiWindow* window = m_windows[i];
         if (window->ParentWindowInBeginStack != parent_in_begin_stack)
             continue;
         char buf[20];
@@ -20380,7 +20380,7 @@ void ImGui::DebugNodeWindowsListByBeginStackParent(ImGuiWindow** windows, int wi
         //BulletText("[%04d] Window '%s'", window->BeginOrderWithinContext, window->Name);
         DebugNodeWindow(window, buf);
         Indent();
-        DebugNodeWindowsListByBeginStackParent(windows + i + 1, windows_size - i - 1, window);
+        DebugNodeWindowsListByBeginStackParent(m_windows + i + 1, windows_size - i - 1, window);
         Unindent();
     }
 }
