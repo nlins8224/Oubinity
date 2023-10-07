@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 out vec4 fragment_color;
 
 uniform sampler2DArray texture_array_sampler;

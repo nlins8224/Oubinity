@@ -1,24 +1,22 @@
 #include "Chunk.h"
-#include "ChunkManager.h"
+
 using Block::faces, Block::block_mesh, Block::FACE_SIZE;
 using Block::block_id;
 
 
-Chunk::Chunk(glm::ivec3 chunk_pos, ChunkManager* chunk_manager)
+Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	: 
 	m_chunk_pos{ chunk_pos },
-	m_chunk_manager{ chunk_manager },
-	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE_X, chunk_pos.y * CHUNK_SIZE_Y, chunk_pos.z * CHUNK_SIZE_Z} }
+	m_lod{ lod },
+	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} }
 {
 	m_is_terrain_generated = false;
-	m_blocks = Block::BlockArray();
 }
 
 Chunk::Chunk(const Chunk& chunk)
 	:
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
-	m_chunk_manager{chunk.m_chunk_manager},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
 	m_is_terrain_generated{chunk.m_is_terrain_generated}
@@ -26,19 +24,14 @@ Chunk::Chunk(const Chunk& chunk)
 
 }
 
-Chunk::~Chunk()
-{
-
-}
-
 void Chunk::addChunkMesh()
 {
 	block_id block;
-	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
 	{
-		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		for (int local_y = 0; local_y < m_lod.block_amount; local_y++)
 		{
-			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (block != block_id::AIR)
@@ -51,11 +44,11 @@ void Chunk::addChunkMesh()
 void Chunk::addChunkDecorationMesh()
 {
 	block_id block;
-	for (int local_x = 0; local_x < CHUNK_SIZE_X; local_x++)
+	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
 	{
-		for (int local_y = 0; local_y < CHUNK_SIZE_Y; local_y++)
+		for (int local_y = 0; local_y < m_lod.block_amount; local_y++)
 		{
-			for (int local_z = 0; local_z < CHUNK_SIZE_Z; local_z++)
+			for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
 				if (Block::decoration_set.contains(block))
@@ -68,7 +61,7 @@ void Chunk::addChunkDecorationMesh()
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
-	m_blocks.set(block_pos, type);
+	m_blocks[block_pos.x][block_pos.y][block_pos.z] = type;
 }
 
 glm::ivec3 Chunk::getPos() const
@@ -97,15 +90,22 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
-	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE_X || y >= CHUNK_SIZE_Y || z >= CHUNK_SIZE_Z)
+	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE)
 	{
-		glm::ivec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
-		return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
+		/* world_pos is incorrectly calculated */
+
+		//glm::vec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
+		//glm::ivec3 neighbour_chunk_pos = floor(world_pos / static_cast<float>(CHUNK_SIZE));
+		//int neighbour_lod_block_size = m_chunk_manager->getChunksMap().at(neighbour_chunk_pos).getLevelOfDetail().block_size;
+		//if (m_lod.block_size != neighbour_lod_block_size) // Don't try to reason about not matching LODs
+		//	return false;
+
+		return false;
+		//return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
 	}
-	return m_blocks.get(block_pos) != block_id::AIR;
+	return m_blocks[block_pos.x][block_pos.y][block_pos.z] != block_id::AIR;
 }
 
-// Should that be in Mesh?
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 {
 	const uint8_t FACE_ROWS{ 6 };
@@ -127,6 +127,7 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 
 	GLubyte u;
 	GLubyte v;
+	int s;
 
 	for (uint8_t i = 0; i < FACE_ROWS; i++)
 	{
@@ -141,18 +142,21 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 		y_local_pos = static_cast<GLubyte>(block_pos.y) + static_cast<GLubyte>(face[y_coord]);
 		z_local_pos = static_cast<GLubyte>(block_pos.z) + static_cast<GLubyte>(face[z_coord]);
 
-		m_mesh.addPacked_xyzs(x_local_pos, y_local_pos, z_local_pos, face[shading_coord]);
-
 		u = static_cast<GLubyte>(face[u_coord]);
 		v = static_cast<GLubyte>(face[v_coord]);
+		s = face[shading_coord];
 
-		m_mesh.addPacked_uvw(u, v, texture_id);
+		glm::ivec3 xyz{ x_local_pos, y_local_pos, z_local_pos };
+		glm::ivec3 uvw{ u, v, texture_id };
+		Vertex vertex{xyz, uvw, s};
+		m_mesh.addVertex(vertex);
 	}
+	m_added_faces++;
 }
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 {
-	return m_blocks.get(block_pos);
+	return m_blocks[block_pos.x][block_pos.y][block_pos.z];
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos) const
@@ -170,17 +174,12 @@ void Chunk::setIsTerrainGenerated(bool is_generated)
 	m_is_terrain_generated = is_generated;
 }
 
-const Mesh& Chunk::getMesh() const
-{
-	return m_mesh;
-}
-
 Mesh& Chunk::getMesh()
 {
 	return m_mesh;
 }
 
-Block::BlockArray& Chunk::getBlockArray()
+std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& Chunk::getBlockArray()
 {
 	return m_blocks;
 }
@@ -190,7 +189,12 @@ const glm::vec3 Chunk::getWorldPos() const
 	return m_world_pos;
 }
 
-Chunk& Chunk::getNeighborChunk(glm::ivec3 chunk_pos)
+LevelOfDetail::LevelOfDetail Chunk::getLevelOfDetail()
 {
-	return m_chunk_manager->getChunksMap().at(chunk_pos);
+	return m_lod;
+}
+
+unsigned int Chunk::getAddedFacesAmount()
+{
+	return m_added_faces;
 }

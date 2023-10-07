@@ -20,7 +20,7 @@ glm::mat4 Camera::getViewMatrix()
 
 glm::mat4 Camera::getProjectionMatrix()
 {
-    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 1000.0f);
+    return glm::perspective(glm::radians(m_fov), Window::SCREEN_WIDTH /  Window::SCREEN_HEIGHT, 0.1f, 20000.0f);
 }
 
 float Camera::getZoom()

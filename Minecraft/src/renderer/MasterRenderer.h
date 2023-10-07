@@ -10,7 +10,7 @@
 class MasterRenderer
 {
 public:
-	MasterRenderer(ChunksMap& chunks_map, std::atomic<bool>& is_ready_to_process_chunks, GLuint skybox_texture_id, GLuint texture_array_id);
+	MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id);
 	~MasterRenderer() = default;
 	void initConfig();
 	void clear() const;

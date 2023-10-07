@@ -1,4 +1,9 @@
 #pragma once
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "loguru.hpp"
+#include "optick.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -7,26 +12,23 @@
 #include <GLFW/glfw3.h>
 #include <filesystem>
 
-#include "chunk/ChunkManager.h"
 #include "terrain_generation/TerrainGenerator.h"
 #include "PlayerInput.h"
 #include "io/Window.h"
 #include "shader/Shader.h"
 #include "Camera.h"
 #include "renderer/MasterRenderer.h"
-#include "optick.h"
-
-const int scr_width = 1200;
-const int scr_height = 1600;
-
-
-float fov = 90.0f;
+#include "TextureManager.h"
+#include "FrameBuffer.h"
+#include "shader/SceneShader.h"
+#include "gui/ImGuiUIManager.h"
+#include "gui/GuiLayout.h"
 
 int main()
 {
-    Window window{"Minecraft" };
+    Window window{"Oubinity Engine"};
     window.windowInit();
-
+  
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -35,17 +37,22 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
-    TerrainGenerator terrain_generator{ 1337, 64, 67 };
+    TerrainGenerator terrain_generator{ 1337, 4, 7 };
     TextureManager m_texture_manager{ 16, 16, 256 };
-    ChunkManager chunk_manager(camera, terrain_generator);
-    PlayerInput player_input{window.getWindow(), chunk_manager, camera};
-    MasterRenderer master_renderer(chunk_manager.getChunksMap(), chunk_manager.getIsReadyToProcessChunks(), m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
+    PlayerInput player_input{window.getWindow(), camera};
+    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
+    FrameBuffer scene_buffer{ Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT };
+    ImGuiUIManager imgui_manager(&window);
+    GuiLayout gui_layout{ &imgui_manager, &scene_buffer };
+    gui_layout.createLayout();
+
+    SceneShader scene_shader{};
+    scene_shader.bind();
+    scene_shader.setUniformInt("screenTexture", 0);
 
     master_renderer.getSkyboxRenderer().getSkyboxLoader().load();
     master_renderer.getGradientRenderer().getGradientLoader().load();
     master_renderer.initConfig();
-    master_renderer.getChunkRenderer().launchChunkProcessingTask();
-    chunk_manager.launchAddToChunksMapTask();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -54,42 +61,53 @@ int main()
     float seconds_elapsed = 0.0f;
     int frames_per_second = 0;
 
+    glm::ivec3 current_block_pos{ 0, 0, 0 };
+
+    const GLubyte* glVersion(glGetString(GL_VERSION));
+    int major = glVersion[0] - '0';
+    int minor = glVersion[2] - '0';
+    if (major < 4 || minor < 6)
+    {
+        std::cerr << "ERROR: Minimum OpenGL version required for this demo is 4.6. Your current version is " << major << "." << minor << std::endl;
+        exit(-1);
+    }
+
+   
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");
+        scene_buffer.bind();
+
         float current_frame = static_cast<float>(glfwGetTime());
         delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
         frames_per_second++;
         // Once per second
+        int block_amount = 1;
         if (current_frame - seconds_elapsed >= 1.0f)
         {
             glm::vec3 player_pos = player_input.getCamera().getCameraPos();
-            glm::ivec3 current_chunk_pos = chunk_manager.getChunkPosition(player_pos);
-            glm::ivec3 current_block_pos = chunk_manager.getChunkBlockPosition(player_pos);
-            float surface_height = chunk_manager.getTerrainGenerator().getSurfaceHeight({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
-            float basic_noise_value = chunk_manager.getTerrainGenerator().getShapeGenerator().getBasicNoiseValue({ current_chunk_pos.x, current_chunk_pos.z }, { current_block_pos.x, current_block_pos.z });
+
             std::cout << "FPS: " << frames_per_second << std::endl;
-            std::cout << "CURRENT CHUNK XZ: " << current_chunk_pos.x << " " << current_chunk_pos.z << std::endl;
-            std::cout << "CURRENT BLOCK XZ: " << current_block_pos.x << " " << current_block_pos.z << std::endl;
             std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
-            std::cout << "BASIC NOISE VALUE: " << basic_noise_value << std::endl;
-            std::cout << "SURFACE HEIGHT: " << surface_height << std::endl;
-            
 
             seconds_elapsed += 1.0f;
             frames_per_second = 0;
         }
 
-        chunk_manager.deleteFromChunksMap();
         player_input.processInput(delta_time);       
         master_renderer.clear();
         master_renderer.render(camera);
+
+        scene_buffer.unbind();
+        imgui_manager.update();
+        imgui_manager.render();
+
         glfwSwapBuffers(window.getWindow());
         glfwPollEvents();
-    }
 
+    }
+    imgui_manager.shutDownImGui();
     return 0;
 }
-

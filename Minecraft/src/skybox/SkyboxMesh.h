@@ -3,7 +3,7 @@
 
 namespace Skybox
 {
-	static const float SIZE = 200.0f;
+	static const float SIZE = 10000.0f;
 	static const int vertices_amount = 108;
 	const std::array<float, vertices_amount> skybox_vertices
 	{

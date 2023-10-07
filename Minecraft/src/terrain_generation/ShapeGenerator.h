@@ -1,9 +1,8 @@
 #pragma once
-#include "NoiseMapTypes.h"
-#include "shapes/NoiseGenerator.h"
-#include "shapes/SplineControlPoints.h"
+#include <FastNoise/FastNoise.h>
 #include "../block/Block.h"
 #include "../chunk/Chunk.h"
+#include "../level_of_detail/LevelOfDetail.h"
 
 namespace std
 {
@@ -20,7 +19,40 @@ namespace std
 	};
 }
 
+using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 using ChunkHeightMaps = std::unordered_map<glm::ivec2, NoiseMap>;
+
+namespace NoiseSettings
+{
+	struct Settings
+	{
+		float frequency;
+		int octaves;
+		float lacunarity;
+		float fractal_gain;
+		float weighted_strength;
+	};
+
+	static const Settings TestSettings
+	{
+		.frequency{ 0.002 },
+		.octaves{ 5 },
+		.lacunarity{ 2.0 },
+		.fractal_gain{ 0.5 },
+		.weighted_strength{ 0.0 },
+	};
+
+	static const Settings TreeSettings
+	{
+		.frequency{ 0.02 },
+		.octaves{ 3 },
+		.lacunarity{ 2.0 },
+		.fractal_gain{ 0.5 },
+		.weighted_strength{ 0.0 },
+	};
+
+}
+
 
 class ShapeGenerator
 {
@@ -28,19 +60,10 @@ public:
 	ShapeGenerator(int seed);
 	~ShapeGenerator() = default;
 	void generateSurfaceMap(Chunk& chunk);
-	float getSurfaceHeight(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
-	float getBasicNoiseValue(glm::ivec2 chunk_pos_xz, glm::ivec2 block_pos_xz);
 	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
-	ChunkHeightMaps& getSurfaceMaps();
-	int getSeed();
+	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;
 	ChunkHeightMaps m_surface_maps;
-	ChunkHeightMaps m_basic_layer_maps;
-	Spline m_spline;
-	SplineRange m_flat_range;
-	SplineRange m_mountain_range;
-	SplineRange m_base_range;
-
 };
