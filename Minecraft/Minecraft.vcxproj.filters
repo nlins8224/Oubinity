@@ -368,10 +368,11 @@
     <ClInclude Include="src\loguru.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\third_party\BS_thread_pool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\blockVertex.glsl" />
-    <None Include="shaders\blockFragment.glsl" />
     <None Include="shaders\chunkVertex.glsl" />
     <None Include="shaders\chunkFragment.glsl" />
     <None Include="shaders\skyboxFragment.glsl" />
