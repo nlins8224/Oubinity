@@ -90,7 +90,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
-	if (x < 0 || y < 0 || z < 0 || x >= CHUNK_SIZE || y >= CHUNK_SIZE || z >= CHUNK_SIZE)
+	if (x < 0 || y < 0 || z < 0 || x >= m_lod.block_amount || y >= m_lod.block_amount || z >= m_lod.block_amount)
 	{
 		/* world_pos is incorrectly calculated */
 
@@ -103,7 +103,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		return false;
 		//return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
 	}
-	return m_blocks[block_pos.x][block_pos.y][block_pos.z] != block_id::AIR;
+	return m_blocks[x][y][z] != block_id::AIR;
 }
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)

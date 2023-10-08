@@ -31,7 +31,7 @@ int main()
   
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        LOG_F(ERROR, "Failed to initialize GLAD");
         return -1;
     }
 
@@ -68,7 +68,7 @@ int main()
     int minor = glVersion[2] - '0';
     if (major < 4 || minor < 6)
     {
-        std::cerr << "ERROR: Minimum OpenGL version required for this demo is 4.6. Your current version is " << major << "." << minor << std::endl;
+        LOG_F(ERROR, "Minimum OpenGL version required for this demo is 4.6.Your current version is %d.%d", major, minor);
         exit(-1);
     }
 
@@ -89,8 +89,8 @@ int main()
         {
             glm::vec3 player_pos = player_input.getCamera().getCameraPos();
 
-            std::cout << "FPS: " << frames_per_second << std::endl;
-            std::cout << "PLAYER POS XZ: " << player_pos.x << " " << player_pos.z << std::endl;
+            LOG_F(INFO, "FPS: %d", frames_per_second);
+            LOG_F(INFO, "Player Pos XZ: (%d, %d)", (int)player_pos.x / CHUNK_SIZE, (int)player_pos.z / CHUNK_SIZE);
 
             seconds_elapsed += 1.0f;
             frames_per_second = 0;

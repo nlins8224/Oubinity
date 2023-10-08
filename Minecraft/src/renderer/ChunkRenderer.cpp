@@ -62,15 +62,16 @@ void ChunkRenderer::traverseScene()
 			cx < min_x ||
 			cx > max_x ||
 			cz < min_z ||
-			cz > max_z
+			cz > max_z ||
+			checkIfChunkLodNeedsUpdate({ cx, cy, cz })
 			)
 		{
 			m_chunks_to_delete.push({ cx, cy, cz });
 		}
 	}
 
-	m_buffer_needs_update |= deleteOutOfRenderDistanceChunks();
-	m_buffer_needs_update = createInRenderDistanceChunks();
+	m_buffer_needs_update = deleteOutOfRenderDistanceChunks();
+	m_buffer_needs_update |= createInRenderDistanceChunks();
 
 	if (m_buffer_needs_update) {
 		m_active_daics.clear();
@@ -78,7 +79,7 @@ void ChunkRenderer::traverseScene()
 		m_vertexpool->updateDrawBuffer(m_all_chunks_mesh, m_active_daics);
 		m_vertexpool->createChunkInfoBuffer(&m_active_chunks_info);
 		m_vertexpool->createChunkLodBuffer(&m_active_chunks_lod);
-		std::cout << "DRAW Commands: " << m_active_daics.size() << std::endl;
+		LOG_F(INFO, "DRAW Commands: %ld", m_active_daics.size());
 		m_buffer_needs_update = false;
 	}
 }
@@ -128,7 +129,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		return;
 	}
 	
-	// TODO: mutex
 	DAIC daic
 	{
 		6 * added_faces, // vertices in face * added_faces
@@ -177,9 +177,16 @@ void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 	m_chunks_by_coord.erase(chunk_pos);
 }
 
+bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
+{
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+	return m_chunks_by_coord[chunk_pos].getLevelOfDetail().level != lod.level;
+}
+
 void ChunkRenderer::collectChunkShaderMetadata()
 {
 	int index = 0;
+	LOG_F(INFO, "Chunks shader metadata size: %d", m_chunks_shader_metadata.size());
 	for (auto& [chunk_pos, chunk_metadata] : m_chunks_shader_metadata)
 	{
 		m_active_daics.push_back(chunk_metadata._daic);

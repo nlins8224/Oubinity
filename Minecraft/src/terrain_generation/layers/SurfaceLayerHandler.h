@@ -1,5 +1,6 @@
 #pragma once
 #include "ChunkLayerHandler.h"
+#include "../../loguru.hpp"
 
 class SurfaceLayerHandler : public ChunkLayerHandler
 {

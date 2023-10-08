@@ -4,6 +4,7 @@ layout (location = 1) in uint in_uvw;
 
 out vec3 interpolated_tex_coords;
 out float interpolated_shading_values;
+out uint lod_scale_debug;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -48,4 +49,5 @@ void main()
 	float w = float((in_uvw & 0x3F000u) >> 12u);
 
 	interpolated_tex_coords = vec3(u, v, w);
+	lod_scale_debug = lod.block_size[gl_DrawID];
 }

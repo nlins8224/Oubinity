@@ -9,8 +9,6 @@ ShapeGenerator::ShapeGenerator(int seed)
 void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 {
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
-	if (m_surface_maps.find(chunk_pos_xz) != m_surface_maps.end())
-		return;
 
 	NoiseMap base_map = generateHeightMap(chunk.getPos(), chunk.getLevelOfDetail(), NoiseSettings::TestSettings, m_seed);
 	NoiseMap surface_map{};
@@ -54,7 +52,6 @@ NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 		for (int z = 0; z < lod.block_amount; z++)
 		{
 			height_map[x][z] = data_out[z * lod.block_amount + x];
-			//std::cout << "Lod level: " << lod.level << " Chunk Pos [X, Y]: [" << chunk_pos.x << ", " << chunk_pos.y << "] height map: " << height_map[x][z] << std::endl;
 		}
 	}
 

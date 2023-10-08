@@ -12,7 +12,7 @@
 #include "../block/BlockArray.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
-
+#include "../loguru.hpp"
 
 /*
 Convention:
