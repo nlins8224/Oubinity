@@ -110,17 +110,12 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT("createChunk");
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
-	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod) };
-	m_terrain_generator->generateChunkTerrain(*chunk);
-
-	// TODO: This needs to be done better, do after assembling working pipeline
-	chunk->addChunkMesh();
-	unsigned int added_faces = chunk->getAddedFacesAmount();
+	std::unique_ptr<Chunk> chunk{ asyncCreateChunk(chunk_pos) };
 
 	std::vector<Vertex> chunk_mesh{ chunk->getMesh().getMeshDataCopy() };
 	m_all_chunks_mesh.insert(m_all_chunks_mesh.end(), chunk_mesh.begin(), chunk_mesh.end());
-	//
-
+	
+	unsigned int added_faces = chunk->getAddedFacesAmount();
 	m_chunks_by_coord[chunk_pos] = *chunk;
 
 	// There is no need to add chunk draw command if chunk is empty
@@ -140,7 +135,15 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 	
 	ChunkShaderMetadata chunk_shader_metadata{daic, chunk->getWorldPos(), static_cast<GLuint>(lod.block_size)};
 	m_chunks_shader_metadata[chunk_pos] = chunk_shader_metadata;
+}
 
+std::unique_ptr<Chunk> ChunkRenderer::asyncCreateChunk(glm::ivec3 chunk_pos)
+{
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+	std::unique_ptr<Chunk> chunk{ new Chunk(chunk_pos, lod) };
+	m_terrain_generator->generateChunkTerrain(*chunk);
+	chunk->addChunkMesh();
+	return chunk;
 }
 
 bool ChunkRenderer::deleteOutOfRenderDistanceChunks()

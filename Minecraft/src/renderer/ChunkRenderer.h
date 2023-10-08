@@ -13,6 +13,7 @@
 #include "../chunk/Chunk.h"
 #include "../frustum/AABox.h"
 
+#include "../third_party/BS_thread_pool.hpp"
 #include "optick.h"
 #include "../loguru.hpp"
 
@@ -47,6 +48,7 @@ private:
 	bool createInRenderDistanceChunks(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
+	std::unique_ptr<Chunk> asyncCreateChunk(glm::ivec3 chunk_pos);
 	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
@@ -59,7 +61,6 @@ private:
 	std::unordered_map<glm::ivec3, Chunk> m_chunks_by_coord;
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
-	std::queue<glm::ivec3> m_chunks_to_update_lod;
 
 	std::vector<Vertex> m_all_chunks_mesh;
 
@@ -73,4 +74,6 @@ private:
 
 	unsigned int m_total_faces_added;
 	bool m_buffer_needs_update;
+
+	BS::thread_pool m_thread_pool;
 };
