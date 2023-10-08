@@ -5,6 +5,7 @@
 #include "layers/UndergroundLayerHandler.h"
 #include "layers/OceanLayerHandler.h"
 #include "../chunk/Chunk.h"
+#include "../loguru.hpp"
 
 using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 

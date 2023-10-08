@@ -26,6 +26,7 @@ void LayerGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
 		
 
 	int block_amount = chunk.getLevelOfDetail().block_amount;
+	int block_size = chunk.getLevelOfDetail().block_size;
 	for (int x = 0; x < block_amount; x++)
 	{
 		for (int y = 0; y < block_amount; y++)

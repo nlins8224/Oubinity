@@ -27,7 +27,7 @@ namespace LevelOfDetail {
 		.level{ 2 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
-		.draw_distance{ 12 }
+		.draw_distance{ 8 }
 	};
 
 	static const LevelOfDetail Three
@@ -35,7 +35,7 @@ namespace LevelOfDetail {
 		.level{ 3 },
 		.block_amount{ CHUNK_SIZE / 4 },
 		.block_size{ 4.0f },
-		.draw_distance{ 24 }
+		.draw_distance{ 16 }
 	};
 
 	static const LevelOfDetail Four
@@ -43,7 +43,7 @@ namespace LevelOfDetail {
 		.level{ 4 },
 		.block_amount{ CHUNK_SIZE / 8 },
 		.block_size{ 8.0f },
-		.draw_distance{ 36 }
+		.draw_distance{ 32 }
 	};
 
 	static const LevelOfDetail Five
@@ -51,7 +51,7 @@ namespace LevelOfDetail {
 		.level{ 5 },
 		.block_amount{ CHUNK_SIZE / 16 },
 		.block_size{ 16.0f },
-		.draw_distance{ 48 }
+		.draw_distance{ 64 }
 	};
 
 	static const LevelOfDetail Six
@@ -59,7 +59,7 @@ namespace LevelOfDetail {
 		.level{ 6 },
 		.block_amount{ CHUNK_SIZE / 32 },
 		.block_size{ 32.0f },
-		.draw_distance{ 64 }
+		.draw_distance{ 128 }
 	};
 
 	static uint16_t distanceToCameraInChunks(Camera& camera, glm::ivec3 chunk_pos)

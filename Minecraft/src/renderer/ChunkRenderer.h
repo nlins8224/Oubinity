@@ -14,6 +14,7 @@
 #include "../frustum/AABox.h"
 
 #include "optick.h"
+#include "../loguru.hpp"
 
 /*
 DAIC and ChunkInfo need to have the same index.
@@ -49,6 +50,7 @@ private:
 	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
+	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
 	void collectChunkShaderMetadata();
 
 	Camera& m_camera;
@@ -57,6 +59,7 @@ private:
 	std::unordered_map<glm::ivec3, Chunk> m_chunks_by_coord;
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
+	std::queue<glm::ivec3> m_chunks_to_update_lod;
 
 	std::vector<Vertex> m_all_chunks_mesh;
 
