@@ -1,6 +1,5 @@
 #include "MasterRenderer.h"
 
-//TODO: DI instead of those arugments in constructor signature
 MasterRenderer::MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id)
 	: m_chunk_renderer{ ChunkRenderer(ChunkShader(), camera, texture_array_id) },
 	m_skybox_renderer{SkyboxShader(), skybox_texture_id},
@@ -23,7 +22,8 @@ void MasterRenderer::clear() const
 
 void MasterRenderer::render(Camera& camera)
 {
-	m_chunk_renderer.traverseScene();
+	//m_chunk_renderer.traverseScene();
+	m_chunk_renderer.updateBufferIfNeedsUpdate();
 	m_chunk_renderer.drawChunksSceneMesh();
 	m_gradient_renderer.render(camera);
 }

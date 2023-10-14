@@ -58,10 +58,11 @@ void VertexPool::updateDrawBuffer(std::vector<Vertex>& mesh, std::vector<DAIC>& 
 
 void VertexPool::createChunkInfoBuffer(ChunkInfo* chunk_info)
 {
+    OPTICK_EVENT("createChunkInfoBuffer");
     m_chunk_info_ssbo = 0;
     glGenBuffers(1, &m_chunk_info_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunk_info), chunk_info, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunk_info), chunk_info, GL_STATIC_COPY);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
 }
@@ -76,10 +77,11 @@ void VertexPool::updateChunkInfoBuffer(ChunkInfo chunk_info)
 
 void VertexPool::createChunkLodBuffer(ChunksLod* chunks_lod)
 {
+    OPTICK_EVENT("createChunkLodBuffer");
     m_chunks_lod_ssbo = 1;
     glGenBuffers(1, &m_chunks_lod_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunks_lod), chunks_lod, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(*chunks_lod), chunks_lod, GL_STATIC_COPY);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 1);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
 }
