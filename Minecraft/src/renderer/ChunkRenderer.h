@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <queue>
+#include <atomic>
 #include "Renderer.h"
 #include "ChunkRendererSettings.h"
 #include "../terrain_generation/TerrainGenerator.h"
@@ -43,12 +44,14 @@ public:
 	void render(Camera& camera) override;
 
 	void traverseScene();
+	void updateBufferIfNeedsUpdate();
+	void runTraverseSceneInDetachedThread();
 	void drawChunksSceneMesh();
 private:
 	bool createInRenderDistanceChunks(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
-	std::unique_ptr<Chunk> asyncCreateChunk(glm::ivec3 chunk_pos);
+	void createChunkTask(Chunk& chunk);
 	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
@@ -73,7 +76,7 @@ private:
 	TerrainGenerator* m_terrain_generator;
 
 	unsigned int m_total_faces_added;
-	bool m_buffer_needs_update;
+	std::atomic<bool> m_buffer_needs_update;
 
 	BS::thread_pool m_thread_pool;
 };
