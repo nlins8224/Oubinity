@@ -19,7 +19,7 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	{
 		for (int z = 0; z < chunk_block_amount; z++)
 		{
-			float base_height = ((base_map[x][z] + 1.0f) / 2) * 100.0f;
+			float base_height = ((base_map[x][z] + 1.0f) / 2) * 20.0f;
 			surface_map[x][z] = base_height;
 		}
 	}

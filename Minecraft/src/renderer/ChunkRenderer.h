@@ -18,24 +18,6 @@
 #include "optick.h"
 #include "../loguru.hpp"
 
-/*
-DAIC and ChunkInfo need to have the same index.
-*/
-struct ChunkShaderMetadata
-{
-	ChunkShaderMetadata() = default;
-	ChunkShaderMetadata(DAIC daic, glm::ivec3 chunk_world_pos, GLuint lod)
-	{
-		_daic = daic;
-		_chunk_world_pos = chunk_world_pos;
-		_lod = lod;
-	};
-
-	DAIC _daic;
-	glm::ivec3 _chunk_world_pos;
-	GLuint _lod;
-};
-
 class ChunkRenderer : public Renderer
 {
 public:
@@ -56,7 +38,6 @@ private:
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
 	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-	void collectChunkShaderMetadata();
 
 	Camera& m_camera;
 	GLuint m_texture_array;
@@ -65,18 +46,9 @@ private:
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
 
-	std::vector<Vertex> m_all_chunks_mesh;
-
-	std::unordered_map<glm::ivec3, ChunkShaderMetadata> m_chunks_shader_metadata;
-	std::vector<DAIC> m_active_daics;
-
-	ChunkInfo m_active_chunks_info;
-	ChunksLod m_active_chunks_lod;
 	VertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 
-	unsigned int m_total_faces_added;
 	std::atomic<bool> m_buffer_needs_update;
-
 	BS::thread_pool m_thread_pool;
 };
