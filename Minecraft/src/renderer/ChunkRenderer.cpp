@@ -67,12 +67,10 @@ void ChunkRenderer::traverseScene()
 				checkIfChunkLodNeedsUpdate({ cx, cy, cz })
 				)
 			{
-				//m_chunks_to_delete.push({ cx, cy, cz });
+				m_chunks_to_delete.push({ cx, cy, cz });
 			}
 		}
-
 		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createInRenderDistanceChunks());
-	
 }
 
 void ChunkRenderer::updateBufferIfNeedsUpdate()
@@ -160,7 +158,7 @@ steps to do:
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_by_coord.erase(chunk_pos);
-	//m_vertexpool->free();
+	m_vertexpool->free(chunk_pos);
 }
 
 bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)

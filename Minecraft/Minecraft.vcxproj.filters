@@ -302,9 +302,6 @@
     <ClInclude Include="src\gpu_loader\VertexPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu_loader\DAIC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\chunk\VertexCompresser.h">
       <Filter>Header Files</Filter>
     </ClInclude>

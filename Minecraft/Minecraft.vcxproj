@@ -245,7 +245,6 @@
     <ClInclude Include="src\block\BlockArray.h" />
     <ClInclude Include="src\chunk\ChunkSize.h" />
     <ClInclude Include="src\frustum\Frustum.h" />
-    <ClInclude Include="src\gpu_loader\DAIC.h" />
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
     <ClInclude Include="src\gpu_loader\VertexPool.h" />
