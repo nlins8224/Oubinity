@@ -82,17 +82,16 @@ public:
 	void draw();
 	void allocate(Chunk& chunk);
 	void free(glm::ivec3 chunk_pos);
-	void createMeshBuffer();
-	void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
+
 	void createChunkInfoBuffer();
 	void createChunkLodBuffer();
-
 private:
 	void initBuckets();
+	void createMeshBuffer();
+	void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
 	void formatVBO();
 	void waitBuffer();
 	void lockBuffer();
-	void collectChunkShaderMetadata();
 	void fastErase(glm::ivec3 chunk_pos);
 	MeshBucket* getFirstFreeBucket();
 	size_t getBucketIdFromStartOffset(size_t offset);
