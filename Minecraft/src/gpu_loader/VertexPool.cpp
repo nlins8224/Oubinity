@@ -97,7 +97,7 @@ void VertexPool::fastErase(glm::ivec3 chunk_pos) {
 
 MeshBucket* VertexPool::getFirstFreeBucket()
 {
-    for (int i = 0; i < PoolConst::BUCKETS_AMOUNT; i++)
+    for (int i = 0; i < PoolConst::MAX_DAIC_AMOUNT; i++)
     {
         if (chunk_buckets[i]._is_free) {
             return &chunk_buckets[i];
@@ -136,7 +136,7 @@ VertexPool::~VertexPool()
 
 void VertexPool::initBuckets()
 {
-    for (size_t bucket_idx = 0; bucket_idx < PoolConst::BUCKETS_AMOUNT; bucket_idx++)
+    for (size_t bucket_idx = 0; bucket_idx < PoolConst::MAX_DAIC_AMOUNT; bucket_idx++)
     {
         chunk_buckets[bucket_idx]._start_ptr = m_mesh_persistent_buffer + (PoolConst::MAX_VERTICES_IN_BUCKET * bucket_idx);
         chunk_buckets[bucket_idx]._start_offset = PoolConst::MAX_VERTICES_IN_BUCKET * bucket_idx;
@@ -182,7 +182,7 @@ void VertexPool::draw()
 void VertexPool::createMeshBuffer() {
     LOG_F(INFO, "%d", glGetError());
     GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    size_t buffer_size = PoolConst::BUCKETS_AMOUNT * PoolConst::MAX_VERTICES_IN_BUCKET * sizeof(Vertex);
+    size_t buffer_size = PoolConst::MAX_DAIC_AMOUNT * PoolConst::MAX_VERTICES_IN_BUCKET * sizeof(Vertex);
     LOG_F(INFO, "createMeshBuffer buffer_size: %zu, daic size: %d", buffer_size, m_chunk_metadata.active_daics.size());
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferStorage(GL_ARRAY_BUFFER, buffer_size, 0, flags);

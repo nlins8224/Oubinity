@@ -6,7 +6,7 @@
 #include "Renderer.h"
 #include "ChunkRendererSettings.h"
 #include "../terrain_generation/TerrainGenerator.h"
-#include "../gpu_loader/VertexPool.h"
+#include "../gpu_loader/ZoneVertexPool.h"
 #include "../Camera.h"
 #include "../shader/ChunkShader.h"
 #include "../chunk/ChunksMap.h"
@@ -46,7 +46,7 @@ private:
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
 
-	VertexPool* m_vertexpool;
+	ZonePool::ZoneVertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 
 	std::atomic<bool> m_buffer_needs_update;

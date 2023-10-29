@@ -23,17 +23,17 @@ namespace PoolConst {
 	constexpr int MAX_ADDED_VERTICES = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE;
 
 	constexpr size_t MAX_VERTICES_IN_BUCKET = MAX_ADDED_VERTICES;
-	constexpr size_t BUCKETS_AMOUNT = CHUNKS_AMOUNT + BACKUP_BUFFER;
+	constexpr size_t MAX_DAIC_AMOUNT = CHUNKS_AMOUNT + BACKUP_BUFFER;
 }
 
 struct ChunkInfo
 {
-	glm::vec4 chunk_pos[PoolConst::BUCKETS_AMOUNT];
+	glm::vec4 chunk_pos[PoolConst::MAX_DAIC_AMOUNT];
 };
 
 struct ChunksLod
 {
-	GLuint chunks_lod[PoolConst::BUCKETS_AMOUNT];
+	GLuint chunks_lod[PoolConst::MAX_DAIC_AMOUNT];
 };
 
 struct MeshBucket
@@ -104,7 +104,7 @@ private:
 	size_t m_vertices_amount;
 
 	Vertex* m_mesh_persistent_buffer;
-	MeshBucket chunk_buckets[PoolConst::BUCKETS_AMOUNT];
+	MeshBucket chunk_buckets[PoolConst::MAX_DAIC_AMOUNT];
 	GLsync m_sync;
 
 	ChunkMetadata m_chunk_metadata;
