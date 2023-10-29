@@ -148,13 +148,6 @@ bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 	return true;
 }
 
-/*
-deleteChunk
-steps to do:
-1. delete chunk from m_chunks_shader_metadata
-2. delete chunk from m_chunks_by_coord 
-3. TODO: free
-*/
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_by_coord.erase(chunk_pos);

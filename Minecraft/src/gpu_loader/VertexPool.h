@@ -13,26 +13,27 @@
 
 #include "optick.h"
 
-// TODO: Remove redundant constants, rest in namespace
-constexpr int CHUNKS_AMOUNT = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-constexpr int BACKUP_BUFFER = 2000;
-constexpr int MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
-constexpr int FACES_IN_BLOCK = 6;
-constexpr int VERTICES_IN_FACE = 6;
+namespace PoolConst {
+	constexpr int CHUNKS_AMOUNT = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	constexpr int BACKUP_BUFFER = 2000;
+	constexpr int MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
+	constexpr int FACES_IN_BLOCK = 6;
+	constexpr int VERTICES_IN_FACE = 6;
 
-constexpr int MAX_ADDED_VERTICES = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE;
+	constexpr int MAX_ADDED_VERTICES = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE;
 
-constexpr size_t MAX_VERTICES_IN_BUCKET = MAX_ADDED_VERTICES;
-constexpr size_t BUCKETS_AMOUNT = CHUNKS_AMOUNT + BACKUP_BUFFER;
+	constexpr size_t MAX_VERTICES_IN_BUCKET = MAX_ADDED_VERTICES;
+	constexpr size_t BUCKETS_AMOUNT = CHUNKS_AMOUNT + BACKUP_BUFFER;
+}
 
 struct ChunkInfo
 {
-	glm::vec4 chunk_pos[BUCKETS_AMOUNT];
+	glm::vec4 chunk_pos[PoolConst::BUCKETS_AMOUNT];
 };
 
 struct ChunksLod
 {
-	GLuint chunks_lod[BUCKETS_AMOUNT];
+	GLuint chunks_lod[PoolConst::BUCKETS_AMOUNT];
 };
 
 struct MeshBucket
@@ -116,7 +117,8 @@ struct ChunkMetadata
 
 struct VertexPoolStats
 {
-	int max_vertices_occurred;
+	size_t max_vertices_occurred;
+	size_t min_vertices_occurred;
 };
 
 class VertexPool
@@ -150,7 +152,7 @@ private:
 	size_t m_vertices_amount;
 
 	Vertex* m_mesh_persistent_buffer;
-	MeshBucket chunk_buckets[BUCKETS_AMOUNT];
+	MeshBucket chunk_buckets[PoolConst::BUCKETS_AMOUNT];
 	GLsync m_sync;
 
 	ChunkMetadata m_chunk_metadata;
