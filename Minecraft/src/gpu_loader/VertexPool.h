@@ -38,34 +38,6 @@ struct ChunksLod
 
 struct MeshBucket
 {
-	MeshBucket()
-		:
-		_is_free{false},
-		_start_ptr{nullptr},
-		_start_offset{0},
-		_id{9999999}
-	{}
-	~MeshBucket()
-	{
-		delete _start_ptr;
-	}
-
-	MeshBucket(MeshBucket& other)
-		: 
-		_is_free{other._is_free},
-		_start_ptr{other._start_ptr},
-		_start_offset{other._start_offset},
-		_id{other._id}
-	{}
-
-	MeshBucket& operator=(const MeshBucket& other)
-	{
-		_is_free = other._is_free;
-		_start_ptr = other._start_ptr;
-		_id = other._id;
-		return *this;
-	}
-
 	bool _is_free{ true };
 	Vertex* _start_ptr;
 	unsigned int _start_offset;
@@ -74,31 +46,12 @@ struct MeshBucket
 
 struct DAIC
 {
-	DAIC() = default;
-	~DAIC() = default;
 	DAIC(unsigned int c, unsigned int ic, unsigned int f, unsigned int bi)
 	{
 		count = c;
 		instance_count = ic;
 		first = f;
 		base_instance = bi;
-	}
-
-	DAIC(const DAIC& other)
-		:
-		count{ other.count },
-		instance_count{ other.instance_count },
-		first{ other.first },
-		base_instance{ other.base_instance }
-	{}
-
-	DAIC& operator=(const DAIC& other)
-	{
-		count = other.count;
-		instance_count = other.instance_count;
-		first = other.first;
-		base_instance = other.base_instance;
-		return *this;
 	}
 
 	unsigned int count;
