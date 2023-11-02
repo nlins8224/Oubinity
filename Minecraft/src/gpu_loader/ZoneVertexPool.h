@@ -19,11 +19,11 @@ namespace ZonePool {
 	static const size_t VERTICES_IN_FACE = 6;
 	static const size_t MAX_VERTICES_IN_LARGEST_BUCKET = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE; // 3 * 3 * 2^12
 
-	static const size_t EXTRA_BUFFER_SPACE = 128;
-	static const size_t MIN_BUCKETS_AMOUNT = 32768;
 	using namespace ChunkRendererSettings;
-	static const size_t TOTAL_BUCKETS_AMOUNT = std::max(
-		MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS + EXTRA_BUFFER_SPACE, MIN_BUCKETS_AMOUNT);
+	static const size_t EXTRA_BUFFER_SPACE = 128 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	static const size_t MIN_BUCKETS_AMOUNT = 32768 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	static const size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	static const size_t TOTAL_BUCKETS_AMOUNT = std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
 
 	static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 
@@ -41,7 +41,7 @@ namespace ZonePool {
 	static Zone Zero
 	{
 		.level{0},
-		.max_vertices_per_bucket{28000},
+		.max_vertices_per_bucket{40000},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -52,7 +52,7 @@ namespace ZonePool {
 	static Zone One
 	{
 		.level{1},
-		.max_vertices_per_bucket{20000},
+		.max_vertices_per_bucket{40000 / 2},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -63,7 +63,7 @@ namespace ZonePool {
 	static Zone Two
 	{
 		.level{2},
-		.max_vertices_per_bucket{8000},
+		.max_vertices_per_bucket{40000 / 4},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -74,7 +74,7 @@ namespace ZonePool {
 	static Zone Three
 	{
 		.level{3},
-		.max_vertices_per_bucket{2000},
+		.max_vertices_per_bucket{40000 / 8},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -85,7 +85,7 @@ namespace ZonePool {
 	static Zone Four
 	{
 		.level{4},
-		.max_vertices_per_bucket{1000},
+		.max_vertices_per_bucket{40000 / 16},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -96,7 +96,7 @@ namespace ZonePool {
 	static Zone Five
 	{
 		.level{5},
-		.max_vertices_per_bucket{500},
+		.max_vertices_per_bucket{40000 / 32},
 		.buckets_amount{0},
 		.start{nullptr},
 		.end{nullptr},
@@ -134,15 +134,15 @@ namespace ZonePool {
 		// Maybe additional "swap space" will be needed
 
 		size_t buckets_added = 0;
-		Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS + EXTRA_BUFFER_SPACE;
+		Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Zero.buckets_amount;
-		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added + 2 * EXTRA_BUFFER_SPACE;
+		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += One.buckets_amount;
-		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added + 3 * EXTRA_BUFFER_SPACE;
+		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Two.buckets_amount;
-		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added + 4 * EXTRA_BUFFER_SPACE;
+		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Three.buckets_amount;
-		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added + 5 * EXTRA_BUFFER_SPACE;
+		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Four.buckets_amount;
 		Five.buckets_amount = TOTAL_BUCKETS_AMOUNT - buckets_added;
 		buckets_added += Five.buckets_amount;

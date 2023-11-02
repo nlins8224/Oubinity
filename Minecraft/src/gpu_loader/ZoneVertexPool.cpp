@@ -72,10 +72,10 @@ namespace ZonePool {
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
         m_stats.min_vertices_occurred[zone.level] = std::min(m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
 
-        //for (int i = 0; i < zones.size(); i++)
-        //{
-        //    LOG_F(INFO, "Zone %d: max verts: %d, min verts: %d", i, m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
-        //}
+        for (int i = 0; i < zones.size(); i++)
+        {
+            LOG_F(INFO, "Zone %d: max verts: %d, min verts: %d", i, m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
+        }
     }
 
     void ZoneVertexPool::free(glm::ivec3 chunk_pos)
@@ -93,8 +93,8 @@ namespace ZonePool {
         size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
         std::pair<size_t, size_t> bucket_id_of_last_daic = getBucketIdFromDAIC(m_chunk_metadata.active_daics[last_daic_id]);
 
-        //LOG_F(INFO, "daic_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
-        //    daic_id, bucket_id, last_daic_id, bucket_id_of_last_daic, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+        LOG_F(INFO, "daic_id: %zu, zone_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_zone_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
+            daic_id, bucket_id.first, bucket_id.second, last_daic_id, bucket_id_of_last_daic.first, bucket_id_of_last_daic.second, chunk_pos.x, chunk_pos.y, chunk_pos.z);
 
         if (m_chunk_metadata.active_daics.empty() || last_daic_id < daic_id) {
             LOG_F(ERROR, "An attempt to delete element %d was made, but DAIC size is %d", daic_id, last_daic_id);
@@ -129,15 +129,6 @@ namespace ZonePool {
     {
         Zone target_zone = Zero;
         LOG_F(INFO, "vertices_amount: %d", vertices_amount);
-        //for (int i = zones.size() - 1; i >= 0; i--)
-        //{
-        //    LOG_F(INFO, "max verts per bucket: %d", zones[i]->max_vertices_per_bucket);
-        //    if (vertices_amount < zones[i]->max_vertices_per_bucket && m_chunk_buckets[i].size() < zones[i]->buckets_amount)
-        //    {
-        //        target_zone = *zones[i];
-        //        return target_zone;
-        //    }
-        //}
 
         for (int i = 1; i < zones.size(); i++)
         {
@@ -281,7 +272,7 @@ namespace ZonePool {
     std::pair<size_t, size_t> ZoneVertexPool::getBucketIdFromDAIC(DAIC daic)
     {
         Zone zone = chooseZone(daic.count);
-        size_t id = daic.count / zone.max_vertices_per_bucket;
+        size_t id = daic.first / zone.max_vertices_per_bucket;
         return { zone.level, id };
     }
 
