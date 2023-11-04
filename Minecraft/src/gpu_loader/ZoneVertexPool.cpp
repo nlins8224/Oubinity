@@ -22,6 +22,7 @@ namespace ZonePool {
         {
             m_stats.min_vertices_occurred[i] = MAX_VERTICES_IN_LARGEST_BUCKET;
             m_stats.max_vertices_occurred[i] = 0;
+            m_stats.chunks_in_buckets[i] = 0;
         }
     }
 
@@ -35,13 +36,16 @@ namespace ZonePool {
             return;
         }
         unsigned int added_vertices = 6 * added_faces;
-        Zone zone = chooseZone(added_vertices);
+        size_t lod_level = chunk.getLevelOfDetail().level;
+        Zone zone = chooseZone(lod_level);
         MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
+        m_stats.chunks_in_buckets[zone.level]++;
 
 
         if (first_free_bucket == nullptr)
         {
-            LOG_F(WARNING, "ALL BUCKETS AT ZONE: %d ARE FULL, NO SPACE LEFT", zone.level);
+            glm::ivec3 chunk_pos = chunk.getPos();
+            LOG_F(WARNING, "ALL BUCKETS AT ZONE: %d ARE FULL, NO SPACE LEFT. Tried to add %d vertices, chunk pos (%d, %d, %d)", zone.level, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
         DAIC daic
@@ -56,7 +60,7 @@ namespace ZonePool {
         glm::ivec3 chunk_pos = chunk.getPos();
         std::vector<Vertex> mesh{ chunk.getMesh().getMeshDataCopy() };
         size_t id = first_free_bucket->_id;
-        LOG_F(INFO, "Allocating bucket at level: %d, with id: %d", zone.level, id);
+        LOG_F(INFO, "Allocating bucket at level: %d, with id: %d, vertices: %d, at chunk pos: (%d, %d, %d)", zone.level, id, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
 
         m_chunk_metadata.active_daics.push_back(daic);
         first_free_bucket->_is_free = false;
@@ -74,7 +78,7 @@ namespace ZonePool {
 
         for (int i = 0; i < zones.size(); i++)
         {
-            LOG_F(INFO, "Zone %d: max verts: %d, min verts: %d", i, m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
+            LOG_F(INFO, "Zone %d, chunks to be in zone %d, max verts: %d, min verts: %d", i, m_stats.chunks_in_buckets[i], m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
         }
     }
 
@@ -113,7 +117,6 @@ namespace ZonePool {
 
     MeshBucket* ZoneVertexPool::getFirstFreeBucket(int zone_id)
     {
-
         const size_t buckets_amount = zones[zone_id]->buckets_amount;
         LOG_F(INFO, "zone_id: %d, buckets_amount: %d", zone_id, buckets_amount);
 
@@ -125,18 +128,31 @@ namespace ZonePool {
         return nullptr;
     }
 
-    Zone ZoneVertexPool::chooseZone(size_t vertices_amount)
+    Zone ZoneVertexPool::chooseZone(unsigned int lod_level)
     {
-        Zone target_zone = Zero;
-        LOG_F(INFO, "vertices_amount: %d", vertices_amount);
+        LOG_F(INFO, "lod_level: %d", lod_level);
+        return *zones[lod_level];
+    }
 
-        for (int i = 1; i < zones.size(); i++)
+    std::pair<size_t, size_t> ZoneVertexPool::getBucketIdFromDAIC(DAIC daic)
+    {
+        Zone zone = calculateZoneFromDaicStartOffset(daic);
+        size_t id = daic.first / zone.max_vertices_per_bucket;
+        return { zone.level, id };
+    }
+
+    Zone ZoneVertexPool::calculateZoneFromDaicStartOffset(DAIC daic)
+    {
+        size_t start_offset = daic.first;
+        Zone target_zone = Zero;
+        for (size_t i = 1; i < zones.size(); i++)
         {
-            if (vertices_amount < zones[i]->max_vertices_per_bucket && m_chunk_buckets[i].back()._is_free)
+            if (zones[i - 1]->end_offset < start_offset && start_offset <= zones[i]->end_offset)
             {
                 target_zone = *zones[i];
             }
         }
+        LOG_F(INFO, "returning target zone with level: %d", target_zone.level);
         return target_zone;
     }
 
@@ -267,13 +283,6 @@ namespace ZonePool {
         glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_chunk_metadata.active_chunk_info), &m_chunk_metadata.active_chunk_info, GL_STATIC_COPY);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
-    }
-
-    std::pair<size_t, size_t> ZoneVertexPool::getBucketIdFromDAIC(DAIC daic)
-    {
-        Zone zone = chooseZone(daic.count);
-        size_t id = daic.first / zone.max_vertices_per_bucket;
-        return { zone.level, id };
     }
 
     void ZoneVertexPool::createChunkLodBuffer()

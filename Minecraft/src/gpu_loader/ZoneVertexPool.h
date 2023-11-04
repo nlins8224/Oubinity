@@ -32,8 +32,6 @@ namespace ZonePool {
 		size_t level;
 		size_t max_vertices_per_bucket;
 		size_t buckets_amount; // calculated at ZoneVertexPool init, based on LOD
-		Vertex* start; // initialized at ZoneVertexPool init
-		Vertex* end; // initialized at ZoneVertexPool init
 		size_t start_offset; // ID of start Vertex
 		size_t end_offset; // ID of end Vertex
 	};
@@ -43,8 +41,6 @@ namespace ZonePool {
 		.level{0},
 		.max_vertices_per_bucket{40000},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 	};
@@ -54,8 +50,6 @@ namespace ZonePool {
 		.level{1},
 		.max_vertices_per_bucket{40000 / 2},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 	};
@@ -65,8 +59,6 @@ namespace ZonePool {
 		.level{2},
 		.max_vertices_per_bucket{40000 / 4},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 	};
@@ -76,8 +68,6 @@ namespace ZonePool {
 		.level{3},
 		.max_vertices_per_bucket{40000 / 8},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 	};
@@ -87,8 +77,6 @@ namespace ZonePool {
 		.level{4},
 		.max_vertices_per_bucket{40000 / 16},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 	};
@@ -98,8 +86,6 @@ namespace ZonePool {
 		.level{5},
 		.max_vertices_per_bucket{40000 / 32},
 		.buckets_amount{0},
-		.start{nullptr},
-		.end{nullptr},
 		.start_offset{0},
 		.end_offset{0}
 
@@ -131,21 +117,31 @@ namespace ZonePool {
 
 	static size_t calculateBucketAmountInZones()
 	{
-		// Maybe additional "swap space" will be needed
-
 		size_t buckets_added = 0;
 		Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Zero.buckets_amount;
-		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += One.buckets_amount;
-		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Two.buckets_amount;
-		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Three.buckets_amount;
-		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Four.buckets_amount;
 		Five.buckets_amount = TOTAL_BUCKETS_AMOUNT - buckets_added;
 		buckets_added += Five.buckets_amount;
+
+		// For a short while Zone buffer might overflow, add extra buckets to prevent that
+		// Example: Zone is full, there are pending tasks in the queue
+		// and "allocate" tasks are preceeding "free" tasks
+		Zero.buckets_amount += EXTRA_BUFFER_SPACE;
+		One.buckets_amount += EXTRA_BUFFER_SPACE;
+		Two.buckets_amount += EXTRA_BUFFER_SPACE;
+		Three.buckets_amount += EXTRA_BUFFER_SPACE;
+		Four.buckets_amount += EXTRA_BUFFER_SPACE;
+		Five.buckets_amount += EXTRA_BUFFER_SPACE;
+
+		buckets_added += zones.size() * EXTRA_BUFFER_SPACE;
 
 		LOG_F(INFO, "buckets amount, Zero: %d", Zero.buckets_amount);
 		LOG_F(INFO, "buckets amount, One: %d", One.buckets_amount);
@@ -164,37 +160,25 @@ namespace ZonePool {
 		// Maybe additional "swap space" will be needed
 
 		size_t vertices_in_zero_zone = Zero.max_vertices_per_bucket * Zero.buckets_amount;
-		Zero.start = buffer;
-		Zero.end = buffer + vertices_in_zero_zone;
 		Zero.start_offset = 0;
 		Zero.end_offset = vertices_in_zero_zone;
 
 		size_t vertices_in_first_zone = Two.max_vertices_per_bucket * Two.buckets_amount;
-		One.start = Zero.end;
-		One.end = One.start + vertices_in_first_zone;
 		One.start_offset = Zero.end_offset;
 		One.end_offset = One.start_offset + vertices_in_first_zone;
 
 		size_t vertices_in_second_zone = Three.max_vertices_per_bucket * Three.buckets_amount;
-		Two.start = One.end;
-		Two.end = Two.start + vertices_in_first_zone;
 		Two.start_offset = One.end_offset;
 		Two.end_offset = One.start_offset + vertices_in_first_zone;
 
 		size_t vertices_in_third_zone = Four.max_vertices_per_bucket * Four.buckets_amount;
-		Three.start = Two.end;
-		Three.end = Three.start + vertices_in_first_zone;
 		Three.start_offset = Two.end_offset;
 		Three.end_offset = Three.start_offset + vertices_in_first_zone;
 
 		size_t vertices_in_fourth_zone = Five.max_vertices_per_bucket * Five.buckets_amount;
-		Four.start = Three.end;
-		Four.end = Four.start + vertices_in_first_zone;
 		Four.start_offset = Three.end_offset;
 		Four.end_offset = Four.start_offset + vertices_in_first_zone;
 
-		Five.start = Four.end;
-		Five.end = buffer + total_vertex_amount;
 		Five.start_offset = Four.end_offset;
 		Five.end_offset = total_vertex_amount;
 	}
@@ -244,6 +228,7 @@ namespace ZonePool {
 	{
 		std::array<size_t, 6> max_vertices_occurred;
 		std::array<size_t, 6> min_vertices_occurred;
+		std::array<size_t, 6> chunks_in_buckets;
 	};
 
 	struct pair_hash
@@ -280,8 +265,9 @@ namespace ZonePool {
 		void fastErase(glm::ivec3 chunk_pos);
 
 		MeshBucket* getFirstFreeBucket(int zone_id);
-		Zone chooseZone(size_t vertices_amount);
+		Zone chooseZone(unsigned int lod_level);
 		std::pair<size_t, size_t> getBucketIdFromDAIC(DAIC daic);
+		Zone calculateZoneFromDaicStartOffset(DAIC daic);
 
 		GLuint m_vao;
 		GLuint m_vbo;

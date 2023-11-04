@@ -17,7 +17,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail Zero
 	{
-		.level{ 1 },
+		.level{ 0 },
 		.block_amount{ CHUNK_SIZE },
 		.block_size{ 1.0f },
 		.draw_distance{ 0 },
@@ -26,7 +26,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail One
 	{
-		.level{ 2 },
+		.level{ 1 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
 		.draw_distance{ 8 },
@@ -35,7 +35,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail Two
 	{
-		.level{ 3 },
+		.level{ 2 },
 		.block_amount{ CHUNK_SIZE / 4 },
 		.block_size{ 4.0f },
 		.draw_distance{ 16 },
@@ -44,7 +44,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail Three
 	{
-		.level{ 4 },
+		.level{ 3 },
 		.block_amount{ CHUNK_SIZE / 8 },
 		.block_size{ 8.0f },
 		.draw_distance{ 32 },
@@ -53,7 +53,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail Four
 	{
-		.level{ 5 },
+		.level{ 4 },
 		.block_amount{ CHUNK_SIZE / 16 },
 		.block_size{ 16.0f },
 		.draw_distance{ 64 },
@@ -62,7 +62,7 @@ namespace LevelOfDetail {
 
 	static const LevelOfDetail Five
 	{
-		.level{ 6 },
+		.level{ 5 },
 		.block_amount{ CHUNK_SIZE / 32 },
 		.block_size{ 32.0f },
 		.draw_distance{ 128 },
@@ -73,8 +73,35 @@ namespace LevelOfDetail {
 	{
 		glm::ivec3 camera_pos = camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 
+		/* 
+		   draw_distance |AC| segment consists of N chunks, N is even
+		   Camera is located in chunk B, in half of |AC| segment
+		   |AC| segment is divided to two segments: |AB| and |B'C|, where B' is chunk next to chunk B
+		   |AB| segment contains chunk B where camera is
+		   |B'C| segment does not contain chunk where camera is
+		   If distance being calculated is between chunks B and A, we add 1 to take into account chunk B
+
+		   Example 1:
+		   AXXBXXXC
+		   C - B = XXXC
+		   B - A = AXX
+		   Include B to even out distances: AXXB
+
+		   Example 2:
+		   Point A: (-3, 0)
+		   Point B: (0, 0) <- camera position
+		   Point C: (0, 4)
+
+		   |0 - (-3)| = 3, the distance to camera is correct, but we should include camera chunk and return 4 to calculate LOD correctly
+		*/
+		bool is_x_in_camera_segment = chunk_pos.x < camera_pos.x;
+		bool is_z_in_camera_segment = chunk_pos.z < camera_pos.z;
+
 		uint16_t distance_x = std::abs(camera_pos.x - chunk_pos.x);
 		uint16_t distance_z = std::abs(camera_pos.z - chunk_pos.z);
+
+		distance_x += is_x_in_camera_segment;
+		distance_z += is_z_in_camera_segment;
 
 		return std::max(distance_x, distance_z);
 	}
@@ -82,16 +109,18 @@ namespace LevelOfDetail {
 	static LevelOfDetail chooseLevelOfDetail(Camera& camera, glm::ivec3 chunk_pos)
 	{
 		uint16_t draw_distance = distanceToCameraInChunks(camera, chunk_pos);
+		// multiply by 2, because distance to camera is exactly in half of the segment
+		draw_distance *= 2;
 
-		if (draw_distance < One.draw_distance)
+		if (draw_distance <= One.draw_distance)
 			return Zero;
-		if (draw_distance < Two.draw_distance)
+		if (draw_distance <= Two.draw_distance)
 			return One;
-		if (draw_distance < Three.draw_distance)
+		if (draw_distance <= Three.draw_distance)
 			return Two;
-		if (draw_distance < Four.draw_distance)
+		if (draw_distance <= Four.draw_distance)
 			return Three;
-		if (draw_distance < Five.draw_distance)
+		if (draw_distance <= Five.draw_distance)
 			return Four;
 
 		return Five;
