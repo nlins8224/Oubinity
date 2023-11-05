@@ -20,7 +20,7 @@ namespace ZonePool {
 	static const size_t MAX_VERTICES_IN_LARGEST_BUCKET = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE; // 3 * 3 * 2^12
 
 	using namespace ChunkRendererSettings;
-	static const size_t EXTRA_BUFFER_SPACE = 128 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	static const size_t EXTRA_BUFFER_SPACE = 512 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	static const size_t MIN_BUCKETS_AMOUNT = 32768 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	static const size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	static const size_t TOTAL_BUCKETS_AMOUNT = std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
@@ -120,13 +120,13 @@ namespace ZonePool {
 		size_t buckets_added = 0;
 		Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 		buckets_added += Zero.buckets_amount;
-		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+		One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += One.buckets_amount;
-		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+		Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Two.buckets_amount;
-		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+		Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Three.buckets_amount;
-		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+		Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
 		buckets_added += Four.buckets_amount;
 		Five.buckets_amount = TOTAL_BUCKETS_AMOUNT - buckets_added;
 		buckets_added += Five.buckets_amount;
@@ -157,30 +157,36 @@ namespace ZonePool {
 	{
 		size_t total_vertex_amount = calculateTotalVertexAmount();
 
-		// Maybe additional "swap space" will be needed
-
 		size_t vertices_in_zero_zone = Zero.max_vertices_per_bucket * Zero.buckets_amount;
 		Zero.start_offset = 0;
 		Zero.end_offset = vertices_in_zero_zone;
 
-		size_t vertices_in_first_zone = Two.max_vertices_per_bucket * Two.buckets_amount;
+		size_t vertices_in_first_zone = One.max_vertices_per_bucket * One.buckets_amount;
 		One.start_offset = Zero.end_offset;
 		One.end_offset = One.start_offset + vertices_in_first_zone;
 
-		size_t vertices_in_second_zone = Three.max_vertices_per_bucket * Three.buckets_amount;
+		size_t vertices_in_second_zone = Two.max_vertices_per_bucket * Two.buckets_amount;
 		Two.start_offset = One.end_offset;
-		Two.end_offset = One.start_offset + vertices_in_first_zone;
+		Two.end_offset = Two.start_offset + vertices_in_second_zone;
 
-		size_t vertices_in_third_zone = Four.max_vertices_per_bucket * Four.buckets_amount;
+		size_t vertices_in_third_zone = Three.max_vertices_per_bucket * Three.buckets_amount;
 		Three.start_offset = Two.end_offset;
-		Three.end_offset = Three.start_offset + vertices_in_first_zone;
+		Three.end_offset = Three.start_offset + vertices_in_third_zone;
 
-		size_t vertices_in_fourth_zone = Five.max_vertices_per_bucket * Five.buckets_amount;
+		size_t vertices_in_fourth_zone = Four.max_vertices_per_bucket * Four.buckets_amount;
 		Four.start_offset = Three.end_offset;
-		Four.end_offset = Four.start_offset + vertices_in_first_zone;
+		Four.end_offset = Four.start_offset + vertices_in_fourth_zone;
 
 		Five.start_offset = Four.end_offset;
 		Five.end_offset = total_vertex_amount;
+
+		LOG_F(INFO, "Zero start offset: %d, end offset: %d", Zero.start_offset, Zero.end_offset);
+		LOG_F(INFO, "One start offset: %d, end offset: %d", One.start_offset, One.end_offset);
+		LOG_F(INFO, "Two start offset: %d, end offset: %d", Two.start_offset, Two.end_offset);
+		LOG_F(INFO, "Three start offset: %d, end offset: %d", Three.start_offset, Three.end_offset);
+		LOG_F(INFO, "Four start offset: %d, end offset: %d", Four.start_offset, Four.end_offset);
+		LOG_F(INFO, "Five start offset: %d, end offset: %d", Five.start_offset, Five.end_offset);
+
 	}
 
 	struct ChunkInfo

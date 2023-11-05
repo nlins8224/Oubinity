@@ -77,8 +77,8 @@ void VertexPool::fastErase(glm::ivec3 chunk_pos) {
     size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
     size_t bucket_id_of_last_daic = getBucketIdFromStartOffset(m_chunk_metadata.active_daics[last_daic_id].first);
 
-    //LOG_F(INFO, "daic_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
-    //    daic_id, bucket_id, last_daic_id, bucket_id_of_last_daic, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+    LOG_F(INFO, "daic_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
+        daic_id, bucket_id, last_daic_id, bucket_id_of_last_daic, chunk_pos.x, chunk_pos.y, chunk_pos.z);
 
     if (m_chunk_metadata.active_daics.empty() || last_daic_id < daic_id) {
         LOG_F(ERROR, "An attempt to delete element %d was made, but DAIC size is %d", daic_id, last_daic_id);

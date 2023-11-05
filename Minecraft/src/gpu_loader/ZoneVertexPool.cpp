@@ -76,10 +76,10 @@ namespace ZonePool {
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
         m_stats.min_vertices_occurred[zone.level] = std::min(m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
 
-        for (int i = 0; i < zones.size(); i++)
-        {
-            LOG_F(INFO, "Zone %d, chunks to be in zone %d, max verts: %d, min verts: %d", i, m_stats.chunks_in_buckets[i], m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
-        }
+        //for (int i = 0; i < zones.size(); i++)
+        //{
+        //    LOG_F(INFO, "Zone %d, chunks to be in zone %d, max verts: %d, min verts: %d", i, m_stats.chunks_in_buckets[i], m_stats.max_vertices_occurred[i], m_stats.min_vertices_occurred[i]);
+        //}
     }
 
     void ZoneVertexPool::free(glm::ivec3 chunk_pos)
@@ -108,8 +108,9 @@ namespace ZonePool {
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = m_chunk_metadata.active_chunk_info.chunk_pos[last_daic_id];
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = m_chunk_metadata.active_chunks_lod.chunks_lod[last_daic_id];
         std::swap(m_chunk_metadata.active_daics[daic_id], m_chunk_metadata.active_daics[last_daic_id]);
-        m_bucket_id_to_daic_id[bucket_id_of_last_daic] = daic_id;
 
+        m_bucket_id_to_daic_id[bucket_id_of_last_daic] = daic_id;
+        //m_bucket_id_to_daic_id.erase(bucket_id);
         m_chunk_buckets[bucket_id.first][bucket_id.second]._is_free = true;
         m_chunk_pos_to_bucket_id.erase(chunk_pos);
         m_chunk_metadata.active_daics.pop_back();
@@ -137,23 +138,21 @@ namespace ZonePool {
     std::pair<size_t, size_t> ZoneVertexPool::getBucketIdFromDAIC(DAIC daic)
     {
         Zone zone = calculateZoneFromDaicStartOffset(daic);
-        size_t id = daic.first / zone.max_vertices_per_bucket;
+        size_t id = (daic.first - zone.start_offset) / zone.max_vertices_per_bucket;
         return { zone.level, id };
     }
 
     Zone ZoneVertexPool::calculateZoneFromDaicStartOffset(DAIC daic)
     {
-        size_t start_offset = daic.first;
-        Zone target_zone = Zero;
-        for (size_t i = 1; i < zones.size(); i++)
+        for (auto& zone : zones)
         {
-            if (zones[i - 1]->end_offset < start_offset && start_offset <= zones[i]->end_offset)
+            if (zone->start_offset <= daic.first && daic.first + daic.count < zone->end_offset)
             {
-                target_zone = *zones[i];
+                LOG_F(INFO, "zone->start_offset: %d <= start_offset: %d < zone->end_offset: %d ", zone->start_offset, daic.first, zone->end_offset);
+                LOG_F(INFO, "returning target zone with level: %d", zone->level);
+                return *zone;
             }
         }
-        LOG_F(INFO, "returning target zone with level: %d", target_zone.level);
-        return target_zone;
     }
 
     void ZoneVertexPool::waitBuffer()
