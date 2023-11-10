@@ -33,7 +33,7 @@ namespace VertexPool {
         glm::ivec3 chunk_pos = chunk.getPos();
         if (added_faces == 0)
         {
-            LOG_F(5, "Empty chunk chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+            LOG_F(5, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
         unsigned int added_vertices = 6 * added_faces;

@@ -29,22 +29,30 @@ public:
 	void updateBufferIfNeedsUpdate();
 	void runTraverseSceneInDetachedThread();
 	void drawChunksSceneMesh();
+	void traverseSceneLoop();
 private:
 	bool createInRenderDistanceChunks(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
-	void createChunkTask(Chunk& chunk);
 	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
 	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
 
+	void allocateChunks();
+	void freeChunks();
+
 	Camera& m_camera;
 	GLuint m_texture_array;
 
+	// Meshing is done on renderer thread, but allocate and free are
+	// done on main thread, because of OpenGL context requirements
 	std::unordered_map<glm::ivec3, Chunk> m_chunks_by_coord;
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
+
+	std::queue<glm::ivec3> m_chunks_to_allocate;
+	std::queue<glm::ivec3> m_chunks_to_free;
 
 	VertexPool::ZoneVertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
