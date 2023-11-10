@@ -46,7 +46,7 @@ private:
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
 
-	ZonePool::ZoneVertexPool* m_vertexpool;
+	VertexPool::ZoneVertexPool* m_vertexpool;
 	TerrainGenerator* m_terrain_generator;
 
 	std::atomic<bool> m_buffer_needs_update;

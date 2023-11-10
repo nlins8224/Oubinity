@@ -6,7 +6,7 @@ ChunkRenderer::ChunkRenderer(Shader shader, Camera& camera, GLuint texture_array
       m_camera{camera}
 	  
 {
-	m_vertexpool = new ZonePool::ZoneVertexPool{ };
+	m_vertexpool = new VertexPool::ZoneVertexPool{ };
 	m_terrain_generator = new TerrainGenerator{ };
 	m_buffer_needs_update = true;
 }
