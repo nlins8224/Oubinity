@@ -1,6 +1,8 @@
-#include "VertexPool.h"
+#include "StaticVertexPool.h"
 
-VertexPool::VertexPool() :
+namespace DebugVertexPool {
+
+StaticVertexPool::StaticVertexPool() :
     m_mesh_persistent_buffer{ nullptr }
 {
     initBuckets();
@@ -14,10 +16,10 @@ VertexPool::VertexPool() :
     createMeshBuffer();
 
     m_stats.max_vertices_occurred = 0;
-    m_stats.min_vertices_occurred = PoolConst::MAX_ADDED_VERTICES;
+    m_stats.min_vertices_occurred = DebugVertexPool::MAX_ADDED_VERTICES;
 }
 
-void VertexPool::allocate(Chunk& chunk)
+void StaticVertexPool::allocate(Chunk& chunk)
 {
     unsigned int added_faces = chunk.getAddedFacesAmount();
     if (added_faces == 0)
@@ -62,7 +64,7 @@ void VertexPool::allocate(Chunk& chunk)
     updateMeshBuffer(mesh, first_free_bucket->_start_offset);
 }
 
-void VertexPool::free(glm::ivec3 chunk_pos)
+void StaticVertexPool::free(glm::ivec3 chunk_pos)
 {
     if (m_chunk_pos_to_bucket_id.find(chunk_pos) == m_chunk_pos_to_bucket_id.end()) {
         LOG_F(WARNING, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y, chunk_pos.z);
@@ -71,7 +73,7 @@ void VertexPool::free(glm::ivec3 chunk_pos)
     fastErase(chunk_pos);
 }
 
-void VertexPool::fastErase(glm::ivec3 chunk_pos) {
+void StaticVertexPool::fastErase(glm::ivec3 chunk_pos) {
     size_t bucket_id = m_chunk_pos_to_bucket_id[chunk_pos];
     size_t daic_id = m_bucket_id_to_daic_id[bucket_id];
     size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
@@ -95,9 +97,9 @@ void VertexPool::fastErase(glm::ivec3 chunk_pos) {
     m_chunk_metadata.active_daics.pop_back();
 }
 
-MeshBucket* VertexPool::getFirstFreeBucket()
+MeshBucket* StaticVertexPool::getFirstFreeBucket()
 {
-    for (int i = 0; i < PoolConst::MAX_DAIC_AMOUNT; i++)
+    for (int i = 0; i < DebugVertexPool::MAX_DAIC_AMOUNT; i++)
     {
         if (chunk_buckets[i]._is_free) {
             return &chunk_buckets[i];
@@ -106,7 +108,7 @@ MeshBucket* VertexPool::getFirstFreeBucket()
     return nullptr;
 }
 
-void VertexPool::waitBuffer()
+void StaticVertexPool::waitBuffer()
 {
     if (m_sync)
     {
@@ -120,7 +122,7 @@ void VertexPool::waitBuffer()
     }
 }
 
-void VertexPool::lockBuffer()
+void StaticVertexPool::lockBuffer()
 {
     if (m_sync) {
         glDeleteSync(m_sync);
@@ -129,23 +131,23 @@ void VertexPool::lockBuffer()
     m_sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
-VertexPool::~VertexPool()
+StaticVertexPool::~StaticVertexPool()
 {
     delete m_mesh_persistent_buffer;
 }
 
-void VertexPool::initBuckets()
+void StaticVertexPool::initBuckets()
 {
-    for (size_t bucket_idx = 0; bucket_idx < PoolConst::MAX_DAIC_AMOUNT; bucket_idx++)
+    for (size_t bucket_idx = 0; bucket_idx < DebugVertexPool::MAX_DAIC_AMOUNT; bucket_idx++)
     {
-        chunk_buckets[bucket_idx]._start_ptr = m_mesh_persistent_buffer + (PoolConst::MAX_VERTICES_IN_BUCKET * bucket_idx);
-        chunk_buckets[bucket_idx]._start_offset = PoolConst::MAX_VERTICES_IN_BUCKET * bucket_idx;
+        chunk_buckets[bucket_idx]._start_ptr = m_mesh_persistent_buffer + (DebugVertexPool::MAX_VERTICES_IN_BUCKET * bucket_idx);
+        chunk_buckets[bucket_idx]._start_offset = DebugVertexPool::MAX_VERTICES_IN_BUCKET * bucket_idx;
         chunk_buckets[bucket_idx]._id = bucket_idx;
         chunk_buckets[bucket_idx]._is_free = true;
     }
 }
 
-void VertexPool::formatVBO()
+void StaticVertexPool::formatVBO()
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
@@ -165,7 +167,7 @@ void VertexPool::formatVBO()
     glBindVertexBuffer(1, m_vbo, offsetof(Vertex, _uvw), sizeof(Vertex));
 }
 
-void VertexPool::draw()
+void StaticVertexPool::draw()
 {
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -179,10 +181,10 @@ void VertexPool::draw()
     );
 }
 
-void VertexPool::createMeshBuffer() {
+void StaticVertexPool::createMeshBuffer() {
     LOG_F(INFO, "%d", glGetError());
     GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    size_t buffer_size = PoolConst::MAX_DAIC_AMOUNT * PoolConst::MAX_VERTICES_IN_BUCKET * sizeof(Vertex);
+    size_t buffer_size = DebugVertexPool::MAX_DAIC_AMOUNT * DebugVertexPool::MAX_VERTICES_IN_BUCKET * sizeof(Vertex);
     LOG_F(INFO, "createMeshBuffer buffer_size: %zu, daic size: %d", buffer_size, m_chunk_metadata.active_daics.size());
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferStorage(GL_ARRAY_BUFFER, buffer_size, 0, flags);
@@ -196,7 +198,7 @@ void VertexPool::createMeshBuffer() {
     glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_DYNAMIC_DRAW);
 }
 
-void VertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
+void StaticVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
 {
     OPTICK_EVENT("updateMeshBuffer");
     waitBuffer();
@@ -213,7 +215,7 @@ void VertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
     glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_DYNAMIC_DRAW);
 }
 
-void VertexPool::createChunkInfoBuffer()
+void StaticVertexPool::createChunkInfoBuffer()
 {
     OPTICK_EVENT("createChunkInfoBuffer");
     m_chunk_info_ssbo = 0;
@@ -224,12 +226,12 @@ void VertexPool::createChunkInfoBuffer()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
 }
 
-size_t VertexPool::getBucketIdFromStartOffset(size_t offset)
+size_t StaticVertexPool::getBucketIdFromStartOffset(size_t offset)
 {
-    return offset / PoolConst::MAX_ADDED_VERTICES;
+    return offset / DebugVertexPool::MAX_ADDED_VERTICES;
 }
 
-void VertexPool::createChunkLodBuffer()
+void StaticVertexPool::createChunkLodBuffer()
 {
     OPTICK_EVENT("createChunkLodBuffer");
     m_chunks_lod_ssbo = 1;
@@ -240,4 +242,5 @@ void VertexPool::createChunkLodBuffer()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
 }
 
+}
 

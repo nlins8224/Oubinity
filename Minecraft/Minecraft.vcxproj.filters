@@ -126,7 +126,7 @@
     <ClCompile Include="src\renderer\GradientRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu_loader\VertexPool.cpp">
+    <ClCompile Include="src\gpu_loader\StaticVertexPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_tables.cpp">
@@ -302,7 +302,7 @@
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu_loader\VertexPool.h">
+    <ClInclude Include="src\gpu_loader\StaticVertexPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\VertexCompresser.h">

@@ -188,7 +188,7 @@
     <ClCompile Include="src\gpu_loader\ZoneVertexPool.cpp" />
     <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
-    <ClCompile Include="src\gpu_loader\VertexPool.cpp" />
+    <ClCompile Include="src\gpu_loader\StaticVertexPool.cpp" />
     <ClCompile Include="src\gui\GuiLayout.cpp" />
     <ClCompile Include="src\gui\ImGuiLogsWindow.cpp" />
     <ClCompile Include="src\gui\ImGuiSceneWindow.cpp" />
@@ -250,7 +250,7 @@
     <ClInclude Include="src\frustum\Frustum.h" />
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
-    <ClInclude Include="src\gpu_loader\VertexPool.h" />
+    <ClInclude Include="src\gpu_loader\StaticVertexPool.h" />
     <ClInclude Include="src\gui\ImGuiLogsWindow.h" />
     <ClInclude Include="src\gui\ImGuiSceneWindow.h" />
     <ClInclude Include="src\gui\ImGuiSettingsWindow.h" />
