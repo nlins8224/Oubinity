@@ -288,6 +288,15 @@
     <ClInclude Include="src\io\Mouse.h" />
     <ClInclude Include="src\PlayerInput.h" />
     <ClInclude Include="src\shader\Shader.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\btree.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\meminfo.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_base.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_bits.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_config.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_dump.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_fwd_decl.h" />
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_utils.h" />
     <ClInclude Include="src\third_party\stb_image.h" />
     <ClInclude Include="src\io\Window.h" />
     <ClInclude Include="src\TextureManager.h" />

@@ -84,8 +84,9 @@ void ChunkRenderer::updateBufferIfNeedsUpdate()
 {
 	OPTICK_EVENT("updateBufferIfNeedsUpdate");
 	if (m_buffer_needs_update.load()) {
-		allocateChunks();
+		// free should go first, before allocate
 		freeChunks();
+		allocateChunks();
 		m_vertexpool->createChunkInfoBuffer();
 		m_vertexpool->createChunkLodBuffer();
 		m_buffer_needs_update.store(false);
@@ -155,6 +156,7 @@ bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_to_free.push(chunk_pos);
+	m_chunks_by_coord.erase(chunk_pos);
 }
 
 bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
@@ -180,6 +182,5 @@ void ChunkRenderer::freeChunks()
 		glm::ivec3 chunk_pos = m_chunks_to_free.front();
 		m_vertexpool->free(chunk_pos);
 		m_chunks_to_free.pop();
-		m_chunks_by_coord.erase(chunk_pos);
 	}
 }

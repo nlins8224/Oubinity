@@ -15,6 +15,7 @@
 #include "../frustum/AABox.h"
 
 #include "../third_party/BS_thread_pool.hpp"
+#include "../third_party/parallel_hashmap/phmap.h"
 #include "optick.h"
 #include "../loguru.hpp"
 
@@ -48,6 +49,7 @@ private:
 	// Meshing is done on renderer thread, but allocate and free are
 	// done on main thread, because of OpenGL context requirements
 	std::unordered_map<glm::ivec3, Chunk> m_chunks_by_coord;
+	phmap::parallel_flat_hash_map_m<glm::ivec3, Chunk> phmap_chunks_by_coord;
 	std::queue<glm::ivec3> m_chunks_to_create;
 	std::queue<glm::ivec3> m_chunks_to_delete;
 
