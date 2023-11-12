@@ -27,17 +27,17 @@ namespace VertexPool {
         }
     }
 
-    void ZoneVertexPool::allocate(Chunk& chunk)
+   void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data)
     {
-        unsigned int added_faces = chunk.getAddedFacesAmount();
-        glm::ivec3 chunk_pos = chunk.getPos();
+       unsigned int added_faces = alloc_data._added_faces_amount;
+       glm::ivec3 chunk_pos = alloc_data._chunk_pos;
         if (added_faces == 0)
         {
             LOG_F(5, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
         unsigned int added_vertices = 6 * added_faces;
-        size_t lod_level = chunk.getLevelOfDetail().level;
+        size_t lod_level = alloc_data._lod.level;
         Zone zone = chooseZone(lod_level);
         MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
         m_stats.chunks_in_buckets[zone.level]++;
@@ -56,8 +56,7 @@ namespace VertexPool {
             0
         };
 
-        LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
-        std::vector<Vertex> mesh{ chunk.getMesh().getMeshDataCopy() };
+        LevelOfDetail::LevelOfDetail lod = alloc_data._lod;
         size_t id = first_free_bucket->_id;
         LOG_F(5, "Allocating bucket at level: %d, with id: %d, vertices: %d, at chunk pos: (%d, %d, %d)", zone.level, id, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
 
@@ -65,16 +64,16 @@ namespace VertexPool {
         first_free_bucket->_is_free = false;
 
         size_t daic_id = m_chunk_metadata.active_daics.size() - 1;
-        m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { chunk.getWorldPos(), id };
+        m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { alloc_data._chunk_world_pos, id };
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = static_cast<GLuint>(lod.block_size);
-        m_chunk_pos_to_bucket_id[chunk_pos] = {zone.level, id};
+        m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
         m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
-        updateMeshBuffer(mesh, first_free_bucket->_start_offset);
+        updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
 
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
         m_stats.min_vertices_occurred[zone.level] = std::min(m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
-   }
+    }
 
     void ZoneVertexPool::free(glm::ivec3 chunk_pos)
     {
@@ -109,6 +108,7 @@ namespace VertexPool {
         m_chunk_metadata.active_daics.pop_back();
     }
 
+    //TODO: list of free buckets
     MeshBucket* ZoneVertexPool::getFirstFreeBucket(int zone_id)
     {
         const size_t buckets_amount = zones[zone_id]->buckets_amount;

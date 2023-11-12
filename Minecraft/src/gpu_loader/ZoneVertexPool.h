@@ -76,6 +76,25 @@ namespace VertexPool {
 		std::array<size_t, 6> chunks_in_buckets;
 	};
 
+	struct ChunkAllocData
+	{
+		glm::ivec3 _chunk_pos;
+		size_t _added_faces_amount;
+		LevelOfDetail::LevelOfDetail _lod;
+		std::vector<Vertex> _mesh;
+		glm::ivec3 _chunk_world_pos;
+
+		ChunkAllocData() = default;
+
+		ChunkAllocData(glm::ivec3 chunk_pos, size_t added_faces_amount, LevelOfDetail::LevelOfDetail lod, std::vector<Vertex> mesh, glm::ivec3 chunk_world_pos)
+			: _chunk_pos{chunk_pos},
+			_added_faces_amount{added_faces_amount},
+			_lod{lod},
+			_mesh{mesh},
+			_chunk_world_pos{chunk_world_pos}
+		{}
+	};
+
 	struct pair_hash
 	{
 		template <class T1, class T2>
@@ -91,7 +110,7 @@ namespace VertexPool {
 		ZoneVertexPool();
 		virtual ~ZoneVertexPool();
 		void draw();
-		void allocate(Chunk& chunk);
+		void allocate(ChunkAllocData&& alloc_data);
 		void free(glm::ivec3 chunk_pos);
 
 		void createChunkInfoBuffer();
