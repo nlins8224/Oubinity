@@ -16,6 +16,7 @@ void ChunkRenderer::render(Camera& camera)
 
 }
 
+// main thread
 void ChunkRenderer::drawChunksSceneMesh()
 {
 	m_shader.bind();
@@ -29,17 +30,23 @@ void ChunkRenderer::drawChunksSceneMesh()
 	m_vertexpool->draw();
 }
 
+// render thread
 void ChunkRenderer::traverseSceneLoop()
 {
-	while (1)
+	while (true)
 	{
+		//m_cond_atomic_flag.wait(true);
 		traverseScene();
+		//m_cond_atomic_flag.store(true);
+		//m_cond_atomic_flag.notify_one();
 	}
 }
 
 // TODO: This scans entire scene, is a bottleneck and is very naive in it's approach
 // What should be done instead is to traverse only through "bordering" chunks, that is, 
 // chunks that are sitting next to chunks with different LOD or next to empty space
+// OR/AND use flat array instead of hashmap and rely on position on the grid and camera motion
+// instead of coords
 
 // render thread
 void ChunkRenderer::traverseScene()
@@ -68,23 +75,24 @@ void ChunkRenderer::traverseScene()
 		}
 	}
 
-	for (auto& [chunk_pos, chunk] : m_chunks_by_coord)
-	{
-		int cx = chunk->getPos().x;
-		int cy = chunk->getPos().y;
-		int cz = chunk->getPos().z;
+	// ITERATING OVER THE MAP IS UNSAFE
+	//for (auto& [chunk_pos, chunk] : m_chunks_by_coord)
+	//{
+	//	int cx = chunk->getPos().x;
+	//	int cy = chunk->getPos().y;
+	//	int cz = chunk->getPos().z;
 
-		if (
-			cx < min_x ||
-			cx > max_x ||
-			cz < min_z ||
-			cz > max_z ||
-			checkIfChunkLodNeedsUpdate({ cx, cy, cz })
-			)
-		{
-			m_chunks_to_delete.push({ cx, cy, cz });
-		}
-	}
+	//	if (
+	//		cx < min_x ||
+	//		cx > max_x ||
+	//		cz < min_z ||
+	//		cz > max_z ||
+	//		checkIfChunkLodNeedsUpdate({ cx, cy, cz })
+	//		)
+	//	{
+	//		m_chunks_to_delete.push({ cx, cy, cz });
+	//	}
+	//}
 
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
@@ -96,14 +104,23 @@ void ChunkRenderer::traverseScene()
 void ChunkRenderer::updateBufferIfNeedsUpdate()
 {
 	OPTICK_EVENT("updateBufferIfNeedsUpdate");
-	if (m_buffer_needs_update.load()) {
-		// free should go first, before allocate
-		freeChunks();
-		allocateChunks();
-		m_vertexpool->createChunkInfoBuffer();
-		m_vertexpool->createChunkLodBuffer();
-		m_buffer_needs_update.store(false);
-	}
+	//while (true)
+	//{
+	//	m_cond_atomic_flag.wait(false);
+
+		if (m_buffer_needs_update.load()) {
+				// free should go first, before allocate
+				freeChunks();
+				allocateChunks();
+				m_vertexpool->createChunkInfoBuffer();
+				m_vertexpool->createChunkLodBuffer();
+				m_buffer_needs_update.store(false);
+			}
+
+		//m_cond_atomic_flag.store(false);
+		//m_cond_atomic_flag.notify_one();
+	//}
+	
 }
 
 void ChunkRenderer::runTraverseSceneInDetachedThread()
@@ -182,7 +199,11 @@ void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 {
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
-	return m_chunks_by_coord[chunk_pos]->getLevelOfDetail().level != lod.level;
+	bool needs_update = false;
+	m_chunks_by_coord.if_contains(chunk_pos, [&](const pmap::value_type& pair) {
+		needs_update = pair.second->getLevelOfDetail().level != lod.level;
+		});
+	return needs_update;
 }
 
 // main thread

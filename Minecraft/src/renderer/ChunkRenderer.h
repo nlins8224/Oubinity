@@ -48,7 +48,7 @@ private:
 
 	// Meshing is done on render thread, but allocate and free are
 	// done on main thread, because of OpenGL context requirements
-	std::atomic<bool> m_buffer_needs_update; // communication between main and render thread is done via atomic cond 
+	std::atomic<bool> m_buffer_needs_update; 
 
 	using pmap = phmap::parallel_flat_hash_map<glm::ivec3, Chunk*,
 		phmap::priv::hash_default_hash<glm::ivec3>,
@@ -64,7 +64,7 @@ private:
 	std::queue<glm::ivec3> m_chunks_to_free; // render thread writes, main thread reads
 
 	VertexPool::ZoneVertexPool* m_vertexpool; // called only on main thread
-	TerrainGenerator* m_terrain_generator;
+	TerrainGenerator* m_terrain_generator; // called only on render thread
 
 	BS::thread_pool m_thread_pool;
 };

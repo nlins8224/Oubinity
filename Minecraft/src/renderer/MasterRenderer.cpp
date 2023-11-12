@@ -22,7 +22,7 @@ void MasterRenderer::clear() const
 
 void MasterRenderer::render(Camera& camera)
 {
-	m_chunk_renderer.traverseScene();
+	//m_chunk_renderer.traverseScene();
 	m_chunk_renderer.updateBufferIfNeedsUpdate();
 	m_chunk_renderer.drawChunksSceneMesh();
 	m_gradient_renderer.render(camera);
