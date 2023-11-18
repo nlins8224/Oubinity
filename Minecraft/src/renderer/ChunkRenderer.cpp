@@ -88,8 +88,10 @@ void ChunkRenderer::traverseScene()
 	{
 		return;
 	}
-
-	LOG_F(INFO, "dx: %d, dz: %d", dx, dz);
+	if (dx > 1 || dz > 1)
+	{
+		LOG_F(WARNING, "Delta between last and current camera pos dx: %d, dz: %d, but should be <= 1", dx, dz);
+	}
 
 	m_camera_last_chunk_pos.x = camera_chunk_pos_x;
 	m_camera_last_chunk_pos.z = camera_chunk_pos_z;
