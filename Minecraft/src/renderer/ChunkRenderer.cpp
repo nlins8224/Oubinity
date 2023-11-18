@@ -57,8 +57,6 @@ void ChunkRenderer::initChunks()
 	chunk_border.min_z = min_z;
 	chunk_border.max_z = max_z;
 
-	iterateOverChunkBorderAndCreate(chunk_border);
-
 	for (int cx = max_x; cx > min_x; cx--)
 	{
 		for (int cz = max_z; cz > min_z; cz--)
@@ -171,7 +169,7 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(ChunkBorder chunk_border)
 	int max_z = chunk_border.max_z;
 
 	// x-/x+ iterate over z
-	for (int cz = min_z; cz < max_z; cz++)
+	for (int cz = min_z - 1; cz < max_z + 1; cz++)
 	{
 		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 		{
@@ -188,7 +186,7 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(ChunkBorder chunk_border)
 	}
 
 	// z-/z+ iterate over x
-	for (int cx = min_x; cx < max_x; cx++)
+	for (int cx = min_x - 1; cx < max_x + 1; cx++)
 	{
 		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 		{
