@@ -83,8 +83,12 @@ namespace VertexPool {
 		LevelOfDetail::LevelOfDetail _lod;
 		std::vector<Vertex> _mesh;
 		glm::ivec3 _chunk_world_pos;
+		bool _ready = false;
 
-		ChunkAllocData() = default;
+		ChunkAllocData()
+		{
+			_ready = false;
+		}
 
 		ChunkAllocData(glm::ivec3 chunk_pos, size_t added_faces_amount, LevelOfDetail::LevelOfDetail lod, std::vector<Vertex> mesh, glm::ivec3 chunk_world_pos)
 			: _chunk_pos{chunk_pos},

@@ -19,6 +19,14 @@
 #include "optick.h"
 #include "../loguru.hpp"
 
+struct ChunkBorder
+{
+	int min_x;
+	int max_x;
+	int min_z;
+	int max_z;
+};
+
 class ChunkRenderer : public Renderer
 {
 public:
@@ -39,6 +47,9 @@ private:
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
 	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
+	void iterateOverBorder(ChunkBorder chunk_border);
+	void iterateOverBorderChunksAndDelete(ChunkBorder chunk_border);
+	bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
 	void allocateChunks();
 	void freeChunks();
@@ -57,6 +68,7 @@ private:
 		4, // 2^N submaps
 		std::mutex>;
 	pmap m_chunks_by_coord; // used in thread safe manner, shared between render and main threads
+	std::vector<glm::ivec3> m_border_chunks; // used only on render thread
 	std::queue<glm::ivec3> m_chunks_to_create; // used only on render thread
 	std::queue<glm::ivec3> m_chunks_to_delete; // used only on render thread
 
@@ -66,5 +78,4 @@ private:
 	VertexPool::ZoneVertexPool* m_vertexpool; // called only on main thread
 	TerrainGenerator* m_terrain_generator; // called only on render thread
 
-	BS::thread_pool m_thread_pool;
 };

@@ -29,11 +29,17 @@ namespace VertexPool {
 
    void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data)
     {
-       unsigned int added_faces = alloc_data._added_faces_amount;
-       glm::ivec3 chunk_pos = alloc_data._chunk_pos;
+        unsigned int added_faces = alloc_data._added_faces_amount;
+        glm::ivec3 chunk_pos = alloc_data._chunk_pos;
+
         if (added_faces == 0)
         {
             LOG_F(5, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+            return;
+        }
+        if (alloc_data._mesh.size() == 0)
+        {
+            LOG_F(ERROR, "chunk at pos (%d, %d, %d) has a mesh size equal to 0, with %zu faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z, added_faces);
             return;
         }
         unsigned int added_vertices = 6 * added_faces;

@@ -61,19 +61,28 @@ void ChunkRenderer::traverseScene()
 	int min_z = camera_chunk_pos_z - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 	int max_z = camera_chunk_pos_z + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 
-	for (int cx = max_x; cx > min_x; cx--)
-	{
-		for (int cz = max_z; cz > min_z; cz--)
-		{
-			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-			{
-				if (!m_chunks_by_coord.if_contains({cx, cy, cz}, [](auto) {}))
-				{
-					m_chunks_to_create.push({ cx, cy, cz });
-				}
-			}
-		}
-	}
+	ChunkBorder chunk_border;
+	chunk_border.min_x = min_x;
+	chunk_border.max_x = max_x;
+	chunk_border.min_z = min_z;
+	chunk_border.max_z = max_z;
+
+	iterateOverBorderChunksAndDelete(chunk_border);
+	iterateOverBorder(chunk_border);
+
+	//for (int cx = max_x; cx > min_x; cx--)
+	//{
+	//	for (int cz = max_z; cz > min_z; cz--)
+	//	{
+	//		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+	//		{
+	//			if (!m_chunks_by_coord.if_contains({cx, cy, cz}, [](auto) {}))
+	//			{
+	//				m_chunks_to_create.push({ cx, cy, cz });
+	//			}
+	//		}
+	//	}
+	//}
 
 	// ITERATING OVER THE MAP IS UNSAFE
 	//for (auto& [chunk_pos, chunk] : m_chunks_by_coord)
@@ -98,6 +107,79 @@ void ChunkRenderer::traverseScene()
 	{
 		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createInRenderDistanceChunks());
 	}
+}
+
+void ChunkRenderer::iterateOverBorder(ChunkBorder chunk_border)
+{	
+	int min_x = chunk_border.min_x;
+	int max_x = chunk_border.max_x;
+	int min_z = chunk_border.min_z;
+	int max_z = chunk_border.max_z;
+
+	// x-/x+ iterate over z
+	for (int cz = min_z; cz < max_z; cz++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (!m_chunks_by_coord.if_contains({ min_x, cy, cz }, [](auto) {}))
+			{
+				m_chunks_to_create.push({ min_x, cy, cz });
+				m_border_chunks.push_back({ min_x, cy, cz });
+			}
+
+			if (!m_chunks_by_coord.if_contains({ max_x, cy, cz }, [](auto) {}))
+			{
+				m_chunks_to_create.push({ max_x, cy, cz });
+				m_border_chunks.push_back({ max_x, cy, cz });
+
+			}
+		}
+	}
+
+	// z-/z+ iterate over x
+	for (int cx = min_x; cx < max_x; cx++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (!m_chunks_by_coord.if_contains({ cx, cy, min_z }, [](auto) {}))
+			{
+				m_chunks_to_create.push({ cx, cy, min_z });
+				m_border_chunks.push_back({ cx, cy, min_z });
+			}
+
+			if (!m_chunks_by_coord.if_contains({ cx, cy, max_z }, [](auto) {}))
+			{
+				m_chunks_to_create.push({ cx, cy, max_z });
+				m_border_chunks.push_back({ cx, cy, max_z });
+			}
+		}
+	}
+}
+
+void ChunkRenderer::iterateOverBorderChunksAndDelete(ChunkBorder chunk_border)
+{
+	std::vector<glm::ivec3>::iterator iter;
+	for (iter = m_border_chunks.begin(); iter != m_border_chunks.end();)
+	{
+		glm::ivec3 chunk_pos = *iter;
+		if (isChunkOutOfBorder(chunk_pos, chunk_border))
+		{
+			m_chunks_to_delete.push(chunk_pos);
+			iter = m_border_chunks.erase(iter);
+		}
+		else
+		{
+			iter++;
+		}
+	}
+}
+
+bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border)
+{
+	int cx = chunk_pos.x;
+	int cz = chunk_pos.z;
+		
+	return cx < chunk_border.min_x || cx > chunk_border.max_x || cz < chunk_border.min_z || cz > chunk_border.max_z;
 }
 
 // main thread
@@ -143,6 +225,9 @@ bool ChunkRenderer::createInRenderDistanceChunks()
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 {
+	if (m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
+		return false;
+
 	OPTICK_EVENT("createChunkIfNotPresent");
 	createChunk(chunk_pos);
 	return true;
@@ -220,8 +305,12 @@ void ChunkRenderer::allocateChunks()
 				alloc_data._lod = pair.second->getLevelOfDetail();
 				alloc_data._mesh = std::move(pair.second->getMesh().getMeshData()); // chunk mesh is about to be allocated, vertex pool takes ownership
 				alloc_data._chunk_world_pos = pair.second->getWorldPos();
+				alloc_data._ready = true;
 			});
-		m_vertexpool->allocate(std::move(alloc_data));
+		if (alloc_data._ready)
+		{
+			m_vertexpool->allocate(std::move(alloc_data));
+		}
 		m_chunks_to_allocate.pop();
 	}
 }
