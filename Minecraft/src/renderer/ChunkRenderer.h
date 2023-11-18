@@ -40,6 +40,7 @@ public:
 	void drawChunksSceneMesh();
 	void traverseSceneLoop();
 private:
+	void initChunks();
 	bool createInRenderDistanceChunks(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
@@ -47,14 +48,16 @@ private:
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
 	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-	void iterateOverBorder(ChunkBorder chunk_border);
-	void iterateOverBorderChunksAndDelete(ChunkBorder chunk_border);
+	void iterateOverChunkBorderAndCreate(ChunkBorder chunk_border);
+	void iterateOverChunkBorderAndDelete(ChunkBorder chunk_border);
+	void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
 	bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
 	void allocateChunks();
 	void freeChunks();
 
 	Camera& m_camera;
+	glm::ivec3 m_camera_last_chunk_pos;
 	GLuint m_texture_array;
 
 	// Meshing is done on render thread, but allocate and free are

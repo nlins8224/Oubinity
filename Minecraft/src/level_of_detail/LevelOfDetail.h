@@ -69,6 +69,16 @@ namespace LevelOfDetail {
 		.divide_factor{ 32 }
 	};
 
+	static const std::vector<LevelOfDetail> Lods
+	{
+		{ Zero },
+		{ One },
+		{ Two },
+		{ Three },
+		{ Four },
+		{ Five }
+	};
+
 	static uint16_t distanceToCameraInChunks(Camera& camera, glm::ivec3 chunk_pos)
 	{
 		glm::ivec3 camera_pos = camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
