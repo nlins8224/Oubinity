@@ -126,7 +126,7 @@
     <ClCompile Include="src\renderer\GradientRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu_loader\VertexPool.cpp">
+    <ClCompile Include="src\gpu_loader\StaticVertexPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_tables.cpp">
@@ -178,6 +178,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\loguru.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu_loader\ZoneVertexPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -299,10 +302,7 @@
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu_loader\VertexPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu_loader\DAIC.h">
+    <ClInclude Include="src\gpu_loader\StaticVertexPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\VertexCompresser.h">
@@ -369,6 +369,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\third_party\BS_thread_pool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\ZoneVertexPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\Zone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\btree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\meminfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_bits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_dump.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_fwd_decl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\parallel_hashmap\phmap_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

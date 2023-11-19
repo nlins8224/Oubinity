@@ -3,5 +3,5 @@
 namespace ChunkRendererSettings
 {
 	constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 4;
-	constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 1;
+	constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 4;
 }

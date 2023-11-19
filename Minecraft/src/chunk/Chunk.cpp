@@ -148,7 +148,12 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 
 		glm::ivec3 xyz{ x_local_pos, y_local_pos, z_local_pos };
 		glm::ivec3 uvw{ u, v, texture_id };
-		Vertex vertex{xyz, uvw, s};
+
+		GLuint compressed_xyzs = VertexCompresser::compress_xyzs(xyz, s);
+		GLuint compressed_uvw = VertexCompresser::compress_uvw(uvw);
+		Vertex vertex;
+		vertex._xyzs = compressed_xyzs;
+		vertex._uvw = compressed_uvw;
 		m_mesh.addVertex(vertex);
 	}
 	m_added_faces++;

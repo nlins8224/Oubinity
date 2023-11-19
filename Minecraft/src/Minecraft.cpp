@@ -36,7 +36,7 @@ int main()
     }
 
     std::cout << glGetError() << std::endl;
-    Camera camera{ glm::vec3(156.0f, 128.0f, 3.0f) };
+    Camera camera{ glm::vec3(0.0f, 128.0f, 0.0f) };
     TerrainGenerator terrain_generator{ 1337, 4, 7 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     PlayerInput player_input{window.getWindow(), camera};

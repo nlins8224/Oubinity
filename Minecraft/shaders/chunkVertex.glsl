@@ -4,7 +4,7 @@ layout (location = 1) in uint in_uvw;
 
 out vec3 interpolated_tex_coords;
 out float interpolated_shading_values;
-out uint lod_scale_debug;
+out int draw_id_debug;
 out float visibility;
 out float height;
 
@@ -27,6 +27,8 @@ layout (std430, binding = 1) readonly buffer Lod
 
 void main()
 {
+	draw_id_debug = gl_DrawID;
+
 	float x = float(in_xyzs  & 0x3Fu);
 	float y = float((in_xyzs & 0xFC0u) >> 6u);
 	float z = float((in_xyzs & 0x3F000u) >> 12u);
@@ -54,7 +56,6 @@ void main()
 	float w = float((in_uvw & 0x3F000u) >> 12u);
 
 	interpolated_tex_coords = vec3(u, v, w);
-	lod_scale_debug = lod.block_size[gl_DrawID];
 
 	// Calculate fog
 	vec4 pos_to_cam = view * vec4(x, y, z, 1.0);
