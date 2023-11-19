@@ -73,6 +73,9 @@ void ChunkRenderer::initChunks()
 }
 
 // render thread
+
+// TODO: traveseScene can be slower than camera's moevement, which causes 
+// some updates to be lost. All actions should be queued or traverseScene should be faster
 void ChunkRenderer::traverseScene()
 {
 	OPTICK_EVENT("traverseScene");
