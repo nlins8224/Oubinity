@@ -34,7 +34,7 @@ namespace VertexPool {
 
         if (added_faces == 0)
         {
-            LOG_F(5, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+            LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
         if (alloc_data._mesh.size() == 0)
@@ -195,6 +195,7 @@ namespace VertexPool {
 
     void ZoneVertexPool::initZones(Vertex* buffer)
     {
+        // TODO: loop
         size_t vertices_in_zero_zone = Zero.max_vertices_per_bucket * Zero.buckets_amount;
         Zero.start_offset = 0;
         Zero.end_offset = vertices_in_zero_zone;
@@ -228,6 +229,7 @@ namespace VertexPool {
 
     size_t ZoneVertexPool::calculateBucketAmountInZones()
     {
+        // TODO: loop
         size_t buckets_added = 0;
         Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
         buckets_added += Zero.buckets_amount;
@@ -271,21 +273,11 @@ namespace VertexPool {
     void ZoneVertexPool::formatVBO()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
         glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
         glVertexAttribIFormat(0, 1, GL_UNSIGNED_INT, 0);
-        glVertexAttribIFormat(1, 1, GL_UNSIGNED_INT, 0);
-
         glVertexBindingDivisor(0, 0);
-        glVertexBindingDivisor(1, 0);
-
         glVertexAttribBinding(0, 0);
-        glVertexAttribBinding(1, 1);
-
-        glBindVertexBuffer(0, m_vbo, offsetof(Vertex, _xyzs), sizeof(Vertex));
-        glBindVertexBuffer(1, m_vbo, offsetof(Vertex, _uvw), sizeof(Vertex));
+        glBindVertexBuffer(0, m_vbo, offsetof(Vertex, packed_vertex), sizeof(Vertex));
     }
 
     void ZoneVertexPool::draw()
@@ -297,7 +289,7 @@ namespace VertexPool {
         glMultiDrawArraysIndirect(
             GL_TRIANGLES,
             (GLvoid*)0,                                   // start with first draw command
-            m_chunk_metadata.active_daics.size(),     // DAIC amount
+            m_chunk_metadata.active_daics.size(),         // DAIC amount
             0                                             // tightly packed
         );
     }

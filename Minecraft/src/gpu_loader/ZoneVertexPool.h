@@ -47,18 +47,18 @@ namespace VertexPool {
 
 	struct DAIC
 	{
-		DAIC(unsigned int c, unsigned int ic, unsigned int f, unsigned int bi)
+		DAIC(unsigned int c, unsigned int ic, unsigned int f, unsigned int bv)
 		{
 			count = c;
 			instance_count = ic;
 			first = f;
-			base_instance = bi;
+			base_vertex = bv;
 		}
 
 		unsigned int count;
 		unsigned int instance_count;
 		unsigned int first;
-		unsigned int base_instance;
+		unsigned int base_vertex;
 	};
 
 	// All struct elements in ChunkMetadata share the same ID
