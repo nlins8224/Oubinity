@@ -119,6 +119,7 @@ namespace VertexPool {
 
 		void createChunkInfoBuffer();
 		void createChunkLodBuffer();
+		void createChunkBlockInfoBuffer();
 
 	private:
 		void initBuckets();

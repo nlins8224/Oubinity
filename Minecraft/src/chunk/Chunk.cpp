@@ -98,13 +98,11 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	GLubyte z = static_cast<GLubyte>(block_pos.z);
 	GLubyte texture_id{ static_cast<GLubyte>(block_id) };
 	GLubyte face_id = static_cast<GLubyte>(face_side);
-	GLubyte shading = Block::shading[face_side];
-
 
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		Vertex vertex;
-		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id, shading, vertex_id);
+		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id);
 		m_mesh.addVertex(vertex);
 	}
 	m_added_faces++;

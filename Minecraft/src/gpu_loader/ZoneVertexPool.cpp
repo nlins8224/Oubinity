@@ -54,6 +54,13 @@ namespace VertexPool {
             LOG_F(ERROR, "ALL BUCKETS AT ZONE: %d ARE FULL, NO SPACE LEFT. Tried to add %d vertices, chunk pos (%d, %d, %d)", zone.level, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
+
+        if ((first_free_bucket->_start_offset % 6) != 0)
+        {
+            LOG_F(ERROR, "Offset % 6 != 0, start offset: %d", first_free_bucket->_start_offset);
+            return;
+        }
+
         DAIC daic
         {
             added_vertices, // vertices in face * added_faces
@@ -338,6 +345,11 @@ namespace VertexPool {
         glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_chunk_metadata.active_chunks_lod), &m_chunk_metadata.active_chunks_lod, GL_STATIC_COPY);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 1);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
+    }
+
+    void ZoneVertexPool::createChunkBlockInfoBuffer()
+    {
+
     }
 
 }

@@ -72,6 +72,8 @@ vec3 bottom_face[4] = vec3[4](
 	vec3(0.0f, 0.0f, 0.0f)
 );
 
+float shading_table[6] = float[6](0.8f, 0.8f, 0.6f, 0.6f, 1.0f, 0.4f);
+
 // This is the order that vertices must be rendered
 // because of the winding order required for backface culling
 int indices[6] = int[6]( 0, 1, 2, 1, 0, 3 );
@@ -83,12 +85,11 @@ void main()
 	uint z          = (vertex >> 10u) & 31u; // 5 bits
 	uint texture_id = (vertex >> 15u) & 31u; // 5 bits
 	uint face_id    = (vertex >> 20u) & 7u;  // 3 bits
-	uint shading    = (vertex >> 23u) & 7u;  // 3 bits
-	uint vertex_id  = (vertex >> 26u) & 7u;  // 3 bits
+	uint vertex_id  = gl_VertexID % 6;
 
 	vec3 vertex_pos = vec3(x, y, z);
-	shading_values = float(shading) / 5.0f;
 	tex_coords = vec3(tex[indices[vertex_id]], texture_id);
+	shading_values = shading_table[face_id];
 
 	switch(face_id)
 	{
