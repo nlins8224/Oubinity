@@ -116,20 +116,19 @@ namespace VertexPool {
 		void draw();
 		void allocate(ChunkAllocData&& alloc_data);
 		void free(glm::ivec3 chunk_pos);
-
 		void createChunkInfoBuffer();
 		void createChunkLodBuffer();
-		void createFaceStreamBuffer();
-		void updateFaceStreamBuffer();
 
 	private:
 		void initBuckets();
 		void initZones(Vertex* buffer);
 		void createMeshBuffer();
 		void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
+		void createFaceStreamBuffer();
+		void updateFaceStreamBuffer(std::vector<Face>& mesh, GLuint start_offset);
 		void formatVBO();
-		void waitBuffer();
-		void lockBuffer();
+		void waitBuffer(GLsync& sync);
+		void lockBuffer(GLsync& sync);
 		void fastErase(glm::ivec3 chunk_pos);
 
 		MeshBucket* getFirstFreeBucket(int zone_id);
@@ -148,11 +147,13 @@ namespace VertexPool {
 
 		Vertex* m_mesh_persistent_buffer;
 		size_t m_persistent_buffer_vertices_amount;
-
-		Face m_face_stream_buffer[MAX_DAIC_AMOUNT * 1024];
-		GLuint m_face_stream_buffer_offset;
-
 		GLsync m_sync;
+
+		Face* m_face_stream_buffer;
+		GLuint m_face_stream_buffer_offset;
+		size_t m_mesh_faces_amount;
+		GLsync m_face_buffer_sync;
+
 
 		ChunkMetadata m_chunk_metadata;
 		std::unordered_map<glm::ivec3, std::pair<size_t, size_t>> m_chunk_pos_to_bucket_id;

@@ -3,6 +3,7 @@
 namespace VertexPool {
     ZoneVertexPool::ZoneVertexPool() :
         m_mesh_persistent_buffer{ nullptr },
+        m_face_stream_buffer{ nullptr },
         m_persistent_buffer_vertices_amount{0},
         m_chunk_buckets{zones.size(), std::vector<MeshBucket>(0)},
         m_face_stream_buffer_offset{0}
@@ -17,6 +18,7 @@ namespace VertexPool {
 
         calculateBucketAmountInZones();
         createMeshBuffer();
+        createFaceStreamBuffer();
         initZones(m_mesh_persistent_buffer);
         initBuckets();
 
@@ -64,12 +66,6 @@ namespace VertexPool {
             return;
         }
 
-        // TODO: Not efficient, just to test, clean it
-        m_face_stream_buffer_offset = first_free_bucket->_start_offset / Block::VERTICES_PER_FACE;
-        std::move(alloc_data._mesh_faces.begin(), alloc_data._mesh_faces.end(), m_face_stream_buffer + m_face_stream_buffer_offset);
-        LOG_F(INFO, "Adding faces, size: %zu", alloc_data._mesh_faces.size());
-        LOG_F(INFO, "m_face_stream_buffer_offset %zu", m_face_stream_buffer_offset);
-
         DAIC daic
         {
             added_vertices, // vertices in face * added_faces
@@ -92,6 +88,7 @@ namespace VertexPool {
         m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
         updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
+        updateFaceStreamBuffer(alloc_data._mesh_faces, first_free_bucket->_start_offset);
 
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
         m_stats.min_vertices_occurred[zone.level] = std::min(m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
@@ -165,13 +162,13 @@ namespace VertexPool {
         }
     }
 
-    void ZoneVertexPool::waitBuffer()
+    void ZoneVertexPool::waitBuffer(GLsync& sync)
     {
-        if (m_sync)
+        if (sync)
         {
             while (1)
             {
-                GLenum waitReturn = glClientWaitSync(m_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+                GLenum waitReturn = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
                 if (waitReturn == GL_ALREADY_SIGNALED || waitReturn == GL_CONDITION_SATISFIED) {
                     return;
                 }
@@ -179,13 +176,13 @@ namespace VertexPool {
         }
     }
 
-    void ZoneVertexPool::lockBuffer()
+    void ZoneVertexPool::lockBuffer(GLsync& sync)
     {
-        if (m_sync) {
-            glDeleteSync(m_sync);
+        if (sync) {
+            glDeleteSync(sync);
         }
 
-        m_sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
 
     ZoneVertexPool::~ZoneVertexPool()
@@ -318,14 +315,39 @@ namespace VertexPool {
     void ZoneVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
     {
         OPTICK_EVENT("updateMeshBuffer");
-        waitBuffer();
+        waitBuffer(m_sync);
         std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
-        lockBuffer();
+        lockBuffer(m_sync);
 
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_DYNAMIC_DRAW);
+    }
 
-        // TODO: updateFaceStreamBuffer here and refactor this method to updateMesh after
+    void ZoneVertexPool::createFaceStreamBuffer()
+    {
+        GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+        m_mesh_faces_amount = m_persistent_buffer_vertices_amount / Block::VERTICES_PER_FACE;
+        size_t buffer_size = m_mesh_faces_amount * sizeof(Face);
+        LOG_F(INFO, "Face stream buffer size: %zu", buffer_size);
+        m_face_stream_ssbo = 2;
+
+        glGenBuffers(1, &m_face_stream_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_face_stream_ssbo);
+        glBufferStorage(GL_SHADER_STORAGE_BUFFER, buffer_size, 0, flags);
+        m_face_stream_buffer = (Face*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, buffer_size, flags);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_face_stream_ssbo);
+    }
+
+    void ZoneVertexPool::updateFaceStreamBuffer(std::vector<Face>& mesh, GLuint start_offset)
+    {
+        GLuint face_stream_buffer_offset = start_offset / Block::VERTICES_PER_FACE;
+        waitBuffer(m_face_buffer_sync);
+        std::move(mesh.begin(), mesh.end(), m_face_stream_buffer + face_stream_buffer_offset);
+        lockBuffer(m_face_buffer_sync);
+        LOG_F(INFO, "Adding faces, size: %zu", mesh.size());
+        LOG_F(INFO, "m_face_stream_buffer_offset %zu", face_stream_buffer_offset);
     }
 
     void ZoneVertexPool::createChunkInfoBuffer()
@@ -350,21 +372,7 @@ namespace VertexPool {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
     }
 
-    void ZoneVertexPool::createFaceStreamBuffer()
-    {
-        m_face_stream_ssbo = 2;
-        glGenBuffers(1, &m_face_stream_ssbo);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_face_stream_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_face_stream_buffer), &m_face_stream_buffer, GL_DYNAMIC_COPY);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_face_stream_ssbo);
-        LOG_F(INFO, "Face stream ssbo size: %d",  sizeof(m_face_stream_buffer));
-    }
 
-    void ZoneVertexPool::updateFaceStreamBuffer()
-    {
-        // TODO: implement this
-    }
 }
 
 

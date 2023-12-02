@@ -273,7 +273,6 @@ void ChunkRenderer::updateBufferIfNeedsUpdate()
 			allocateChunks();
 			m_vertexpool->createChunkInfoBuffer();
 			m_vertexpool->createChunkLodBuffer();
-			m_vertexpool->createFaceStreamBuffer();
 			m_buffer_needs_update.store(false);
 		}	
 }
