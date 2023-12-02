@@ -72,7 +72,7 @@ int main()
         exit(-1);
     }
 
-    master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
+    //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");

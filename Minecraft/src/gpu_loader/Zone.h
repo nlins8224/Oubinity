@@ -14,12 +14,12 @@ namespace VertexPool
 		return number - (number % divisable_by);
 	}
 
-	constexpr size_t vertices_in_zero_bucket  = floorToNearestNumberDivisableBy(40000, 6);
-	constexpr size_t vertices_in_one_bucket   = floorToNearestNumberDivisableBy(vertices_in_zero_bucket  / 2, 6);
-	constexpr size_t vertices_in_two_bucket   = floorToNearestNumberDivisableBy(vertices_in_one_bucket   / 2, 6);
-	constexpr size_t vertices_in_three_bucket = floorToNearestNumberDivisableBy(vertices_in_two_bucket   / 2, 6);
-	constexpr size_t vertices_in_four_bucket  = floorToNearestNumberDivisableBy(vertices_in_three_bucket / 2, 6);
-	constexpr size_t vertices_in_five_bucket  = floorToNearestNumberDivisableBy(vertices_in_four_bucket  / 2, 6);
+	constexpr size_t vertices_in_zero_bucket  = floorToNearestNumberDivisableBy(40000, Block::VERTICES_PER_FACE);
+	constexpr size_t vertices_in_one_bucket   = floorToNearestNumberDivisableBy(vertices_in_zero_bucket  / 4, Block::VERTICES_PER_FACE);
+	constexpr size_t vertices_in_two_bucket   = floorToNearestNumberDivisableBy(vertices_in_one_bucket   / 4, Block::VERTICES_PER_FACE);
+	constexpr size_t vertices_in_three_bucket = floorToNearestNumberDivisableBy(vertices_in_two_bucket   / 4, Block::VERTICES_PER_FACE);
+	constexpr size_t vertices_in_four_bucket  = floorToNearestNumberDivisableBy(vertices_in_three_bucket / 4, Block::VERTICES_PER_FACE);
+	constexpr size_t vertices_in_five_bucket  = floorToNearestNumberDivisableBy(vertices_in_four_bucket  / 4, Block::VERTICES_PER_FACE);
 
 	struct Zone
 	{

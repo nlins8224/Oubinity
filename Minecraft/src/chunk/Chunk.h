@@ -5,6 +5,7 @@
 #include <functional>
 #include "Mesh.h"
 #include "Vertex.h"
+#include "Face.h"
 #include "ChunkSize.h"
 #include "ChunksMap.h"
 #include "../block/Block.h"
@@ -43,8 +44,10 @@ public:
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
+	std::vector<Face>& getFaces();
 private:
 	Mesh m_mesh;
+	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
 	bool m_is_terrain_generated;

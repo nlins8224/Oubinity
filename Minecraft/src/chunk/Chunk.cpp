@@ -102,10 +102,14 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	Vertex vertex;
 	vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id);
 
+	Face face;
+	face.packed_face = packFace(x, y, z, texture_id, face_id);
+
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		m_mesh.addVertex(vertex);
 	}
+	m_faces.push_back(face);
 	m_added_faces++;
 }
 
@@ -132,6 +136,11 @@ void Chunk::setIsTerrainGenerated(bool is_generated)
 Mesh& Chunk::getMesh()
 {
 	return m_mesh;
+}
+
+std::vector<Face>& Chunk::getFaces()
+{
+	return m_faces;
 }
 
 std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& Chunk::getBlockArray()

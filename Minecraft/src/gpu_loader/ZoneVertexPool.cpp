@@ -4,7 +4,8 @@ namespace VertexPool {
     ZoneVertexPool::ZoneVertexPool() :
         m_mesh_persistent_buffer{ nullptr },
         m_persistent_buffer_vertices_amount{0},
-        m_chunk_buckets{zones.size(), std::vector<MeshBucket>(0)}
+        m_chunk_buckets{zones.size(), std::vector<MeshBucket>(0)},
+        m_face_stream_buffer_offset{0}
     {
         glGenVertexArrays(1, &m_vao);
         glBindVertexArray(m_vao);
@@ -42,7 +43,9 @@ namespace VertexPool {
             LOG_F(ERROR, "chunk at pos (%d, %d, %d) has a mesh size equal to 0, with %zu faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z, added_faces);
             return;
         }
-        unsigned int added_vertices = 6 * added_faces;
+      
+   
+        unsigned int added_vertices = Block::VERTICES_PER_FACE * added_faces;
         size_t lod_level = alloc_data._lod.level;
         Zone zone = chooseZone(lod_level);
         MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
@@ -55,11 +58,17 @@ namespace VertexPool {
             return;
         }
 
-        if ((first_free_bucket->_start_offset % 6) != 0)
+        if ((first_free_bucket->_start_offset % Block::VERTICES_PER_FACE) != 0)
         {
-            LOG_F(ERROR, "Offset % 6 != 0, start offset: %d", first_free_bucket->_start_offset);
+            LOG_F(ERROR, "Offset % %d != 0, start offset: %d", Block::VERTICES_PER_FACE, first_free_bucket->_start_offset);
             return;
         }
+
+        // TODO: Not efficient, just to test, clean it
+        m_face_stream_buffer_offset = first_free_bucket->_start_offset / Block::VERTICES_PER_FACE;
+        std::move(alloc_data._mesh_faces.begin(), alloc_data._mesh_faces.end(), m_face_stream_buffer + m_face_stream_buffer_offset);
+        LOG_F(INFO, "Adding faces, size: %zu", alloc_data._mesh_faces.size());
+        LOG_F(INFO, "m_face_stream_buffer_offset %zu", m_face_stream_buffer_offset);
 
         DAIC daic
         {
@@ -251,14 +260,6 @@ namespace VertexPool {
         Five.buckets_amount = TOTAL_BUCKETS_AMOUNT - buckets_added;
         buckets_added += Five.buckets_amount;
 
-        // For a short while Zone buffer might overflow, add extra buckets to prevent that
-        // Example: Zone is full, there are pending tasks in the queue
-        // and "allocate" tasks are preceeding "free" tasks
-        for (Zone* zone : zones)
-        {
-            zone->buckets_amount += EXTRA_BUFFER_SPACE;
-            buckets_added += EXTRA_BUFFER_SPACE;
-        }
         LOG_F(INFO, "Total buckets amount: %zu", buckets_added);
         return buckets_added;
     }
@@ -318,11 +319,13 @@ namespace VertexPool {
     {
         OPTICK_EVENT("updateMeshBuffer");
         waitBuffer();
-        std::copy(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
+        std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
         lockBuffer();
 
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_DYNAMIC_DRAW);
+
+        // TODO: updateFaceStreamBuffer here and refactor this method to updateMesh after
     }
 
     void ZoneVertexPool::createChunkInfoBuffer()
@@ -347,11 +350,21 @@ namespace VertexPool {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
     }
 
-    void ZoneVertexPool::createChunkBlockInfoBuffer()
+    void ZoneVertexPool::createFaceStreamBuffer()
     {
-
+        m_face_stream_ssbo = 2;
+        glGenBuffers(1, &m_face_stream_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_face_stream_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_face_stream_buffer), &m_face_stream_buffer, GL_DYNAMIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_face_stream_ssbo);
+        LOG_F(INFO, "Face stream ssbo size: %d",  sizeof(m_face_stream_buffer));
     }
 
+    void ZoneVertexPool::updateFaceStreamBuffer()
+    {
+        // TODO: implement this
+    }
 }
 
 

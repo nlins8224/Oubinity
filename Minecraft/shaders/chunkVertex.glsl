@@ -23,6 +23,11 @@ layout (std430, binding = 1) readonly buffer Lod
 	uint block_size[];
 } lod;
 
+layout (std430, binding = 2) readonly buffer FaceStream
+{
+	uint face[];
+} faceStream;
+
 vec2 tex[4] = vec2[4](
     vec2(0.0f, 0.0f), // Bottom left
     vec2(1.0f, 1.0f), // Top right
@@ -80,11 +85,15 @@ int indices[6] = int[6]( 0, 1, 2, 1, 0, 3 );
 
 void main()
 {
-	uint x          = vertex          & 31u; // 5 bits
-	uint y          = (vertex >> 5u)  & 31u; // 5 bits
-	uint z          = (vertex >> 10u) & 31u; // 5 bits
-	uint texture_id = (vertex >> 15u) & 31u; // 5 bits
-	uint face_id    = (vertex >> 20u) & 7u;  // 3 bits
+	// gl_VertexID = firstVertex + i
+	int face_idx = gl_VertexID / 6;
+	uint target_face = faceStream.face[face_idx];
+	
+	uint x          = target_face          & 31u; // 5 bits
+	uint y          = (target_face >> 5u)  & 31u; // 5 bits
+	uint z          = (target_face >> 10u) & 31u; // 5 bits
+	uint texture_id = (target_face >> 15u) & 31u; // 5 bits
+	uint face_id    = (target_face >> 20u) & 7u;  // 3 bits
 	uint vertex_id  = gl_VertexID % 6;
 
 	vec3 vertex_pos = vec3(x, y, z);

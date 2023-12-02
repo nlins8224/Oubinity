@@ -17,11 +17,9 @@
 namespace VertexPool {
 	constexpr size_t MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
 	constexpr size_t FACES_IN_BLOCK = 6;
-	constexpr size_t VERTICES_IN_FACE = 6;
-	constexpr size_t MAX_VERTICES_IN_LARGEST_BUCKET = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE; // 3 * 3 * 2^12
+	constexpr size_t MAX_VERTICES_IN_LARGEST_BUCKET = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * Block::VERTICES_PER_FACE; // 3 * 3 * 2^12
 
 	using namespace ChunkRendererSettings;
-	constexpr size_t EXTRA_BUFFER_SPACE = 512 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t MIN_BUCKETS_AMOUNT = 32768 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t TOTAL_BUCKETS_AMOUNT = std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
@@ -82,6 +80,7 @@ namespace VertexPool {
 		size_t _added_faces_amount;
 		LevelOfDetail::LevelOfDetail _lod;
 		std::vector<Vertex> _mesh;
+		std::vector<Face> _mesh_faces;
 		glm::ivec3 _chunk_world_pos;
 		bool _ready = false;
 
@@ -90,11 +89,12 @@ namespace VertexPool {
 			_ready = false;
 		}
 
-		ChunkAllocData(glm::ivec3 chunk_pos, size_t added_faces_amount, LevelOfDetail::LevelOfDetail lod, std::vector<Vertex> mesh, glm::ivec3 chunk_world_pos)
+		ChunkAllocData(glm::ivec3 chunk_pos, size_t added_faces_amount, LevelOfDetail::LevelOfDetail lod, std::vector<Vertex> mesh, std::vector<Face> mesh_faces, glm::ivec3 chunk_world_pos)
 			: _chunk_pos{chunk_pos},
 			_added_faces_amount{added_faces_amount},
 			_lod{lod},
 			_mesh{mesh},
+			_mesh_faces{mesh_faces},
 			_chunk_world_pos{chunk_world_pos}
 		{}
 	};
@@ -119,7 +119,8 @@ namespace VertexPool {
 
 		void createChunkInfoBuffer();
 		void createChunkLodBuffer();
-		void createChunkBlockInfoBuffer();
+		void createFaceStreamBuffer();
+		void updateFaceStreamBuffer();
 
 	private:
 		void initBuckets();
@@ -143,9 +144,14 @@ namespace VertexPool {
 		GLuint m_daicbo;
 		GLuint m_chunk_info_ssbo;
 		GLuint m_chunks_lod_ssbo;
+		GLuint m_face_stream_ssbo;
 
 		Vertex* m_mesh_persistent_buffer;
 		size_t m_persistent_buffer_vertices_amount;
+
+		Face m_face_stream_buffer[MAX_DAIC_AMOUNT * 1024];
+		GLuint m_face_stream_buffer_offset;
+
 		GLsync m_sync;
 
 		ChunkMetadata m_chunk_metadata;

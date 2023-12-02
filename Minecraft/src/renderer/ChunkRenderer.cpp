@@ -70,6 +70,9 @@ void ChunkRenderer::initChunks()
 			}
 		}
 	}
+
+	createInRenderDistanceChunks();
+	updateBufferIfNeedsUpdate();
 }
 
 // render thread
@@ -270,6 +273,7 @@ void ChunkRenderer::updateBufferIfNeedsUpdate()
 			allocateChunks();
 			m_vertexpool->createChunkInfoBuffer();
 			m_vertexpool->createChunkLodBuffer();
+			m_vertexpool->createFaceStreamBuffer();
 			m_buffer_needs_update.store(false);
 		}	
 }
@@ -373,6 +377,7 @@ void ChunkRenderer::allocateChunks()
 				alloc_data._added_faces_amount = pair.second->getAddedFacesAmount();
 				alloc_data._lod = pair.second->getLevelOfDetail();
 				alloc_data._mesh = std::move(pair.second->getMesh().getMeshData()); // chunk mesh is about to be allocated, vertex pool takes ownership
+				alloc_data._mesh_faces = std::move(pair.second->getFaces());
 				alloc_data._chunk_world_pos = pair.second->getWorldPos();
 				alloc_data._ready = true;
 			});
