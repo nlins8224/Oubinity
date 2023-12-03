@@ -72,6 +72,10 @@ int main()
         exit(-1);
     }
 
+    GLint max_ssbo_size;
+    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &max_ssbo_size);
+    LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
+
     //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
     while (!glfwWindowShouldClose(window.getWindow()))
     {

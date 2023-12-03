@@ -5,6 +5,7 @@ out vec3 tex_coords;
 out float shading_values;
 out float visibility;
 out float height;
+out vec4 debug_color;
 
 const float fog_density = 0.0004;
 const float fog_gradient = 1.1;
@@ -86,7 +87,28 @@ int indices[6] = int[6]( 0, 1, 2, 1, 0, 3 );
 void main()
 {
 	// gl_VertexID = firstVertex + i
-	int face_idx = gl_VertexID / 6;
+	// gl_DrawID * max_faces_in_bucket_per_lod * (local_vertex_id / 6)
+	uint face_idx = gl_DrawID * 6666 + ((gl_VertexID % 39996) / 6);
+
+	debug_color = vec4(0.2, 0.3, 0.8, 1.0);
+	if (face_idx >= 953238) { // 953238 is 144th chunk start face offset
+		debug_color = vec4(0.4, 0.7, 0.7, 1.0);
+	}
+
+	int faces_per_bucket = 6666;
+	int chunks_in_row = 14;
+
+//	for (int i = chunks_in_row; i >= 0; i--) {
+//		if (face_idx < faces_per_bucket * chunks_in_row * i) {
+//			float modif = 0.0;
+//			if (i % 2) {
+//				modif = chunks_in_row;
+//			}
+//			vec4 col = vec4(0.0, modif, i, 0.5) / float(chunks_in_row);
+//			debug_color = col;
+//		}
+//	}
+
 	uint target_face = faceStream.face[face_idx];
 	
 	uint x          = target_face          & 31u; // 5 bits

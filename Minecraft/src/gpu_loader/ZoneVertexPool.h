@@ -17,12 +17,11 @@
 namespace VertexPool {
 	constexpr size_t MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
 	constexpr size_t FACES_IN_BLOCK = 6;
-	constexpr size_t MAX_VERTICES_IN_LARGEST_BUCKET = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * Block::VERTICES_PER_FACE; // 3 * 3 * 2^12
 
 	using namespace ChunkRendererSettings;
-	constexpr size_t MIN_BUCKETS_AMOUNT = 32768 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	//constexpr size_t MIN_BUCKETS_AMOUNT = 39996 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-	constexpr size_t TOTAL_BUCKETS_AMOUNT = std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
+	constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS; //std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
 
 	static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 
@@ -72,6 +71,7 @@ namespace VertexPool {
 		std::array<size_t, 6> max_vertices_occurred;
 		std::array<size_t, 6> min_vertices_occurred;
 		std::array<size_t, 6> chunks_in_buckets;
+		size_t added_faces;
 	};
 
 	struct ChunkAllocData
@@ -125,7 +125,7 @@ namespace VertexPool {
 		void createMeshBuffer();
 		void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
 		void createFaceStreamBuffer();
-		void updateFaceStreamBuffer(std::vector<Face>& mesh, GLuint start_offset);
+		void updateFaceStreamBuffer(std::vector<Face>& mesh, int face_offset);
 		void formatVBO();
 		void waitBuffer(GLsync& sync);
 		void lockBuffer(GLsync& sync);
@@ -150,7 +150,6 @@ namespace VertexPool {
 		GLsync m_sync;
 
 		Face* m_face_stream_buffer;
-		GLuint m_face_stream_buffer_offset;
 		size_t m_mesh_faces_amount;
 		GLsync m_face_buffer_sync;
 
