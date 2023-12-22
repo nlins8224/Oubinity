@@ -86,28 +86,11 @@ int indices[6] = int[6]( 0, 1, 2, 1, 0, 3 );
 
 void main()
 {
-	// gl_VertexID = firstVertex + i
-	// gl_DrawID * max_faces_in_bucket_per_lod * (local_vertex_id / 6)
-	uint face_idx = gl_DrawID * 6666 + ((gl_VertexID % 39996) / 6);
-
-	debug_color = vec4(0.2, 0.3, 0.8, 1.0);
-	if (face_idx >= 953238) { // 953238 is 144th chunk start face offset
-		debug_color = vec4(0.4, 0.7, 0.7, 1.0);
-	}
-
-	int faces_per_bucket = 6666;
-	int chunks_in_row = 14;
-
-//	for (int i = chunks_in_row; i >= 0; i--) {
-//		if (face_idx < faces_per_bucket * chunks_in_row * i) {
-//			float modif = 0.0;
-//			if (i % 2) {
-//				modif = chunks_in_row;
-//			}
-//			vec4 col = vec4(0.0, modif, i, 0.5) / float(chunks_in_row);
-//			debug_color = col;
-//		}
-//	}
+	// VERTICES_PER_FACE and face_idx has to be uint, otherwise
+	// expression result is incorrect for gl_VertexID > 9e5, 
+	// don't know why, AFAIK GLSL spec states that ints could be used here as well
+	uint VERTICES_PER_FACE = 6;
+	uint face_idx = uint(gl_VertexID) / VERTICES_PER_FACE;
 
 	uint target_face = faceStream.face[face_idx];
 	
