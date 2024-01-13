@@ -93,6 +93,9 @@ namespace VertexPool {
         first_free_bucket->_is_free = false;
 
         size_t daic_id = m_chunk_metadata.active_daics.size() - 1;
+        LOG_F(INFO, "daic_id: %d", daic_id);
+
+
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { alloc_data._chunk_world_pos, id };
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = static_cast<GLuint>(lod.block_size);
         m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
@@ -272,9 +275,15 @@ namespace VertexPool {
         buckets_added += Three.buckets_amount;
         Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
         buckets_added += Four.buckets_amount;
-        Five.buckets_amount = std::min(TOTAL_BUCKETS_AMOUNT - buckets_added, 0ull);
+        Five.buckets_amount = std::max(TOTAL_BUCKETS_AMOUNT - buckets_added, 0ull);
         buckets_added += Five.buckets_amount;
 
+        LOG_F(INFO, "zero buckets_amount: %d", Zero.buckets_amount);
+        LOG_F(INFO, "one buckets_amount: %d", One.buckets_amount);
+        LOG_F(INFO, "two buckets_amount: %d", Two.buckets_amount);
+        LOG_F(INFO, "three buckets_amount: %d", Three.buckets_amount);
+        LOG_F(INFO, "four buckets_amount: %d", Four.buckets_amount);
+        LOG_F(INFO, "five buckets_amount: %d", Five.buckets_amount);
         LOG_F(INFO, "Total buckets amount: %zu", buckets_added);
         return buckets_added;
     }
@@ -397,5 +406,3 @@ namespace VertexPool {
 
 
 }
-
-

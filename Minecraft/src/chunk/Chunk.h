@@ -40,19 +40,20 @@ public:
 	bool isTerrainGenerated() const;
 	void setIsTerrainGenerated(bool is_generated);
 	Mesh& getMesh();
-	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& getBlockArray();
+	Block::BlockArray& getBlockArray();
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
 	std::vector<Face>& getFaces();
+
 private:
 	Mesh m_mesh;
+	Block::BlockArray* m_blocks;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
 	bool m_is_terrain_generated;
 	LevelOfDetail::LevelOfDetail m_lod;
-	std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE> m_blocks{ Block::AIR };
 	unsigned int m_added_faces{ 0 };
 
 	bool isFaceVisible(glm::ivec3 world_pos) const;

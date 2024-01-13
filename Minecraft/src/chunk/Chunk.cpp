@@ -11,6 +11,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} }
 {
 	m_is_terrain_generated = false;
+	m_blocks = new Block::BlockArray();
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -39,11 +40,13 @@ void Chunk::addChunkMesh()
 			}
 		}
 	}
+
+	delete m_blocks;
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
-	m_blocks[block_pos.x][block_pos.y][block_pos.z] = type;
+	m_blocks->set(block_pos, type);
 }
 
 glm::ivec3 Chunk::getPos() const
@@ -85,7 +88,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		return false;
 		//return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
 	}
-	return m_blocks[x][y][z] != block_id::AIR;
+	return m_blocks->get(glm::ivec3(x, y, z)) != block_id::AIR;
 }
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
@@ -115,7 +118,7 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 {
-	return m_blocks[block_pos.x][block_pos.y][block_pos.z];
+	return m_blocks->get(block_pos);
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos) const
@@ -143,9 +146,9 @@ std::vector<Face>& Chunk::getFaces()
 	return m_faces;
 }
 
-std::array<std::array<std::array<Block::block_id, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>& Chunk::getBlockArray()
+Block::BlockArray& Chunk::getBlockArray()
 {
-	return m_blocks;
+	return *m_blocks;
 }
 
 const glm::vec3 Chunk::getWorldPos() const
