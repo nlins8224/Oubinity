@@ -101,8 +101,8 @@ namespace VertexPool {
 
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { alloc_data._chunk_world_pos, id };
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = static_cast<GLuint>(lod.block_size);
-        //m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
-        //m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
+        m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
+        m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
         updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
         updateFaceStreamBuffer(alloc_data._mesh_faces, first_free_bucket->_start_offset / Block::VERTICES_PER_FACE);
@@ -114,35 +114,35 @@ namespace VertexPool {
 
     void ZoneVertexPool::free(glm::ivec3 chunk_pos)
     {
-        //if (m_chunk_pos_to_bucket_id.find(chunk_pos) == m_chunk_pos_to_bucket_id.end()) {
-        //    LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y, chunk_pos.z);
-        //    return;
-        //}
-       // fastErase(chunk_pos);
+        if (m_chunk_pos_to_bucket_id.find(chunk_pos) == m_chunk_pos_to_bucket_id.end()) {
+            LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+            return;
+        }
+        fastErase(chunk_pos);
     }
 
     void ZoneVertexPool::fastErase(glm::ivec3 chunk_pos) {
-        //std::pair<size_t, size_t> bucket_id = m_chunk_pos_to_bucket_id[chunk_pos];
-        //size_t daic_id = m_bucket_id_to_daic_id[bucket_id];
-        //size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
-        //std::pair<size_t, size_t> bucket_id_of_last_daic = getBucketIdFromDAIC(m_chunk_metadata.active_daics[last_daic_id]);
-
-        //LOG_F(5, "daic_id: %zu, zone_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_zone_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
-        //    daic_id, bucket_id.first, bucket_id.second, last_daic_id, bucket_id_of_last_daic.first, bucket_id_of_last_daic.second, chunk_pos.x, chunk_pos.y, chunk_pos.z);
-
-        //if (m_chunk_metadata.active_daics.empty() || last_daic_id < daic_id) {
-        //    LOG_F(ERROR, "An attempt to delete element %zu was made, but DAIC size is %zu", daic_id, last_daic_id);
-        //    return;
-        //}
-
-        //m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = m_chunk_metadata.active_chunk_info.chunk_pos[last_daic_id];
-        //m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = m_chunk_metadata.active_chunks_lod.chunks_lod[last_daic_id];
-        //std::swap(m_chunk_metadata.active_daics[daic_id], m_chunk_metadata.active_daics[last_daic_id]);
-
-        //m_bucket_id_to_daic_id[bucket_id_of_last_daic] = daic_id;
-        //m_chunk_buckets[bucket_id.first][bucket_id.second]._is_free = true;
-        //m_chunk_pos_to_bucket_id.erase(chunk_pos);
-        //m_chunk_metadata.active_daics.pop_back();
+        std::pair<size_t, size_t> bucket_id = m_chunk_pos_to_bucket_id[chunk_pos];
+        size_t daic_id = m_bucket_id_to_daic_id[bucket_id];
+        size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
+        std::pair<size_t, size_t> bucket_id_of_last_daic = getBucketIdFromDAIC(m_chunk_metadata.active_daics[last_daic_id]);
+        
+        LOG_F(5, "daic_id: %zu, zone_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_zone_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
+            daic_id, bucket_id.first, bucket_id.second, last_daic_id, bucket_id_of_last_daic.first, bucket_id_of_last_daic.second, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+        
+        if (m_chunk_metadata.active_daics.empty() || last_daic_id < daic_id) {
+            LOG_F(ERROR, "An attempt to delete element %zu was made, but DAIC size is %zu", daic_id, last_daic_id);
+            return;
+        }
+        
+        m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = m_chunk_metadata.active_chunk_info.chunk_pos[last_daic_id];
+        m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = m_chunk_metadata.active_chunks_lod.chunks_lod[last_daic_id];
+        std::swap(m_chunk_metadata.active_daics[daic_id], m_chunk_metadata.active_daics[last_daic_id]);
+        
+        m_bucket_id_to_daic_id[bucket_id_of_last_daic] = daic_id;
+        m_chunk_buckets[bucket_id.first][bucket_id.second]._is_free = true;
+        m_chunk_pos_to_bucket_id.erase(chunk_pos);
+        m_chunk_metadata.active_daics.pop_back();
     }
 
     //TODO: list of free buckets

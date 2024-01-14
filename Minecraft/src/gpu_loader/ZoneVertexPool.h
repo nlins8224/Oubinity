@@ -156,8 +156,8 @@ namespace VertexPool {
 
 
 		ChunkMetadata m_chunk_metadata;
-		//std::unordered_map<glm::ivec3, std::pair<size_t, size_t>> m_chunk_pos_to_bucket_id;
-		//std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> m_bucket_id_to_daic_id;
+		std::unordered_map<glm::ivec3, std::pair<size_t, size_t>> m_chunk_pos_to_bucket_id;
+		std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> m_bucket_id_to_daic_id;
 		VertexPoolStats m_stats;
 
 		std::vector<std::vector<MeshBucket>> m_chunk_buckets;
