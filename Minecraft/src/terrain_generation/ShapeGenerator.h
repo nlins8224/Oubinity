@@ -59,11 +59,9 @@ class ShapeGenerator
 public:
 	ShapeGenerator(int seed);
 	~ShapeGenerator() = default;
-	void generateSurfaceMap(Chunk& chunk);
-	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
+	NoiseMap generateSurfaceMap(Chunk& chunk);
 	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;
-	ChunkHeightMaps m_surface_maps;
 };

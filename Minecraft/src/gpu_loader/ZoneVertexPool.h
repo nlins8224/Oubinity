@@ -19,9 +19,9 @@ namespace VertexPool {
 	constexpr size_t FACES_IN_BLOCK = 6;
 
 	using namespace ChunkRendererSettings;
-	//constexpr size_t MIN_BUCKETS_AMOUNT = 39996 * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-	constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS; //std::max(TOTAL_CHUNKS, MIN_BUCKETS_AMOUNT);
+	constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
+	constexpr uint16_t BUFFER_NEEDS_UPDATE = 512;
 
 	static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 
@@ -124,6 +124,7 @@ namespace VertexPool {
 		void initZones(Vertex* buffer);
 		void createMeshBuffer();
 		void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
+		void updateMeshBufferDAIC();
 		void createFaceStreamBuffer();
 		void updateFaceStreamBuffer(std::vector<Face>& mesh, int face_offset);
 		void formatVBO();
@@ -155,11 +156,12 @@ namespace VertexPool {
 
 
 		ChunkMetadata m_chunk_metadata;
-		std::unordered_map<glm::ivec3, std::pair<size_t, size_t>> m_chunk_pos_to_bucket_id;
-		std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> m_bucket_id_to_daic_id;
+		//std::unordered_map<glm::ivec3, std::pair<size_t, size_t>> m_chunk_pos_to_bucket_id;
+		//std::unordered_map<std::pair<size_t, size_t>, size_t, pair_hash> m_bucket_id_to_daic_id;
 		VertexPoolStats m_stats;
 
 		std::vector<std::vector<MeshBucket>> m_chunk_buckets;
+		int m_buffer_needs_update_count;
 	};
 
 }
