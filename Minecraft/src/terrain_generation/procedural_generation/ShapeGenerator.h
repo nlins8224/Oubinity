@@ -1,8 +1,8 @@
 #pragma once
 #include <FastNoise/FastNoise.h>
-#include "../block/Block.h"
-#include "../chunk/Chunk.h"
-#include "../level_of_detail/LevelOfDetail.h"
+#include "../../block/Block.h"
+#include "../../chunk/Chunk.h"
+#include "../../level_of_detail/LevelOfDetail.h"
 
 namespace std
 {

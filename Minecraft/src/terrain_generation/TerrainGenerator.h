@@ -1,8 +1,9 @@
 #pragma once
+#include "../Settings.h"
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
-#include "LayerGenerator.h";
-#include "ShapeGenerator.h";
+#include "procedural_generation/ProceduralGenerator.h";
+
 
 class TerrainGenerator
 {
@@ -11,11 +12,15 @@ public:
 	TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height);
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);
-	ShapeGenerator& getShapeGenerator();
 private:
-	int m_world_seed;
-	uint8_t m_min_surface_height;
-	uint8_t m_water_height;
-	ShapeGenerator m_shape_generator;
+	NoiseMap generateHeightMap(Chunk& chunk);
+	void generateLayers(Chunk& chunk, NoiseMap height_map);
+
+#if !defined(SETTING_USE_PRELOADED_HEIGHTMAP) || !defined(SETTING_USE_PRELOADED_LAYERS)
+#endif
+
+#if defined(SETTING_USE_PRELOADED_HEIGHTMAP) || defined(SETTING_USE_PRELOADED_LAYERS)
+	ProceduralGenerator m_procedural_generator;
+#endif
 };
 
