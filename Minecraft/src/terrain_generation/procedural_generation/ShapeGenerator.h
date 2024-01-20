@@ -3,6 +3,7 @@
 #include "../../block/Block.h"
 #include "../../chunk/Chunk.h"
 #include "../../level_of_detail/LevelOfDetail.h"
+#include "../TerrainGenerationTypes.h"
 
 namespace std
 {
@@ -19,8 +20,7 @@ namespace std
 	};
 }
 
-using NoiseMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
-using ChunkHeightMaps = std::unordered_map<glm::ivec2, NoiseMap>;
+using ChunkHeightMaps = std::unordered_map<glm::ivec2, HeightMap>;
 
 namespace NoiseSettings
 {
@@ -59,8 +59,8 @@ class ShapeGenerator
 public:
 	ShapeGenerator(int seed);
 	~ShapeGenerator() = default;
-	NoiseMap generateSurfaceMap(Chunk& chunk);
-	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
+	HeightMap generateSurfaceMap(Chunk& chunk);
+	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;

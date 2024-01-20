@@ -5,12 +5,12 @@ ShapeGenerator::ShapeGenerator(int seed)
 {
 }
 
-NoiseMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
+HeightMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 {
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
 
-	NoiseMap base_map = generateHeightMap(chunk.getPos(), chunk.getLevelOfDetail(), NoiseSettings::TestSettings, m_seed);
-	NoiseMap surface_map{};
+	HeightMap base_map = generateHeightMap(chunk.getPos(), chunk.getLevelOfDetail(), NoiseSettings::TestSettings, m_seed);
+	HeightMap surface_map{};
 
 	// Temporary
 	int chunk_block_amount = chunk.getLevelOfDetail().block_amount;
@@ -26,7 +26,7 @@ NoiseMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	return surface_map;
 }
 
-NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed)
+HeightMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed)
 {
 	auto fnSimplex = FastNoise::New<FastNoise::Simplex>();
 	auto fnFractal = FastNoise::New<FastNoise::FractalFBm>();
@@ -44,7 +44,7 @@ NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 	std::vector<float> data_out(CHUNK_SIZE * CHUNK_SIZE);
 	glm::ivec3 world_pos = chunk_pos * CHUNK_SIZE;
 	fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount, chunk_pos.z * lod.block_amount, lod.block_amount, lod.block_amount, settings.frequency , seed);
-	NoiseMap height_map{};
+	HeightMap height_map{};
 
 	for (int x = 0; x < lod.block_amount; x++)
 	{

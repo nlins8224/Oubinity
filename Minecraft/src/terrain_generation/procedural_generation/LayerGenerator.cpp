@@ -7,7 +7,7 @@ LayerGenerator::LayerGenerator(int seed, uint8_t surface_height, uint8_t water_h
 {
 }
 
-void LayerGenerator::processChunk(Chunk& chunk, const NoiseMap& height_map)
+void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
 	// This is for optimization purposes; processing each block separately is slow
 	/*if (isBelowSurface(chunk.getWorldPos().y))

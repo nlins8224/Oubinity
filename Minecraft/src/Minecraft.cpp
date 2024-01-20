@@ -13,6 +13,7 @@
 #include <filesystem>
 
 #include "terrain_generation/TerrainGenerator.h"
+#include "terrain_generation/preloaded_generation/HeightMapParser.h"
 #include "PlayerInput.h"
 #include "io/Window.h"
 #include "shader/Shader.h"
@@ -77,6 +78,7 @@ int main()
     LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
 
     //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
+    HeightMapParser::parsePNGToHeightMaps("assets/heightmap.png");
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");

@@ -17,13 +17,13 @@ ProceduralGenerator::ProceduralGenerator()
 
 }
 
-NoiseMap ProceduralGenerator::generateHeightMap(Chunk& chunk)
+HeightMap ProceduralGenerator::generateHeightMap(Chunk& chunk)
 {
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
 	return m_shape_generator.generateSurfaceMap(chunk);
 }
 
-void ProceduralGenerator::generateLayers(Chunk& chunk, NoiseMap height_map)
+void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 	LayerGenerator layer_generator(m_world_seed, m_min_surface_height, m_water_height);
 	layer_generator.processChunk(chunk, height_map);

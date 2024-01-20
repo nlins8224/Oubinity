@@ -13,8 +13,8 @@ public:
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);
 private:
-	NoiseMap generateHeightMap(Chunk& chunk);
-	void generateLayers(Chunk& chunk, NoiseMap height_map);
+	HeightMap generateHeightMap(Chunk& chunk);
+	void generateLayers(Chunk& chunk, HeightMap height_map);
 
 #if !defined(SETTING_USE_PRELOADED_HEIGHTMAP) || !defined(SETTING_USE_PRELOADED_LAYERS)
 #endif

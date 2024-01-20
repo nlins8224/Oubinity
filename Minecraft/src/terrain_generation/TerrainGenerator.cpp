@@ -18,13 +18,13 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	if (chunk.isTerrainGenerated())
 		return;
 
-	NoiseMap height_map = generateHeightMap(chunk);
+	HeightMap height_map = generateHeightMap(chunk);
 	generateLayers(chunk, height_map);
 
 	chunk.setIsTerrainGenerated(true);
 }
 
-NoiseMap TerrainGenerator::generateHeightMap(Chunk& chunk)
+HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 {
 #if SETTING_USE_PRELOADED_HEIGHTMAP
 
@@ -33,7 +33,7 @@ NoiseMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 #endif
 }
 
-void TerrainGenerator::generateLayers(Chunk& chunk, NoiseMap height_map)
+void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 #if SETTING_USE_PRELOADED_LAYERS
 #else 

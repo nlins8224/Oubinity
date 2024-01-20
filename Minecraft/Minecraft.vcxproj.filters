@@ -183,6 +183,9 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -410,6 +413,12 @@
     <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chunkVertex.glsl" />
@@ -428,5 +437,10 @@
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoiseD.dll">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\heightmap.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
