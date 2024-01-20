@@ -21,9 +21,8 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	if (chunk.isTerrainGenerated())
 		return;
 
-	m_shape_generator.generateSurfaceMap(chunk);
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
-	NoiseMap surface_map{ m_shape_generator.getSurfaceMap({chunk_pos_xz}) };
+	NoiseMap surface_map{ m_shape_generator.generateSurfaceMap(chunk)};
 	
 	LayerGenerator layer_generator(m_world_seed, m_min_surface_height, m_water_height);
 	layer_generator.processChunk(chunk, surface_map);

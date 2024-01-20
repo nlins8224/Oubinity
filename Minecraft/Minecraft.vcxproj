@@ -226,7 +226,6 @@
     <ClCompile Include="src\io\Window.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
     <ClCompile Include="src\terrain_generation\TerrainGenerator.cpp" />
-    <ClCompile Include="src\chunk\VertexCompresser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h" />
@@ -238,10 +237,10 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="src\chunk\Face.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
     <ClInclude Include="src\third_party\BS_thread_pool.hpp" />
-    <ClInclude Include="src\chunk\VertexCompresser.h" />
     <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\frustum\Plane.h" />
     <ClInclude Include="src\frustum\AABox.h" />

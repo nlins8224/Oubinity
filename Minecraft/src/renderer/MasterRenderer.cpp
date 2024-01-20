@@ -11,7 +11,7 @@ MasterRenderer::MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint 
 void MasterRenderer::initConfig()
 {
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 }
 
 void MasterRenderer::clear() const

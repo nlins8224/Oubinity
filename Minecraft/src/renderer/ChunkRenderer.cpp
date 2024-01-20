@@ -70,6 +70,9 @@ void ChunkRenderer::initChunks()
 			}
 		}
 	}
+
+	createInRenderDistanceChunks();
+	updateBufferIfNeedsUpdate();
 }
 
 // render thread
@@ -365,23 +368,30 @@ void ChunkRenderer::allocateChunks()
 {
 	while (!m_chunks_to_allocate.empty())
 	{
-		glm::ivec3 chunk_pos = m_chunks_to_allocate.front();
-		VertexPool::ChunkAllocData alloc_data;
-		m_chunks_by_coord.modify_if(chunk_pos,
-			[&](const pmap::value_type& pair) {
-				alloc_data._chunk_pos = pair.second->getPos();
-				alloc_data._added_faces_amount = pair.second->getAddedFacesAmount();
-				alloc_data._lod = pair.second->getLevelOfDetail();
-				alloc_data._mesh = std::move(pair.second->getMesh().getMeshData()); // chunk mesh is about to be allocated, vertex pool takes ownership
-				alloc_data._chunk_world_pos = pair.second->getWorldPos();
-				alloc_data._ready = true;
-			});
-		if (alloc_data._ready)
-		{
-			m_vertexpool->allocate(std::move(alloc_data));
-		}
-		m_chunks_to_allocate.pop();
+		allocateChunk();
 	}
+}
+
+// main thread
+void ChunkRenderer::allocateChunk()
+{
+	glm::ivec3 chunk_pos = m_chunks_to_allocate.front();
+	VertexPool::ChunkAllocData alloc_data;
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			alloc_data._chunk_pos = pair.second->getPos();
+			alloc_data._added_faces_amount = pair.second->getAddedFacesAmount();
+			alloc_data._lod = pair.second->getLevelOfDetail();
+			alloc_data._mesh = std::move(pair.second->getMesh().getMeshData()); // chunk mesh is about to be allocated, vertex pool takes ownership
+			alloc_data._mesh_faces = std::move(pair.second->getFaces());
+			alloc_data._chunk_world_pos = pair.second->getWorldPos();
+			alloc_data._ready = true;
+		});
+	if (alloc_data._ready)
+	{
+		m_vertexpool->allocate(std::move(alloc_data));
+	}
+	m_chunks_to_allocate.pop();
 }
 
 // main thread
@@ -389,8 +399,14 @@ void ChunkRenderer::freeChunks()
 {
 	while (!m_chunks_to_free.empty())
 	{
-		glm::ivec3 chunk_pos = m_chunks_to_free.front();
-		m_vertexpool->free(chunk_pos);
-		m_chunks_to_free.pop();
+		freeChunk();
 	}
+}
+
+// main thread
+void ChunkRenderer::freeChunk()
+{
+	glm::ivec3 chunk_pos = m_chunks_to_free.front();
+	m_vertexpool->free(chunk_pos);
+	m_chunks_to_free.pop();
 }

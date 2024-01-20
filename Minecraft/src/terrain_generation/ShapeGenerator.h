@@ -35,11 +35,11 @@ namespace NoiseSettings
 
 	static const Settings TestSettings
 	{
-		.frequency{ 0.002 },
-		.octaves{ 5 },
-		.lacunarity{ 2.0 },
-		.fractal_gain{ 0.5 },
-		.weighted_strength{ 0.0 },
+		.frequency{ 0.0005 },
+		.octaves{ 4 },
+		.lacunarity{ 2.1 },
+		.fractal_gain{ 0.8 },
+		.weighted_strength{ 0.1 },
 	};
 
 	static const Settings TreeSettings
@@ -59,11 +59,9 @@ class ShapeGenerator
 public:
 	ShapeGenerator(int seed);
 	~ShapeGenerator() = default;
-	void generateSurfaceMap(Chunk& chunk);
-	NoiseMap& getSurfaceMap(glm::ivec2 chunk_pos_xz);
+	NoiseMap generateSurfaceMap(Chunk& chunk);
 	NoiseMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 
 private:
 	int m_seed;
-	ChunkHeightMaps m_surface_maps;
 };

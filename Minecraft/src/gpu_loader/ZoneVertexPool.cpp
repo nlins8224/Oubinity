@@ -3,8 +3,11 @@
 namespace VertexPool {
     ZoneVertexPool::ZoneVertexPool() :
         m_mesh_persistent_buffer{ nullptr },
+        m_face_stream_buffer{ nullptr },
         m_persistent_buffer_vertices_amount{0},
-        m_chunk_buckets{zones.size(), std::vector<MeshBucket>(0)}
+        m_mesh_faces_amount{0},
+        m_chunk_buckets{zones.size(), std::vector<MeshBucket>(0)},
+        m_buffer_needs_update_count{0}
     {
         glGenVertexArrays(1, &m_vao);
         glBindVertexArray(m_vao);
@@ -15,26 +18,36 @@ namespace VertexPool {
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
 
         calculateBucketAmountInZones();
+        m_persistent_buffer_vertices_amount = calculateTotalVertexAmount();
         createMeshBuffer();
         initZones(m_mesh_persistent_buffer);
         initBuckets();
 
+        createFaceStreamBuffer();
+
+
+        LOG_F(INFO, "Total vertices amount: %zu", m_persistent_buffer_vertices_amount);
+        LOG_F(INFO, "Total faces amount: %zu", m_mesh_faces_amount);
+
         for (int i = 0; i < zones.size(); i++)
         {
-            m_stats.min_vertices_occurred[i] = MAX_VERTICES_IN_LARGEST_BUCKET;
+            m_stats.min_vertices_occurred[i] = 50000;
             m_stats.max_vertices_occurred[i] = 0;
             m_stats.chunks_in_buckets[i] = 0;
         }
+        m_stats.added_faces = 0;
     }
 
    void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data)
     {
         unsigned int added_faces = alloc_data._added_faces_amount;
         glm::ivec3 chunk_pos = alloc_data._chunk_pos;
+        // needs to be incremented every time when allocate is called
+        m_buffer_needs_update_count++;
 
         if (added_faces == 0)
         {
-            LOG_F(5, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+            LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
         if (alloc_data._mesh.size() == 0)
@@ -42,7 +55,9 @@ namespace VertexPool {
             LOG_F(ERROR, "chunk at pos (%d, %d, %d) has a mesh size equal to 0, with %zu faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z, added_faces);
             return;
         }
-        unsigned int added_vertices = 6 * added_faces;
+      
+        m_stats.added_faces += added_faces;
+        unsigned int added_vertices = Block::VERTICES_PER_FACE * added_faces;
         size_t lod_level = alloc_data._lod.level;
         Zone zone = chooseZone(lod_level);
         MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
@@ -54,6 +69,13 @@ namespace VertexPool {
             LOG_F(ERROR, "ALL BUCKETS AT ZONE: %d ARE FULL, NO SPACE LEFT. Tried to add %d vertices, chunk pos (%d, %d, %d)", zone.level, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
             return;
         }
+
+        if ((first_free_bucket->_start_offset % Block::VERTICES_PER_FACE) != 0)
+        {
+            LOG_F(ERROR, "Offset % %d != 0, start offset: %d", Block::VERTICES_PER_FACE, first_free_bucket->_start_offset);
+            return;
+        }
+
         DAIC daic
         {
             added_vertices, // vertices in face * added_faces
@@ -64,21 +86,30 @@ namespace VertexPool {
 
         LevelOfDetail::LevelOfDetail lod = alloc_data._lod;
         size_t id = first_free_bucket->_id;
-        LOG_F(5, "Allocating bucket at level: %d, with id: %d, vertices: %d, at chunk pos: (%d, %d, %d)", zone.level, id, added_vertices, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+        LOG_F(INFO, "Allocating bucket at level: %d, with id: %d, vertex offset: %d, vertices: %d, faces: %d, at chunk pos: (%d, %d, %d)", zone.level, id, first_free_bucket->_start_offset, added_vertices, added_faces, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+        int vertex_offset = first_free_bucket->_start_offset;
+        int face_offset = vertex_offset / Block::VERTICES_PER_FACE;
+        if (face_offset == 0) face_offset = 1;
+        LOG_F(INFO, "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d", vertex_offset, face_offset, vertex_offset / face_offset);
 
         m_chunk_metadata.active_daics.push_back(daic);
         first_free_bucket->_is_free = false;
 
         size_t daic_id = m_chunk_metadata.active_daics.size() - 1;
+        LOG_F(INFO, "daic_id: %d", daic_id);
+
+
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { alloc_data._chunk_world_pos, id };
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = static_cast<GLuint>(lod.block_size);
         m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
         m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
         updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
-
+        updateFaceStreamBuffer(alloc_data._mesh_faces, first_free_bucket->_start_offset / Block::VERTICES_PER_FACE);
+        
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
         m_stats.min_vertices_occurred[zone.level] = std::min(m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
+
     }
 
     void ZoneVertexPool::free(glm::ivec3 chunk_pos)
@@ -95,19 +126,19 @@ namespace VertexPool {
         size_t daic_id = m_bucket_id_to_daic_id[bucket_id];
         size_t last_daic_id = m_chunk_metadata.active_daics.size() - 1;
         std::pair<size_t, size_t> bucket_id_of_last_daic = getBucketIdFromDAIC(m_chunk_metadata.active_daics[last_daic_id]);
-
+        
         LOG_F(5, "daic_id: %zu, zone_id: %zu, bucket_id: %zu, last_daic_id: %zu, last_zone_id: %zu, last_bucket_id: %zu, chunk_pos: (%d, %d, %d)",
             daic_id, bucket_id.first, bucket_id.second, last_daic_id, bucket_id_of_last_daic.first, bucket_id_of_last_daic.second, chunk_pos.x, chunk_pos.y, chunk_pos.z);
-
+        
         if (m_chunk_metadata.active_daics.empty() || last_daic_id < daic_id) {
             LOG_F(ERROR, "An attempt to delete element %zu was made, but DAIC size is %zu", daic_id, last_daic_id);
             return;
         }
-
+        
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = m_chunk_metadata.active_chunk_info.chunk_pos[last_daic_id];
         m_chunk_metadata.active_chunks_lod.chunks_lod[daic_id] = m_chunk_metadata.active_chunks_lod.chunks_lod[last_daic_id];
         std::swap(m_chunk_metadata.active_daics[daic_id], m_chunk_metadata.active_daics[last_daic_id]);
-
+        
         m_bucket_id_to_daic_id[bucket_id_of_last_daic] = daic_id;
         m_chunk_buckets[bucket_id.first][bucket_id.second]._is_free = true;
         m_chunk_pos_to_bucket_id.erase(chunk_pos);
@@ -149,13 +180,13 @@ namespace VertexPool {
         }
     }
 
-    void ZoneVertexPool::waitBuffer()
+    void ZoneVertexPool::waitBuffer(GLsync& sync)
     {
-        if (m_sync)
+        if (sync)
         {
             while (1)
             {
-                GLenum waitReturn = glClientWaitSync(m_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+                GLenum waitReturn = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
                 if (waitReturn == GL_ALREADY_SIGNALED || waitReturn == GL_CONDITION_SATISFIED) {
                     return;
                 }
@@ -163,13 +194,13 @@ namespace VertexPool {
         }
     }
 
-    void ZoneVertexPool::lockBuffer()
+    void ZoneVertexPool::lockBuffer(GLsync& sync)
     {
-        if (m_sync) {
-            glDeleteSync(m_sync);
+        if (sync) {
+            glDeleteSync(sync);
         }
 
-        m_sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     }
 
     ZoneVertexPool::~ZoneVertexPool()
@@ -181,9 +212,10 @@ namespace VertexPool {
     {
         for (VertexPool::Zone* zone : zones)
         {
+            LOG_F(INFO, "zone buckets amount: %d", zone->buckets_amount);
             for (size_t bucket_idx = 0; bucket_idx < zone->buckets_amount; bucket_idx++)
             {
-                MeshBucket bucket;
+                MeshBucket bucket{};
                 bucket._id = bucket_idx;
                 bucket._is_free = true;
                 bucket._start_offset = zone->start_offset + (bucket_idx * zone->max_vertices_per_bucket);
@@ -195,6 +227,7 @@ namespace VertexPool {
 
     void ZoneVertexPool::initZones(Vertex* buffer)
     {
+        // TODO: loop
         size_t vertices_in_zero_zone = Zero.max_vertices_per_bucket * Zero.buckets_amount;
         Zero.start_offset = 0;
         Zero.end_offset = vertices_in_zero_zone;
@@ -228,28 +261,39 @@ namespace VertexPool {
 
     size_t ZoneVertexPool::calculateBucketAmountInZones()
     {
+        // TODO: loop
         size_t buckets_added = 0;
-        Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+        using ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+        if (LevelOfDetail::One.draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
+            Zero.buckets_amount = std::pow(MAX_RENDERED_CHUNKS_IN_XZ_AXIS, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+            buckets_added += Zero.buckets_amount;
+            return buckets_added;
+        }
+        Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
         buckets_added += Zero.buckets_amount;
-        One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+        LOG_F(INFO, "buckets added: %d", buckets_added);
+        One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
         buckets_added += One.buckets_amount;
-        Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+        LOG_F(INFO, "buckets added: %d", buckets_added);
+        Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
         buckets_added += Two.buckets_amount;
-        Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+        LOG_F(INFO, "buckets added: %d", buckets_added);
+        Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
         buckets_added += Three.buckets_amount;
-        Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
+        LOG_F(INFO, "buckets added: %d", buckets_added);
+        Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
         buckets_added += Four.buckets_amount;
-        Five.buckets_amount = TOTAL_BUCKETS_AMOUNT - buckets_added;
+        LOG_F(INFO, "buckets added: %d", buckets_added);
+        int32_t remaining_buckets = TOTAL_BUCKETS_AMOUNT - buckets_added;
+        Five.buckets_amount = std::max(remaining_buckets, 0);
         buckets_added += Five.buckets_amount;
 
-        // For a short while Zone buffer might overflow, add extra buckets to prevent that
-        // Example: Zone is full, there are pending tasks in the queue
-        // and "allocate" tasks are preceeding "free" tasks
-        for (Zone* zone : zones)
-        {
-            zone->buckets_amount += EXTRA_BUFFER_SPACE;
-            buckets_added += EXTRA_BUFFER_SPACE;
-        }
+        LOG_F(INFO, "zero buckets_amount: %d", Zero.buckets_amount);
+        LOG_F(INFO, "one buckets_amount: %d", One.buckets_amount);
+        LOG_F(INFO, "two buckets_amount: %d", Two.buckets_amount);
+        LOG_F(INFO, "three buckets_amount: %d", Three.buckets_amount);
+        LOG_F(INFO, "four buckets_amount: %d", Four.buckets_amount);
+        LOG_F(INFO, "five buckets_amount: %d", Five.buckets_amount);
         LOG_F(INFO, "Total buckets amount: %zu", buckets_added);
         return buckets_added;
     }
@@ -271,21 +315,11 @@ namespace VertexPool {
     void ZoneVertexPool::formatVBO()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
         glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
         glVertexAttribIFormat(0, 1, GL_UNSIGNED_INT, 0);
-        glVertexAttribIFormat(1, 1, GL_UNSIGNED_INT, 0);
-
         glVertexBindingDivisor(0, 0);
-        glVertexBindingDivisor(1, 0);
-
         glVertexAttribBinding(0, 0);
-        glVertexAttribBinding(1, 1);
-
-        glBindVertexBuffer(0, m_vbo, offsetof(Vertex, _xyzs), sizeof(Vertex));
-        glBindVertexBuffer(1, m_vbo, offsetof(Vertex, _uvw), sizeof(Vertex));
+        glBindVertexBuffer(0, m_vbo, offsetof(Vertex, packed_vertex), sizeof(Vertex));
     }
 
     void ZoneVertexPool::draw()
@@ -297,33 +331,76 @@ namespace VertexPool {
         glMultiDrawArraysIndirect(
             GL_TRIANGLES,
             (GLvoid*)0,                                   // start with first draw command
-            m_chunk_metadata.active_daics.size(),     // DAIC amount
+            m_chunk_metadata.active_daics.size(),         // DAIC amount
             0                                             // tightly packed
         );
     }
 
     void ZoneVertexPool::createMeshBuffer() {
         GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-        m_persistent_buffer_vertices_amount = calculateTotalVertexAmount();
         size_t buffer_size = m_persistent_buffer_vertices_amount * sizeof(Vertex);
-        LOG_F(INFO, "createMeshBuffer buffer_size: %zu, daic size: %zu, OpenGL Error: %zu", buffer_size, m_chunk_metadata.active_daics.size(), glGetError());
+        LOG_F(INFO, "createMeshBuffer buffer_size: %zu, daic size: %zu, OpenGL Error: %d", buffer_size, m_chunk_metadata.active_daics.size(), glGetError());
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferStorage(GL_ARRAY_BUFFER, buffer_size, 0, flags);
         m_mesh_persistent_buffer = (Vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, buffer_size, flags);
 
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
-        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_DYNAMIC_DRAW);
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_STATIC_DRAW);
     }
 
     void ZoneVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
     {
         OPTICK_EVENT("updateMeshBuffer");
-        waitBuffer();
-        std::copy(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
-        lockBuffer();
+        waitBuffer(m_sync);
+        std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
+        lockBuffer(m_sync);
 
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
-        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_DYNAMIC_DRAW);
+        updateMeshBufferDAIC();
+    }
+
+    void ZoneVertexPool::updateMeshBufferDAIC()
+    {
+        if (m_buffer_needs_update_count >= BUFFER_NEEDS_UPDATE)
+        {
+            LOG_F(INFO, "updateMeshBufferDAIC");
+            glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
+            glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_STATIC_DRAW);
+            glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_STATIC_DRAW);
+            m_buffer_needs_update_count = 0;
+        }
+    }
+
+    void ZoneVertexPool::createFaceStreamBuffer()
+    {
+        GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+        m_mesh_faces_amount = m_persistent_buffer_vertices_amount / Block::VERTICES_PER_FACE;
+        GLint buffer_size = m_mesh_faces_amount * sizeof(Face);
+
+        GLint max_ssbo_size;
+        glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &max_ssbo_size);
+
+        if (buffer_size > max_ssbo_size)
+        {
+            LOG_F(ERROR, "buffer_size: %d, exceeds max_ssbo_size: %d", buffer_size, max_ssbo_size);
+        }
+        LOG_F(INFO, "faces amount: %zu, face stream buffer size: %zu", m_mesh_faces_amount, buffer_size);
+        m_face_stream_ssbo = 2;
+
+        glGenBuffers(1, &m_face_stream_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_face_stream_ssbo);
+        glBufferStorage(GL_SHADER_STORAGE_BUFFER, buffer_size, 0, flags);
+        m_face_stream_buffer = (Face*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, buffer_size, flags);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 2);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_face_stream_ssbo);
+    }
+
+    void ZoneVertexPool::updateFaceStreamBuffer(std::vector<Face>& mesh, int face_offset)
+    {
+        waitBuffer(m_face_buffer_sync);
+        std::move(mesh.begin(), mesh.end(), m_face_stream_buffer + face_offset );
+        lockBuffer(m_face_buffer_sync);
+        LOG_F(INFO, "face offset: %d, faces amount: %d", face_offset, mesh.size());
     }
 
     void ZoneVertexPool::createChunkInfoBuffer()
@@ -348,6 +425,5 @@ namespace VertexPool {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
     }
 
+
 }
-
-

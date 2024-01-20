@@ -1,12 +1,11 @@
 #include "ShapeGenerator.h"
 
 ShapeGenerator::ShapeGenerator(int seed)
-	: m_seed{seed},
-	m_surface_maps{}
+	: m_seed{seed}
 {
 }
 
-void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
+NoiseMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 {
 	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
 
@@ -19,12 +18,12 @@ void ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	{
 		for (int z = 0; z < chunk_block_amount; z++)
 		{
-			float base_height = ((base_map[x][z] + 1.0f) / 2) * 100.0f;
+			float base_height = ((base_map[x][z] + 1.0f) / 2) * 300.0f;
 			surface_map[x][z] = base_height;
 		}
 	}
 
-	m_surface_maps[chunk_pos_xz] = surface_map;
+	return surface_map;
 }
 
 NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed)
@@ -56,9 +55,4 @@ NoiseMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 	}
 
 	return height_map;
-}
-
-NoiseMap& ShapeGenerator::getSurfaceMap(glm::ivec2 chunk_pos_xz)
-{
-	return m_surface_maps.at(chunk_pos_xz);
 }

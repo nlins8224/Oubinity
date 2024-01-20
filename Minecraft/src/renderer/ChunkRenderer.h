@@ -54,7 +54,9 @@ private:
 	bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
 	void allocateChunks();
+	void allocateChunk();
 	void freeChunks();
+	void freeChunk();
 
 	Camera& m_camera;
 	glm::ivec3 m_camera_last_chunk_pos;
