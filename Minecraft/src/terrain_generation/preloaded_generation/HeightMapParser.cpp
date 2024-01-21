@@ -29,11 +29,14 @@ namespace PreloadedGeneration
 		}
 
 		std::vector<HeightMap> height_maps{};
-		for (int i = 0; i < width; i += CHUNK_SIZE) {
-			for (int j = 0; j < height; j += CHUNK_SIZE) {
-				LOG_F(INFO, "%d", png_image[i * width + j]);
-				int chunk_offset = i * width + j;
-				height_maps.push_back(parsePNGToHeightMap(png_image + chunk_offset, width));
+		for (int x = 0; x < height; x += CHUNK_SIZE) {
+			for (int z = 0; z < width; z += CHUNK_SIZE) {
+				int chunk_offset = x * width + z;
+				glm::ivec3 chunk_pos_xz{ x, 0, z };
+				chunk_pos_xz /= CHUNK_SIZE;
+				// map from height map coords to chunk pos coords
+				chunk_pos_xz -= (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS - 1) / 2;
+				height_maps.push_back(parsePNGToHeightMap(png_image + chunk_offset, width, chunk_pos_xz));
 			}
 		}
 
@@ -41,12 +44,16 @@ namespace PreloadedGeneration
 		return height_maps;
 	}
 
-	HeightMap parsePNGToHeightMap(unsigned char* png_image, int width)
+	HeightMap parsePNGToHeightMap(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz)
 	{
+		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
+		int block_size = lod.block_size;
+		int block_amount = lod.block_amount;
+
 		HeightMap height_map{};
-		for (int x = 0; x < CHUNK_SIZE; x++) {
-			for (int z = 0; z < CHUNK_SIZE; z++) {
-				height_map[x][z] = png_image[x * width + z];
+		for (int x = 0; x < block_amount; x++) {
+			for (int z = 0; z < block_amount; z++) {
+				height_map[x][z] = chunk_image[(x * block_size * width) + (z * block_size)];
 			}
 		}
 		return height_map;

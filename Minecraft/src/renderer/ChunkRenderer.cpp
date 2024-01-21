@@ -313,7 +313,8 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 	m_chunks_by_coord.lazy_emplace_l(chunk_pos,
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
-			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+			glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
 			m_terrain_generator->generateChunkTerrain(*chunk);
 			chunk->addChunkMesh();	
@@ -355,7 +356,8 @@ void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 {
-	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(m_camera, chunk_pos);
+	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 	bool needs_update = false;
 	m_chunks_by_coord.if_contains(chunk_pos, [&](const pmap::value_type& pair) {
 		needs_update = pair.second->getLevelOfDetail().level != lod.level;
