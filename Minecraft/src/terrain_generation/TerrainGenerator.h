@@ -3,6 +3,7 @@
 #include "../chunk/Chunk.h"
 #include "../chunk/ChunkSize.h"
 #include "procedural_generation/ProceduralGenerator.h";
+#include "preloaded_generation/PreloadedGenerator.h"
 
 
 class TerrainGenerator
@@ -16,11 +17,13 @@ private:
 	HeightMap generateHeightMap(Chunk& chunk);
 	void generateLayers(Chunk& chunk, HeightMap height_map);
 
-#if !defined(SETTING_USE_PRELOADED_HEIGHTMAP) || !defined(SETTING_USE_PRELOADED_LAYERS)
-#endif
-
-#if defined(SETTING_USE_PRELOADED_HEIGHTMAP) || defined(SETTING_USE_PRELOADED_LAYERS)
+#if SETTING_USE_PRELOADED_HEIGHTMAP == 0 || SETTING_USE_PRELOADED_LAYERS == 0
 	ProceduralGenerator m_procedural_generator;
 #endif
+
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
+	PreloadedGenerator m_preloaded_generator;
+#endif
+
 };
 

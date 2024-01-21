@@ -5,8 +5,8 @@
 #include "../TerrainGenerationTypes.h"
 #include "../../loguru.hpp"
 
-namespace HeightMapParser 
+namespace PreloadedGeneration 
 {
 	std::vector<HeightMap> parsePNGToHeightMaps(std::string filepath);
-	HeightMap parsePNGToHeightMap(unsigned char* png_image, int height_offset, int width_offset);
+	HeightMap parsePNGToHeightMap(unsigned char* chunk_height_map, int width);
 }

@@ -1,6 +1,6 @@
 #include "HeightMapParser.h"
 
-namespace HeightMapParser
+namespace PreloadedGeneration
 {
 	std::vector<HeightMap> parsePNGToHeightMaps(std::string filepath)
 	{
@@ -29,10 +29,11 @@ namespace HeightMapParser
 		}
 
 		std::vector<HeightMap> height_maps{};
-		for (int i = 0; i < height; i += CHUNK_SIZE) {
-			for (int j = 0; j < width; j += CHUNK_SIZE) {
+		for (int i = 0; i < width; i += CHUNK_SIZE) {
+			for (int j = 0; j < height; j += CHUNK_SIZE) {
 				LOG_F(INFO, "%d", png_image[i * width + j]);
-				height_maps.push_back(parsePNGToHeightMap(png_image, i, j));
+				int chunk_offset = i * width + j;
+				height_maps.push_back(parsePNGToHeightMap(png_image + chunk_offset, width));
 			}
 		}
 
@@ -40,16 +41,14 @@ namespace HeightMapParser
 		return height_maps;
 	}
 
-	HeightMap parsePNGToHeightMap(unsigned char* png_image, int height_offset, int width_offset)
+	HeightMap parsePNGToHeightMap(unsigned char* png_image, int width)
 	{
 		HeightMap height_map{};
-		for (int i = height_offset; i < height_offset + CHUNK_SIZE; i++) {
-			for (int j = width_offset; j < width_offset + CHUNK_SIZE; j++) {
-				height_map[i % CHUNK_SIZE][j % CHUNK_SIZE] = png_image[i * width_offset + j];
+		for (int x = 0; x < CHUNK_SIZE; x++) {
+			for (int z = 0; z < CHUNK_SIZE; z++) {
+				height_map[x][z] = png_image[x * width + z];
 			}
 		}
 		return height_map;
 	}
-
-
 }

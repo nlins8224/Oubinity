@@ -209,6 +209,7 @@
     <ClCompile Include="src\shader\SceneShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
+    <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
     <ClInclude Include="src\Settings.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h" />
     <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h" />
     <ClInclude Include="src\third_party\BS_thread_pool.hpp" />
@@ -342,6 +344,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\heightmap.png" />
+    <Image Include="assets\heightmap_32x32.png" />
+    <Image Include="assets\heightmap_v2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

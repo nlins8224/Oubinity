@@ -186,6 +186,9 @@
     <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -419,6 +422,9 @@
     <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chunkVertex.glsl" />
@@ -440,6 +446,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\heightmap.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\heightmap_v2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\heightmap_32x32.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -78,7 +78,7 @@ int main()
     LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
 
     //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
-    HeightMapParser::parsePNGToHeightMaps("assets/heightmap.png");
+    //PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap.png");
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");
