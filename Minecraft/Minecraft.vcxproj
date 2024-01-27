@@ -344,7 +344,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\heightmap.png" />
+    <Image Include="assets\heightmap_16x16.png" />
     <Image Include="assets\heightmap_32x32.png" />
+    <Image Include="assets\heightmap_64x64.png" />
     <Image Include="assets\heightmap_v2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

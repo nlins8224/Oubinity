@@ -454,5 +454,11 @@
     <Image Include="assets\heightmap_32x32.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\heightmap_64x64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\heightmap_16x16.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
