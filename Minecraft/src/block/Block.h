@@ -4,8 +4,6 @@
 
 namespace Block {
 
-	// later this could be moved to .json or .ini file
-
 	enum block_id
 	{
 		NONE = -1,
@@ -110,6 +108,27 @@ namespace Block {
 		case OAK_LOG:	  return Oak_Log;
 		case OAK_LEAVES:  return Oak_Leaves;
 		default:		  return None;
+		}
+	}
+
+	struct Pixel_RGBA
+	{
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+		uint8_t a;
+	};
+
+	inline Pixel_RGBA getBlockColor(block_id block_id)
+	{
+		switch (block_id)
+		{
+		case DIRT:        return { 161, 124, 70, 0 };
+		//case SAND:        return { 190, 190, 128, 0 };
+		case STONE:		  return { 128, 128, 128, 0 };
+		case GRASS:		  return { 67, 129, 64, 0 };
+		//case WATER:		  return { 46, 91, 169, 0 };
+		default:		  return { 0, 0, 0, 0 };
 		}
 	}
 }

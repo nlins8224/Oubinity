@@ -208,6 +208,7 @@
     <ClCompile Include="src\shader\GradientShader.cpp" />
     <ClCompile Include="src\shader\SceneShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
+    <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp" />
@@ -215,6 +216,7 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\ShapeGenerator.cpp" />
@@ -244,8 +246,10 @@
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
     <ClInclude Include="src\Settings.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h" />
     <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h" />
     <ClInclude Include="src\third_party\BS_thread_pool.hpp" />

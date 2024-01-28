@@ -12,6 +12,7 @@ public:
 	virtual ~ProceduralGenerator() = default;
 	HeightMap generateHeightMap(Chunk& chunk);
 	void generateLayers(Chunk& chunk, HeightMap height_map);
+	void generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map);
 private:
 	int m_world_seed;
 	uint8_t m_min_surface_height;

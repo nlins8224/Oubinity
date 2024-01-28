@@ -28,3 +28,9 @@ void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 	LayerGenerator layer_generator(m_world_seed, m_min_surface_height, m_water_height);
 	layer_generator.processChunk(chunk, height_map);
 }
+
+void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map)
+{
+	LayerGenerator layer_generator(m_world_seed, m_min_surface_height, m_water_height);
+	layer_generator.processChunk(chunk, height_map, block_map);
+}

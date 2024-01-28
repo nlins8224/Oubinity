@@ -189,6 +189,12 @@
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -423,6 +429,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,20 +6,17 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t surface_height, uint8
 	m_preloaded_generator = PreloadedGenerator();
 #endif
 
-#if SETTING_USE_PRELOADED_HEIGHTMAP == 0 || SETTING_USE_PRELOADED_LAYERS == 0
-	m_procedural_generator = ProceduralGenerator(world_seed, surface_height, water_height);
-#endif
+m_procedural_generator = ProceduralGenerator(world_seed, surface_height, water_height);
+
 }
 
 TerrainGenerator::TerrainGenerator()
 {
-#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
 	m_preloaded_generator = PreloadedGenerator();
 #endif
-
-#if SETTING_USE_PRELOADED_HEIGHTMAP == 0 || SETTING_USE_PRELOADED_LAYERS == 0
 	m_procedural_generator = ProceduralGenerator();
-#endif
+
 }
 void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
@@ -43,7 +40,9 @@ HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 
 void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
-#if SETTING_USE_PRELOADED_LAYERS
+#if SETTING_USE_PRELOADED_COLORMAP
+	BlockMap block_map = m_preloaded_generator.generateBlockMap(chunk);
+	m_procedural_generator.generateLayers(chunk, height_map, block_map);
 #else 
 	m_procedural_generator.generateLayers(chunk, height_map);
 #endif

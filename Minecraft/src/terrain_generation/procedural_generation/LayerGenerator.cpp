@@ -39,6 +39,38 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 	}
 }
 
+void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map)
+{
+	// This is for optimization purposes; processing each block separately is slow
+	/*if (isBelowSurface(chunk.getWorldPos().y))
+{
+	chunk.getBlockArray().fill(Block::STONE);
+	return;
+	}*/
+
+	auto layer_handler = std::make_shared<OceanLayerHandler>(m_water_height);
+	auto surface_layer = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
+	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
+
+	layer_handler
+		->addNextLayer(underground_layer)
+		->addNextLayer(surface_layer);
+
+
+	int block_amount = chunk.getLevelOfDetail().block_amount;
+	int block_size = chunk.getLevelOfDetail().block_size;
+	for (int x = 0; x < block_amount; x++)
+	{
+		for (int y = 0; y < block_amount; y++)
+		{
+			for (int z = 0; z < block_amount; z++)
+			{
+				layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
+			}
+		}
+	}
+}
+
 bool LayerGenerator::isBelowSurface(uint8_t height)
 {
 	return height < m_min_surface_height;

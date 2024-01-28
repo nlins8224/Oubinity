@@ -17,9 +17,7 @@ private:
 	HeightMap generateHeightMap(Chunk& chunk);
 	void generateLayers(Chunk& chunk, HeightMap height_map);
 
-#if SETTING_USE_PRELOADED_HEIGHTMAP == 0 || SETTING_USE_PRELOADED_LAYERS == 0
 	ProceduralGenerator m_procedural_generator;
-#endif
 
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
 	PreloadedGenerator m_preloaded_generator;
