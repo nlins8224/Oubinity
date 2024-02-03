@@ -22,6 +22,13 @@ chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) /
 block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
 */
 
+struct FaceCornersAo {
+	uint8_t top_left;
+	uint8_t top_right;
+	uint8_t bottom_right;
+	uint8_t bottom_left;
+};
+
 class Chunk
 {
 public:
@@ -59,4 +66,10 @@ private:
 	bool isFaceVisible(glm::ivec3 world_pos) const;
 	void addVisibleFaces(glm::ivec3 block_pos);
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
+	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
+	std::array<uint8_t, Block::VERTICES_PER_FACE> faceCornersAoToVerticesAo(FaceCornersAo face_corners);
+
 };

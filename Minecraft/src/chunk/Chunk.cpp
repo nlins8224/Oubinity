@@ -102,18 +102,163 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	GLubyte texture_id{ static_cast<GLubyte>(block_id) };
 	GLubyte face_id = static_cast<GLubyte>(face_side);
 
-	Vertex vertex;
-	vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id);
+	FaceCornersAo corners_ao = calculateAmbientOcclusion(face_side, block_pos);
 
 	Face face;
-	face.packed_face = packFace(x, y, z, texture_id, face_id);
+	face.packed_face = packFace(x, y, z, texture_id, face_id, corners_ao.top_left, corners_ao.top_right, corners_ao.bottom_right, corners_ao.bottom_left);
 
+	std::array<uint8_t, Block::VERTICES_PER_FACE> vertices_ao = faceCornersAoToVerticesAo(corners_ao);
+	
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
+		Vertex vertex;
+		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id, vertices_ao[vertex_id]);
+		//LOG_F(INFO, "vertices ao: %d", vertices_ao[vertex_id]);
 		m_mesh.addVertex(vertex);
 	}
 	m_faces.push_back(face);
 	m_added_faces++;
+}
+
+FaceCornersAo Chunk::calculateAmbientOcclusion(block_mesh face_side, glm::ivec3 block_pos) {
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	FaceCornersAo corners_ao;
+
+	switch (face_side) {
+		case block_mesh::RIGHT:
+			corners_ao = calculateAoPlaneX({x + 1, y, z});
+			break;
+		case block_mesh::LEFT:
+			corners_ao = calculateAoPlaneX({x - 1, y, z});
+			break;
+		case block_mesh::TOP:
+			corners_ao = calculateAoPlaneY({x, y + 1, z});
+			break;
+		case block_mesh::BOTTOM:
+			corners_ao = calculateAoPlaneY({x, y - 1, z});
+			break;
+		case block_mesh::FRONT:
+			corners_ao = calculateAoPlaneZ({x, y, z + 1});
+			break;
+		case block_mesh::BACK:
+			corners_ao = calculateAoPlaneZ({x, y, z - 1});
+			break;
+		default:
+			LOG_F(ERROR, "This should not be reached!");
+	}
+	return corners_ao;
+}
+
+/*
+
+a0		a1
+---------
+|       |
+|       |
+|       |
+---------
+a3		a2
+
+*/
+
+/*
+* 0 - (0, 0, 1)
+* 1 - (1, 0, 1)
+* 2 - (0, 1, 1)
+* 3 - (1, 1, 1)
+* 4 - (0, 0, 0)
+* 5 - (1, 0, 0)
+* 6 - (0, 1, 0)
+* 7 - (1, 1, 0)
+* 
+      ^ Y
+      |
+      |
+      6--------7
+     /        / |
+    /        /  |
+   2--------3   |
+   |        |   |
+   |  4-----|---5  --> X
+   | /      |  /
+   |/       | /
+   0--------1
+  /
+ /
+Z 
+*/
+
+FaceCornersAo Chunk::calculateAoPlaneY(glm::ivec3 block_pos) {
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+
+	uint8_t top          = !isFaceVisible({ x,     y, z - 1 });
+	uint8_t top_left	 = !isFaceVisible({ x - 1, y, z - 1 });
+	uint8_t left         = !isFaceVisible({ x - 1, y, z     });
+	uint8_t bottom_left  = !isFaceVisible({ x - 1, y, z + 1 });
+	uint8_t bottom       = !isFaceVisible({ x,     y, z + 1 });
+	uint8_t bottom_right = !isFaceVisible({ x + 1, y, z + 1 });
+	uint8_t right	     = !isFaceVisible({ x + 1, y, z     });
+	uint8_t top_right    = !isFaceVisible({ x + 1, y, z - 1 });
+
+	uint8_t top_left_corner = left + top_left + top;
+	uint8_t top_right_corner = top + top_right + right;
+	uint8_t bottom_right_corner = right + bottom_right + bottom;
+	uint8_t bottom_left_corner = bottom + bottom_left + left;
+
+	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
+}
+
+FaceCornersAo Chunk::calculateAoPlaneX(glm::ivec3 block_pos) {
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+
+	uint8_t top			 = !isFaceVisible({ x, y,     z - 1 });
+	uint8_t top_left     = !isFaceVisible({ x, y - 1, z - 1 });
+	uint8_t left		 = !isFaceVisible({ x, y - 1, z     });
+	uint8_t bottom_left  = !isFaceVisible({ x, y - 1, z + 1 });
+	uint8_t bottom		 = !isFaceVisible({ x, y ,    z + 1 });
+	uint8_t bottom_right = !isFaceVisible({ x, y + 1, z + 1 });
+	uint8_t right		 = !isFaceVisible({ x, y + 1, z	   });
+	uint8_t top_right    = !isFaceVisible({ x, y + 1, z - 1 });
+
+	uint8_t top_left_corner = left + top_left + top;
+	uint8_t top_right_corner = top + top_right + right;
+	uint8_t bottom_right_corner = right + bottom_right + bottom;
+	uint8_t bottom_left_corner = bottom + bottom_left + left;
+
+	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
+}
+
+FaceCornersAo Chunk::calculateAoPlaneZ(glm::ivec3 block_pos) {
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+
+	uint8_t top			 = !isFaceVisible({ x - 1, y,     z });
+	uint8_t top_left	 = !isFaceVisible({ x - 1, y - 1, z });
+	uint8_t left		 = !isFaceVisible({ x,	   y - 1, z });
+	uint8_t bottom_left  = !isFaceVisible({ x + 1, y - 1, z });
+	uint8_t bottom	     = !isFaceVisible({ x + 1, y,     z });
+	uint8_t bottom_right = !isFaceVisible({ x + 1, y + 1, z });
+	uint8_t right		 = !isFaceVisible({ x,	   y + 1, z });
+	uint8_t top_right	 = !isFaceVisible({ x - 1, y + 1, z });
+
+	uint8_t top_left_corner = left + top_left + top;
+	uint8_t top_right_corner = top + top_right + right;
+	uint8_t bottom_right_corner = right + bottom_right + bottom;
+	uint8_t bottom_left_corner = bottom + bottom_left + left;
+
+	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
+}
+
+std::array<uint8_t, Block::VERTICES_PER_FACE> Chunk::faceCornersAoToVerticesAo(FaceCornersAo face_corners)
+{
+	std::array<uint8_t, Block::VERTICES_PER_FACE> vertices_ao{
+		face_corners.bottom_right, // v2
+		face_corners.bottom_left,  // v3
+		face_corners.top_right,    // v1
+		face_corners.bottom_left,  // v3
+		face_corners.bottom_right, // v2
+		face_corners.top_left      // v0
+	};
+	return vertices_ao;
 }
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
