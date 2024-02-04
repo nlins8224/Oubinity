@@ -20,7 +20,34 @@ Convention:
 world_pos is what it seems to be
 chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE
 block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
+
+Voxel: 
+* 0 - (0, 0, 1)
+* 1 - (1, 0, 1)
+* 2 - (0, 1, 1)
+* 3 - (1, 1, 1)
+* 4 - (0, 0, 0)
+* 5 - (1, 0, 0)
+* 6 - (0, 1, 0)
+* 7 - (1, 1, 0)
+
+	  ^ Y
+	  |
+	  |
+	  6--------7
+	 /        / |
+	/        /  |
+   2--------3   |
+   |        |   |
+   |  4-----|---5  --> X
+   | /      |  /
+   |/       | /
+   0--------1
+  /
+ /
+Z
 */
+
 
 struct FaceCornersAo {
 	uint8_t top_left;
@@ -28,6 +55,15 @@ struct FaceCornersAo {
 	uint8_t bottom_right;
 	uint8_t bottom_left;
 };
+
+//struct ChunkNeighbors {
+//	Chunk& right;
+//	Chunk& left;
+//	Chunk& top;
+//	Chunk& bottom;
+//	Chunk& front;
+//	Chunk& back;
+//};
 
 class Chunk
 {
@@ -70,6 +106,6 @@ private:
 	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
-	std::array<uint8_t, Block::VERTICES_PER_FACE> faceCornersAoToVerticesAo(FaceCornersAo face_corners);
+	//ChunkNeighbors m_chunk_neighbors;
 
 };

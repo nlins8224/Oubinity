@@ -106,13 +106,11 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 
 	Face face;
 	face.packed_face = packFace(x, y, z, texture_id, face_id, corners_ao.top_left, corners_ao.top_right, corners_ao.bottom_right, corners_ao.bottom_left);
-
-	std::array<uint8_t, Block::VERTICES_PER_FACE> vertices_ao = faceCornersAoToVerticesAo(corners_ao);
 	
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		Vertex vertex;
-		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id, vertices_ao[vertex_id]);
+		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id);
 		//LOG_F(INFO, "vertices ao: %d", vertices_ao[vertex_id]);
 		m_mesh.addVertex(vertex);
 	}
@@ -148,45 +146,6 @@ FaceCornersAo Chunk::calculateAmbientOcclusion(block_mesh face_side, glm::ivec3 
 	}
 	return corners_ao;
 }
-
-/*
-
-a0		a1
----------
-|       |
-|       |
-|       |
----------
-a3		a2
-
-*/
-
-/*
-* 0 - (0, 0, 1)
-* 1 - (1, 0, 1)
-* 2 - (0, 1, 1)
-* 3 - (1, 1, 1)
-* 4 - (0, 0, 0)
-* 5 - (1, 0, 0)
-* 6 - (0, 1, 0)
-* 7 - (1, 1, 0)
-* 
-      ^ Y
-      |
-      |
-      6--------7
-     /        / |
-    /        /  |
-   2--------3   |
-   |        |   |
-   |  4-----|---5  --> X
-   | /      |  /
-   |/       | /
-   0--------1
-  /
- /
-Z 
-*/
 
 FaceCornersAo Chunk::calculateAoPlaneY(glm::ivec3 block_pos) {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
@@ -246,19 +205,6 @@ FaceCornersAo Chunk::calculateAoPlaneZ(glm::ivec3 block_pos) {
 	uint8_t bottom_left_corner = bottom + bottom_left + left;
 
 	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
-}
-
-std::array<uint8_t, Block::VERTICES_PER_FACE> Chunk::faceCornersAoToVerticesAo(FaceCornersAo face_corners)
-{
-	std::array<uint8_t, Block::VERTICES_PER_FACE> vertices_ao{
-		face_corners.bottom_right, // v2
-		face_corners.bottom_left,  // v3
-		face_corners.top_right,    // v1
-		face_corners.bottom_left,  // v3
-		face_corners.bottom_right, // v2
-		face_corners.top_left      // v0
-	};
-	return vertices_ao;
 }
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
