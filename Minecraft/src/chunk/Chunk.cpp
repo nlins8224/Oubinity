@@ -8,7 +8,8 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	: 
 	m_chunk_pos{ chunk_pos },
 	m_lod{ lod },
-	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} }
+	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} },
+	m_state{ ChunkState::NEW }
 {
 	m_is_terrain_generated = false;
 	m_blocks = new Block::BlockArray();
@@ -18,6 +19,7 @@ Chunk::Chunk(const Chunk& chunk)
 	:
 	m_mesh{chunk.m_mesh},
 	m_chunk_pos{chunk.m_chunk_pos},
+	m_chunk_neighbors{chunk.m_chunk_neighbors},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
 	m_is_terrain_generated{chunk.m_is_terrain_generated}
@@ -27,6 +29,12 @@ Chunk::Chunk(const Chunk& chunk)
 
 void Chunk::addChunkMesh()
 {
+	//if (m_chunk_neighbors.size() == 6) {
+	//	LOG_F(INFO, "Chunk is surrounded, skipping");
+	//	return;
+	//}
+
+	LOG_F(INFO, "Chunk neighbors amount: %d", m_chunk_neighbors.size());
 	block_id block;
 	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
 	{
@@ -63,30 +71,49 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT, glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x - 1, y, z))) addFace(block_mesh::LEFT, glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y + 1, z))) addFace(block_mesh::TOP, glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x + 1, y, z))) addFace(block_mesh::RIGHT,  glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x - 1, y, z))) addFace(block_mesh::LEFT,   glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y + 1, z))) addFace(block_mesh::TOP,    glm::ivec3(x, y, z));
 	if (!isFaceVisible(glm::ivec3(x, y - 1, z))) addFace(block_mesh::BOTTOM, glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y, z + 1))) addFace(block_mesh::FRONT, glm::ivec3(x, y, z));
-	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK, glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y, z + 1))) addFace(block_mesh::FRONT,  glm::ivec3(x, y, z));
+	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK,   glm::ivec3(x, y, z));
+}
+
+inline int roundDownDivide(int a, int b) {
+	if (a >= 0) return a / b;
+	else return (a - b + 1) / b;
+}
+
+inline int getMod(int pos, int mod)
+{
+	// true modulo instead of C++ remainder modulo
+	return ((pos % mod) + mod) % mod;
 }
 
 bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 16 > 15
+	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 32 > 31
 	if (x < 0 || y < 0 || z < 0 || x >= m_lod.block_amount || y >= m_lod.block_amount || z >= m_lod.block_amount)
 	{
-		/* world_pos is incorrectly calculated */
+		int c_x = roundDownDivide(x, m_lod.block_amount);
+		int c_y = roundDownDivide(y, m_lod.block_amount);
+		int c_z = roundDownDivide(z, m_lod.block_amount);
 
-		//glm::vec3 world_pos{ m_world_pos.x + x, m_world_pos.y + y, m_world_pos.z + z };
-		//glm::ivec3 neighbour_chunk_pos = floor(world_pos / static_cast<float>(CHUNK_SIZE));
-		//int neighbour_lod_block_size = m_chunk_manager->getChunksMap().at(neighbour_chunk_pos).getLevelOfDetail().block_size;
-		//if (m_lod.block_size != neighbour_lod_block_size) // Don't try to reason about not matching LODs
-		//	return false;
+		glm::ivec3 neighbor_chunk_pos = glm::ivec3{ c_x, c_y, c_z };
+		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end()) {
+			//LOG_F(INFO, "Not found neighbor chunk at pos: {%d, %d, %d}", neighbor_chunk_pos.x, neighbor_chunk_pos.y, neighbor_chunk_pos.z);
+			return false;
+		}
+		int l_x = getMod(x, m_lod.block_amount);
+		int l_y = getMod(y, m_lod.block_amount);
+		int l_z = getMod(z, m_lod.block_amount);
 
-		return false;
-		//return m_chunk_manager->getChunkBlockId(world_pos) != block_id::AIR;
+		//LOG_F(INFO, "found neighbor chunk at pos: {%d, %d, %d}", neighbor_chunk_pos.x, neighbor_chunk_pos.y, neighbor_chunk_pos.z);
+		//LOG_F(INFO, "neighbor local pos: {%d, %d, %d}, original pos: {%d, %d, %d}", l_x, l_y, l_z, x, y, z);
+		//LOG_F(INFO, "is not air: %d", m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR);
+		return m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR;
+		//return true;
 	}
 	return m_blocks->get(glm::ivec3(x, y, z)) != block_id::AIR;
 }
@@ -235,6 +262,16 @@ Mesh& Chunk::getMesh()
 std::vector<Face>& Chunk::getFaces()
 {
 	return m_faces;
+}
+
+void Chunk::setState(ChunkState state)
+{
+	m_state = state;
+}
+
+void Chunk::setNeighbors(ChunkNeighbors neighbors)
+{
+	m_chunk_neighbors = neighbors;
 }
 
 Block::BlockArray& Chunk::getBlockArray()

@@ -291,6 +291,8 @@ bool ChunkRenderer::createInRenderDistanceChunks()
 		anything_created |= createChunkIfNotPresent(chunk_pos);
 		m_chunks_to_create.pop();
 	}
+
+	meshChunks();
 	return anything_created;
 }
 
@@ -309,7 +311,6 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT("createChunk");
-
 	m_chunks_by_coord.lazy_emplace_l(chunk_pos,
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
@@ -317,11 +318,50 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
 			m_terrain_generator->generateChunkTerrain(*chunk);
-			chunk->addChunkMesh();	
+			//chunk->addChunkMesh();	
 			ctor(chunk_pos, std::move(chunk));
-			m_chunks_to_allocate.push(chunk_pos);
+			m_chunks_to_mesh.push(chunk_pos);
+			chunk->setState(ChunkState::CREATED);
 		});
 }
+
+// render thread
+bool ChunkRenderer::meshChunks()
+{
+	LOG_F(INFO, "meshChunks called");
+	bool anything_meshed = false;
+	while (!m_chunks_to_mesh.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_mesh.front();
+		anything_meshed |= meshChunk(chunk_pos);
+		m_chunks_to_mesh.pop();
+		m_chunks_to_allocate.push(chunk_pos);
+	}
+	return anything_meshed;
+}
+
+// render thread
+bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
+{
+	ChunkNeighbors chunk_neighbors;
+	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+	m_chunks_by_coord.if_contains({ x + 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x + 1, y, z}] = pair.second; });
+	m_chunks_by_coord.if_contains({ x - 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x - 1, y, z}] = pair.second; });
+	m_chunks_by_coord.if_contains({ x, y + 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y + 1, z}] = pair.second; });
+	m_chunks_by_coord.if_contains({ x, y - 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y - 1, z}] = pair.second; });
+	m_chunks_by_coord.if_contains({ x, y, z + 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z + 1}] = pair.second; });
+	m_chunks_by_coord.if_contains({ x, y, z - 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z - 1}] = pair.second; });
+
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			pair.second->setNeighbors(chunk_neighbors);
+			pair.second->addChunkMesh();
+			pair.second->setState(ChunkState::MESHED);
+		});
+
+	return true;
+}
+
 
 // render thread
 bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
@@ -388,6 +428,7 @@ void ChunkRenderer::allocateChunk()
 			alloc_data._mesh_faces = std::move(pair.second->getFaces());
 			alloc_data._chunk_world_pos = pair.second->getWorldPos();
 			alloc_data._ready = true;
+			pair.second->setState(ChunkState::ALLOCATED);
 		});
 	if (alloc_data._ready)
 	{

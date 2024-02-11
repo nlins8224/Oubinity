@@ -56,14 +56,16 @@ struct FaceCornersAo {
 	uint8_t bottom_left;
 };
 
-//struct ChunkNeighbors {
-//	Chunk& right;
-//	Chunk& left;
-//	Chunk& top;
-//	Chunk& bottom;
-//	Chunk& front;
-//	Chunk& back;
-//};
+using ChunkNeighbors = std::unordered_map<glm::ivec3, Chunk*>;
+
+enum class ChunkState
+{
+	NONE = 0,
+	NEW,
+	CREATED,
+	MESHED,
+	ALLOCATED
+};
 
 class Chunk
 {
@@ -88,6 +90,8 @@ public:
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
 	std::vector<Face>& getFaces();
+	void setState(ChunkState state);
+	void setNeighbors(ChunkNeighbors neighbors);
 
 private:
 	Mesh m_mesh;
@@ -106,6 +110,6 @@ private:
 	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
-	//ChunkNeighbors m_chunk_neighbors;
-
+	ChunkNeighbors m_chunk_neighbors;
+	ChunkState m_state;
 };

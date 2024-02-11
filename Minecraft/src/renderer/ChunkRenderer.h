@@ -44,6 +44,8 @@ private:
 	bool createInRenderDistanceChunks(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
+	bool meshChunks();
+	bool meshChunk(glm::ivec3 chunk_pos);
 	bool deleteOutOfRenderDistanceChunks(); // called when scene was already traversed
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
@@ -75,6 +77,8 @@ private:
 	pmap m_chunks_by_coord; // used in thread safe manner, shared between render and main threads
 	std::vector<glm::ivec3> m_border_chunks; // used only on render thread
 	std::queue<glm::ivec3> m_chunks_to_create; // used only on render thread
+
+	std::queue<glm::ivec3> m_chunks_to_mesh;
 	std::queue<glm::ivec3> m_chunks_to_delete; // used only on render thread
 
 	std::queue<glm::ivec3> m_chunks_to_allocate; // render thread writes, main thread reads
