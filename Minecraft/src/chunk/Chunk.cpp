@@ -13,6 +13,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	m_is_terrain_generated = false;
 	m_blocks = new Block::BlockArray();
+	m_blocks->fill(Block::AIR);
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -49,7 +50,8 @@ void Chunk::addChunkMesh()
 		}
 	}
 
-	delete m_blocks;
+	// delete only when neighbors are in meshed state
+	//delete m_blocks;
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
@@ -79,14 +81,16 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK,   glm::ivec3(x, y, z));
 }
 
+// May overflow when near INT_MAX
+// b parameter has to be positive
 inline int roundDownDivide(int a, int b) {
 	if (a >= 0) return a / b;
 	else return (a - b + 1) / b;
 }
 
+// true modulo instead of C++ remainder modulo
 inline int getMod(int pos, int mod)
 {
-	// true modulo instead of C++ remainder modulo
 	return ((pos % mod) + mod) % mod;
 }
 
@@ -100,20 +104,22 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		int c_y = roundDownDivide(y, m_lod.block_amount);
 		int c_z = roundDownDivide(z, m_lod.block_amount);
 
-		glm::ivec3 neighbor_chunk_pos = glm::ivec3{ c_x, c_y, c_z };
-		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end()) {
-			//LOG_F(INFO, "Not found neighbor chunk at pos: {%d, %d, %d}", neighbor_chunk_pos.x, neighbor_chunk_pos.y, neighbor_chunk_pos.z);
+		glm::ivec3 neighbor_chunk_offset = glm::ivec3(c_x, c_y, c_z);
+		glm::ivec3 neighbor_chunk_pos = m_chunk_pos + neighbor_chunk_offset;
+
+		// One if statement, because there is FPS gain.
+		// If LOD don't match, return false to have seamless transitions between lod levels
+		// This creates additional "wall" and it costs a bit of FPS, but not much.
+		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
+			|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount) {
 			return false;
 		}
+
 		int l_x = getMod(x, m_lod.block_amount);
 		int l_y = getMod(y, m_lod.block_amount);
 		int l_z = getMod(z, m_lod.block_amount);
 
-		//LOG_F(INFO, "found neighbor chunk at pos: {%d, %d, %d}", neighbor_chunk_pos.x, neighbor_chunk_pos.y, neighbor_chunk_pos.z);
-		//LOG_F(INFO, "neighbor local pos: {%d, %d, %d}, original pos: {%d, %d, %d}", l_x, l_y, l_z, x, y, z);
-		//LOG_F(INFO, "is not air: %d", m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR);
 		return m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR;
-		//return true;
 	}
 	return m_blocks->get(glm::ivec3(x, y, z)) != block_id::AIR;
 }
