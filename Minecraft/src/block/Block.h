@@ -4,20 +4,19 @@
 
 namespace Block {
 
-	enum block_id
+	enum block_id : uint8_t
 	{
-		NONE = -1,
-		AIR,
-		DIRT,
-		COBBLESTONE,
-		SAND,
-		PLANKS,
-		STONE,
-		GRASS,
-		WATER,
-		OAK_LOG,
-		OAK_LEAVES,
-		AMOUNT
+		AIR = 0,
+		DIRT = 1,
+		COBBLESTONE = 2,
+		SAND = 3,
+		PLANKS = 4,
+		STONE = 5,
+		GRASS = 6,
+		WATER = 7,
+		OAK_LOG = 8,
+		OAK_LEAVES = 9,
+		AMOUNT = 10
 	};
 
 	struct Block
@@ -27,11 +26,11 @@ namespace Block {
 		std::string texture{ "" };
 	};
 
-	static const Block None
-	{
-		.id{ NONE },
-		.texture{ "not_found" }
-	};
+	//static const Block None
+	//{
+	//	.id{ NONE },
+	//	.texture{ "not_found" }
+	//};
 
 	static const Block Air
 	{
@@ -107,7 +106,7 @@ namespace Block {
 		case WATER:		  return Water;
 		case OAK_LOG:	  return Oak_Log;
 		case OAK_LEAVES:  return Oak_Leaves;
-		default:		  return None;
+		default:		  return Air;
 		}
 	}
 

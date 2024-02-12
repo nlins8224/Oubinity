@@ -74,7 +74,7 @@ public:
 	Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
-	~Chunk() = default;
+	virtual ~Chunk();
 
 	void addChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);

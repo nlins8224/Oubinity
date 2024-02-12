@@ -28,6 +28,11 @@ Chunk::Chunk(const Chunk& chunk)
 
 }
 
+Chunk::~Chunk()
+{
+	delete m_blocks;
+}
+
 void Chunk::addChunkMesh()
 {
 	//if (m_chunk_neighbors.size() == 6) {
