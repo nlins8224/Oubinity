@@ -316,7 +316,7 @@ namespace VertexPool {
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glEnableVertexAttribArray(0);
-        glVertexAttribIFormat(0, 1, GL_UNSIGNED_INT, 0);
+        glVertexAttribIFormat(0, 1, GL_UNSIGNED_BYTE, 0);
         glVertexBindingDivisor(0, 0);
         glVertexAttribBinding(0, 0);
         glBindVertexBuffer(0, m_vbo, offsetof(Vertex, packed_vertex), sizeof(Vertex));

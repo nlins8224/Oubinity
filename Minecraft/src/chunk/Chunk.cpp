@@ -40,7 +40,6 @@ void Chunk::addChunkMesh()
 	//	return;
 	//}
 
-	LOG_F(INFO, "Chunk neighbors amount: %d", m_chunk_neighbors.size());
 	block_id block;
 	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
 	{
@@ -148,8 +147,6 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		Vertex vertex;
-		vertex.packed_vertex = packVertex(x, y, z, texture_id, face_id);
-		//LOG_F(INFO, "vertices ao: %d", vertices_ao[vertex_id]);
 		m_mesh.addVertex(vertex);
 	}
 	m_faces.push_back(face);
