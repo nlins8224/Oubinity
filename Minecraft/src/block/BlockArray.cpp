@@ -1,10 +1,6 @@
 #include "BlockArray.h"
 namespace Block
 {
-	BlockArray::BlockArray()
-	{
-	}
-
 	block_id BlockArray::get(glm::ivec3 block_pos) const
 	{
 		return block_array[getBlockIndex(block_pos)];
@@ -18,5 +14,10 @@ namespace Block
 	int BlockArray::getBlockIndex(glm::ivec3 block_pos) const
 	{
 		return block_pos.x * CHUNK_SIZE * CHUNK_SIZE + block_pos.y * CHUNK_SIZE + block_pos.z;
+	}
+
+	void BlockArray::fill(block_id block_type)
+	{
+		memset(block_array, block_type, sizeof(block_array));
 	}
 }

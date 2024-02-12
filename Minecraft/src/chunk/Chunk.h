@@ -20,7 +20,52 @@ Convention:
 world_pos is what it seems to be
 chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE
 block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
+
+Voxel: 
+* 0 - (0, 0, 1)
+* 1 - (1, 0, 1)
+* 2 - (0, 1, 1)
+* 3 - (1, 1, 1)
+* 4 - (0, 0, 0)
+* 5 - (1, 0, 0)
+* 6 - (0, 1, 0)
+* 7 - (1, 1, 0)
+
+	  ^ Y
+	  |
+	  |
+	  6--------7
+	 /        / |
+	/        /  |
+   2--------3   |
+   |        |   |
+   |  4-----|---5  --> X
+   | /      |  /
+   |/       | /
+   0--------1
+  /
+ /
+Z
 */
+
+
+struct FaceCornersAo {
+	uint8_t top_left;
+	uint8_t top_right;
+	uint8_t bottom_right;
+	uint8_t bottom_left;
+};
+
+using ChunkNeighbors = std::unordered_map<glm::ivec3, Chunk*>;
+
+enum class ChunkState
+{
+	NONE = 0,
+	NEW,
+	CREATED,
+	MESHED,
+	ALLOCATED
+};
 
 class Chunk
 {
@@ -29,7 +74,7 @@ public:
 	Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 	Chunk(const Chunk& chunk);
 	Chunk() = default;
-	~Chunk() = default;
+	virtual ~Chunk();
 
 	void addChunkMesh();
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
@@ -45,6 +90,8 @@ public:
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
 	std::vector<Face>& getFaces();
+	void setState(ChunkState state);
+	void setNeighbors(ChunkNeighbors neighbors);
 
 private:
 	Mesh m_mesh;
@@ -59,4 +106,10 @@ private:
 	bool isFaceVisible(glm::ivec3 world_pos) const;
 	void addVisibleFaces(glm::ivec3 block_pos);
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
+	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
+	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
+	ChunkNeighbors m_chunk_neighbors;
+	ChunkState m_state;
 };

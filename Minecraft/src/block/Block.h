@@ -4,22 +4,19 @@
 
 namespace Block {
 
-	// later this could be moved to .json or .ini file
-
-	enum block_id
+	enum block_id : uint8_t
 	{
-		NONE = -1,
-		AIR,
-		DIRT,
-		COBBLESTONE,
-		SAND,
-		PLANKS,
-		STONE,
-		GRASS,
-		WATER,
-		OAK_LOG,
-		OAK_LEAVES,
-		AMOUNT
+		AIR = 0,
+		DIRT = 1,
+		COBBLESTONE = 2,
+		SAND = 3,
+		PLANKS = 4,
+		STONE = 5,
+		GRASS = 6,
+		WATER = 7,
+		OAK_LOG = 8,
+		OAK_LEAVES = 9,
+		AMOUNT = 10
 	};
 
 	struct Block
@@ -29,11 +26,11 @@ namespace Block {
 		std::string texture{ "" };
 	};
 
-	static const Block None
-	{
-		.id{ NONE },
-		.texture{ "not_found" }
-	};
+	//static const Block None
+	//{
+	//	.id{ NONE },
+	//	.texture{ "not_found" }
+	//};
 
 	static const Block Air
 	{
@@ -109,7 +106,28 @@ namespace Block {
 		case WATER:		  return Water;
 		case OAK_LOG:	  return Oak_Log;
 		case OAK_LEAVES:  return Oak_Leaves;
-		default:		  return None;
+		default:		  return Air;
+		}
+	}
+
+	struct Pixel_RGBA
+	{
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+		uint8_t a;
+	};
+
+	inline Pixel_RGBA getBlockColor(block_id block_id)
+	{
+		switch (block_id)
+		{
+		case DIRT:        return { 161, 124, 70, 0 };
+		//case SAND:        return { 190, 190, 128, 0 };
+		case STONE:		  return { 128, 128, 128, 0 };
+		case GRASS:		  return { 67, 129, 64, 0 };
+		//case WATER:		  return { 46, 91, 169, 0 };
+		default:		  return { 0, 0, 0, 0 };
 		}
 	}
 }

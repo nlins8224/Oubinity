@@ -208,13 +208,18 @@
     <ClCompile Include="src\shader\GradientShader.cpp" />
     <ClCompile Include="src\shader\SceneShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
-    <ClCompile Include="src\terrain_generation\LayerGenerator.cpp" />
-    <ClCompile Include="src\terrain_generation\layers\AirLayerHandler.cpp" />
-    <ClCompile Include="src\terrain_generation\layers\ChunkLayerHandler.cpp" />
-    <ClCompile Include="src\terrain_generation\layers\OceanLayerHandler.cpp" />
-    <ClCompile Include="src\terrain_generation\layers\SurfaceLayerHandler.cpp" />
-    <ClCompile Include="src\terrain_generation\layers\UndergroundLayerHandler.cpp" />
-    <ClCompile Include="src\terrain_generation\ShapeGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp" />
+    <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
+    <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp" />
+    <ClCompile Include="src\terrain_generation\procedural_generation\ShapeGenerator.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
     <ClCompile Include="src\io\Keyboard.cpp" />
     <ClCompile Include="src\Minecraft.cpp" />
@@ -240,6 +245,13 @@
     <ClInclude Include="src\chunk\Face.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
+    <ClInclude Include="src\Settings.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h" />
+    <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h" />
     <ClInclude Include="src\third_party\BS_thread_pool.hpp" />
     <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\frustum\Plane.h" />
@@ -271,13 +283,13 @@
     <ClInclude Include="src\shader\SceneShader.h" />
     <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\skybox\SkyboxMesh.h" />
-    <ClInclude Include="src\terrain_generation\LayerGenerator.h" />
-    <ClInclude Include="src\terrain_generation\layers\AirLayerHandler.h" />
-    <ClInclude Include="src\terrain_generation\layers\ChunkLayerHandler.h" />
-    <ClInclude Include="src\terrain_generation\layers\OceanLayerHandler.h" />
-    <ClInclude Include="src\terrain_generation\layers\SurfaceLayerHandler.h" />
-    <ClInclude Include="src\terrain_generation\layers\UndergroundLayerHandler.h" />
-    <ClInclude Include="src\terrain_generation\ShapeGenerator.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\LayerGenerator.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.h" />
+    <ClInclude Include="src\terrain_generation\procedural_generation\ShapeGenerator.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\block\Block.h" />
     <ClInclude Include="src\chunk\Chunk.h" />
@@ -333,6 +345,13 @@
     <None Include="shaders\sceneVertex.glsl" />
     <None Include="shaders\skyboxFragment.glsl" />
     <None Include="shaders\skyboxVertex.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\heightmap.png" />
+    <Image Include="assets\heightmap_16x16.png" />
+    <Image Include="assets\heightmap_32x32.png" />
+    <Image Include="assets\heightmap_64x64.png" />
+    <Image Include="assets\heightmap_v2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

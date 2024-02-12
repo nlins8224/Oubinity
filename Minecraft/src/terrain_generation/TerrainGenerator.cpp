@@ -1,19 +1,21 @@
 #include "TerrainGenerator.h"
 
 TerrainGenerator::TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height)
-	: m_world_seed{world_seed},
-	m_shape_generator{world_seed},
-	m_min_surface_height{surface_height},
-	m_water_height{water_height}
 {
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
+	m_preloaded_generator = PreloadedGenerator();
+#endif
+
+m_procedural_generator = ProceduralGenerator(world_seed, surface_height, water_height);
+
 }
 
 TerrainGenerator::TerrainGenerator()
-	: m_world_seed{ 1337 },
-	m_shape_generator{ 1337 },
-	m_min_surface_height{ 20 },
-	m_water_height{ 10 }
 {
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
+	m_preloaded_generator = PreloadedGenerator();
+#endif
+	m_procedural_generator = ProceduralGenerator();
 
 }
 void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
@@ -21,16 +23,27 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 	if (chunk.isTerrainGenerated())
 		return;
 
-	glm::ivec2 chunk_pos_xz = chunk.getPosXZ();
-	NoiseMap surface_map{ m_shape_generator.generateSurfaceMap(chunk)};
-	
-	LayerGenerator layer_generator(m_world_seed, m_min_surface_height, m_water_height);
-	layer_generator.processChunk(chunk, surface_map);
+	HeightMap height_map = generateHeightMap(chunk);
+	generateLayers(chunk, height_map);
 
 	chunk.setIsTerrainGenerated(true);
 }
 
-ShapeGenerator& TerrainGenerator::getShapeGenerator()
+HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 {
-	return m_shape_generator;
+#if SETTING_USE_PRELOADED_HEIGHTMAP
+	return m_preloaded_generator.generateHeightMap(chunk);
+#else 
+	return m_procedural_generator.generateHeightMap(chunk);
+#endif
+}
+
+void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
+{
+#if SETTING_USE_PRELOADED_COLORMAP
+	BlockMap block_map = m_preloaded_generator.generateBlockMap(chunk);
+	m_procedural_generator.generateLayers(chunk, height_map, block_map);
+#else 
+	m_procedural_generator.generateLayers(chunk, height_map);
+#endif
 }

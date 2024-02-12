@@ -79,9 +79,8 @@ namespace LevelOfDetail {
 		{ Five }
 	};
 
-	static uint16_t distanceToCameraInChunks(Camera& camera, glm::ivec3 chunk_pos)
+	static uint16_t distanceToCameraInChunks(glm::ivec3 camera_pos, glm::ivec3 chunk_pos)
 	{
-		glm::ivec3 camera_pos = camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 
 		/* 
 		   draw_distance |AC| segment consists of N chunks, N is even
@@ -116,9 +115,9 @@ namespace LevelOfDetail {
 		return std::max(distance_x, distance_z);
 	}
 
-	static LevelOfDetail chooseLevelOfDetail(Camera& camera, glm::ivec3 chunk_pos)
+	static LevelOfDetail chooseLevelOfDetail(glm::ivec3 camera_pos, glm::ivec3 chunk_pos)
 	{
-		uint16_t draw_distance = distanceToCameraInChunks(camera, chunk_pos);
+		uint16_t draw_distance = distanceToCameraInChunks(camera_pos, chunk_pos);
 		// multiply by 2, because distance to camera is exactly in half of the segment
 		draw_distance *= 2;
 
