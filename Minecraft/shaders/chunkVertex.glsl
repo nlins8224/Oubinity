@@ -111,7 +111,7 @@ vec3 bottom_face[4] = vec3[4](
 );
 
 float shading_table[6] = float[6](0.8f, 0.8f, 0.6f, 0.6f, 1.0f, 0.4f);
-float ambient_occlusion_values[4] = float[4](0.1f, 0.25f, 0.5f, 1.0f);
+float ambient_occlusion_values[4] = float[4](0.25f, 0.5f, 0.75f, 1.0f);
 
 uint back_face_indices[6]   = uint[6](3, 0, 1, 3, 1, 2);
 uint front_face_indices[6]  = uint[6](3, 1, 0, 3, 2, 1);
