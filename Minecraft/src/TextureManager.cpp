@@ -18,7 +18,9 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 	m_texture_width{texture_width},
 	m_texture_height{texture_height},
 	m_textures_max_amount{textures_max_amount}
-{
+
+{	
+	addWater("textures/water.png");
 	addTextures();
 	// has to be after addTextures
 	addCubemap(Skybox::skybox_faces, m_skybox_id);
@@ -72,7 +74,7 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 	unsigned char *texture_image = stbi_load(path.c_str(), &width, &height, &channels, 0);
 	if (!texture_image)
 	{
-		std::cout << "Failed to generate texture" << std::endl;
+		LOG_F(ERROR, "Failed to add texture under path: %s", path);
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	// insert texture to texture array
@@ -100,6 +102,48 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 //	glUniform1i(sampler_location, 0);
 //}
 
+void TextureManager::addWater(std::string path)
+{
+	glGenTextures(1, &m_water_id);
+	glBindTexture(GL_TEXTURE_2D, m_water_id); 
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		GLenum format;
+		switch (nrChannels)
+		{
+		case 1:
+			format = GL_LUMINANCE;
+			break;
+		case 2:
+			format = GL_LUMINANCE_ALPHA;
+			break;
+		case 3:
+			format = GL_RGB;
+			break;
+		case 4:
+			format = GL_RGBA;
+			break;
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		LOG_F(ERROR, "Failed to add texture under path: %s", path);
+	}
+	stbi_image_free(data);
+}
+
 
 void TextureManager::addCubemap(std::vector<std::string> texture_faces, GLuint& texture_id)
 {
@@ -117,11 +161,11 @@ void TextureManager::addCubemap(std::vector<std::string> texture_faces, GLuint& 
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0, GL_RGB, m_texture_width, m_texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
 			);
-			std::cout << "Texture loaded, textureID: " << texture_id << std::endl;
+			LOG_F(INFO, "Texture loaded, path: %s", path);
 		}
 		else
 		{
-		std::cout << "Cubemap tex failed to load at path: " << texture_faces[i] << std::endl;
+		LOG_F(ERROR, "Cubemap tex failed to load at path: %s", path);
 		stbi_image_free(data);
 		}
 		
@@ -137,6 +181,11 @@ void TextureManager::addCubemap(std::vector<std::string> texture_faces, GLuint& 
 GLuint TextureManager::getSkyboxTextureId()
 {
 	return m_skybox_id;
+}
+
+GLuint TextureManager::getWaterTextureId()
+{
+	return m_water_id;
 }
 
 GLuint TextureManager::getTextureArrayId()

@@ -38,10 +38,10 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(0.0f, 128.0f, 0.0f) };
-    TerrainGenerator terrain_generator{ 1337, 4, 7 };
+    TerrainGenerator terrain_generator{ 1337, 4, 12 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     PlayerInput player_input{window.getWindow(), camera};
-    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId());
+    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId(), m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(), ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE);
     FrameBuffer scene_buffer{ Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT };
     ImGuiUIManager imgui_manager(&window);
     GuiLayout gui_layout{ &imgui_manager, &scene_buffer };
@@ -53,6 +53,7 @@ int main()
 
     master_renderer.getSkyboxRenderer().getSkyboxLoader().load();
     master_renderer.getGradientRenderer().getGradientLoader().load();
+    master_renderer.getWaterRenderer().getWaterLoader().load();
     master_renderer.initConfig();
     glfwSetWindowUserPointer(window.getWindow(), &player_input);
     glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

@@ -48,13 +48,13 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 	return;
 	}*/
 
-	auto layer_handler = std::make_shared<OceanLayerHandler>(m_water_height);
-	auto surface_layer = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
+	auto layer_handler = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
+	//auto surface_layer = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 
 	layer_handler
-		->addNextLayer(underground_layer)
-		->addNextLayer(surface_layer);
+		->addNextLayer(underground_layer);
+	//	->addNextLayer(surface_layer);
 
 
 	int block_amount = chunk.getLevelOfDetail().block_amount;
