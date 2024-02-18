@@ -122,7 +122,7 @@ namespace Block {
 	{
 		switch (block_id)
 		{
-		case DIRT:        return { 161, 124, 70, 0 };
+		//case DIRT:        return { 161, 124, 70, 0 };
 		//case SAND:        return { 190, 190, 128, 0 };
 		case STONE:		  return { 128, 128, 128, 0 };
 		case GRASS:		  return { 67, 129, 64, 0 };

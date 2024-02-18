@@ -7,6 +7,7 @@
 #include "block/Block.h"
 #include "third_party/stb_image.h"
 #include "shader/Shader.h"
+#include "loguru.hpp"
 
 class TextureManager
 {
@@ -16,8 +17,10 @@ public:
 	void addTexture(std::string texture, int texture_id);
 	//void loadTexture(int sampler_location);
 	void addCubemap(std::vector<std::string> texture_faces, GLuint& texture_id);
+	void addWater(std::string path);
 	void generateMipmap();
 	GLuint getSkyboxTextureId();
+	GLuint getWaterTextureId();
 	GLuint getTextureArrayId();
 
 private:
@@ -27,6 +30,7 @@ private:
 	int m_stb_nr_channels{ 0 };
 	GLuint m_texture_array{ 0 };
 	GLuint m_skybox_id;
+	GLuint m_water_id;
 	std::vector<std::string> m_textures{};
 };
 

@@ -195,6 +195,15 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gpu_loader\WaterLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader\WaterShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\WaterRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -437,6 +446,18 @@
     <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\water\WaterMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\WaterLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shader\WaterShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\WaterRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chunkVertex.glsl" />
@@ -447,6 +468,8 @@
     <None Include="shaders\gradientFragment.glsl" />
     <None Include="shaders\sceneVertex.glsl" />
     <None Include="shaders\sceneFragment.glsl" />
+    <None Include="shaders\waterVertex.glsl" />
+    <None Include="shaders\waterFragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">
@@ -470,6 +493,60 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\heightmap_16x16.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\cobblestone.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\water.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\daisy.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\dirt.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\grass_side.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\leaves.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\not_found.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\oak_leaves.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\oak_log.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\planks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\rose.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\sand.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\snow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\stone.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\stone1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\stone2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\stone3.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
