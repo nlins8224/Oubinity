@@ -1,10 +1,11 @@
 #include "MasterRenderer.h"
 
-MasterRenderer::MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area)
+MasterRenderer::MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area, GLuint cloud_noise_texture_id)
 	: m_chunk_renderer{ ChunkRenderer(ChunkShader(), camera, texture_array_id) },
 	m_skybox_renderer{SkyboxShader(), skybox_texture_id},
 	m_water_renderer{WaterShader(), water_texture_id, water_height, water_area},
-	m_gradient_renderer{GradientShader()}
+	m_gradient_renderer{GradientShader()},
+	m_sky_renderer{SkyShader(), cloud_noise_texture_id}
 {
 	
 }
@@ -27,7 +28,8 @@ void MasterRenderer::render(Camera& camera)
 	m_chunk_renderer.updateBufferIfNeedsUpdate();
 	m_chunk_renderer.drawChunksSceneMesh();
 	m_water_renderer.render(camera);
-	m_gradient_renderer.render(camera);
+	m_sky_renderer.render(camera);
+	//m_gradient_renderer.render(camera);
 }
 
 ChunkRenderer& MasterRenderer::getChunkRenderer()
@@ -48,4 +50,9 @@ GradientRenderer& MasterRenderer::getGradientRenderer()
 WaterRenderer& MasterRenderer::getWaterRenderer()
 {
 	return m_water_renderer;
+}
+
+SkyRenderer& MasterRenderer::getSkyRenderer()
+{
+	return m_sky_renderer;
 }

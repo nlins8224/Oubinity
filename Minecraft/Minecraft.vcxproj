@@ -185,6 +185,7 @@
     <ClCompile Include="src\frustum\AABox.cpp" />
     <ClCompile Include="src\block\BlockArray.cpp" />
     <ClCompile Include="src\frustum\Frustum.cpp" />
+    <ClCompile Include="src\gpu_loader\SkyLoader.cpp" />
     <ClCompile Include="src\gpu_loader\WaterLoader.cpp" />
     <ClCompile Include="src\gpu_loader\ZoneVertexPool.cpp" />
     <ClCompile Include="src\gpu_loader\SkyboxLoader.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="src\loguru.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
+    <ClCompile Include="src\renderer\SkyRenderer.cpp" />
     <ClCompile Include="src\renderer\WaterRenderer.cpp" />
     <ClCompile Include="src\shader\ChunkShader.cpp" />
     <ClCompile Include="src\chunk\Mesh.cpp" />
@@ -210,6 +212,7 @@
     <ClCompile Include="src\shader\GradientShader.cpp" />
     <ClCompile Include="src\shader\SceneShader.cpp" />
     <ClCompile Include="src\shader\SkyboxShader.cpp" />
+    <ClCompile Include="src\shader\SkyShader.cpp" />
     <ClCompile Include="src\shader\WaterShader.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
@@ -246,11 +249,14 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\chunk\Face.h" />
+    <ClInclude Include="src\gpu_loader\SkyLoader.h" />
     <ClInclude Include="src\gpu_loader\WaterLoader.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
+    <ClInclude Include="src\renderer\SkyRenderer.h" />
     <ClInclude Include="src\renderer\WaterRenderer.h" />
     <ClInclude Include="src\Settings.h" />
+    <ClInclude Include="src\shader\SkyShader.h" />
     <ClInclude Include="src\shader\WaterShader.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
@@ -352,6 +358,8 @@
     <None Include="shaders\sceneVertex.glsl" />
     <None Include="shaders\skyboxFragment.glsl" />
     <None Include="shaders\skyboxVertex.glsl" />
+    <None Include="shaders\skyFragment.glsl" />
+    <None Include="shaders\skyVertex.glsl" />
     <None Include="shaders\waterFragment.glsl" />
     <None Include="shaders\waterVertex.glsl" />
   </ItemGroup>

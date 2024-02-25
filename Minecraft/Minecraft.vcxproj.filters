@@ -204,6 +204,15 @@
     <ClCompile Include="src\renderer\WaterRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\SkyRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader\SkyShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu_loader\SkyLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -458,6 +467,15 @@
     <ClInclude Include="src\renderer\WaterRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderer\SkyRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shader\SkyShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu_loader\SkyLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chunkVertex.glsl" />
@@ -470,6 +488,8 @@
     <None Include="shaders\sceneFragment.glsl" />
     <None Include="shaders\waterVertex.glsl" />
     <None Include="shaders\waterFragment.glsl" />
+    <None Include="shaders\skyVertex.glsl" />
+    <None Include="shaders\skyFragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\dependencies\FastNoise2\bin\FastNoise.dll">

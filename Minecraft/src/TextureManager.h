@@ -14,14 +14,15 @@ class TextureManager
 public:
 	TextureManager(int texture_witdh, int texture_height, int textures_max_amount);
 	void addTextures();
-	void addTexture(std::string texture, int texture_id);
+	void addTextureToTextureArray(std::string texture, int texture_id);
 	//void loadTexture(int sampler_location);
 	void addCubemap(std::vector<std::string> texture_faces, GLuint& texture_id);
-	void addWater(std::string path);
+	void addSingleTexture(std::string path, GLuint& handle);
 	void generateMipmap();
 	GLuint getSkyboxTextureId();
 	GLuint getWaterTextureId();
 	GLuint getTextureArrayId();
+	GLuint getCloudNoiseId();
 
 private:
 	int m_texture_width;
@@ -31,6 +32,7 @@ private:
 	GLuint m_texture_array{ 0 };
 	GLuint m_skybox_id;
 	GLuint m_water_id;
+	GLuint m_cloud_noise_id;
 	std::vector<std::string> m_textures{};
 };
 
