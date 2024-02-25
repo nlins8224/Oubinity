@@ -21,7 +21,7 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 
 {	
 	addSingleTexture("textures/water.png", m_water_id);
-	addSingleTexture("textures/sky/cloud_noise_01.png", m_cloud_noise_id);
+	addSingleTexture("textures/sky/noise5.png", m_cloud_noise_id);
 	addTextures();
 	// has to be after addTextures
 	addCubemap(Skybox::skybox_faces, m_skybox_id);
@@ -113,6 +113,9 @@ void TextureManager::addSingleTexture(std::string path, GLuint& handle)
 	// set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);

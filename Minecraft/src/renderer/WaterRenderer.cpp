@@ -31,8 +31,7 @@ void WaterRenderer::draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_water_texture_id);
 
-	const GLuint water_triangles_amount = Water::VERTICES_AMOUNT;
-	glDrawArrays(GL_TRIANGLES, 0, water_triangles_amount);
+	glDrawArrays(GL_TRIANGLES, 0, Water::VERTICES_AMOUNT);
 }
 
 WaterLoader& WaterRenderer::getWaterLoader()

@@ -41,7 +41,7 @@ int main()
     TerrainGenerator terrain_generator{ 1337, 4, 12 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     PlayerInput player_input{window.getWindow(), camera};
-    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId(), m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(), ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE, m_texture_manager.getCloudNoiseId());
+    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId(), m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(), ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE, m_texture_manager.getCloudNoiseId(), glm::ivec2{699, 393 });
     FrameBuffer scene_buffer{ Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT };
     ImGuiUIManager imgui_manager(&window);
     GuiLayout gui_layout{ &imgui_manager, &scene_buffer };
@@ -81,6 +81,8 @@ int main()
 
     //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
     //PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap.png");
+
+    double xpos, ypos;
     while (!glfwWindowShouldClose(window.getWindow()))
     {
         OPTICK_FRAME("MainThread");
@@ -103,8 +105,10 @@ int main()
             seconds_elapsed += 1.0f;
             frames_per_second = 0;
         }
-
-        player_input.processInput(delta_time);       
+        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
+        player_input.processInput(delta_time);    
+        master_renderer.setTimeElapsed(glfwGetTime());
+        master_renderer.setMousePos(glm::vec2(xpos, ypos));
         master_renderer.clear();
         master_renderer.render(camera);
 

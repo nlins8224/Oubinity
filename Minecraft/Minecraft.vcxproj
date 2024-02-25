@@ -381,6 +381,10 @@
     <Image Include="textures\planks.png" />
     <Image Include="textures\rose.png" />
     <Image Include="textures\sand.png" />
+    <Image Include="textures\sky\cloud_noise_01.png" />
+    <Image Include="textures\sky\noise2.png" />
+    <Image Include="textures\sky\three.png" />
+    <Image Include="textures\sky\whitenoise.png" />
     <Image Include="textures\snow.png" />
     <Image Include="textures\stone.png" />
     <Image Include="textures\stone1.png" />

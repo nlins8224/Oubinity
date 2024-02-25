@@ -12,11 +12,13 @@
 class MasterRenderer
 {
 public:
-	MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area, GLuint cloud_noise_texture_id);
+	MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area, GLuint cloud_noise_texture_id, glm::ivec2 resolution);
 	~MasterRenderer() = default;
 	void initConfig();
 	void clear() const;
 	void render(Camera& camera);
+	void setTimeElapsed(float time_in_sec);
+	void setMousePos(glm::vec2 mouse_pos);
 	ChunkRenderer& getChunkRenderer();
 	SkyboxRenderer& getSkyboxRenderer();
 	GradientRenderer& getGradientRenderer();
@@ -29,5 +31,7 @@ private:
 	GradientRenderer m_gradient_renderer;
 	WaterRenderer m_water_renderer;
 	SkyRenderer m_sky_renderer;
+	float m_time_elapsed_sec;
+	glm::vec2 m_mouse_pos;
 };
 

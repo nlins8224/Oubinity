@@ -569,5 +569,17 @@
     <Image Include="textures\stone3.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="textures\sky\cloud_noise_01.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\sky\three.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\sky\whitenoise.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\sky\noise2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
