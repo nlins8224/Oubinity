@@ -14,12 +14,27 @@ void SkyRenderer::render(Camera& camera)
 	m_shader.bind();
 	m_shader.setUniformVec2f("u_resolution", m_resolution);
 	m_shader.setUniformFloat("u_time", m_time_elapsed_sec);
-	glm::vec3 camera_dir = camera.getCameraDirection();
-	LOG_F(INFO, "camera dir: (%f, %f, %f)", camera_dir.x, camera_dir.y, camera_dir.z);
+	glm::vec3 camera_front = camera.getCameraFront();
+	glm::vec3 camera_right = camera.getCameraRight();
+	glm::vec3 camera_up = camera.getCameraUp();
+
+	float pitch = camera.getPitch();
+	float yaw = camera.getYaw();
+
+	//LOG_F(INFO, "camera front: (%f, %f, %f)", camera_front.x, camera_front.y, camera_front.z);
+	//LOG_F(INFO, "camera right: (%f, %f, %f)", camera_right.x, camera_right.y, camera_right.z);
+	//LOG_F(INFO, "camera up: (%f, %f, %f)", camera_up.x, camera_up.y, camera_up.z);
+
+	LOG_F(INFO, "pitch: %f, yaw: %f", pitch, yaw);
+
 	LOG_F(INFO, "mouse_pos: (%f, %f)", m_mouse_pos.x, m_mouse_pos.y);
-	m_shader.setUniformVec3f("u_camera_dir", camera.getCameraDirection());
+	m_shader.setUniformVec3f("u_camera_front", camera.getCameraFront());
+	m_shader.setUniformVec3f("u_camera_right", camera.getCameraRight());
+	m_shader.setUniformVec3f("u_camera_up", camera.getCameraUp());
 	m_shader.setUniformVec3f("u_camera_pos", camera.getCameraPos());
 	m_shader.setUniformVec2f("u_mouse", m_mouse_pos);
+	m_shader.setUniformFloat("u_pitch", camera.getPitch());
+	m_shader.setUniformFloat("u_yaw", camera.getYaw());
 
 	m_sky_loader.bindVAO();
 	//m_sky_loader.bindEBO();

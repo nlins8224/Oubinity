@@ -6,9 +6,13 @@ in vec2 tex_coords;
 uniform sampler2D cloud_noise_0;
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform vec3 u_camera_dir;
+uniform vec3 u_camera_front;
+uniform vec3 u_camera_right;
+uniform vec3 u_camera_up;
 uniform vec3 u_camera_pos;
 uniform vec2 u_mouse;
+uniform float u_pitch;
+uniform float u_yaw;
 
 // uniform vec2 u_mouse;
 // uniform float u_time;
@@ -17,11 +21,11 @@ uniform vec2 u_mouse;
 
 vec3 rotx(vec3 p, float a){
     float s = sin(a), c = cos(a);
-    return vec3(p.x, c*p.y - s*p.z, s*p.y + c*p.z);
+    return vec3(p.x, c * p.y - s * p.z, s * p.y + c * p.z);
 }
 vec3 roty(vec3 p, float a){
     float s = sin(a), c = cos(a);
-    return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z);
+    return vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z);
 }
 
 float nmzHash(vec2 q)
@@ -129,26 +133,30 @@ float plane(vec3 ro, vec3 rd, vec3 c, vec3 u, vec3 v )
 void main()
 {	
 //(fragCoord-.5*iResolution.xy)/iResolution.y;
-    vec2 bp = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
+    vec2 bp = (gl_FragCoord.xy - 1.5 * u_resolution.xy) / u_resolution.y;
     vec2 p  = bp;
 	p.x *= u_resolution.x / u_resolution.y;
-    vec2 mo = u_mouse / u_resolution.xy;
-	//vec2 mo = (u_camera_dir.xy / 2.0) + 1.0; // [-1.0, 1.0] -> [0, 1]
-    //mo = ( mo == vec2(-0.5)) ? mo = vec2(-0.4,-0.15) : mo;
-	mo.x *= u_resolution.x / u_resolution.y;
+
 	vec3 ro = vec3(0.0, 0.0, 0.0);
     vec3 rd = normalize(vec3(p, -2.7));
 
-    float dir_y = ((u_camera_dir.y / 2.0) + 0.5);
-    //rd = rotx(rd, -mo.y * 1.5 + 0.5);
-    rd = rotx(rd, dir_y);
-    rd = roty(rd, -mo.x * 0.5);
+    //float dir_y = ((u_camera_front.y / 2.0) + 0.5);
+    //float dir_x = ((u_camera_up.x / 2.0) + 0.5);
+
+    float MAX_PITCH = 90.0;
+    float MAX_YAW = 359.0;
+    float dir_y = u_pitch / MAX_PITCH;
+    float dir_x = u_yaw / MAX_YAW;
+    float PI = 3.14;
+
+    rd = rotx(rd, dir_y + (PI / 16));
+    rd = roty(rd, -dir_x * 2 * PI);
     vec3 col = vec3(0);
     
     float plane = plane(ro, rd, vec3(0.,-4.,0), vec3(1.,0.,0.), vec3(0.0,.0,1.0));
     if (plane < 5000. && plane > 0.)
     {
-       col = render_sky_color(rd);
+       col = vec3(0.46, 0.77, 0.9);
     } else {
        col = clouds(ro, rd).rgb;
     }
