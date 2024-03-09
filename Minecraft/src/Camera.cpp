@@ -7,7 +7,7 @@ Camera::Camera(glm::vec3 position)
     m_pitch(0.0f),
     m_speed(2.5f),
     m_camera_front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    m_fov(100.0f),
+    m_fov(90.0f),
     m_frustum(Frustum(getProjectionMatrix() * getViewMatrix()))
 {
     updateCameraVectors();
@@ -95,7 +95,27 @@ glm::vec3 Camera::getCameraPos()
     return m_camera_pos;
 }
 
-glm::vec3 Camera::getCameraDirection()
+glm::vec3 Camera::getCameraRight()
+{
+    return m_camera_right;
+}
+
+glm::vec3 Camera::getCameraUp()
+{
+    return m_camera_up;
+}
+
+float Camera::getPitch()
+{
+    return m_pitch;
+}
+
+float Camera::getYaw()
+{
+    return m_yaw;
+}
+
+glm::vec3 Camera::getCameraFront()
 {
     return m_camera_front;
 }

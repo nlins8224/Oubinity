@@ -20,7 +20,8 @@ TextureManager::TextureManager(int texture_width, int texture_height, int textur
 	m_textures_max_amount{textures_max_amount}
 
 {	
-	addWater("textures/water.png");
+	addSingleTexture("textures/water.png", m_water_id);
+	addSingleTexture("textures/sky/noise5.png", m_cloud_noise_id);
 	addTextures();
 	// has to be after addTextures
 	addCubemap(Skybox::skybox_faces, m_skybox_id);
@@ -58,11 +59,11 @@ void TextureManager::addTextures()
 	{
 		Block::block_id id = static_cast<Block::block_id>(i);
 		texture_name = Block::getBlockType(id).texture;
-		addTexture(texture_name, id);
+		addTextureToTextureArray(texture_name, id);
 	}
 }
 
-void TextureManager::addTexture(std::string texture, int texture_id)
+void TextureManager::addTextureToTextureArray(std::string texture, int texture_id)
 {
 	const bool is_in = std::find(m_textures.begin(), m_textures.end(), texture) != m_textures.end();
 	if (is_in)
@@ -74,7 +75,7 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 	unsigned char *texture_image = stbi_load(path.c_str(), &width, &height, &channels, 0);
 	if (!texture_image)
 	{
-		LOG_F(ERROR, "Failed to add texture under path: %s", path);
+		LOG_F(ERROR, "Failed to add texture under path: '%s'", path);
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_texture_array);
 	// insert texture to texture array
@@ -102,16 +103,19 @@ void TextureManager::addTexture(std::string texture, int texture_id)
 //	glUniform1i(sampler_location, 0);
 //}
 
-void TextureManager::addWater(std::string path)
+void TextureManager::addSingleTexture(std::string path, GLuint& handle)
 {
-	glGenTextures(1, &m_water_id);
-	glBindTexture(GL_TEXTURE_2D, m_water_id); 
+	glGenTextures(1, &handle);
+	glBindTexture(GL_TEXTURE_2D, handle);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
@@ -139,7 +143,7 @@ void TextureManager::addWater(std::string path)
 	}
 	else
 	{
-		LOG_F(ERROR, "Failed to add texture under path: %s", path);
+		LOG_F(ERROR, "Failed to add texture under path: '%s'", path);
 	}
 	stbi_image_free(data);
 }
@@ -161,11 +165,11 @@ void TextureManager::addCubemap(std::vector<std::string> texture_faces, GLuint& 
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0, GL_RGB, m_texture_width, m_texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
 			);
-			LOG_F(INFO, "Texture loaded, path: %s", path);
+			LOG_F(INFO, "Texture loaded, path: '%s'", path);
 		}
 		else
 		{
-		LOG_F(ERROR, "Cubemap tex failed to load at path: %s", path);
+		LOG_F(ERROR, "Cubemap tex failed to load at path: '%s'", path);
 		stbi_image_free(data);
 		}
 		
@@ -191,6 +195,11 @@ GLuint TextureManager::getWaterTextureId()
 GLuint TextureManager::getTextureArrayId()
 {
 	return m_texture_array;
+}
+
+GLuint TextureManager::getCloudNoiseId()
+{
+	return m_cloud_noise_id;
 }
 
 

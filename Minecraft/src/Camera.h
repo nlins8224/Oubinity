@@ -28,7 +28,11 @@ public:
     void updateCameraPos(CameraDirection direction, double dt);
     void updateCameraZoom(double dy);
     glm::vec3 getCameraPos();
-    glm::vec3 getCameraDirection();
+    glm::vec3 getCameraFront();
+    glm::vec3 getCameraRight();
+    glm::vec3 getCameraUp();
+    float getPitch();
+    float getYaw();
     Frustum getFrustum();
     void updateFrustum();
 
