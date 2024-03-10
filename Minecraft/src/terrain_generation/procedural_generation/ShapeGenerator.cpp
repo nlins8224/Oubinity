@@ -56,3 +56,17 @@ HeightMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail:
 
 	return height_map;
 }
+
+TreePresenceMap ShapeGenerator::generateTreePresenceMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed) {
+	HeightMap height_map = generateHeightMap(chunk_pos, lod, settings, seed);
+	TreePresenceMap tree_presence_map{};
+	for (int x = 0; x < lod.block_amount; x++)
+	{
+		for (int z = 0; z < lod.block_amount; z++)
+		{
+			float height_normalized = (height_map[x][z] / 2.0) + 0.5;
+			tree_presence_map[x][z] = (int)(height_normalized * 1000) % 125 == 0;
+		}
+	}
+	return tree_presence_map;
+}

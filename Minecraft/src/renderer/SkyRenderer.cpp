@@ -21,13 +21,6 @@ void SkyRenderer::render(Camera& camera)
 	float pitch = camera.getPitch();
 	float yaw = camera.getYaw();
 
-	//LOG_F(INFO, "camera front: (%f, %f, %f)", camera_front.x, camera_front.y, camera_front.z);
-	//LOG_F(INFO, "camera right: (%f, %f, %f)", camera_right.x, camera_right.y, camera_right.z);
-	//LOG_F(INFO, "camera up: (%f, %f, %f)", camera_up.x, camera_up.y, camera_up.z);
-
-	LOG_F(INFO, "pitch: %f, yaw: %f", pitch, yaw);
-
-	LOG_F(INFO, "mouse_pos: (%f, %f)", m_mouse_pos.x, m_mouse_pos.y);
 	m_shader.setUniformVec3f("u_camera_front", camera.getCameraFront());
 	m_shader.setUniformVec3f("u_camera_right", camera.getCameraRight());
 	m_shader.setUniformVec3f("u_camera_up", camera.getCameraUp());

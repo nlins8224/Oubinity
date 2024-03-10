@@ -25,7 +25,7 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 
 	HeightMap height_map = generateHeightMap(chunk);
 	generateLayers(chunk, height_map);
-
+	generateTrees(chunk, height_map);
 	chunk.setIsTerrainGenerated(true);
 }
 
@@ -51,4 +51,9 @@ void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 #else 
 	m_procedural_generator.generateLayers(chunk, height_map);
 #endif
+}
+
+void TerrainGenerator::generateTrees(Chunk& chunk, HeightMap height_map)
+{
+	m_procedural_generator.generateTrees(chunk, height_map);
 }

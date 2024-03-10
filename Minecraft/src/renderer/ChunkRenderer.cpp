@@ -318,7 +318,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
 			m_terrain_generator->generateChunkTerrain(*chunk);
-			//chunk->addChunkMesh();	
 			ctor(chunk_pos, std::move(chunk));
 			m_chunks_to_mesh.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
@@ -356,6 +355,7 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 		[&](const pmap::value_type& pair) {
 			pair.second->setNeighbors(chunk_neighbors);
 			pair.second->addChunkMesh();
+			pair.second->addChunkDecorationsMesh();
 			pair.second->setState(ChunkState::MESHED);
 		});
 

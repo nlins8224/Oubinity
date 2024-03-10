@@ -35,6 +35,15 @@ void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map, Blo
 	layer_generator.processChunk(chunk, height_map, block_map);
 }
 
+
+void ProceduralGenerator::generateTrees(Chunk& chunk, HeightMap& height_map)
+{
+	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+	TreePresenceMap tree_presence_map = m_shape_generator.generateTreePresenceMap(chunk_pos, lod, NoiseSettings::TreeSettings, m_world_seed);
+	m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map);
+}
+
 uint8_t ProceduralGenerator::getWaterHeight()
 {
 	return m_water_height;
