@@ -63,6 +63,7 @@ enum class ChunkState
 	NONE = 0,
 	NEW,
 	CREATED,
+	DECORATED,
 	MESHED,
 	ALLOCATED
 };

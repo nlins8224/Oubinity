@@ -2,11 +2,11 @@
 
 DecorationGenerator::DecorationGenerator()
 {
-	m_tree_shape.trunk_height = 8;
-	m_tree_shape.crown_height = 4;
-	m_tree_shape.crown_width = 4;
+	m_tree_shape.trunk_height = 4;
+	m_tree_shape.crown_height = 5;
+	m_tree_shape.crown_width = 5;
 	m_tree_height_boundaries.height_min = 0;
-	m_tree_height_boundaries.height_max = 16;
+	m_tree_height_boundaries.height_max = 9;
 }
 
 void DecorationGenerator::generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap tree_presence_map)

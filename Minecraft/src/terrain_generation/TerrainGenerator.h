@@ -13,7 +13,7 @@ public:
 	TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height);
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);
-	void generateTrees(Chunk& chunk, HeightMap height_map);
+	void generateTrees(Chunk& chunk);
 	uint8_t getWaterHeight();
 private:
 	HeightMap generateHeightMap(Chunk& chunk);
