@@ -42,7 +42,15 @@ void ProceduralGenerator::generateTrees(Chunk& chunk)
 	glm::ivec3 chunk_pos = chunk.getPos();
 	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 	TreePresenceMap tree_presence_map = m_shape_generator.generateTreePresenceMap(chunk_pos, lod, NoiseSettings::TreeSettings, m_world_seed);
-	m_decoration_generator.generateTrees(chunk, m_heightmaps.at(chunk_pos), tree_presence_map);
+	m_decoration_generator.generateTrees(chunk, m_heightmaps.at(chunk_pos), tree_presence_map, m_water_height);
+}
+
+void ProceduralGenerator::generateTrees(Chunk& chunk, HeightMap& height_map)
+{
+	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+	TreePresenceMap tree_presence_map = m_shape_generator.generateTreePresenceMap(chunk_pos, lod, NoiseSettings::TreeSettings, m_world_seed);
+	m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map, m_water_height);
 }
 
 uint8_t ProceduralGenerator::getWaterHeight()

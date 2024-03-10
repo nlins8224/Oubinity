@@ -10,35 +10,22 @@ Tree::Tree(uint8_t trunk_height, uint8_t crown_height, uint8_t crown_width)
 
 bool Tree::addTree(Chunk& chunk, glm::ivec3 block_pos)
 {
-	std::unordered_set<glm::ivec3> chunks_to_update_trunk = addTrunk(chunk, block_pos);
-	std::unordered_set<glm::ivec3> chunks_to_update_crown = addCrown(chunk, block_pos);
-
-	//std::unordered_set<glm::ivec3> chunks_to_update_total = {};
-	//chunks_to_update_total.insert(chunks_to_update_trunk.begin(), chunks_to_update_trunk.end());
-	//chunks_to_update_total.insert(chunks_to_update_crown.begin(), chunks_to_update_crown.end());
-
-	//for (glm::ivec3 chunk_pos : chunks_to_update_total)
-	//{
-	//	chunk.getNeighborChunk(chunk_pos).getMesh().setMeshState(MeshState::READY_TO_DECORATE);
-	//}
+	addTrunk(chunk, block_pos);
+	addCrown(chunk, block_pos);
 
 	return true;
 }
 
-std::unordered_set<glm::ivec3> Tree::addTrunk(Chunk& chunk, glm::ivec3 block_pos)
+void Tree::addTrunk(Chunk& chunk, glm::ivec3 block_pos)
 {
-	std::unordered_set<glm::ivec3> chunks_to_update = {};
 	for (uint8_t i = 0; i < TRUNK_HEIGHT; i++)
 	{
-		glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x, block_pos.y + i, block_pos.z }, Block::OAK_LOG);
-		chunks_to_update.insert(chunk_pos);
+		placeBlock(chunk, { block_pos.x, block_pos.y + i, block_pos.z }, Block::OAK_LOG);
 	}
-	return chunks_to_update;
 }
 
-std::unordered_set<glm::ivec3> Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos)
+void Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos)
 {
-	std::unordered_set<glm::ivec3> chunks_to_update = {};
 	int crown_width_halved = CROWN_WIDTH / 2;
 	int odd_remainder = CROWN_WIDTH % 2;
 	for (uint8_t y = TRUNK_HEIGHT; y < TRUNK_HEIGHT + CROWN_HEIGHT; y++)
@@ -50,16 +37,26 @@ std::unordered_set<glm::ivec3> Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos
 				if (shouldCutBlock(x, y, z))
 					continue;
 
-				glm::ivec3 chunk_pos = placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES);
-				chunks_to_update.insert(chunk_pos);
-
+				placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES);
 			}
 		}
 	}
-	return chunks_to_update;
 }
 
-glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type)
+// May overflow when near INT_MAX
+// b parameter has to be positive
+inline int roundDownDivide(int a, int b) {
+	if (a >= 0) return a / b;
+	else return (a - b + 1) / b;
+}
+
+// true modulo instead of C++ remainder modulo
+inline int getMod(int pos, int mod)
+{
+	return ((pos % mod) + mod) % mod;
+}
+
+void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type)
 {
 	int x, y, z;
 
@@ -68,21 +65,35 @@ glm::ivec3 Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id 
 	z = block_pos.z;
 
 	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 
-	chunk_pos.x += determineChunkOffset(x);
-	chunk_pos.y += determineChunkOffset(y);
-	chunk_pos.z += determineChunkOffset(z);
+	int x_offset = roundDownDivide(x, lod.block_amount);
+	int y_offset = roundDownDivide(y, lod.block_amount);
+	int z_offset = roundDownDivide(z, lod.block_amount);
 
-	//Chunk& chunk_to_modify = chunk.getNeighborChunk(chunk_pos);
+	if (x_offset == 0 && y_offset == 0 && z_offset == 0)
+	{
+		chunk.setBlock({ x, y, z }, block_type);	
+	}
+	else
+	{
+		chunk_pos.x += x_offset;
+		chunk_pos.y += y_offset;
+		chunk_pos.z += z_offset;
 
-	x = determineBlockOffset(x);
-	y = determineBlockOffset(y);
-	z = determineBlockOffset(z);
+		ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
+		if (chunk_neighbors.find(chunk_pos) != chunk_neighbors.end())
+		{
+			Chunk* chunk_to_modify = chunk.getNeighbors().at(chunk_pos);
 
-	//chunk_to_modify.setBlock({ x, y, z }, block_type);
-	chunk.setBlock({ x, y, z }, block_type);
+			x = getMod(x, lod.block_amount);
+			y = getMod(y, lod.block_amount);
+			z = getMod(z, lod.block_amount);
 
-	return chunk_pos;
+			chunk_to_modify->setBlock({ x, y, z }, block_type);
+		}
+	
+	}
 }
 
 int Tree::determineChunkOffset(int block_pos)

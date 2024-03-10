@@ -15,6 +15,7 @@ public:
 	void generateLayers(Chunk& chunk, HeightMap height_map);
 	void generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map);
 	void generateTrees(Chunk& chunk);
+	void generateTrees(Chunk& chunk, HeightMap& height_map);
 	uint8_t getWaterHeight();
 private:
 	int m_world_seed;

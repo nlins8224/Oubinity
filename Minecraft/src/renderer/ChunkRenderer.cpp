@@ -329,8 +329,21 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 {
+	ChunkNeighbors chunk_neighbors;
+	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+
+	for (int x_offset : {-1, 0, 1}) {
+		for (int y_offset : {-1, 0, 1}) {
+			for (int z_offset : {-1, 0, 1}) {
+				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
+				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors[target_chunk_pos] = pair.second; });
+			}
+		}
+	}
+
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
+			pair.second->setNeighbors(chunk_neighbors);
 			m_terrain_generator->generateTrees(*pair.second);
 			m_chunks_to_mesh.push(chunk_pos);
 			pair.second->setState(ChunkState::DECORATED);
@@ -371,20 +384,9 @@ bool ChunkRenderer::meshChunks()
 // render thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
-	ChunkNeighbors chunk_neighbors;
-	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
-	m_chunks_by_coord.if_contains({ x + 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x + 1, y, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x - 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x - 1, y, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y + 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y + 1, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y - 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y - 1, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y, z + 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z + 1}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y, z - 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z - 1}] = pair.second; });
-
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			pair.second->setNeighbors(chunk_neighbors);
 			pair.second->addChunkMesh();
-			//pair.second->addChunkDecorationsMesh();
 			pair.second->setState(ChunkState::MESHED);
 		});
 

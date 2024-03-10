@@ -58,23 +58,6 @@ void Chunk::addChunkMesh()
 	//delete m_blocks;
 }
 
-void Chunk::addChunkDecorationsMesh()
-{
-	block_id block;
-	for (int local_x = 0; local_x < CHUNK_SIZE; local_x++)
-	{
-		for (int local_y = 0; local_y < CHUNK_SIZE; local_y++)
-		{
-			for (int local_z = 0; local_z < CHUNK_SIZE; local_z++)
-			{
-				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
-				if (Block::decoration_set.contains(block))
-					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
-			}
-		}
-	}
-}
-
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
 	m_blocks->set(block_pos, type);
@@ -262,6 +245,11 @@ FaceCornersAo Chunk::calculateAoPlaneZ(glm::ivec3 block_pos) {
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 {
 	return m_blocks->get(block_pos);
+}
+
+ChunkNeighbors& Chunk::getNeighbors()
+{
+	return m_chunk_neighbors;
 }
 
 bool Chunk::isTransparent(glm::ivec3 block_pos) const

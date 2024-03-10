@@ -54,5 +54,10 @@ void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 
 void TerrainGenerator::generateTrees(Chunk& chunk)
 {
+#if SETTING_USE_PRELOADED_HEIGHTMAP
+	HeightMap height_map = m_preloaded_generator.generateHeightMap(chunk);
+	m_procedural_generator.generateTrees(chunk, height_map);
+#else
 	m_procedural_generator.generateTrees(chunk);
+#endif	
 }
