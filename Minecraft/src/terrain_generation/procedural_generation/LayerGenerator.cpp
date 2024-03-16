@@ -49,16 +49,12 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 	}*/
 
 	auto layer_handler = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
-	//auto surface_layer = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
 
 	layer_handler
 		->addNextLayer(underground_layer);
-	//	->addNextLayer(surface_layer);
-
 
 	int block_amount = chunk.getLevelOfDetail().block_amount;
-	int block_size = chunk.getLevelOfDetail().block_size;
 	for (int x = 0; x < block_amount; x++)
 	{
 		for (int y = 0; y < block_amount; y++)
