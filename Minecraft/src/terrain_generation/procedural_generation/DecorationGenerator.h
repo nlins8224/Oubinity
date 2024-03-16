@@ -24,7 +24,6 @@ public:
 	virtual ~DecorationGenerator() = default;
 	void generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap tree_presence_map, uint8_t water_height);
 private:
-	bool isChunkPosOnSurface(int chunk_pos_y, int height);
 	TreeShape m_tree_shape;
 	TreeHeightBoundaries m_tree_height_boundaries;
 

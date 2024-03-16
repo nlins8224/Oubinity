@@ -65,7 +65,7 @@ TreePresenceMap ShapeGenerator::generateTreePresenceMap(glm::ivec3 chunk_pos, Le
 		for (int z = 0; z < lod.block_amount; z++)
 		{
 			float height_normalized = (height_map[x][z] / 2.0) + 0.5;
-			tree_presence_map[x][z] = (int)(height_normalized * 1000) % 125 == 0;
+			tree_presence_map[x][z] = (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) == 0;
 		}
 	}
 	return tree_presence_map;
