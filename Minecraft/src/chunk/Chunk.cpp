@@ -247,6 +247,11 @@ Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 	return m_blocks->get(block_pos);
 }
 
+ChunkNeighbors& Chunk::getNeighbors()
+{
+	return m_chunk_neighbors;
+}
+
 bool Chunk::isTransparent(glm::ivec3 block_pos) const
 {
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;

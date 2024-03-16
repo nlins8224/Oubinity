@@ -130,5 +130,7 @@ namespace Block {
 		default:		  return { 0, 0, 0, 0 };
 		}
 	}
+
+	static const std::set<block_id> decoration_set{ OAK_LOG, OAK_LEAVES };
 }
 

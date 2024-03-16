@@ -63,6 +63,7 @@ enum class ChunkState
 	NONE = 0,
 	NEW,
 	CREATED,
+	DECORATED,
 	MESHED,
 	ALLOCATED
 };
@@ -81,6 +82,7 @@ public:
 	glm::ivec3 getPos() const;
 	glm::ivec2 getPosXZ() const;
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
+	ChunkNeighbors& getNeighbors();
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isTerrainGenerated() const;
 	void setIsTerrainGenerated(bool is_generated);
@@ -96,6 +98,7 @@ public:
 private:
 	Mesh m_mesh;
 	Block::BlockArray* m_blocks;
+	std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> m_trees;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;

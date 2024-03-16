@@ -61,7 +61,7 @@ public:
 	~ShapeGenerator() = default;
 	HeightMap generateSurfaceMap(Chunk& chunk);
 	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
-
+	TreePresenceMap generateTreePresenceMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
 private:
 	int m_seed;
 };

@@ -72,6 +72,8 @@ void ChunkRenderer::initChunks()
 	}
 
 	createInRenderDistanceChunks();
+	decorateChunks();
+	meshChunks();
 	updateBufferIfNeedsUpdate();
 }
 
@@ -121,7 +123,7 @@ void ChunkRenderer::traverseScene()
 
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
-		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createInRenderDistanceChunks());
+		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createInRenderDistanceChunks() | decorateChunks() | meshChunks());
 	}
 }
 
@@ -281,6 +283,7 @@ void ChunkRenderer::runTraverseSceneInDetachedThread()
 {
 	std::thread(&ChunkRenderer::traverseSceneLoop, this).detach();
 }
+
 // render thread
 bool ChunkRenderer::createInRenderDistanceChunks()
 {
@@ -292,7 +295,6 @@ bool ChunkRenderer::createInRenderDistanceChunks()
 		m_chunks_to_create.pop();
 	}
 
-	meshChunks();
 	return anything_created;
 }
 
@@ -318,17 +320,56 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
 			m_terrain_generator->generateChunkTerrain(*chunk);
-			//chunk->addChunkMesh();	
 			ctor(chunk_pos, std::move(chunk));
-			m_chunks_to_mesh.push(chunk_pos);
+			m_chunks_to_decorate.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
 		});
+}
+
+// render thread
+bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
+{
+	ChunkNeighbors chunk_neighbors;
+	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+
+	for (int x_offset : {-1, 0, 1}) {
+		for (int y_offset : {-1, 0, 1}) {
+			for (int z_offset : {-1, 0, 1}) {
+				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
+				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors[target_chunk_pos] = pair.second; });
+			}
+		}
+	}
+
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			pair.second->setNeighbors(chunk_neighbors);
+			m_terrain_generator->generateTrees(*pair.second);
+			m_chunks_to_mesh.push(chunk_pos);
+			pair.second->setState(ChunkState::DECORATED);
+		});
+
+	return true;
+}
+
+// render thread
+bool ChunkRenderer::decorateChunks()
+{
+	bool anything_decorated = false;
+	while (!m_chunks_to_decorate.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_decorate.front();
+		anything_decorated |= decorateChunkIfPresent(chunk_pos);
+		m_chunks_to_decorate.pop();
+	}
+	return anything_decorated;
 }
 
 // render thread
 bool ChunkRenderer::meshChunks()
 {
 	LOG_F(INFO, "meshChunks called");
+	LOG_F(INFO, "chunks to mesh: %d", m_chunks_to_mesh.size());
 	bool anything_meshed = false;
 	while (!m_chunks_to_mesh.empty())
 	{
@@ -343,18 +384,8 @@ bool ChunkRenderer::meshChunks()
 // render thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
-	ChunkNeighbors chunk_neighbors;
-	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
-	m_chunks_by_coord.if_contains({ x + 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x + 1, y, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x - 1, y, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x - 1, y, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y + 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y + 1, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y - 1, z }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y - 1, z}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y, z + 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z + 1}] = pair.second; });
-	m_chunks_by_coord.if_contains({ x, y, z - 1 }, [&](const pmap::value_type& pair) { chunk_neighbors[{x, y, z - 1}] = pair.second; });
-
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			pair.second->setNeighbors(chunk_neighbors);
 			pair.second->addChunkMesh();
 			pair.second->setState(ChunkState::MESHED);
 		});
