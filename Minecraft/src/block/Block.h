@@ -16,7 +16,8 @@ namespace Block {
 		WATER = 7,
 		OAK_LOG = 8,
 		OAK_LEAVES = 9,
-		AMOUNT = 10
+		AMOUNT = 10,
+		NONE = 255
 	};
 
 	struct Block
@@ -26,11 +27,11 @@ namespace Block {
 		std::string texture{ "" };
 	};
 
-	//static const Block None
-	//{
-	//	.id{ NONE },
-	//	.texture{ "not_found" }
-	//};
+	static const Block None
+	{
+		.id{ NONE },
+		.texture{ "not_found" }
+	};
 
 	static const Block Air
 	{

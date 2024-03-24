@@ -11,6 +11,7 @@
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
+#include "../block/PaletteBlockStorage.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
@@ -87,7 +88,7 @@ public:
 	bool isTerrainGenerated() const;
 	void setIsTerrainGenerated(bool is_generated);
 	Mesh& getMesh();
-	Block::BlockArray& getBlockArray();
+	Block::PaletteBlockStorage& getBlockArray();
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
@@ -97,7 +98,7 @@ public:
 
 private:
 	Mesh m_mesh;
-	Block::BlockArray* m_blocks;
+	Block::PaletteBlockStorage* m_blocks;
 	std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> m_trees;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;

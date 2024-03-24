@@ -12,8 +12,8 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_state{ ChunkState::NEW }
 {
 	m_is_terrain_generated = false;
-	m_blocks = new Block::BlockArray(lod);
-	m_blocks->fill(Block::AIR);
+	m_blocks = new Block::PaletteBlockStorage(lod.block_amount);
+	//m_blocks->fill(Block::AIR);
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -287,7 +287,7 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
-Block::BlockArray& Chunk::getBlockArray()
+Block::PaletteBlockStorage& Chunk::getBlockArray()
 {
 	return *m_blocks;
 }
