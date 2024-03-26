@@ -22,6 +22,11 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 	//m_palette.at(4).refcount = 0;
 }
 
+Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
+	: PaletteBlockStorage(lod.block_amount, initial_palettes_amount)
+{
+}
+
 Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos) const
 {
 	int block_index = getBlockIndex(block_pos);
@@ -62,7 +67,7 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	}
 
 	// create new palette entry
-	LOG_F(INFO, "new palette entry");
+	//LOG_F(INFO, "new palette entry");
 	uint8_t new_entry_index = newPaletteEntry();
 	//LOG_F(INFO, "new_entry_index: %d, block_type: %d, replace: %d", new_entry_index, static_cast<int>(block_type), replace);
 	m_palette.at(new_entry_index) = PaletteEntry(1, block_type);
@@ -85,7 +90,7 @@ uint8_t Block::PaletteBlockStorage::newPaletteEntry()
 
 void Block::PaletteBlockStorage::growPalette()
 {
-	LOG_F(INFO, "growPalette()");
+	//LOG_F(INFO, "growPalette()");
 	// 1. Decode indices
 	std::vector<uint8_t> indices(m_block_storage.block_amount);
 	uint32_t bit_offset = 0;
@@ -123,25 +128,6 @@ int Block::PaletteBlockStorage::findIndexOfPaletteHolding(uint8_t block_type)
 	}
 
 	return -1;
-}
-
-void Block::PaletteBlockStorage::encodeDecodeTest()
-{
-	LOG_F(INFO, "encodeDecodeTest()");
-	// 1. Decode indices
-	std::vector<uint8_t> indices(m_block_storage.block_amount);
-	uint32_t bit_offset = 0;
-	for (uint32_t i = 0; i < m_block_storage.block_amount; i++)
-	{
-		bit_offset = i * m_block_storage.block_size;
-		indices[i] = m_block_storage.get(bit_offset);
-	}
-	// 4. Encode indices
-	for (uint32_t i = 0; i < m_block_storage.block_amount; i++)
-	{
-		bit_offset = i * m_block_storage.block_size;
-		m_block_storage.set(bit_offset, indices[i]);
-	}
 }
 
 int Block::PaletteBlockStorage::getBlockIndex(glm::ivec3 block_pos) const

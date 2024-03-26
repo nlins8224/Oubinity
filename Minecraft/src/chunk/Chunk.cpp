@@ -12,7 +12,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_state{ ChunkState::NEW }
 {
 	m_is_terrain_generated = false;
-	m_blocks = new Block::PaletteBlockStorage(lod.block_amount);
+	m_blocks = new Block::PaletteBlockStorage(lod);
 	//m_blocks->fill(Block::AIR);
 }
 

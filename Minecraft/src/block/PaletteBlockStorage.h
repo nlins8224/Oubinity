@@ -3,6 +3,8 @@
 #include <vector>
 #include "Block.h"
 #include "../loguru.hpp"
+#include "../level_of_detail/LevelOfDetail.h"
+
 
 // credits to: https://www.reddit.com/r/VoxelGameDev/comments/9yu8qy/palettebased_compression_for_chunked_discrete/
 
@@ -73,7 +75,8 @@ struct BlockStorage
 class PaletteBlockStorage
 {
 public:
-	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 2);
+	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 1);
+	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 1);
 	virtual ~PaletteBlockStorage() = default;
 	block_id get(glm::ivec3 block_pos) const;
 	void set(glm::ivec3 block_pos, block_id block_type);
@@ -87,7 +90,6 @@ private:
 	BlockStorage m_block_storage;
 	uint8_t m_chunk_size;
 
-	void encodeDecodeTest();
 };
 
 }

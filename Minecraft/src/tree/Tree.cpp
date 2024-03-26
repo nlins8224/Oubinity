@@ -86,6 +86,12 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_
 		{
 			Chunk* chunk_to_modify = chunk.getNeighbors().at(chunk_pos);
 
+			// Do not set trees across lod
+			if (chunk_to_modify->getLevelOfDetail().level != chunk.getLevelOfDetail().level)
+			{
+				return;
+			}
+
 			x = getMod(x, lod.block_amount);
 			y = getMod(y, lod.block_amount);
 			z = getMod(z, lod.block_amount);
