@@ -10,11 +10,12 @@ LayerGenerator::LayerGenerator(int seed, uint8_t surface_height, uint8_t water_h
 void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
 	// This is for optimization purposes; processing each block separately is slow
-	/*if (isBelowSurface(chunk.getWorldPos().y))
+	if (isBelowSurface(chunk))
 	{
 		chunk.getBlockArray().fill(Block::STONE);
+		
 		return;
-	}*/
+	}
 
 	auto layer_handler = std::make_shared<OceanLayerHandler>(m_water_height);
 	auto surface_layer = std::make_shared<SurfaceLayerHandler>();
@@ -42,11 +43,11 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map)
 {
 	// This is for optimization purposes; processing each block separately is slow
-	/*if (isBelowSurface(chunk.getWorldPos().y))
-{
-	chunk.getBlockArray().fill(Block::STONE);
-	return;
-	}*/
+	if (isBelowSurface(chunk))
+	{
+		chunk.getBlockArray().fill(Block::STONE);
+		return;
+	}
 
 	auto layer_handler = std::make_shared<SurfacePreloadedLayerHandler>(block_map);
 	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
@@ -67,7 +68,9 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 	}
 }
 
-bool LayerGenerator::isBelowSurface(uint8_t height)
+bool LayerGenerator::isBelowSurface(Chunk& chunk)
 {
-	return height < m_min_surface_height;
+	int chunk_pos_y = chunk.getPos().y;
+	// Real CHUNK_SIZE here is correct
+	return chunk_pos_y < m_min_surface_height - CHUNK_SIZE;
 }

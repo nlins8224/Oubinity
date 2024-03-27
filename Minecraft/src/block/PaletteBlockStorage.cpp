@@ -60,7 +60,7 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	if (current.refcount == 0)
 	{
 		LOG_F(INFO, "block not in palette, but current one is empty");
-		m_block_storage.set(bit_offset, replace);
+		//m_block_storage.set(bit_offset, replace);
 		current.block_type = static_cast<block_id>(block_type);
 		current.refcount = 1;
 		return;
@@ -71,8 +71,15 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	uint8_t new_entry_index = newPaletteEntry();
 	//LOG_F(INFO, "new_entry_index: %d, block_type: %d, replace: %d", new_entry_index, static_cast<int>(block_type), replace);
 	m_palette.at(new_entry_index) = PaletteEntry(1, block_type);
+	// recalculate, because palette could grow, when newPaletteEntry() was called
 	bit_offset = block_index * m_block_storage.block_size;
 	m_block_storage.set(bit_offset, new_entry_index);
+
+}
+
+void Block::PaletteBlockStorage::fill(block_id block_type)
+{
+	std::fill(m_block_storage.blocks.begin(), m_block_storage.blocks.end(), static_cast<uint8_t>(block_type));
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()

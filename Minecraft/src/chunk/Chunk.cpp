@@ -12,6 +12,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_state{ ChunkState::NEW }
 {
 	m_is_terrain_generated = false;
+	m_is_visible = true;
 	m_blocks = new Block::PaletteBlockStorage(lod);
 	//m_blocks->fill(Block::AIR);
 }
@@ -23,7 +24,8 @@ Chunk::Chunk(const Chunk& chunk)
 	m_chunk_neighbors{chunk.m_chunk_neighbors},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
-	m_is_terrain_generated{chunk.m_is_terrain_generated}
+	m_is_terrain_generated{chunk.m_is_terrain_generated},
+	m_is_visible{chunk.m_is_visible}
 {
 
 }
@@ -265,6 +267,16 @@ bool Chunk::isTerrainGenerated() const
 void Chunk::setIsTerrainGenerated(bool is_generated)
 {
 	m_is_terrain_generated = is_generated;
+}
+
+bool Chunk::isVisible() const
+{
+	return m_is_visible;
+}
+
+void Chunk::setIsVisible(bool is_visible)
+{
+	m_is_visible = is_visible;
 }
 
 Mesh& Chunk::getMesh()

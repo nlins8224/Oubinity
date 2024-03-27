@@ -16,7 +16,7 @@ public:
 	~LayerGenerator() = default;
 	void processChunk(Chunk& chunk, const HeightMap& height_map);
 	void processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map);
-	bool isBelowSurface(uint8_t height);
+	bool isBelowSurface(Chunk& chunk);
 private:
 	int m_seed;
 	uint8_t m_min_surface_height;
