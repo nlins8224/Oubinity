@@ -344,7 +344,9 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
 			pair.second->setNeighbors(chunk_neighbors);
-			m_terrain_generator->generateTrees(*pair.second);
+			#if SETTING_TREES_ENABLED
+				m_terrain_generator->generateTrees(*pair.second);
+			#endif
 			m_chunks_to_mesh.push(chunk_pos);
 			pair.second->setState(ChunkState::DECORATED);
 		});
