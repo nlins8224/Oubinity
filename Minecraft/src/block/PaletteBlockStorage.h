@@ -24,42 +24,42 @@ struct PaletteEntry
 };
 
 
-// BlockStorage holds palette indices
-// BlockStorage operates on bits.
-struct BlockStorage
+// PaletteIndexStorage holds palette indices
+// PaletteIndexStorage operates on bits.
+struct PaletteIndexStorage
 {
-	BlockStorage(uint8_t block_size, uint32_t chunk_size)
+	PaletteIndexStorage(uint8_t index_size, uint32_t chunk_size)
 	{
-		this->block_size = block_size;
-		this->block_amount = chunk_size * chunk_size * chunk_size;
-		blocks.resize(block_size * block_amount);
+		this->palette_index_size = index_size;
+		this->indexes_amount = chunk_size * chunk_size * chunk_size;
+		indexes.resize(index_size * indexes_amount);
 	}
 
 	inline uint8_t get(uint32_t bit_offset) const
 	{
-		if (bit_offset + block_size > blocks.size())
+		if (bit_offset + palette_index_size > indexes.size())
 		{
-			LOG_F(ERROR, "blocks size: %d, bit offset: %d, bit offset + block_size: %d", blocks.size(), bit_offset, bit_offset + block_size);
+			LOG_F(ERROR, "indexes size: %d, bit offset: %d, bit offset + palette_index_size: %d", indexes.size(), bit_offset, bit_offset + palette_index_size);
 		}
 
 		uint8_t palette_index = 0;
-		for (uint32_t i = bit_offset; i < bit_offset + block_size; i++)
+		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
 		{
-			palette_index |= blocks[i] << (i - bit_offset);
+			palette_index |= indexes[i] << (i - bit_offset);
 		}
 		return palette_index;
 	}
 
 	inline void set(uint32_t bit_offset, uint8_t palette_index)
 	{
-		if (bit_offset + block_size > blocks.size())
+		if (bit_offset + palette_index_size > indexes.size())
 		{
-			LOG_F(ERROR, "blocks size: %d, bit offset: %d, bit offset + block_size: %d", blocks.size(), bit_offset, bit_offset + block_size);
+			LOG_F(ERROR, "indexes size: %d, bit offset: %d, bit offset + palette_index_size: %d", indexes.size(), bit_offset, bit_offset + palette_index_size);
 		}
 
-		for (uint32_t i = bit_offset; i < bit_offset + block_size; i++)
+		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
 		{
-			blocks[i] = palette_index & 1;
+			indexes[i] = palette_index & 1;
 			palette_index >>= 1;
 		}
 	}
@@ -67,9 +67,9 @@ struct BlockStorage
 	// vector<bool> is used as dynamic bitset, as there is no available dynamic bitset data structure in the standard lib.
     // Note that vector<bool> specialization does not met container criteria (by STL's definition of what container is).
     // https://en.cppreference.com/w/cpp/container/vector_bool
-	std::vector<bool> blocks; 
-	uint8_t block_size; // in bits
-	uint32_t block_amount;
+	std::vector<bool> indexes; 
+	uint8_t palette_index_size; // in bits
+	uint32_t indexes_amount;
 };
 
 class PaletteBlockStorage
@@ -88,7 +88,7 @@ private:
 	int findIndexOfPaletteHolding(uint8_t block_type);
 	using Palette = std::vector<PaletteEntry>;
 	Palette m_palette;
-	BlockStorage m_block_storage;
+	PaletteIndexStorage m_index_storage;
 	uint8_t m_chunk_size;
 
 };
