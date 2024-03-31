@@ -13,7 +13,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	m_is_terrain_generated = false;
 	m_is_visible = true;
-	m_blocks = new Block::PaletteBlockStorage(lod);
+	m_blocks = new Block::PaletteChunkView(lod);
 	//m_blocks->fill(Block::AIR);
 }
 
@@ -299,7 +299,7 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
-Block::PaletteBlockStorage& Chunk::getBlockArray()
+Block::PaletteChunkView& Chunk::getBlockArray()
 {
 	return *m_blocks;
 }

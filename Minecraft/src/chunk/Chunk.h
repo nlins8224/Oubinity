@@ -12,6 +12,7 @@
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
 #include "../block/PaletteBlockStorage.h"
+#include "../block/PaletteChunkView.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
@@ -90,7 +91,7 @@ public:
 	bool isVisible() const;
 	void setIsVisible(bool is_visible);
 	Mesh& getMesh();
-	Block::PaletteBlockStorage& getBlockArray();
+	Block::PaletteChunkView& getBlockArray();
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
@@ -100,7 +101,7 @@ public:
 
 private:
 	Mesh m_mesh;
-	Block::PaletteBlockStorage* m_blocks;
+	Block::PaletteChunkView* m_blocks;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;

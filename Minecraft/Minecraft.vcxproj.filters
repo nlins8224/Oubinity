@@ -222,6 +222,9 @@
     <ClCompile Include="src\block\PaletteBlockStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\block\PaletteChunkView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\io\Window.h">
@@ -492,6 +495,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\block\PaletteBlockStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\block\PaletteChunkView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
