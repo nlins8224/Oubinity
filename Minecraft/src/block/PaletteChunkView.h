@@ -16,8 +16,12 @@ Separating them will save memory.
 class PaletteChunkView
 {
 public:
+	/*
+	TODO: currently chunk_sections > 1 has a memory overhead and is not an optimisation, because PaletteBlockStorage needs some
+	additional work
+	*/
 	// chunk_sections has to be a in a form of k^3.
-	PaletteChunkView(LevelOfDetail::LevelOfDetail lod, uint8_t chunk_sections = 8);
+	PaletteChunkView(LevelOfDetail::LevelOfDetail lod, uint8_t chunk_sections = 1);
 	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
 	PaletteBlockStorage& choosePalette(glm::ivec3 block_pos);

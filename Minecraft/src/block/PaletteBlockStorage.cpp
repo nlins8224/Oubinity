@@ -2,10 +2,10 @@
 
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
 	: m_chunk_size{chunk_size},
-	m_index_storage{log2(initial_palettes_amount), chunk_size}
+	m_index_storage{1, chunk_size}
 {
 	PaletteEntry entry{ 0, block_id::NONE };
-	m_palette.resize(initial_palettes_amount, entry);
+	m_palette.resize(1, entry);
 	m_palette.at(0).block_type = block_id::AIR; // TODO: remove this, waste a space for a large number of chunklets
 	m_palette.at(0).refcount = chunk_size * chunk_size * chunk_size; // TODO: remove this, waste a space for a large number of chunklets
 }
@@ -45,7 +45,6 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	// block_type is not in palette, but the current entry is empty
 	if (current.refcount == 0)
 	{
-		m_index_storage.set(bit_offset, replace);
 		current.block_type = static_cast<block_id>(block_type);
 		current.refcount = 1;
 		return;
@@ -68,7 +67,7 @@ void Block::PaletteBlockStorage::fill(block_id block_type)
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()
 {
-	int first_free = findIndexOfPaletteHolding(static_cast<uint8_t>(block_id::NONE));
+	int first_free = findIndexOfPaletteHoldingOrEmpty(static_cast<uint8_t>(block_id::NONE));
 	if (first_free != -1)
 	{
 		return first_free;
@@ -111,6 +110,19 @@ int Block::PaletteBlockStorage::findIndexOfPaletteHolding(uint8_t block_type)
 	for (int i = 0; i < m_palette.size(); i++)
 	{
 		if (static_cast<uint8_t>(m_palette[i].block_type) == block_type)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int Block::PaletteBlockStorage::findIndexOfPaletteHoldingOrEmpty(uint8_t block_type)
+{
+	for (int i = 0; i < m_palette.size(); i++)
+	{
+		if (static_cast<uint8_t>(m_palette[i].block_type) == block_type || m_palette[i].refcount == 0)
 		{
 			return i;
 		}

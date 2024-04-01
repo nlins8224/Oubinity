@@ -86,6 +86,7 @@ private:
 	void growPalette();
 	int getBlockIndex(glm::ivec3 block_pos) const;
 	int findIndexOfPaletteHolding(uint8_t block_type);
+	int findIndexOfPaletteHoldingOrEmpty(uint8_t block_type);
 	using Palette = std::vector<PaletteEntry>;
 	Palette m_palette;
 	PaletteIndexStorage m_index_storage;
