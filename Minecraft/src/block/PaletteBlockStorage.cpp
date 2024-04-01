@@ -6,8 +6,8 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 {
 	PaletteEntry entry{ 0, block_id::NONE };
 	m_palette.resize(initial_palettes_amount, entry);
-	m_palette.at(0).block_type = block_id::AIR;
-	m_palette.at(0).refcount = chunk_size * chunk_size * chunk_size;
+	m_palette.at(0).block_type = block_id::AIR; // TODO: remove this, waste a space for a large number of chunklets
+	m_palette.at(0).refcount = chunk_size * chunk_size * chunk_size; // TODO: remove this, waste a space for a large number of chunklets
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
