@@ -91,7 +91,8 @@ public:
 	bool isVisible() const;
 	void setIsVisible(bool is_visible);
 	Mesh& getMesh();
-	Block::PaletteChunkView& getBlockArray();
+	Block::BlockArray& getBlockArray();
+	void setBlockArray();
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
@@ -101,7 +102,7 @@ public:
 
 private:
 	Mesh m_mesh;
-	Block::PaletteChunkView* m_blocks;
+	Block::BlockArray* m_blocks;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;

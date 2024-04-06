@@ -24,9 +24,10 @@ public:
 	PaletteChunkView(LevelOfDetail::LevelOfDetail lod, uint8_t chunk_sections = 1);
 	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
-	PaletteBlockStorage& choosePalette(glm::ivec3 block_pos);
+	void fill(block_id block_type);
 
 private:
+	PaletteBlockStorage& choosePalette(glm::ivec3 block_pos);
 	std::vector<PaletteBlockStorage> m_palettes;
 	LevelOfDetail::LevelOfDetail m_lod;
 	uint8_t m_chunk_sections;

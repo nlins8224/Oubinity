@@ -31,6 +31,14 @@ void Block::PaletteChunkView::set(glm::ivec3 block_pos, block_id block_type)
 	choosePalette(block_pos).set(block_pos_offset, block_type);
 }
 
+void Block::PaletteChunkView::fill(block_id block_type)
+{
+	for (auto& section : m_palettes)
+	{
+		section.fill(block_type);
+	}
+}
+
 Block::PaletteBlockStorage& Block::PaletteChunkView::choosePalette(glm::ivec3 block_pos)
 {
 	uint8_t sections_cbrt = std::cbrt(m_chunk_sections);

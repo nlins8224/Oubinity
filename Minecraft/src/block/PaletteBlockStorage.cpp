@@ -2,7 +2,7 @@
 
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
 	: m_chunk_size{chunk_size},
-	m_index_storage{1, chunk_size}
+	m_index_storage{log2(initial_palettes_amount), chunk_size}
 {
 	PaletteEntry entry{ 0, block_id::NONE };
 	m_palette.resize(1, entry);
@@ -18,8 +18,11 @@ Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod
 Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos) const
 {
 	int block_index = getBlockIndex(block_pos);
+	//LOG_F(INFO, "block_index: %d", block_index);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
+	//LOG_F(INFO, "palette_index: %d", palette_index);
+	//LOG_F(INFO, "before m_palette.at, palette size: %d", m_palette.size());
 	return m_palette.at(palette_index).block_type;
 }
 

@@ -1,13 +1,13 @@
 #include "TerrainGenerator.h"
 
-TerrainGenerator::TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height)
+TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
 	:m_water_height{water_height}
 {
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
 	m_preloaded_generator = PreloadedGenerator();
 #endif
 
-	m_procedural_generator = ProceduralGenerator(world_seed, surface_height, water_height);
+	m_procedural_generator = ProceduralGenerator(world_seed, water_height);
 }
 
 TerrainGenerator::TerrainGenerator()

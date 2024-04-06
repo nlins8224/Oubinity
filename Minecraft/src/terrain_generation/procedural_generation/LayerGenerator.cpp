@@ -1,19 +1,19 @@
 #include "LayerGenerator.h"
 
-LayerGenerator::LayerGenerator(int seed, uint8_t surface_height, uint8_t water_height)
+LayerGenerator::LayerGenerator(int seed, uint8_t water_height)
 	: m_seed{seed},
-	m_min_surface_height{surface_height},
 	m_water_height{water_height}
 {
 }
 
 void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 {
-	// This is for optimization purposes; processing each block separately is slow
-	//if (isBelowSurface(chunk))
+	chunk.getBlockArray().fill(Block::STONE);
+	return;
+	//if (isBelowSurface(chunk, height_map))
 	//{
-	//	chunk.getBlockArray().fill(Block::STONE);
-	//	
+	//	chunk.setIsVisible(false);
+	//	//chunk.getBlockArray().fill(Block::STONE);
 	//	return;
 	//}
 
@@ -22,12 +22,9 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 	auto air_layer = std::make_shared<AirLayerHandler>();
 
 	layer_handler
-		->addNextLayer(underground_layer)
-		->addNextLayer(air_layer);
+		->addNextLayer(underground_layer);
 		
-
 	int block_amount = chunk.getLevelOfDetail().block_amount;
-	int block_size = chunk.getLevelOfDetail().block_size;
 	for (int x = 0; x < block_amount; x++)
 	{
 		for (int y = 0; y < block_amount; y++)
@@ -42,10 +39,10 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 
 void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map)
 {
-	// This is for optimization purposes; processing each block separately is slow
-	//if (isBelowSurface(chunk))
+	//if (isBelowSurface(chunk, height_map))
 	//{
-	//	chunk.getBlockArray().fill(Block::STONE);
+	//	chunk.setIsVisible(false);
+	//	//chunk.getBlockArray().fill(Block::STONE);
 	//	return;
 	//}
 
@@ -68,9 +65,19 @@ void LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 	}
 }
 
-bool LayerGenerator::isBelowSurface(Chunk& chunk)
+bool LayerGenerator::isBelowSurface(Chunk& chunk, const HeightMap& height_map)
 {
-	int chunk_pos_y = chunk.getPos().y;
+	int block_amount = chunk.getLevelOfDetail().block_amount;
+	double min_height = 99999;
+	for (int x = 0; x < block_amount; x++)
+	{
+		for (int z = 0; z < block_amount; z++)
+		{
+			min_height = std::min(min_height, height_map[x][z]);
+		}
+	}
 	// Real CHUNK_SIZE here is correct
-	return chunk_pos_y < m_min_surface_height - CHUNK_SIZE;
+	int chunk_pos_y = chunk.getPos().y * CHUNK_SIZE;
+	LOG_F(INFO, "chunk at pos: (%d, %d, %d) below surface: %d", chunk.getPos().x, chunk.getPos().y, chunk.getPos().z, chunk_pos_y < min_height - CHUNK_SIZE);
+	return chunk_pos_y + CHUNK_SIZE < min_height;
 }

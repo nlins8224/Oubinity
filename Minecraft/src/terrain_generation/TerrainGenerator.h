@@ -10,7 +10,7 @@ class TerrainGenerator
 {
 public:
 	TerrainGenerator();
-	TerrainGenerator(int world_seed, uint8_t surface_height, uint8_t water_height);
+	TerrainGenerator(int world_seed, uint8_t water_height);
 	~TerrainGenerator() = default;
 	void generateChunkTerrain(Chunk& chunk);
 	void generateTrees(Chunk& chunk);
@@ -24,6 +24,7 @@ private:
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
 	PreloadedGenerator m_preloaded_generator;
 #endif
+
 
 	uint8_t m_water_height;
 };

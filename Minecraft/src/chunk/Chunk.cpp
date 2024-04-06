@@ -13,8 +13,6 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	m_is_terrain_generated = false;
 	m_is_visible = true;
-	m_blocks = new Block::PaletteChunkView(lod);
-	//m_blocks->fill(Block::AIR);
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -50,8 +48,9 @@ void Chunk::addChunkMesh()
 			for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
-				if (block != block_id::AIR)
+				if (block != block_id::AIR) {
 					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
+				}
 			}
 		}
 	}
@@ -117,7 +116,8 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		// If LOD don't match, return false to have seamless transitions between lod levels
 		// This creates additional "wall" and it costs a bit of FPS, but not much.
 		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
-			|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount) {
+			|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount
+			 || !m_chunk_neighbors.at(neighbor_chunk_pos)->isVisible()) {
 			return false;
 		}
 
@@ -125,9 +125,12 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		int l_y = getMod(y, m_lod.block_amount);
 		int l_z = getMod(z, m_lod.block_amount);
 
-		return m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR;
+		block_id neighbor_block = m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({ l_x, l_y, l_z });
+		return neighbor_block != block_id::AIR && neighbor_block != block_id::NONE;
 	}
-	return m_blocks->get(glm::ivec3(x, y, z)) != block_id::AIR;
+
+	block_id block_type = m_blocks->get(glm::ivec3(x, y, z));
+	return block_type != block_id::AIR && block_type != block_id::NONE;
 }
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
@@ -299,9 +302,15 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
-Block::PaletteChunkView& Chunk::getBlockArray()
+Block::BlockArray& Chunk::getBlockArray()
 {
 	return *m_blocks;
+}
+
+void Chunk::setBlockArray()
+{
+	m_blocks = new Block::BlockArray(m_lod);
+	m_blocks->fill(Block::AIR);
 }
 
 const glm::vec3 Chunk::getWorldPos() const
