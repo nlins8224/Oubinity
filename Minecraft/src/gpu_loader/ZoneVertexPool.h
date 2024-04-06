@@ -21,7 +21,7 @@ namespace VertexPool {
 	using namespace ChunkRendererSettings;
 	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 	constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
-	constexpr uint16_t BUFFER_NEEDS_UPDATE = 512;
+	constexpr uint16_t BUFFER_NEEDS_UPDATE = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 
 	static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 
