@@ -29,6 +29,7 @@ namespace Block
 
 	void BlockArray::fill(block_id block_type)
 	{
-		memset(block_array, block_type, sizeof(block_array));
+		int chunk_size_cubed = m_lod.block_amount * m_lod.block_amount * m_lod.block_amount;
+		memset(block_array, block_type, chunk_size_cubed);
 	}
 }
