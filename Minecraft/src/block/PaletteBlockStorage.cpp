@@ -65,7 +65,16 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 
 void Block::PaletteBlockStorage::fill(block_id block_type)
 {
-	std::fill(m_index_storage.indexes.begin(), m_index_storage.indexes.end(), static_cast<uint8_t>(block_type));
+	for (int x = 0; x < m_chunk_size; x++)
+	{
+		for (int z = 0; z < m_chunk_size; z++)
+		{
+			for (int y = 0; y < m_chunk_size; y++)
+			{
+				set({ x, y, z }, block_type);
+			}
+		}
+	}
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()
