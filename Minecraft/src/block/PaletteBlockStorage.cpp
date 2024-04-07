@@ -2,12 +2,8 @@
 
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
 	: m_chunk_size{chunk_size},
-	m_index_storage{log2(initial_palettes_amount), chunk_size}
+	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
 {
-	PaletteEntry entry{ 0, block_id::NONE };
-	m_palette.resize(1, entry);
-	m_palette.at(0).block_type = block_id::AIR; // TODO: remove this, waste a space for a large number of chunklets
-	m_palette.at(0).refcount = chunk_size * chunk_size * chunk_size; // TODO: remove this, waste a space for a large number of chunklets
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -18,16 +14,20 @@ Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod
 Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos) const
 {
 	int block_index = getBlockIndex(block_pos);
-	//LOG_F(INFO, "block_index: %d", block_index);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
-	//LOG_F(INFO, "palette_index: %d", palette_index);
-	//LOG_F(INFO, "before m_palette.at, palette size: %d", m_palette.size());
+
+	//LOG_F(INFO, "m_palette size: %d, palette_index: %d", m_palette.size(), palette_index);
 	return m_palette.at(palette_index).block_type;
 }
 
 void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 {
+	if (m_palette.size() == 0)
+	{
+		m_palette.push_back({0, block_type});
+	}
+
 	int block_index = getBlockIndex(block_pos);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
