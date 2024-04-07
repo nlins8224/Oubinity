@@ -18,14 +18,21 @@ TerrainGenerator::TerrainGenerator()
 	m_procedural_generator = ProceduralGenerator();
 
 }
-void TerrainGenerator::generateChunkTerrain(Chunk& chunk)
+bool TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
 	if (chunk.isTerrainGenerated())
-		return;
+		return false;
 
 	HeightMap height_map = generateHeightMap(chunk);
-	generateLayers(chunk, height_map);
+	bool is_chunk_visible = !m_procedural_generator.isChunkBelowOrAboveSurface(chunk, height_map);
+	if (is_chunk_visible)
+	{
+		chunk.setBlockArray();
+		generateLayers(chunk, height_map);
+	}
+	chunk.setIsVisible(is_chunk_visible);
 	chunk.setIsTerrainGenerated(true);
+	return is_chunk_visible;
 }
 
 uint8_t TerrainGenerator::getWaterHeight()
@@ -42,13 +49,13 @@ HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 #endif
 }
 
-void TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
+bool TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 #if SETTING_USE_PRELOADED_COLORMAP
 	BlockMap block_map = m_preloaded_generator.generateBlockMap(chunk);
-	m_procedural_generator.generateLayers(chunk, height_map, block_map);
+	return m_procedural_generator.generateLayers(chunk, height_map, block_map);
 #else 
-	m_procedural_generator.generateLayers(chunk, height_map);
+	return m_procedural_generator.generateLayers(chunk, height_map);
 #endif
 }
 

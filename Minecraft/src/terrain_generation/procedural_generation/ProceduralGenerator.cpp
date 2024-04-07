@@ -22,16 +22,16 @@ HeightMap ProceduralGenerator::generateHeightMap(Chunk& chunk)
 	return height_map;
 }
 
-void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
+bool ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 	LayerGenerator layer_generator(m_world_seed, m_water_height);
-	layer_generator.processChunk(chunk, height_map);
+	return layer_generator.processChunk(chunk, height_map);
 }
 
-void ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map)
+bool ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map)
 {
 	LayerGenerator layer_generator(m_world_seed, m_water_height);
-	layer_generator.processChunk(chunk, height_map, block_map);
+	return layer_generator.processChunk(chunk, height_map, block_map);
 }
 
 
@@ -54,4 +54,24 @@ void ProceduralGenerator::generateTrees(Chunk& chunk, HeightMap& height_map)
 uint8_t ProceduralGenerator::getWaterHeight()
 {
 	return m_water_height;
+}
+
+bool ProceduralGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map)
+{
+	int block_amount = chunk.getLevelOfDetail().block_amount;
+	double min_height = 99999;
+	double max_height = -99999;
+	for (int x = 0; x < block_amount; x++)
+	{
+		for (int z = 0; z < block_amount; z++)
+		{
+			min_height = std::min(min_height, height_map[x][z]);
+			max_height = std::max(max_height, height_map[x][z]);
+		}
+	}
+	// Real CHUNK_SIZE here is correct
+	int chunk_pos_y = chunk.getPos().y * CHUNK_SIZE;
+	bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
+	bool above_surface = chunk_pos_y > max_height;
+	return below_surface || above_surface;
 }

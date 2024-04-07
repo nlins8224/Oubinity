@@ -78,7 +78,7 @@ public:
 	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 1);
 	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 1);
 	virtual ~PaletteBlockStorage() = default;
-	block_id get(glm::ivec3 block_pos) const;
+	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
 	void fill(block_id block_type);
 private:

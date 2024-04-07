@@ -319,7 +319,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 			glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
-			chunk->setBlockArray();
 			m_terrain_generator->generateChunkTerrain(*chunk);
 			ctor(chunk_pos, std::move(chunk));
 			m_chunks_to_decorate.push(chunk_pos);
@@ -389,8 +388,8 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			LOG_F(INFO, "chunk_pos: (%d, %d, %d), visible: %d", chunk_pos.x, chunk_pos.y, chunk_pos.z, pair.second->isVisible());
 			if (pair.second->isVisible()) {
+				LOG_F(INFO, "chunk pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y, chunk_pos.z);
 				pair.second->addChunkMesh();
 			}
 			pair.second->setState(ChunkState::MESHED);

@@ -302,15 +302,15 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
-Block::BlockArray& Chunk::getBlockArray()
+Block::PaletteBlockStorage& Chunk::getBlockArray()
 {
 	return *m_blocks;
 }
 
 void Chunk::setBlockArray()
 {
-	m_blocks = new Block::BlockArray(m_lod);
-	m_blocks->fill(Block::AIR);
+	m_blocks = new Block::PaletteBlockStorage(m_lod);
+	//m_blocks->fill(Block::AIR);
 }
 
 const glm::vec3 Chunk::getWorldPos() const

@@ -12,12 +12,13 @@ public:
 	TerrainGenerator();
 	TerrainGenerator(int world_seed, uint8_t water_height);
 	~TerrainGenerator() = default;
-	void generateChunkTerrain(Chunk& chunk);
+	// true if chunk is visible, false if it's not
+	bool generateChunkTerrain(Chunk& chunk);
 	void generateTrees(Chunk& chunk);
 	uint8_t getWaterHeight();
 private:
 	HeightMap generateHeightMap(Chunk& chunk);
-	void generateLayers(Chunk& chunk, HeightMap height_map);
+	bool generateLayers(Chunk& chunk, HeightMap height_map);
 
 	ProceduralGenerator m_procedural_generator;
 

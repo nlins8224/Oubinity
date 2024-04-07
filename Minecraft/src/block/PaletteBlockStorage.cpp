@@ -4,6 +4,7 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 	: m_chunk_size{chunk_size},
 	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
 {
+
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -11,8 +12,13 @@ Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod
 {
 }
 
-Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos) const
+Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 {
+	//if (m_palette.size() == 0)
+	//{
+	//	set(block_pos, block_id::AIR);
+	//}
+
 	int block_index = getBlockIndex(block_pos);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
