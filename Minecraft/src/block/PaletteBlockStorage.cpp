@@ -4,7 +4,9 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 	: m_chunk_size{chunk_size},
 	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
 {
-
+	
+	int chunk_size_cubed = chunk_size * chunk_size * chunk_size;
+	m_palette.resize(initial_palettes_amount, { chunk_size_cubed, block_id::AIR});
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -14,29 +16,19 @@ Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod
 
 Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 {
-	//if (m_palette.size() == 0)
-	//{
-	//	set(block_pos, block_id::AIR);
-	//}
-
 	int block_index = getBlockIndex(block_pos);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
 
-	//LOG_F(INFO, "m_palette size: %d, palette_index: %d", m_palette.size(), palette_index);
 	return m_palette.at(palette_index).block_type;
 }
 
 void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 {
-	if (m_palette.size() == 0)
-	{
-		m_palette.push_back({0, block_type});
-	}
-
 	int block_index = getBlockIndex(block_pos);
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
+	//LOG_F(INFO, "palette_index: %d, palette size: %d", palette_index, m_palette.size());
 	PaletteEntry& current = m_palette[palette_index];
 
 	current.refcount = std::max(current.refcount - 1, 0);
@@ -61,7 +53,6 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 
 	// create new palette entry
 	uint8_t new_entry_index = newPaletteEntry();
-	//LOG_F(INFO, "new_entry_index: %d, block_type: %d, replace: %d", new_entry_index, static_cast<int>(block_type), replace);
 	m_palette.at(new_entry_index) = PaletteEntry(1, block_type);
 	// recalculate, because palette could grow, when newPaletteEntry() was called
 	bit_offset = block_index * m_index_storage.palette_index_size;
