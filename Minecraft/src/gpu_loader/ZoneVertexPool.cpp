@@ -261,40 +261,24 @@ namespace VertexPool {
 
     size_t ZoneVertexPool::calculateBucketAmountInZones()
     {
-        // TODO: loop
         size_t buckets_added = 0;
         using ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
-        if (LevelOfDetail::One.draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
-            Zero.buckets_amount = std::pow(MAX_RENDERED_CHUNKS_IN_XZ_AXIS, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-            buckets_added += Zero.buckets_amount;
-            return buckets_added;
+        using LevelOfDetail::Lods;
+
+        auto zones_it = zones.begin();
+        auto lods_it = Lods.begin();
+        for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end(); zones_it++, lods_it++)
+        {
+            (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 2 - buckets_added;
+            buckets_added += (*zones_it)->buckets_amount;
+            if (lods_it != Lods.end() && lods_it + 1 != Lods.end() && (lods_it + 1)->draw_distance >= MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
+                return buckets_added;
+            }
+
         }
-        Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-        buckets_added += Zero.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += One.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Two.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Three.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Four.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
         int32_t remaining_buckets = TOTAL_BUCKETS_AMOUNT - buckets_added;
         Five.buckets_amount = std::max(remaining_buckets, 0);
         buckets_added += Five.buckets_amount;
-
-        LOG_F(INFO, "zero buckets_amount: %d", Zero.buckets_amount);
-        LOG_F(INFO, "one buckets_amount: %d", One.buckets_amount);
-        LOG_F(INFO, "two buckets_amount: %d", Two.buckets_amount);
-        LOG_F(INFO, "three buckets_amount: %d", Three.buckets_amount);
-        LOG_F(INFO, "four buckets_amount: %d", Four.buckets_amount);
-        LOG_F(INFO, "five buckets_amount: %d", Five.buckets_amount);
-        LOG_F(INFO, "Total buckets amount: %zu", buckets_added);
         return buckets_added;
     }
 

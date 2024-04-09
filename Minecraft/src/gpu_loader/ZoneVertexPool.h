@@ -19,7 +19,9 @@ namespace VertexPool {
 	constexpr size_t FACES_IN_BLOCK = 6;
 
 	using namespace ChunkRendererSettings;
-	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
+	// Only surface chunk should be rendered. There is possibility that
+	// one chunk underneath could be needed, hence multiplication by 2
+	constexpr size_t TOTAL_CHUNKS = MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * 2;
 	constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
 	constexpr uint16_t BUFFER_NEEDS_UPDATE = 1; // ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 
