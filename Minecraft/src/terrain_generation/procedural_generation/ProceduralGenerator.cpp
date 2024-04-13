@@ -18,7 +18,6 @@ ProceduralGenerator::ProceduralGenerator()
 HeightMap ProceduralGenerator::generateHeightMap(Chunk& chunk)
 {
 	HeightMap height_map = m_shape_generator.generateSurfaceMap(chunk);
-	m_heightmaps.emplace(chunk.getPos(), height_map);
 	return height_map;
 }
 
