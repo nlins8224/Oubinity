@@ -147,11 +147,13 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	Face face;
 	face.packed_face = packFace(x, y, z, texture_id, face_id, corners_ao.top_left, corners_ao.top_right, corners_ao.bottom_right, corners_ao.bottom_left);
 	
+	#if SETTING_USE_VERTEX_MESH
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		Vertex vertex;
 		m_mesh.addVertex(vertex);
 	}
+	#endif
 	m_faces.push_back(face);
 	m_added_faces++;
 }

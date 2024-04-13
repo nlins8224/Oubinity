@@ -19,7 +19,10 @@ namespace VertexPool {
 
         calculateBucketAmountInZones();
         m_persistent_buffer_vertices_amount = calculateTotalVertexAmount();
+        #if SETTING_USE_VERTEX_MESH
         createMeshBuffer();
+        #endif
+        createDAICBuffer();
         initZones(m_mesh_persistent_buffer);
         initBuckets();
 
@@ -48,11 +51,6 @@ namespace VertexPool {
         if (added_faces == 0)
         {
             LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
-            return;
-        }
-        if (alloc_data._mesh.size() == 0)
-        {
-            LOG_F(ERROR, "chunk at pos (%d, %d, %d) has a mesh size equal to 0, with %zu faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z, added_faces);
             return;
         }
       
@@ -106,7 +104,10 @@ namespace VertexPool {
         m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
         m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
+        #if SETTING_USE_VERTEX_MESH
         updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
+        #endif
+        updateMeshBufferDAIC();
         updateFaceStreamBuffer(alloc_data._mesh_faces, first_free_bucket->_start_offset / Block::VERTICES_PER_FACE);
         
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
@@ -329,7 +330,9 @@ namespace VertexPool {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferStorage(GL_ARRAY_BUFFER, buffer_size, 0, flags);
         m_mesh_persistent_buffer = (Vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, buffer_size, flags);
+    }
 
+    void ZoneVertexPool::createDAICBuffer() {
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_STATIC_DRAW);
     }
@@ -341,7 +344,6 @@ namespace VertexPool {
         std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
         lockBuffer(m_sync);
 
-        updateMeshBufferDAIC();
     }
 
     void ZoneVertexPool::updateMeshBufferDAIC()

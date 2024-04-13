@@ -125,6 +125,7 @@ namespace VertexPool {
 		void initBuckets();
 		void initZones(Vertex* buffer);
 		void createMeshBuffer();
+		void createDAICBuffer();
 		void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
 		void updateMeshBufferDAIC();
 		void createFaceStreamBuffer();
