@@ -11,7 +11,6 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} },
 	m_state{ ChunkState::NEW }
 {
-	m_is_terrain_generated = false;
 	m_is_visible = true;
 }
 
@@ -22,7 +21,6 @@ Chunk::Chunk(const Chunk& chunk)
 	m_chunk_neighbors{chunk.m_chunk_neighbors},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
-	m_is_terrain_generated{chunk.m_is_terrain_generated},
 	m_is_visible{chunk.m_is_visible}
 {
 
@@ -260,16 +258,6 @@ ChunkNeighbors& Chunk::getNeighbors()
 bool Chunk::isTransparent(glm::ivec3 block_pos) const
 {
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
-}
-
-bool Chunk::isTerrainGenerated() const
-{
-	return m_is_terrain_generated;
-}
-
-void Chunk::setIsTerrainGenerated(bool is_generated)
-{
-	m_is_terrain_generated = is_generated;
 }
 
 bool Chunk::isVisible() const

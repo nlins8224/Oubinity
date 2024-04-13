@@ -20,13 +20,9 @@ TerrainGenerator::TerrainGenerator()
 }
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
-	if (chunk.isTerrainGenerated())
-		return false;
-
 	HeightMap height_map = generateHeightMap(chunk);
 	bool is_chunk_visible = !m_procedural_generator.isChunkBelowOrAboveSurface(chunk, height_map);
 	generateChunkTerrain(chunk, height_map, is_chunk_visible);
-	chunk.setIsTerrainGenerated(true);
 	return is_chunk_visible;
 }
 
