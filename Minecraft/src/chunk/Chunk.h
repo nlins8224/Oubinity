@@ -58,7 +58,8 @@ struct FaceCornersAo {
 	uint8_t bottom_left;
 };
 
-using ChunkNeighbors = std::unordered_map<glm::ivec3, Chunk*>;
+// unordered_map is not used here, because it takes too much memory space
+using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
 
 enum class ChunkState
 {

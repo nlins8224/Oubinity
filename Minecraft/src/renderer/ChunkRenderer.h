@@ -74,7 +74,7 @@ private:
 		phmap::priv::hash_default_hash<glm::ivec3>,
 		phmap::priv::hash_default_eq<glm::ivec3>,
 		std::allocator<std::pair<const glm::ivec3, Chunk*>>,
-		1, // 2^N submaps
+		4, // 2^N submaps
 		std::mutex>;
 	pmap m_chunks_by_coord; // used in thread safe manner, shared between render and main threads
 	std::vector<glm::ivec3> m_border_chunks; // used only on render thread

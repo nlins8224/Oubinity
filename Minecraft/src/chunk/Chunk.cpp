@@ -97,6 +97,16 @@ inline int getMod(int pos, int mod)
 	return ((pos % mod) + mod) % mod;
 }
 
+inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos, const ChunkNeighbors& chunk_neighbors)
+{
+	for (const auto& [chunk_pos, chunk] : chunk_neighbors) {
+		if (target_chunk_pos == chunk_pos) {
+			return chunk;
+		}
+	}
+	return nullptr;
+}
+
 bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
@@ -113,17 +123,25 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		// One if statement, because there is FPS gain.
 		// If LOD don't match, return false to have seamless transitions between lod levels
 		// This creates additional "wall" and it costs a bit of FPS, but not much.
-		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
-			|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount
-			 || !m_chunk_neighbors.at(neighbor_chunk_pos)->isVisible()) {
+		Chunk* neighbor_chunk = findNeighborAt(neighbor_chunk_pos, m_chunk_neighbors);
+
+		if (neighbor_chunk == nullptr
+			|| neighbor_chunk->getLevelOfDetail().block_amount != m_lod.block_amount
+			|| !neighbor_chunk->isVisible()) {
 			return false;
 		}
+
+		//if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
+		//	|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount
+		//	 || !m_chunk_neighbors.at(neighbor_chunk_pos)->isVisible()) {
+		//	return false;
+		//}
 
 		int l_x = getMod(x, m_lod.block_amount);
 		int l_y = getMod(y, m_lod.block_amount);
 		int l_z = getMod(z, m_lod.block_amount);
 
-		block_id neighbor_block = m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({ l_x, l_y, l_z });
+		block_id neighbor_block = neighbor_chunk->getBlockId({ l_x, l_y, l_z });
 		return neighbor_block != block_id::AIR && neighbor_block != block_id::NONE;
 	}
 
