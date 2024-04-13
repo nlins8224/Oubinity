@@ -11,8 +11,8 @@ class PreloadedGenerator
 public:
 	PreloadedGenerator();
 	virtual ~PreloadedGenerator() = default;
-	HeightMap generateHeightMap(const Chunk& chunk);
-	BlockMap generateBlockMap(const Chunk& chunk);
+	HeightMap generateHeightMap(glm::ivec3 chunk_pos);
+	BlockMap generateBlockMap(glm::ivec3 chunk_pos);
 
 private:
 	glm::ivec3 mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos);

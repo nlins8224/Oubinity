@@ -6,15 +6,15 @@ PreloadedGenerator::PreloadedGenerator()
 {
 }
 
-HeightMap PreloadedGenerator::generateHeightMap(const Chunk& chunk)
+HeightMap PreloadedGenerator::generateHeightMap(glm::ivec3 chunk_pos)
 {
-	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk.getPos());
+	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk_pos);
 	return m_height_maps.at(chunk_pos_in_heightmap.x * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS + chunk_pos_in_heightmap.z);
 }
 
-BlockMap PreloadedGenerator::generateBlockMap(const Chunk& chunk)
+BlockMap PreloadedGenerator::generateBlockMap(glm::ivec3 chunk_pos)
 {
-	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk.getPos());
+	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
 	return m_block_maps.at(chunk_pos_in_map.x * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS + chunk_pos_in_map.z);
 }
 
