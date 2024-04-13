@@ -56,6 +56,16 @@ inline int getMod(int pos, int mod)
 	return ((pos % mod) + mod) % mod;
 }
 
+inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos, const ChunkNeighbors& chunk_neighbors)
+{
+	for (const auto& [chunk_pos, chunk] : chunk_neighbors) {
+		if (target_chunk_pos == chunk_pos) {
+			return chunk;
+		}
+	}
+	return nullptr;
+}
+
 void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_type)
 {
 	int x, y, z;
@@ -82,15 +92,20 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos, Block::block_id block_
 		chunk_pos.z += z_offset;
 
 		ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
-		if (chunk_neighbors.find(chunk_pos) != chunk_neighbors.end())
+		Chunk* chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
+		if (chunk_neighbor != nullptr)
 		{
-			Chunk* chunk_to_modify = chunk.getNeighbors().at(chunk_pos);
+			// Do not set trees across lod
+			if (chunk_neighbor->getLevelOfDetail().level != chunk.getLevelOfDetail().level)
+			{
+				return;
+			}
 
 			x = getMod(x, lod.block_amount);
 			y = getMod(y, lod.block_amount);
 			z = getMod(z, lod.block_amount);
 
-			chunk_to_modify->setBlock({ x, y, z }, block_type);
+			chunk_neighbor->setBlock({ x, y, z }, block_type);
 		}
 	
 	}

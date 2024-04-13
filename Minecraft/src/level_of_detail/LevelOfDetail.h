@@ -1,7 +1,6 @@
 #pragma once
 #include <unordered_map>
 #include "../chunk/ChunkSize.h"
-#include "../chunk/Chunk.h"
 #include "../Camera.h"
 
 namespace LevelOfDetail {

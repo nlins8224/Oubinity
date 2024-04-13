@@ -11,6 +11,8 @@
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
+#include "../block/PaletteBlockStorage.h"
+#include "../block/PaletteChunkView.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
@@ -56,7 +58,8 @@ struct FaceCornersAo {
 	uint8_t bottom_left;
 };
 
-using ChunkNeighbors = std::unordered_map<glm::ivec3, Chunk*>;
+// unordered_map is not used here, because it takes too much memory space
+using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
 
 enum class ChunkState
 {
@@ -84,10 +87,11 @@ public:
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
 	ChunkNeighbors& getNeighbors();
 	bool isTransparent(glm::ivec3 block_pos) const;
-	bool isTerrainGenerated() const;
-	void setIsTerrainGenerated(bool is_generated);
+	bool isVisible() const;
+	void setIsVisible(bool is_visible);
 	Mesh& getMesh();
-	Block::BlockArray& getBlockArray();
+	Block::PaletteBlockStorage& getBlockArray();
+	void setBlockArray();
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
@@ -97,12 +101,11 @@ public:
 
 private:
 	Mesh m_mesh;
-	Block::BlockArray* m_blocks;
-	std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> m_trees;
+	Block::PaletteBlockStorage* m_blocks;
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
-	bool m_is_terrain_generated;
+	bool m_is_visible;
 	LevelOfDetail::LevelOfDetail m_lod;
 	unsigned int m_added_faces{ 0 };
 

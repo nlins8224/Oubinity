@@ -12,13 +12,11 @@
 class LayerGenerator
 {
 public:
-	LayerGenerator(int seed, uint8_t surface_height, uint8_t water_height);
+	LayerGenerator(int seed, uint8_t water_height);
 	~LayerGenerator() = default;
-	void processChunk(Chunk& chunk, const HeightMap& height_map);
-	void processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map);
-	bool isBelowSurface(uint8_t height);
+	bool processChunk(Chunk& chunk, const HeightMap& height_map);
+	bool processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map);
 private:
 	int m_seed;
-	uint8_t m_min_surface_height;
 	uint8_t m_water_height;
 };

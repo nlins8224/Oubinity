@@ -63,7 +63,7 @@ void ChunkRenderer::initChunks()
 		{
 			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 			{
-				if (!m_chunks_by_coord.if_contains({ cx, cy, cz }, [](auto) {}))
+				if (!m_chunks_by_coord.if_contains({cx, cy, cz}, [](auto) {}))
 				{
 					m_chunks_to_create.push({ cx, cy, cz });
 				}
@@ -313,13 +313,20 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT("createChunk");
+
+	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+	HeightMap height_map = m_terrain_generator->generateHeightMap(chunk_pos, lod);
+	bool is_chunk_visible = !m_terrain_generator->isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+	if (!is_chunk_visible) {
+		return;
+	}
+
 	m_chunks_by_coord.lazy_emplace_l(chunk_pos,
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
-			glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
-			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
-			m_terrain_generator->generateChunkTerrain(*chunk);
+			m_terrain_generator->generateChunkTerrain(*chunk, height_map, is_chunk_visible);
 			ctor(chunk_pos, std::move(chunk));
 			m_chunks_to_decorate.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
@@ -336,7 +343,7 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 		for (int y_offset : {-1, 0, 1}) {
 			for (int z_offset : {-1, 0, 1}) {
 				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
-				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors[target_chunk_pos] = pair.second; });
+				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors.push_back(pair); });
 			}
 		}
 	}
@@ -344,7 +351,9 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
 			pair.second->setNeighbors(chunk_neighbors);
-			m_terrain_generator->generateTrees(*pair.second);
+			#if SETTING_TREES_ENABLED
+				m_terrain_generator->generateTrees(*pair.second);
+			#endif
 			m_chunks_to_mesh.push(chunk_pos);
 			pair.second->setState(ChunkState::DECORATED);
 		});
@@ -386,7 +395,9 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			pair.second->addChunkMesh();
+			if (pair.second->isVisible()) {
+				pair.second->addChunkMesh();
+			}
 			pair.second->setState(ChunkState::MESHED);
 		});
 

@@ -19,7 +19,10 @@ namespace VertexPool {
 
         calculateBucketAmountInZones();
         m_persistent_buffer_vertices_amount = calculateTotalVertexAmount();
+        #if SETTING_USE_VERTEX_MESH
         createMeshBuffer();
+        #endif
+        createDAICBuffer();
         initZones(m_mesh_persistent_buffer);
         initBuckets();
 
@@ -48,11 +51,6 @@ namespace VertexPool {
         if (added_faces == 0)
         {
             LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z);
-            return;
-        }
-        if (alloc_data._mesh.size() == 0)
-        {
-            LOG_F(ERROR, "chunk at pos (%d, %d, %d) has a mesh size equal to 0, with %zu faces added", chunk_pos.x, chunk_pos.y, chunk_pos.z, added_faces);
             return;
         }
       
@@ -104,7 +102,10 @@ namespace VertexPool {
         m_chunk_pos_to_bucket_id[chunk_pos] = { zone.level, id };
         m_bucket_id_to_daic_id[{zone.level, id}] = daic_id;
 
+        #if SETTING_USE_VERTEX_MESH
         updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
+        #endif
+        updateMeshBufferDAIC();
         updateFaceStreamBuffer(alloc_data._mesh_faces, first_free_bucket->_start_offset / Block::VERTICES_PER_FACE);
         
         m_stats.max_vertices_occurred[zone.level] = std::max(m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
@@ -261,40 +262,24 @@ namespace VertexPool {
 
     size_t ZoneVertexPool::calculateBucketAmountInZones()
     {
-        // TODO: loop
         size_t buckets_added = 0;
         using ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
-        if (LevelOfDetail::One.draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
-            Zero.buckets_amount = std::pow(MAX_RENDERED_CHUNKS_IN_XZ_AXIS, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-            buckets_added += Zero.buckets_amount;
-            return buckets_added;
+        using LevelOfDetail::Lods;
+
+        auto zones_it = zones.begin();
+        auto lods_it = Lods.begin();
+        for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end(); zones_it++, lods_it++)
+        {
+            (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 2 - buckets_added;
+            buckets_added += (*zones_it)->buckets_amount;
+            if (lods_it != Lods.end() && lods_it + 1 != Lods.end() && (lods_it + 1)->draw_distance >= MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
+                return buckets_added;
+            }
+
         }
-        Zero.buckets_amount = std::pow(LevelOfDetail::One.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-        buckets_added += Zero.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        One.buckets_amount = std::pow(LevelOfDetail::Two.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += One.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Two.buckets_amount = std::pow(LevelOfDetail::Three.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Two.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Three.buckets_amount = std::pow(LevelOfDetail::Four.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Three.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
-        Four.buckets_amount = std::pow(LevelOfDetail::Five.draw_distance, 2) * MAX_RENDERED_CHUNKS_IN_Y_AXIS - buckets_added;
-        buckets_added += Four.buckets_amount;
-        LOG_F(INFO, "buckets added: %d", buckets_added);
         int32_t remaining_buckets = TOTAL_BUCKETS_AMOUNT - buckets_added;
         Five.buckets_amount = std::max(remaining_buckets, 0);
         buckets_added += Five.buckets_amount;
-
-        LOG_F(INFO, "zero buckets_amount: %d", Zero.buckets_amount);
-        LOG_F(INFO, "one buckets_amount: %d", One.buckets_amount);
-        LOG_F(INFO, "two buckets_amount: %d", Two.buckets_amount);
-        LOG_F(INFO, "three buckets_amount: %d", Three.buckets_amount);
-        LOG_F(INFO, "four buckets_amount: %d", Four.buckets_amount);
-        LOG_F(INFO, "five buckets_amount: %d", Five.buckets_amount);
-        LOG_F(INFO, "Total buckets amount: %zu", buckets_added);
         return buckets_added;
     }
 
@@ -343,7 +328,9 @@ namespace VertexPool {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferStorage(GL_ARRAY_BUFFER, buffer_size, 0, flags);
         m_mesh_persistent_buffer = (Vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, buffer_size, flags);
+    }
 
+    void ZoneVertexPool::createDAICBuffer() {
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_STATIC_DRAW);
     }
@@ -355,7 +342,6 @@ namespace VertexPool {
         std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
         lockBuffer(m_sync);
 
-        updateMeshBufferDAIC();
     }
 
     void ZoneVertexPool::updateMeshBufferDAIC()

@@ -11,9 +11,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 	m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE, chunk_pos.z * CHUNK_SIZE} },
 	m_state{ ChunkState::NEW }
 {
-	m_is_terrain_generated = false;
-	m_blocks = new Block::BlockArray();
-	m_blocks->fill(Block::AIR);
+	m_is_visible = true;
 }
 
 Chunk::Chunk(const Chunk& chunk)
@@ -23,7 +21,7 @@ Chunk::Chunk(const Chunk& chunk)
 	m_chunk_neighbors{chunk.m_chunk_neighbors},
 	m_blocks{ chunk.m_blocks },
 	m_world_pos{chunk.m_world_pos},
-	m_is_terrain_generated{chunk.m_is_terrain_generated}
+	m_is_visible{chunk.m_is_visible}
 {
 
 }
@@ -48,8 +46,9 @@ void Chunk::addChunkMesh()
 			for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
 			{
 				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
-				if (block != block_id::AIR)
+				if (block != block_id::AIR) {
 					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
+				}
 			}
 		}
 	}
@@ -98,6 +97,16 @@ inline int getMod(int pos, int mod)
 	return ((pos % mod) + mod) % mod;
 }
 
+inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos, const ChunkNeighbors& chunk_neighbors)
+{
+	for (const auto& [chunk_pos, chunk] : chunk_neighbors) {
+		if (target_chunk_pos == chunk_pos) {
+			return chunk;
+		}
+	}
+	return nullptr;
+}
+
 bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
@@ -114,18 +123,30 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		// One if statement, because there is FPS gain.
 		// If LOD don't match, return false to have seamless transitions between lod levels
 		// This creates additional "wall" and it costs a bit of FPS, but not much.
-		if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
-			|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount) {
+		Chunk* neighbor_chunk = findNeighborAt(neighbor_chunk_pos, m_chunk_neighbors);
+
+		if (neighbor_chunk == nullptr
+			|| neighbor_chunk->getLevelOfDetail().block_amount != m_lod.block_amount
+			|| !neighbor_chunk->isVisible()) {
 			return false;
 		}
+
+		//if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
+		//	|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount
+		//	 || !m_chunk_neighbors.at(neighbor_chunk_pos)->isVisible()) {
+		//	return false;
+		//}
 
 		int l_x = getMod(x, m_lod.block_amount);
 		int l_y = getMod(y, m_lod.block_amount);
 		int l_z = getMod(z, m_lod.block_amount);
 
-		return m_chunk_neighbors.at(neighbor_chunk_pos)->getBlockId({l_x, l_y, l_z}) != block_id::AIR;
+		block_id neighbor_block = neighbor_chunk->getBlockId({ l_x, l_y, l_z });
+		return neighbor_block != block_id::AIR && neighbor_block != block_id::NONE;
 	}
-	return m_blocks->get(glm::ivec3(x, y, z)) != block_id::AIR;
+
+	block_id block_type = m_blocks->get(glm::ivec3(x, y, z));
+	return block_type != block_id::AIR && block_type != block_id::NONE;
 }
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
@@ -144,11 +165,13 @@ void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
 	Face face;
 	face.packed_face = packFace(x, y, z, texture_id, face_id, corners_ao.top_left, corners_ao.top_right, corners_ao.bottom_right, corners_ao.bottom_left);
 	
+	#if SETTING_USE_VERTEX_MESH
 	for (GLubyte vertex_id = 0; vertex_id < Block::VERTICES_PER_FACE; vertex_id++)
 	{
 		Vertex vertex;
 		m_mesh.addVertex(vertex);
 	}
+	#endif
 	m_faces.push_back(face);
 	m_added_faces++;
 }
@@ -257,14 +280,14 @@ bool Chunk::isTransparent(glm::ivec3 block_pos) const
 	return Block::getBlockType(this->getBlockId(block_pos)).transparent;
 }
 
-bool Chunk::isTerrainGenerated() const
+bool Chunk::isVisible() const
 {
-	return m_is_terrain_generated;
+	return m_is_visible;
 }
 
-void Chunk::setIsTerrainGenerated(bool is_generated)
+void Chunk::setIsVisible(bool is_visible)
 {
-	m_is_terrain_generated = is_generated;
+	m_is_visible = is_visible;
 }
 
 Mesh& Chunk::getMesh()
@@ -287,9 +310,15 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
-Block::BlockArray& Chunk::getBlockArray()
+Block::PaletteBlockStorage& Chunk::getBlockArray()
 {
 	return *m_blocks;
+}
+
+void Chunk::setBlockArray()
+{
+	m_blocks = new Block::PaletteBlockStorage(m_lod);
+	//m_blocks->fill(Block::AIR);
 }
 
 const glm::vec3 Chunk::getWorldPos() const
