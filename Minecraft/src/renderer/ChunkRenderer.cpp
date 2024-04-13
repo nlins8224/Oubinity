@@ -313,13 +313,20 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	OPTICK_EVENT("createChunk");
+
+	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+	HeightMap height_map = m_terrain_generator->generateHeightMap(chunk_pos, lod);
+	bool is_chunk_visible = !m_terrain_generator->isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+	if (!is_chunk_visible) {
+		return;
+	}
+
 	m_chunks_by_coord.lazy_emplace_l(chunk_pos,
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
-			glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
-			LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 			Chunk* chunk = new Chunk(chunk_pos, lod);
-			m_terrain_generator->generateChunkTerrain(*chunk);
+			m_terrain_generator->generateChunkTerrain(*chunk, height_map, is_chunk_visible);
 			ctor(chunk_pos, std::move(chunk));
 			m_chunks_to_decorate.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);

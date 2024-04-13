@@ -26,6 +26,28 @@ HeightMap ShapeGenerator::generateSurfaceMap(Chunk& chunk)
 	return surface_map;
 }
 
+HeightMap ShapeGenerator::generateSurfaceMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
+{
+	glm::ivec2 chunk_pos_xz = {chunk_pos.x, chunk_pos.z};
+
+	HeightMap base_map = generateHeightMap(chunk_pos, lod, NoiseSettings::TestSettings, m_seed);
+	HeightMap surface_map{};
+
+	// Temporary
+	int chunk_block_amount = lod.block_amount;
+	for (int x = 0; x < chunk_block_amount; x++)
+	{
+		for (int z = 0; z < chunk_block_amount; z++)
+		{
+			float base_height = ((base_map[x][z] + 1.0f) / 2) * 300.0f;
+			surface_map[x][z] = base_height;
+		}
+	}
+
+	return surface_map;
+
+}
+
 HeightMap ShapeGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed)
 {
 	auto fnSimplex = FastNoise::New<FastNoise::Simplex>();

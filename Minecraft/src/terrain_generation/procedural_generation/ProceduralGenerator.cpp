@@ -21,6 +21,12 @@ HeightMap ProceduralGenerator::generateHeightMap(Chunk& chunk)
 	return height_map;
 }
 
+HeightMap ProceduralGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
+{
+	HeightMap height_map = m_shape_generator.generateSurfaceMap(chunk_pos, lod);
+	return height_map;
+}
+
 bool ProceduralGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 	LayerGenerator layer_generator(m_world_seed, m_water_height);
@@ -57,7 +63,14 @@ uint8_t ProceduralGenerator::getWaterHeight()
 
 bool ProceduralGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map)
 {
-	int block_amount = chunk.getLevelOfDetail().block_amount;
+	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+	return isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+}
+
+bool ProceduralGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
+{
+	int block_amount = lod.block_amount;
 	double min_height = 99999;
 	double max_height = -99999;
 	for (int x = 0; x < block_amount; x++)
@@ -69,7 +82,7 @@ bool ProceduralGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightM
 		}
 	}
 	// Real CHUNK_SIZE here is correct
-	int chunk_pos_y = chunk.getPos().y * CHUNK_SIZE;
+	int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
 	bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
 	bool above_surface = chunk_pos_y > max_height;
 	return below_surface || above_surface;

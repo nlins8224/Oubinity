@@ -92,7 +92,9 @@ namespace VertexPool {
         if (face_offset == 0) face_offset = 1;
         LOG_F(INFO, "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d", vertex_offset, face_offset, vertex_offset / face_offset);
 
+        LOG_F(INFO, "before push back");
         m_chunk_metadata.active_daics.push_back(daic);
+        LOG_F(INFO, "before first_free_bucket");
         first_free_bucket->_is_free = false;
 
         size_t daic_id = m_chunk_metadata.active_daics.size() - 1;
