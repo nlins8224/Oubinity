@@ -3,7 +3,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "loguru.hpp"
-#include "optick.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -85,7 +84,6 @@ int main()
     double xpos, ypos;
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-        OPTICK_FRAME("MainThread");
         scene_buffer.bind();
 
         float current_frame = static_cast<float>(glfwGetTime());

@@ -83,8 +83,6 @@ void ChunkRenderer::initChunks()
 // some updates to be lost. All actions should be queued or traverseScene should be faster
 void ChunkRenderer::traverseScene()
 {
-	OPTICK_EVENT("traverseScene");
-
 	int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
 	int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
@@ -268,7 +266,6 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_b
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate()
 {
-	OPTICK_EVENT("updateBufferIfNeedsUpdate");
 	if (m_buffer_needs_update.load()) {
 			// free should go first, before allocate
 			freeChunks();
@@ -304,7 +301,6 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 	if (m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
 		return false;
 
-	OPTICK_EVENT("createChunkIfNotPresent");
 	createChunk(chunk_pos);
 	return true;
 }
@@ -312,8 +308,6 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 // render thread
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
-	OPTICK_EVENT("createChunk");
-
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 	HeightMap height_map = m_terrain_generator->generateHeightMap(chunk_pos, lod);

@@ -16,7 +16,6 @@
 
 #include "../third_party/BS_thread_pool.hpp"
 #include "../third_party/parallel_hashmap/phmap.h"
-#include "optick.h"
 #include "../loguru.hpp"
 
 struct ChunkBorder

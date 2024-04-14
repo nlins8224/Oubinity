@@ -12,8 +12,6 @@
 #include <glm/glm.hpp>
 #include "../loguru.hpp"
 
-#include "optick.h"
-
 namespace VertexPool {
 	constexpr size_t MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
 	constexpr size_t FACES_IN_BLOCK = 6;

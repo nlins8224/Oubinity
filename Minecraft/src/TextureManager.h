@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <optick.h>
 #include <glad/glad.h>
 #include "block/Block.h"
 #include "third_party/stb_image.h"
