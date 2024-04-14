@@ -100,7 +100,7 @@ int main()
             glm::vec3 player_pos = player_input.getCamera().getCameraPos();
 
             LOG_F(INFO, "FPS: %d", frames_per_second);
-            LOG_F(INFO, "Player Pos XZ: (%d, %d)", (int)player_pos.x / CHUNK_SIZE, (int)player_pos.z / CHUNK_SIZE);
+            LOG_F(INFO, "Player Pos XYZ: (%d, %d, %d)", (int)player_pos.x, (int)player_pos.y, (int)player_pos.z);
 
             seconds_elapsed += 1.0f;
             frames_per_second = 0;

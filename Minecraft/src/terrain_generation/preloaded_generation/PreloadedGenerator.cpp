@@ -1,7 +1,7 @@
 #include "PreloadedGenerator.h"
 
 PreloadedGenerator::PreloadedGenerator()
-	: m_height_maps{PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap_64x64.png")},
+	: m_height_maps{PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/heightmap_128x128_v6.png", 1.0)},
 	 m_block_maps{PreloadedGeneration::parsePNGToBlockMaps("assets/colormap_64x64_v4_2.png")}
 {
 }
