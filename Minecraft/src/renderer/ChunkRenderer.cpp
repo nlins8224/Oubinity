@@ -266,6 +266,7 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_b
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate()
 {
+	LOG_F(INFO, "updateBufferIfNeedsUpdate");
 	if (m_buffer_needs_update.load()) {
 			// free should go first, before allocate
 			freeChunks();
@@ -284,6 +285,7 @@ void ChunkRenderer::runTraverseSceneInDetachedThread()
 // render thread
 bool ChunkRenderer::createInRenderDistanceChunks()
 {
+	LOG_F(INFO, "createInRenderDistanceChunks");
 	bool anything_created = false;
 	while (!m_chunks_to_create.empty())
 	{
@@ -358,6 +360,7 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::decorateChunks()
 {
+	LOG_F(INFO, "decorateChunks");
 	bool anything_decorated = false;
 	while (!m_chunks_to_decorate.empty())
 	{
@@ -371,7 +374,7 @@ bool ChunkRenderer::decorateChunks()
 // render thread
 bool ChunkRenderer::meshChunks()
 {
-	LOG_F(INFO, "meshChunks called");
+	LOG_F(INFO, "meshChunks");
 	LOG_F(INFO, "chunks to mesh: %d", m_chunks_to_mesh.size());
 	bool anything_meshed = false;
 	while (!m_chunks_to_mesh.empty())
@@ -402,6 +405,7 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
 {
+	LOG_F(INFO, "deleteOutOfRenderDistanceChunks");
 	bool anything_deleted = false;
 	while (!m_chunks_to_delete.empty())
 	{
@@ -444,6 +448,7 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 // main thread
 void ChunkRenderer::allocateChunks()
 {
+	LOG_F(INFO, "allocateChunks");
 	while (!m_chunks_to_allocate.empty())
 	{
 		allocateChunk();
@@ -476,6 +481,7 @@ void ChunkRenderer::allocateChunk()
 // main thread
 void ChunkRenderer::freeChunks()
 {
+	LOG_F(INFO, "freeChunks");
 	while (!m_chunks_to_free.empty())
 	{
 		freeChunk();
