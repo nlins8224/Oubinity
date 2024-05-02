@@ -266,7 +266,6 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_b
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate()
 {
-	LOG_F(INFO, "updateBufferIfNeedsUpdate");
 	if (m_buffer_needs_update.load()) {
 			// free should go first, before allocate
 			freeChunks();

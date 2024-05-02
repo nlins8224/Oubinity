@@ -2,6 +2,7 @@
 #include <vector>
 #include "../../chunk/Chunk.h"
 #include "../../renderer/ChunkRendererSettings.h"
+#include "../../Settings.h"
 #include "../TerrainGenerationTypes.h"
 #include "HeightMapParser.h"
 #include "ColorMapParser.h"
@@ -9,7 +10,7 @@
 class PreloadedGenerator
 {
 public:
-	PreloadedGenerator();
+	PreloadedGenerator(glm::vec3 scale = SETTING_SCALE);
 	virtual ~PreloadedGenerator() = default;
 	HeightMap generateHeightMap(glm::ivec3 chunk_pos);
 	BlockMap generateBlockMap(glm::ivec3 chunk_pos);

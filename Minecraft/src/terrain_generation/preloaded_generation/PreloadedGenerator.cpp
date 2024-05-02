@@ -1,8 +1,8 @@
 #include "PreloadedGenerator.h"
 
-PreloadedGenerator::PreloadedGenerator()
-	: m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/lakes.png", {2.0, 2.0, 2.0})},
-	 m_block_maps{PreloadedGeneration::parsePNGToBlockMaps("assets/colormap_64x64_v4_2.png")}
+PreloadedGenerator::PreloadedGenerator(glm::vec3 scale)
+	: m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea2.png", scale)},
+	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/gaea2_colormap.png", scale)}
 {
 }
 
