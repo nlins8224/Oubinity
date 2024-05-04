@@ -9,7 +9,7 @@
 class TerrainGenerator
 {
 public:
-	TerrainGenerator();
+	TerrainGenerator() = delete;
 	TerrainGenerator(int world_seed, uint8_t water_height);
 	~TerrainGenerator() = default;
 	// true if chunk is visible, false if it's not
@@ -23,7 +23,7 @@ public:
 	uint8_t getWaterHeight();
 private:
 	ProceduralGenerator m_procedural_generator;
-#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
 	PreloadedGenerator m_preloaded_generator;
 #endif
 	uint8_t m_water_height;

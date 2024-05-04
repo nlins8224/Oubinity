@@ -1,13 +1,14 @@
 #include "ChunkRenderer.h"
 
-ChunkRenderer::ChunkRenderer(Shader shader, Camera& camera, GLuint texture_array)
-	: Renderer(shader),
+ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader, Camera& camera, GLuint texture_array)
+	: 
+	  m_terrain_generator{terrain_generator},
+	  Renderer(shader),
 	  m_texture_array{texture_array},
       m_camera{camera}
 	  
 {
 	m_vertexpool = new VertexPool::ZoneVertexPool{ };
-	m_terrain_generator = new TerrainGenerator{ };
 	initChunks();
 	m_buffer_needs_update = true;
 	m_camera_last_chunk_pos = { -999, -999, -999 };
@@ -311,8 +312,8 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
-	HeightMap height_map = m_terrain_generator->generateHeightMap(chunk_pos, lod);
-	bool is_chunk_visible = !m_terrain_generator->isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 	if (!is_chunk_visible) {
 		return;
 	}
@@ -321,7 +322,7 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
 			Chunk* chunk = new Chunk(chunk_pos, lod);
-			m_terrain_generator->generateChunkTerrain(*chunk, height_map, is_chunk_visible);
+			m_terrain_generator.generateChunkTerrain(*chunk, height_map, is_chunk_visible);
 			ctor(chunk_pos, std::move(chunk));
 			m_chunks_to_decorate.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
@@ -347,7 +348,7 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 		[&](const pmap::value_type& pair) {
 			pair.second->setNeighbors(chunk_neighbors);
 			#if SETTING_TREES_ENABLED
-				m_terrain_generator->generateTrees(*pair.second);
+				m_terrain_generator.generateTrees(*pair.second);
 			#endif
 			m_chunks_to_mesh.push(chunk_pos);
 			pair.second->setState(ChunkState::DECORATED);
