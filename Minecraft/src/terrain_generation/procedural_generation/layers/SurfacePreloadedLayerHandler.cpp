@@ -10,7 +10,7 @@ bool SurfacePreloadedLayerHandler::tryHandle(Chunk& chunk, glm::ivec3 block_pos,
 	int block_size = chunk.getLevelOfDetail().block_size;
 	glm::ivec3 block_world_pos = chunk.getPos() * CHUNK_SIZE + (block_pos * block_size);
 	int max_surface_height = block_world_pos.y + block_size;
-	int min_surface_height = block_world_pos.y - (block_size * SETTING_BLOCK_MARGIN);
+	int min_surface_height = block_world_pos.y - (block_size * Settings::SETTING_BLOCK_MARGIN);
 
 	if (surface_height > min_surface_height && surface_height < max_surface_height)
 	{

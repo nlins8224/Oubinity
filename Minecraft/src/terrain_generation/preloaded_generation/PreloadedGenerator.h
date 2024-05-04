@@ -10,7 +10,7 @@
 class PreloadedGenerator
 {
 public:
-	PreloadedGenerator(glm::vec3 scale = SETTING_SCALE);
+	PreloadedGenerator(glm::vec3 scale = Settings::SETTING_SCALE);
 	virtual ~PreloadedGenerator() = default;
 	HeightMap generateHeightMap(glm::ivec3 chunk_pos);
 	BlockMap generateBlockMap(glm::ivec3 chunk_pos);
