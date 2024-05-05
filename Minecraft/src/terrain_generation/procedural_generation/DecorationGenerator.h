@@ -22,7 +22,7 @@ class DecorationGenerator
 public:
 	DecorationGenerator();
 	virtual ~DecorationGenerator() = default;
-	void generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap tree_presence_map, uint8_t water_height);
+	void generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap& tree_presence_map, uint8_t water_height);
 private:
 	TreeShape m_tree_shape;
 	TreeHeightBoundaries m_tree_height_boundaries;

@@ -1,23 +1,20 @@
 #include "TerrainGenerator.h"
 
-TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
-	:m_water_height{water_height}
-{
-#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_LAYERS
-	m_preloaded_generator = PreloadedGenerator();
-#endif
-
-	m_procedural_generator = ProceduralGenerator(world_seed, water_height);
-}
-
-TerrainGenerator::TerrainGenerator()
-{
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
-	m_preloaded_generator = PreloadedGenerator();
-#endif
-	m_procedural_generator = ProceduralGenerator();
-
+TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
+	: m_water_height{ water_height },
+	m_procedural_generator{ ProceduralGenerator(world_seed, water_height) },
+	m_preloaded_generator{ PreloadedGenerator(water_height) }
+{
 }
+#else
+TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
+	: m_water_height{ water_height },
+	m_procedural_generator{ ProceduralGenerator(world_seed, water_height) },
+{
+}
+#endif
+
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
 	HeightMap height_map = generateHeightMap(chunk);
@@ -44,10 +41,10 @@ uint8_t TerrainGenerator::getWaterHeight()
 HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 {
 	glm::ivec3 chunk_pos = chunk.getPos();
-	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 #if SETTING_USE_PRELOADED_HEIGHTMAP
-	return m_preloaded_generator.generateHeightMap(chunk_pos, lod);
+	return m_preloaded_generator.getHeightMap(chunk_pos);
 #else 
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 	return m_procedural_generator.generateHeightMap(chunk_pos, lod);
 #endif
 }
@@ -55,7 +52,7 @@ HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 HeightMap TerrainGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 #if SETTING_USE_PRELOADED_HEIGHTMAP
-	return m_preloaded_generator.generateHeightMap(chunk_pos, lod);
+	return m_preloaded_generator.getHeightMap(chunk_pos);
 #else 
 	return m_procedural_generator.generateHeightMap(chunk_pos, lod);
 #endif
@@ -65,7 +62,7 @@ HeightMap TerrainGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetai
 bool TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 #if SETTING_USE_PRELOADED_COLORMAP
-	BlockMap block_map = m_preloaded_generator.generateBlockMap(chunk);
+	BlockMap block_map = m_preloaded_generator.getBlockMap(chunk.getPos());
 	return m_procedural_generator.generateLayers(chunk, height_map, block_map);
 #else 
 	return m_procedural_generator.generateLayers(chunk, height_map);
@@ -75,8 +72,12 @@ bool TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 void TerrainGenerator::generateTrees(Chunk& chunk)
 {
 #if SETTING_USE_PRELOADED_HEIGHTMAP
-	HeightMap height_map = m_preloaded_generator.generateHeightMap(chunk);
-	m_procedural_generator.generateTrees(chunk, height_map);
+	#if SETTING_USE_PRELOADED_TREEMAP
+		m_preloaded_generator.generateTrees(chunk);
+	#else
+		HeightMap height_map = m_preloaded_generator.getHeightMap(chunk.getPos());
+		m_procedural_generator.generateTrees(chunk, height_map);
+	#endif
 #else
 	m_procedural_generator.generateTrees(chunk);
 #endif	

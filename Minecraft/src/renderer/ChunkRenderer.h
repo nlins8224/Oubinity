@@ -16,7 +16,6 @@
 
 #include "../third_party/BS_thread_pool.hpp"
 #include "../third_party/parallel_hashmap/phmap.h"
-#include "optick.h"
 #include "../loguru.hpp"
 
 struct ChunkBorder
@@ -31,7 +30,7 @@ class ChunkRenderer : public Renderer
 {
 public:
 	ChunkRenderer() = delete;
-	ChunkRenderer(Shader shader, Camera& camera, GLuint texture_array);
+	ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader, Camera& camera, GLuint texture_array);
 	void render(Camera& camera) override;
 
 	void traverseScene();
@@ -89,6 +88,6 @@ private:
 	std::queue<glm::ivec3> m_chunks_to_free; // render thread writes, main thread reads
 
 	VertexPool::ZoneVertexPool* m_vertexpool; // called only on main thread
-	TerrainGenerator* m_terrain_generator; // called only on render thread
+	TerrainGenerator& m_terrain_generator; // called only on render thread
 
 };

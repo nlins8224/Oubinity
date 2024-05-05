@@ -9,7 +9,7 @@ DecorationGenerator::DecorationGenerator()
 	m_tree_height_boundaries.height_max = 9;
 }
 
-void DecorationGenerator::generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap tree_presence_map, uint8_t water_height)
+void DecorationGenerator::generateTrees(Chunk& chunk, HeightMap& surface_map, TreePresenceMap& tree_presence_map, uint8_t water_height)
 {
 	glm::ivec3 chunk_pos = chunk.getPos();
 	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();

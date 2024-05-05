@@ -9,6 +9,9 @@
 
 namespace PreloadedGeneration 
 {
-	std::vector<HeightMap> parsePNGToHeightMaps(std::string filepath);
-	HeightMap parsePNGToHeightMap(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz);
+	std::vector<HeightMap> parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale);
+	std::vector<HeightMap> parsePNGToHeightMaps_16BIT(std::string filepath, double y_scale);
+	HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz, glm::vec3 scale);
+	HeightMap parsePNGToHeightMap_16BIT(uint16_t* chunk_image, int width, glm::ivec3 chunk_pos_xz, double y_scale);
+
 }

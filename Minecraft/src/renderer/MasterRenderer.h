@@ -12,7 +12,7 @@
 class MasterRenderer
 {
 public:
-	MasterRenderer(Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area, GLuint cloud_noise_texture_id, glm::ivec2 resolution);
+	MasterRenderer(TerrainGenerator& terrain_generator, Camera& camera, GLuint skybox_texture_id, GLuint texture_array_id, GLuint water_texture_id, float water_height, int water_area, GLuint cloud_noise_texture_id, glm::ivec2 resolution);
 	~MasterRenderer() = default;
 	void initConfig();
 	void clear() const;

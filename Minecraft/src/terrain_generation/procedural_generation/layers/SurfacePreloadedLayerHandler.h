@@ -2,6 +2,7 @@
 #include "ChunkLayerHandler.h"
 #include "../../../loguru.hpp"
 #include "../../TerrainGenerationTypes.h"
+#include "../../../Settings.h"
 
 class SurfacePreloadedLayerHandler : public ChunkLayerHandler
 {

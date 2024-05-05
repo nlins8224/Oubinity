@@ -337,7 +337,6 @@ namespace VertexPool {
 
     void ZoneVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset)
     {
-        OPTICK_EVENT("updateMeshBuffer");
         waitBuffer(m_sync);
         std::move(mesh.begin(), mesh.end(), m_mesh_persistent_buffer + buffer_offset);
         lockBuffer(m_sync);
@@ -391,7 +390,6 @@ namespace VertexPool {
 
     void ZoneVertexPool::createChunkInfoBuffer()
     {
-        OPTICK_EVENT("createChunkInfoBuffer");
         m_chunk_info_ssbo = 0;
         glGenBuffers(1, &m_chunk_info_ssbo);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
@@ -402,7 +400,6 @@ namespace VertexPool {
 
     void ZoneVertexPool::createChunkLodBuffer()
     {
-        OPTICK_EVENT("createChunkLodBuffer");
         m_chunks_lod_ssbo = 1;
         glGenBuffers(1, &m_chunks_lod_ssbo);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);

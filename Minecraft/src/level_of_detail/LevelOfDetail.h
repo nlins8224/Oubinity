@@ -28,7 +28,7 @@ namespace LevelOfDetail {
 		.level{ 1 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
-		.draw_distance{ 16 },
+		.draw_distance{ 64 },
 		.divide_factor{ 2 }
 	};
 
@@ -37,7 +37,7 @@ namespace LevelOfDetail {
 		.level{ 2 },
 		.block_amount{ CHUNK_SIZE / 4 },
 		.block_size{ 4.0f },
-		.draw_distance{ 32 },
+		.draw_distance{ 128 },
 		.divide_factor{ 4 }
 	};
 
@@ -46,7 +46,7 @@ namespace LevelOfDetail {
 		.level{ 3 },
 		.block_amount{ CHUNK_SIZE / 8 },
 		.block_size{ 8.0f },
-		.draw_distance{ 64 },
+		.draw_distance{ 256 },
 		.divide_factor{ 8 }
 	};
 
@@ -55,7 +55,7 @@ namespace LevelOfDetail {
 		.level{ 4 },
 		.block_amount{ CHUNK_SIZE / 16 },
 		.block_size{ 16.0f },
-		.draw_distance{ 128 },
+		.draw_distance{ 512 },
 		.divide_factor{ 16 }
 	};
 
@@ -64,7 +64,7 @@ namespace LevelOfDetail {
 		.level{ 5 },
 		.block_amount{ CHUNK_SIZE / 32 },
 		.block_size{ 32.0f },
-		.draw_distance{ 256 },
+		.draw_distance{ 1024 },
 		.divide_factor{ 32 }
 	};
 

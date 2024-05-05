@@ -3,7 +3,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "loguru.hpp"
-#include "optick.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -38,10 +37,10 @@ int main()
 
     std::cout << glGetError() << std::endl;
     Camera camera{ glm::vec3(0.0f, 128.0f, 0.0f) };
-    TerrainGenerator terrain_generator{ 1337, 12 };
+    TerrainGenerator terrain_generator{ 1337, 4 };
     TextureManager m_texture_manager{ 16, 16, 256 };
     PlayerInput player_input{window.getWindow(), camera};
-    MasterRenderer master_renderer(camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId(), m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(), ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE, m_texture_manager.getCloudNoiseId(), glm::ivec2{699, 393 });
+    MasterRenderer master_renderer(terrain_generator, camera, m_texture_manager.getSkyboxTextureId(), m_texture_manager.getTextureArrayId(), m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(), ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE, m_texture_manager.getCloudNoiseId(), glm::ivec2{699, 393 });
     FrameBuffer scene_buffer{ Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT };
     ImGuiUIManager imgui_manager(&window);
     GuiLayout gui_layout{ &imgui_manager, &scene_buffer };
@@ -85,7 +84,6 @@ int main()
     double xpos, ypos;
     while (!glfwWindowShouldClose(window.getWindow()))
     {
-        OPTICK_FRAME("MainThread");
         scene_buffer.bind();
 
         float current_frame = static_cast<float>(glfwGetTime());
@@ -100,7 +98,7 @@ int main()
             glm::vec3 player_pos = player_input.getCamera().getCameraPos();
 
             LOG_F(INFO, "FPS: %d", frames_per_second);
-            LOG_F(INFO, "Player Pos XZ: (%d, %d)", (int)player_pos.x / CHUNK_SIZE, (int)player_pos.z / CHUNK_SIZE);
+            LOG_F(INFO, "Player Pos XYZ: (%d, %d, %d)", (int)player_pos.x, (int)player_pos.y, (int)player_pos.z);
 
             seconds_elapsed += 1.0f;
             frames_per_second = 0;
