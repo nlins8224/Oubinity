@@ -10,7 +10,7 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
 #else
 TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
 	: m_water_height{ water_height },
-	m_procedural_generator{ ProceduralGenerator(world_seed, water_height) },
+	m_procedural_generator{ ProceduralGenerator(world_seed, water_height)}
 {
 }
 #endif

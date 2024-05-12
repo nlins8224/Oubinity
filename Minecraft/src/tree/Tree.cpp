@@ -1,34 +1,27 @@
 #include "Tree.h"
 
-Tree::Tree(uint8_t trunk_height, uint8_t crown_height, uint8_t crown_width)
-	: TRUNK_HEIGHT{ trunk_height },
+Tree::Tree(uint8_t crown_height, uint8_t crown_width)
+	:
 	CROWN_HEIGHT{ crown_height },
-	CROWN_WIDTH{ crown_width }
+	CROWN_WIDTH{ crown_width },
+	m_branch_generator{}
 {
 
 }
 
 bool Tree::addTree(Chunk& chunk, glm::ivec3 block_pos)
 {
-	addTrunk(chunk, block_pos);
-	addCrown(chunk, block_pos);
-
+	std::vector<ProceduralTree::Branch> branches = m_branch_generator.generateBranches(block_pos);
+	voxelizeBranches(chunk, branches);
+	addCrowns(chunk, branches);
 	return true;
-}
-
-void Tree::addTrunk(Chunk& chunk, glm::ivec3 block_pos)
-{
-	for (uint8_t i = 0; i < TRUNK_HEIGHT; i++)
-	{
-		placeBlock(chunk, { block_pos.x, block_pos.y + i, block_pos.z }, Block::OAK_LOG);
-	}
 }
 
 void Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos)
 {
 	int crown_width_halved = CROWN_WIDTH / 2;
 	int odd_remainder = CROWN_WIDTH % 2;
-	for (uint8_t y = TRUNK_HEIGHT; y < TRUNK_HEIGHT + CROWN_HEIGHT; y++)
+	for (uint8_t y = block_pos.y ; y < block_pos.y + CROWN_HEIGHT; y++)
 	{
 		for (int x = -crown_width_halved; x < crown_width_halved + odd_remainder; x++)
 		{
@@ -37,9 +30,114 @@ void Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos)
 				if (shouldCutBlock(x, y, z))
 					continue;
 
-				placeBlock(chunk, { block_pos.x + x, block_pos.y + y, block_pos.z + z }, Block::OAK_LEAVES);
+				placeBlock(chunk, { block_pos.x + x, y, block_pos.z + z }, Block::OAK_LEAVES);
 			}
 		}
+	}
+}
+
+void Tree::addCrowns(Chunk& chunk, std::vector<ProceduralTree::Branch> branches)
+{
+	for (ProceduralTree::Branch& branch : branches)
+	{
+		if (branch.u->childs.size() == 0)
+		{
+			addCrown(chunk, branch.u->pos);
+		}
+		if (branch.v->childs.size() == 0)
+		{
+			addCrown(chunk, branch.v->pos);
+		}
+	}
+}
+
+void Tree::voxelizeBranches(Chunk& chunk, std::vector<ProceduralTree::Branch> branches)
+{
+	for (ProceduralTree::Branch& branch : branches)
+	{
+		voxelizeBranch(chunk, branch);
+	}
+}
+
+void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch)
+{
+	/*
+	* A Fast Voxel Traversal Algorithm for Ray Tracing method is used in adapted version
+	* to voxelize branch.
+	* http://www.cs.yorku.ca/~amana/research/grid.pdf
+	*/
+	using ProceduralTree::Branch, ProceduralTree::Node;
+	glm::vec3 v_pos = glm::floor(branch.v->pos);
+	glm::vec3 u_pos = glm::floor(branch.u->pos);
+	uint16_t dx = std::abs(u_pos.x - v_pos.x);
+	uint16_t dy = std::abs(u_pos.y - v_pos.y);
+	uint16_t dz = std::abs(u_pos.z - v_pos.z);
+
+	int step_X = 1;
+	int step_Y = 1;
+	int step_Z = 1;
+
+	if (dx == 0)
+	{
+		step_X = 0;
+		dx = 1;
+	}
+	if (dy == 0)
+	{
+		step_Y = 0;
+		dy = 1;
+	}
+	if (dz == 0)
+	{
+		step_Z = 0;
+		dz = 1;
+	}
+
+	if (v_pos.x > u_pos.x)
+	{
+		std::swap(v_pos.x, u_pos.x);
+	}
+	if (v_pos.y > u_pos.y)
+	{
+		std::swap(v_pos.y, u_pos.y);
+	}
+	if (v_pos.z > u_pos.z)
+	{
+		std::swap(v_pos.z, u_pos.z);
+	}
+
+	uint16_t length = glm::length(u_pos - v_pos);
+
+	double t_max_X = length * 0.5 / dx;
+	double t_max_Y = length * 0.5 / dy;
+	double t_max_Z = length * 0.5 / dz;
+
+	double t_delta_X = length / dx;
+	double t_delta_Y = length / dy;
+	double t_delta_Z = length / dz;
+
+	while (v_pos.x < u_pos.x || v_pos.y < u_pos.y || v_pos.z < u_pos.z) {
+		if (t_max_X < t_max_Y) {
+			if (t_max_X < t_max_Z) {
+				v_pos.x += step_X;
+				t_max_X += t_delta_X;
+			}
+			else {
+				v_pos.z += step_Z;
+				t_max_Z += t_delta_Z;
+			}
+		}
+		else {
+			if (t_max_Y < t_max_Z) {
+				v_pos.y += step_Y;
+				t_max_Y += t_delta_Y;
+			}
+			else {
+				v_pos.z += step_Z;
+				t_max_Z += t_delta_Z;
+			}
+		}
+		placeBlock(chunk, v_pos, Block::OAK_LOG);
 	}
 }
 
@@ -136,7 +234,7 @@ bool Tree::shouldCutBlock(int x, int y, int z)
 		return true;
 	}
 
-	if ((y == TRUNK_HEIGHT || y == TRUNK_HEIGHT + CROWN_HEIGHT - 1) &&
+	if (
 		((x == -crown_width_halved && z == -crown_width_halved + 1) ||
 			(x == -crown_width_halved && z == crown_width_halved - 1) ||
 			(x == -crown_width_halved + 1 && z == -crown_width_halved) ||
