@@ -6,7 +6,6 @@
 
 struct TreeShape
 {
-	uint8_t trunk_height;
 	uint8_t crown_height;
 	uint8_t crown_width;
 };

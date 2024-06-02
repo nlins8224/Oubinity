@@ -6,7 +6,7 @@ bool SurfaceLayerHandler::tryHandle(Chunk& chunk, glm::ivec3 block_pos, int surf
 	glm::ivec3 block_world_pos = chunk.getPos() * CHUNK_SIZE + (block_pos * block_size);
 	if (surface_height > block_world_pos.y - block_size && surface_height < block_world_pos.y + block_size)
 	{
-		chunk.setBlock(block_pos, Block::STONE);
+		chunk.setBlock(block_pos, Block::GRASS);
 		return true;
 	}
 
