@@ -4,6 +4,7 @@
 #include "Block.h"
 #include "../loguru.hpp"
 #include "../level_of_detail/LevelOfDetail.h"
+#include "../dynamic_bitset.hpp"
 
 
 // credits to: https://www.reddit.com/r/VoxelGameDev/comments/9yu8qy/palettebased_compression_for_chunked_discrete/
@@ -67,7 +68,7 @@ struct PaletteIndexStorage
 	// vector<bool> is used as dynamic bitset, as there is no available dynamic bitset data structure in the standard lib.
     // Note that vector<bool> specialization does not met container criteria (by STL's definition of what container is).
     // https://en.cppreference.com/w/cpp/container/vector_bool
-	std::vector<bool> indexes; 
+	sul::dynamic_bitset<> indexes; 
 	uint8_t palette_index_size; // in bits
 	uint32_t indexes_amount;
 };
