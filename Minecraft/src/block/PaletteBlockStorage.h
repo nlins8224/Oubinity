@@ -65,9 +65,14 @@ struct PaletteIndexStorage
 		}
 	}
 
-	sul::dynamic_bitset<> data()
+	sul::dynamic_bitset<>& data()
 	{
 		return indexes;
+	}
+
+	uint8_t getIndexSize()
+	{
+		return palette_index_size;
 	}
 
 	sul::dynamic_bitset<> indexes; 
@@ -85,6 +90,9 @@ public:
 	void set(glm::ivec3 block_pos, block_id block_type);
 	void fill(block_id block_type);
 	PaletteIndexStorage& getPaletteIndexStorage();
+	sul::dynamic_bitset<> decodeToOccupancyMask();
+	sul::dynamic_bitset<>& getOccupancyMask();
+
 private:
 	uint8_t newPaletteEntry();
 	void growPalette();
@@ -95,7 +103,7 @@ private:
 	Palette m_palette;
 	PaletteIndexStorage m_index_storage;
 	uint8_t m_chunk_size;
-
+	sul::dynamic_bitset<> m_occupancy_mask;
 };
 
 }

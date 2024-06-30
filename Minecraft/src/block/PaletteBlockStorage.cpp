@@ -8,6 +8,7 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 	
 	int chunk_size_cubed = chunk_size * chunk_size * chunk_size;
 	m_palette.resize(initial_palettes_amount, { chunk_size_cubed, block_id::AIR});
+	m_occupancy_mask.resize(chunk_size_cubed + 1);
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -27,6 +28,7 @@ Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 {
 	int block_index = getBlockIndex(block_pos);
+	m_occupancy_mask[block_index] = block_type != block_id::AIR;
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
 	//LOG_F(INFO, "palette_index: %d, palette size: %d", palette_index, m_palette.size());
@@ -78,6 +80,47 @@ void Block::PaletteBlockStorage::fill(block_id block_type)
 Block::PaletteIndexStorage& Block::PaletteBlockStorage::getPaletteIndexStorage()
 {
 	return m_index_storage;
+}
+
+sul::dynamic_bitset<> Block::PaletteBlockStorage::decodeToOccupancyMask()
+{
+	sul::dynamic_bitset<>& word = m_index_storage.data();
+	int subword_length = m_index_storage.getIndexSize();
+	int air_block_id = findIndexOfPaletteHolding(block_id::AIR);
+	int subwords_amount = word.size() / subword_length;
+	int subword_mask = (1ULL << subwords_amount) - 1;
+	sul::dynamic_bitset bitset_mask(word.size());
+	bitset_mask.set(0, subword_length, true);
+	sul::dynamic_bitset<> occupancy_mask;
+
+	if (air_block_id != 0 && air_block_id != -1) {
+		LOG_F(ERROR, "Air block is not 0 nor -1, air_block_id: %d", air_block_id);
+	}
+
+	// Everything is solid
+	if (air_block_id == -1)
+	{
+		LOG_F(INFO, "Everything is solid!");
+		occupancy_mask.set();
+		return occupancy_mask;
+	}
+
+	uint64_t shift = 0;
+	sul::dynamic_bitset<> subword;
+
+	for (int i = subwords_amount; i > 0; --i)
+	{
+		subword = (word & (bitset_mask << shift));
+		occupancy_mask.push_back(subword.any());
+		shift += subword_length;
+	}
+
+	return occupancy_mask;
+}
+
+sul::dynamic_bitset<>& Block::PaletteBlockStorage::getOccupancyMask()
+{
+	return m_occupancy_mask;
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()
@@ -148,5 +191,6 @@ int Block::PaletteBlockStorage::findIndexOfPaletteHoldingOrEmpty(uint8_t block_t
 
 int Block::PaletteBlockStorage::getBlockIndex(glm::ivec3 block_pos) const
 {
-	return block_pos.x * m_chunk_size * m_chunk_size + block_pos.y * m_chunk_size + block_pos.z;
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	return z + (x * m_chunk_size) + (y * m_chunk_size * m_chunk_size);
 }

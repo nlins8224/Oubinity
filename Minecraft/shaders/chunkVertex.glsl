@@ -161,34 +161,34 @@ void main()
 	float ao_val = 1.0f;
 	switch(face_id)
 	{
-		case 0u: // back 
-			index = back_face_indices[vertex_id];
-			vertex_pos += back_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 1u: // front 
-			index = front_face_indices[vertex_id];
-			vertex_pos += front_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 2u: // left 
-			index = left_face_indices[vertex_id];
-			vertex_pos += left_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 3u: // right
-			index = right_face_indices[vertex_id];
-			vertex_pos += right_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 4u: // top
+		case 0u: // top 
 			index = top_face_indices[vertex_id];
 			vertex_pos += top_face[index];
 			ao_val = ambient_occlusion_values[ao_corners[index]];
 			break;
-		case 5u: // bottom
+		case 1u: // bottom 
 			index = bottom_face_indices[vertex_id];
 			vertex_pos += bottom_face[index];
+			ao_val = ambient_occlusion_values[ao_corners[index]];
+			break;
+		case 2u: // right 
+			index = right_face_indices[vertex_id];
+			vertex_pos += right_face[index];
+			ao_val = ambient_occlusion_values[ao_corners[index]];
+			break;
+		case 3u: // left
+			index = left_face_indices[vertex_id];
+			vertex_pos += left_face[index];
+			ao_val = ambient_occlusion_values[ao_corners[index]];
+			break;
+		case 4u: // front
+			index = front_face_indices[vertex_id];
+			vertex_pos += front_face[index];
+			ao_val = ambient_occlusion_values[ao_corners[index]];
+			break;
+		case 5u: // back
+			index = back_face_indices[vertex_id];
+			vertex_pos += back_face[index];
 			ao_val = ambient_occlusion_values[ao_corners[index]];
 			break;
 	}

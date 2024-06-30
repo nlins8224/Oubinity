@@ -1,5 +1,4 @@
 #include "Chunk.h"
-
 using Block::block_mesh;
 using Block::block_id;
 
@@ -33,20 +32,23 @@ Chunk::~Chunk()
 
 void Chunk::addChunkMesh()
 {
-	block_id block;
-	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
-	{
-		for (int local_y = 0; local_y < m_lod.block_amount; local_y++)
-		{
-			for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
-			{
-				block = getBlockId(glm::ivec3(local_x, local_y, local_z));
-				if (block != block_id::AIR) {
-					addVisibleFaces(glm::ivec3(local_x, local_y, local_z));
-				}
-			}
-		}
-	}
+	addInsideFaces();
+	//addBorderFaces();
+	//mesh();
+	//block_id block;
+	//for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
+	//{
+	//	for (int local_y = 0; local_y < m_lod.block_amount; local_y++)
+	//	{
+	//		for (int local_z = 0; local_z < m_lod.block_amount; local_z++)
+	//		{
+	//			block = getBlockId(glm::ivec3(local_x, local_y, local_z));
+	//			if (block != block_id::AIR) {
+	//				addBlockVisibleFaces(glm::ivec3(local_x, local_y, local_z));
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
@@ -64,7 +66,7 @@ glm::ivec2 Chunk::getPosXZ() const
 	return { m_chunk_pos.x, m_chunk_pos.z };
 }
 
-void Chunk::addVisibleFaces(glm::ivec3 block_pos)
+void Chunk::addBlockVisibleFaces(glm::ivec3 block_pos)
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
@@ -75,6 +77,7 @@ void Chunk::addVisibleFaces(glm::ivec3 block_pos)
 	if (!isFaceVisible(glm::ivec3(x, y, z + 1))) addFace(block_mesh::FRONT,  glm::ivec3(x, y, z));
 	if (!isFaceVisible(glm::ivec3(x, y, z - 1))) addFace(block_mesh::BACK,   glm::ivec3(x, y, z));
 }
+
 
 // May overflow when near INT_MAX
 // b parameter has to be positive
@@ -99,11 +102,15 @@ inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos, const ChunkNeighbors& 
 	return nullptr;
 }
 
+
 bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	// out of bounds check for example: x - 1 = -1 < 0, x + 1 = 32 > 31
-	if (x < 0 || y < 0 || z < 0 || x >= m_lod.block_amount || y >= m_lod.block_amount || z >= m_lod.block_amount)
+
+	if (y < 0 || y > m_lod.block_amount) {
+		return true;
+	}
+	if (x < 0 || z < 0 || x >= m_lod.block_amount || y == m_lod.block_amount || z >= m_lod.block_amount)
 	{
 		int c_x = roundDownDivide(x, m_lod.block_amount);
 		int c_y = roundDownDivide(y, m_lod.block_amount);
@@ -128,11 +135,198 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		int l_z = getMod(z, m_lod.block_amount);
 
 		block_id neighbor_block = neighbor_chunk->getBlockId({ l_x, l_y, l_z });
-		return neighbor_block != block_id::AIR && neighbor_block != block_id::NONE;
+		return neighbor_block != block_id::AIR;
 	}
 
 	block_id block_type = m_blocks->get(glm::ivec3(x, y, z));
-	return block_type != block_id::AIR && block_type != block_id::NONE;
+	return block_type != block_id::AIR;
+}
+
+bool Chunk::isInsideBlock(glm::ivec3 block_pos)
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	return x >= 1 && y >= 1 && z >= 1 &&
+		x < m_lod.block_amount && y < m_lod.block_amount && z < m_lod.block_amount;
+}
+
+void Chunk::addInsideFaces()
+{
+	const int CS = std::min(m_lod.block_amount - 2, 0);
+	const int CS_P = m_lod.block_amount;
+    const int CS_P2 = CS_P * CS_P;
+    const int CS_P3 = CS_P * CS_P * CS_P;
+    const int CS_LAST_BIT = CS_P - 1;
+
+	LOG_F(INFO, "decodeToOccupancyMask called");
+	sul::dynamic_bitset<>& blocks_presence_cache = m_blocks->getOccupancyMask();
+	LOG_F(INFO, "blocks_presence_cache size: %d", blocks_presence_cache.size());
+
+	/*
+	* axis 0:
+	  axis_cols[0, CS_P2) - iterating over xz plane in y direction, top and bottom faces
+	  axis 1:
+	  axis_cols[CS_P2, 2CS_P2) - iterating over zy plane in x direction, left and right faces
+	  axis 2:
+	  axis_cols[2CS_P2, 3CS_P2) - iterating over xy plane in z direction, front and back faces
+	*/
+	std::vector<uint32_t> axis_cols(CS_P2 * 3, 0);// [CS_P2 * 3] = { 0 };
+
+	int bit_pos = 0;
+	for (int y = 0; y < CS_P; y++)
+	{
+		int y_offset = CS_P2 + (y * CS_P);
+		for (int x = 0; x < CS_P; x++)
+		{
+			uint32_t zb = 0;
+			for (int z = 0; z < CS_P; z++)
+			{
+				if (blocks_presence_cache[bit_pos])
+				{
+					axis_cols[(CS_P * z) + x] |= 1ULL << y;
+					axis_cols[CS_P2 + (y * CS_P) + z] |= 1ULL << x;
+					zb |= 1ULL << z;
+				}
+				bit_pos++;
+			}
+			axis_cols[(CS_P2 * 2) + (x * CS_P) + y] = zb;
+		}
+	}
+
+
+	/*
+	axis 0: Top and Bottom faces
+	  col[0, CS_P2)
+	  col_face_masks[0, CS_P2)
+	  col_face_masks[CS_P2, 2CS_P2)
+	axis 1: Left and Right faces
+	  col[CS_P2, 2CS_P2)
+      col_face_masks[2CS_P2, 3CS_P2)
+	  col_face_masks[3CS_P2, 4CS_P2)
+	axis 2: Front and Back faces
+	  col[2CS_P2, 3CS_P2)
+	  col_face_masks[4CS_P2, 5CS_P2)
+	  col_face_masks[5CS_P2, 6CS_P2)
+	*/
+	for (int axis = 0; axis <= 2; axis++)
+	{
+		for (int i = 0; i < CS_P2; i++)
+		{
+			uint32_t col = axis_cols[(CS_P2 * axis) + i];
+			m_mesh.col_face_masks[(CS_P2 * (axis * 2)) + i] = col & ~((col >> 1) | (1ULL << CS_LAST_BIT));
+			m_mesh.col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] = col & ~((col << 1) | 1ULL);
+		}
+	}
+
+	// Greedy meshing
+	for (uint8_t face = 0; face < 6; face++) {
+		int axis = face / 2;
+
+		//memset(merged_forward.data(), 0, CS_P2 * 8);
+
+		for (int forward = 0; forward < CS_P; forward++) {
+			uint64_t bits_walking_right = 0;
+			int forwardIndex = (forward * CS_P) + (face * CS_P2);
+
+			//memset(merged_right.data(), 0, CS_P * 8);
+
+			for (int right = 0; right < CS_P; right++) {
+				int rightxCS_P = right * CS_P;
+
+				uint64_t bits_here = m_mesh.col_face_masks[forwardIndex + right];
+				unsigned long bit_pos;
+
+				uint64_t copy_front = bits_here;
+				while (copy_front) {
+					#ifdef _MSC_VER
+					_BitScanForward64(&bit_pos, copy_front);
+					#else
+					bit_pos = __builtin_ctzll(copy_front);
+					#endif
+
+					copy_front &= ~(1ULL << bit_pos);
+
+					if (blocks_presence_cache[get_axis_i(axis, right, forward, bit_pos)] != block_id::AIR) {
+						addFaceBasedOnFaceDirection(face, right, forward, bit_pos);
+					}
+				}
+			}
+		}
+	}
+}
+
+const int Chunk::get_axis_i(const int axis, const int a, const int b, const int c) {
+	const int CS = std::min(m_lod.block_amount - 2, 0);
+	const int CS_P = m_lod.block_amount;
+	const int CS_P2 = CS_P * CS_P;
+	const int CS_P3 = CS_P * CS_P * CS_P;
+	const int CS_LAST_BIT = CS_P - 1;
+
+	if (axis == 0) return b + (a * CS_P) + (c * CS_P2);
+	else if (axis == 1) return a + (c * CS_P) + (b * CS_P2);
+	else return c + (b * CS_P) + (a * CS_P2);
+}
+
+void Chunk::addFaceBasedOnFaceDirection(int direction, int right, int forward, int bit_pos) {
+	int x, y, z;
+	if (direction == 0 || direction == 1)
+	{
+		x = right;
+		y = bit_pos;
+		z = forward;
+	}
+	else if (direction == 2 || direction == 3)
+	{
+		x = bit_pos;
+		y = forward;
+		z = right;
+	}
+	else
+	{
+		x = forward;
+		y = right;
+		z = bit_pos;
+	}
+	addFace(static_cast<block_mesh>(direction), glm::ivec3(x, y, z));
+}
+
+void Chunk::addBorderFaces()
+{
+	int min_x = 0, max_x = m_lod.block_amount - 1;
+	int min_z = 0, max_z = m_lod.block_amount - 1;
+	int min_y = 0, max_y = m_lod.block_amount - 1;
+
+	// x-/x+ iterate over z
+	for (int bz = min_z; bz < max_z; bz++)
+	{
+		for (int by = 0; by < max_y; by++)
+		{
+			glm::ivec3 min_x_block = glm::ivec3(min_x, by, bz);
+			if (getBlockId(min_x_block) != block_id::AIR) {
+				addBlockVisibleFaces(min_x_block);
+			}
+			glm::ivec3 max_x_block = glm::ivec3(max_x, by, bz);
+			if (getBlockId(max_x_block) != block_id::AIR) {
+				addBlockVisibleFaces(max_x_block);
+			}
+		}
+	}
+
+	// z-/z+ iterate over x
+	for (int bx = min_x; bx < max_x; bx++)
+	{
+		for (int by = 0; by < max_y; by++)
+		{
+			glm::ivec3 min_z_block = glm::ivec3(bx, by, min_z);
+			if (getBlockId(min_z_block) != block_id::AIR) {
+				addBlockVisibleFaces(min_z_block);
+			}
+			glm::ivec3 max_z_block = glm::ivec3(bx, by, max_z);
+			if (getBlockId(max_z_block) != block_id::AIR) {
+				addBlockVisibleFaces(max_z_block);
+			}
+		}
+	}
+
 }
 
 void Chunk::addFace(block_mesh face_side, glm::ivec3 block_pos)
@@ -276,9 +470,9 @@ void Chunk::setIsVisible(bool is_visible)
 	m_is_visible = is_visible;
 }
 
-Mesh& Chunk::getMesh()
+std::vector<Vertex>& Chunk::getMesh()
 {
-	return m_mesh;
+	return m_mesh.vertices;
 }
 
 std::vector<Face>& Chunk::getFaces()

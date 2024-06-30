@@ -14,11 +14,11 @@ namespace Block
 
     enum block_mesh
     {
-        BACK,
-        FRONT,
-        LEFT,
-        RIGHT,
         TOP,
-        BOTTOM
+        BOTTOM,
+        RIGHT,
+        LEFT,
+        FRONT,
+        BACK
     };
 }

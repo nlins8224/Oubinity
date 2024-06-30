@@ -3,7 +3,6 @@
 #include <vector>
 #include <array>
 #include <functional>
-#include "Mesh.h"
 #include "Vertex.h"
 #include "Face.h"
 #include "ChunkSize.h"
@@ -51,6 +50,13 @@ Voxel:
 Z
 */
 
+struct MeshData {
+	std::vector<Face> faces;
+	std::vector<Vertex> vertices;
+	uint32_t col_face_masks[CHUNK_SIZE * CHUNK_SIZE * 6];
+	uint32_t merged_forward[CHUNK_SIZE * CHUNK_SIZE];
+	uint32_t merged_right[CHUNK_SIZE * CHUNK_SIZE];
+};
 
 struct FaceCornersAo {
 	uint8_t top_left;
@@ -58,6 +64,7 @@ struct FaceCornersAo {
 	uint8_t bottom_right;
 	uint8_t bottom_left;
 };
+
 
 // unordered_map is not used here, because it takes too much memory space
 using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
@@ -90,7 +97,7 @@ public:
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isVisible() const;
 	void setIsVisible(bool is_visible);
-	Mesh& getMesh();
+	std::vector<Vertex>& getMesh();
 	Block::PaletteBlockStorage& getBlockArray();
 	void setBlockArray();
 	const glm::vec3 getWorldPos() const;
@@ -102,8 +109,8 @@ public:
 	void setNeighbors(ChunkNeighbors neighbors);
 
 private:
-	Mesh m_mesh;
-	Block::PaletteBlockStorage* m_blocks;
+	MeshData m_mesh;
+	Block::PaletteBlockStorage* m_blocks; // deleted after it's unpacked
 	std::vector<Face> m_faces;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
@@ -111,9 +118,15 @@ private:
 	LevelOfDetail::LevelOfDetail m_lod;
 	unsigned int m_added_faces{ 0 };
 
+	void addInsideFaces();
+	void addBorderFaces();
+	void mesh();
 	bool isFaceVisible(glm::ivec3 world_pos) const;
-	void addVisibleFaces(glm::ivec3 block_pos);
+	bool isInsideBlock(glm::ivec3 block_pos);
+	void addBlockVisibleFaces(glm::ivec3 block_pos);
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
+	void addFaceBasedOnFaceDirection(int direction, int right, int forward, int bit_pos);
+	const int get_axis_i(const int axis, const int a, const int b, const int c);
 	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);

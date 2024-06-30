@@ -374,7 +374,6 @@ bool ChunkRenderer::decorateChunks()
 // render thread
 bool ChunkRenderer::meshChunks()
 {
-	LOG_F(INFO, "meshChunks");
 	LOG_F(INFO, "chunks to mesh: %d", m_chunks_to_mesh.size());
 	bool anything_meshed = false;
 	while (!m_chunks_to_mesh.empty())
@@ -466,7 +465,7 @@ void ChunkRenderer::allocateChunk()
 			alloc_data._chunk_pos = pair.second->getPos();
 			alloc_data._added_faces_amount = pair.second->getAddedFacesAmount();
 			alloc_data._lod = pair.second->getLevelOfDetail();
-			alloc_data._mesh = std::move(pair.second->getMesh().getMeshData()); // chunk mesh is about to be allocated, vertex pool takes ownership
+			alloc_data._mesh = std::move(pair.second->getMesh()); // chunk mesh is about to be allocated, vertex pool takes ownership
 			alloc_data._mesh_faces = std::move(pair.second->getFaces());
 			alloc_data._chunk_world_pos = pair.second->getWorldPos();
 			alloc_data._ready = true;
