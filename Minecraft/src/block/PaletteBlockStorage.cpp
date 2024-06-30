@@ -1,5 +1,6 @@
 #include "PaletteBlockStorage.h"
 
+
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
 	: m_chunk_size{chunk_size},
 	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
@@ -72,6 +73,11 @@ void Block::PaletteBlockStorage::fill(block_id block_type)
 			}
 		}
 	}
+}
+
+Block::PaletteIndexStorage& Block::PaletteBlockStorage::getPaletteIndexStorage()
+{
+	return m_index_storage;
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()

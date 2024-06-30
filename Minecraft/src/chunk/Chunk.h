@@ -16,6 +16,7 @@
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
+#include "../dynamic_bitset.hpp"
 
 /*
 Convention:
@@ -95,6 +96,7 @@ public:
 	const glm::vec3 getWorldPos() const;
 	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	unsigned int getAddedFacesAmount();
+	sul::dynamic_bitset<> getBlocksBitset();
 	std::vector<Face>& getFaces();
 	void setState(ChunkState state);
 	void setNeighbors(ChunkNeighbors neighbors);

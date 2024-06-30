@@ -33,11 +33,6 @@ Chunk::~Chunk()
 
 void Chunk::addChunkMesh()
 {
-	//if (m_chunk_neighbors.size() == 6) {
-	//	LOG_F(INFO, "Chunk is surrounded, skipping");
-	//	return;
-	//}
-
 	block_id block;
 	for (int local_x = 0; local_x < m_lod.block_amount; local_x++)
 	{
@@ -52,9 +47,6 @@ void Chunk::addChunkMesh()
 			}
 		}
 	}
-
-	// delete only when neighbors are in meshed state
-	//delete m_blocks;
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
@@ -130,12 +122,6 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 			|| !neighbor_chunk->isVisible()) {
 			return false;
 		}
-
-		//if (m_chunk_neighbors.find(neighbor_chunk_pos) == m_chunk_neighbors.end() 
-		//	|| m_chunk_neighbors.at(neighbor_chunk_pos)->getLevelOfDetail().block_amount != m_lod.block_amount
-		//	 || !m_chunk_neighbors.at(neighbor_chunk_pos)->isVisible()) {
-		//	return false;
-		//}
 
 		int l_x = getMod(x, m_lod.block_amount);
 		int l_y = getMod(y, m_lod.block_amount);
@@ -334,4 +320,9 @@ LevelOfDetail::LevelOfDetail Chunk::getLevelOfDetail()
 unsigned int Chunk::getAddedFacesAmount()
 {
 	return m_added_faces;
+}
+
+sul::dynamic_bitset<> Chunk::getBlocksBitset()
+{
+	return m_blocks->getPaletteIndexStorage().data();
 }

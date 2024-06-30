@@ -13,6 +13,8 @@ MasterRenderer::MasterRenderer(TerrainGenerator& terrain_generator, Camera& came
 void MasterRenderer::initConfig()
 {
 	glEnable(GL_DEPTH_TEST);
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -24,7 +26,7 @@ void MasterRenderer::clear() const
 
 void MasterRenderer::render(Camera& camera)
 {
-	//m_chunk_renderer.traverseScene();
+	m_chunk_renderer.traverseScene();
 	// 
 	m_chunk_renderer.updateBufferIfNeedsUpdate();
 	m_chunk_renderer.drawChunksSceneMesh();
