@@ -88,9 +88,7 @@ public:
 	virtual ~PaletteBlockStorage() = default;
 	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
-	void fill(block_id block_type);
 	PaletteIndexStorage& getPaletteIndexStorage();
-	sul::dynamic_bitset<> decodeToOccupancyMask();
 	sul::dynamic_bitset<>& getOccupancyMask();
 
 private:
@@ -102,7 +100,7 @@ private:
 	using Palette = std::vector<PaletteEntry>;
 	Palette m_palette;
 	PaletteIndexStorage m_index_storage;
-	uint8_t m_chunk_size;
+	uint8_t m_padded_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
 };
 

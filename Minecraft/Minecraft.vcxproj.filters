@@ -63,9 +63,6 @@
     <ClCompile Include="src\renderer\MasterRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\chunk\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -222,7 +219,7 @@
     <ClCompile Include="src\block\PaletteBlockStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\block\PaletteChunkView.cpp">
+    <ClCompile Include="src\tree\BranchGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -497,7 +494,10 @@
     <ClInclude Include="src\block\PaletteBlockStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\block\PaletteChunkView.h">
+    <ClInclude Include="src\dynamic_bitset.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree\BranchGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -145,15 +145,15 @@ void main()
 	vec3 vertex_pos = vec3(x, y, z);
 
 	// prevent anisotropy
-	if (ao_v1 + ao_v3 > ao_v0 + ao_v2)
-	{	
-		back_face_indices   = uint[6](3,0,1,3,1,2);
-		front_face_indices  = uint[6](3,1,0,3,2,1);
-		left_face_indices   = uint[6](3,1,0,3,2,1);
-		right_face_indices  = uint[6](3,0,1,3,1,2);
-		top_face_indices    = uint[6](1,0,3,1,3,2);
-	    bottom_face_indices = uint[6](1,3,0,1,2,3);
-	}
+//	if (ao_v1 + ao_v3 > ao_v0 + ao_v2)
+//	{	
+//		back_face_indices   = uint[6](3,0,1,3,1,2);
+//		front_face_indices  = uint[6](3,1,0,3,2,1);
+//		left_face_indices   = uint[6](3,1,0,3,2,1);
+//		right_face_indices  = uint[6](3,0,1,3,1,2);
+//		top_face_indices    = uint[6](1,0,3,1,3,2);
+//	    bottom_face_indices = uint[6](1,3,0,1,2,3);
+//	}
 
 
 	uint index = 0;

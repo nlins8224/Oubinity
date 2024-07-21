@@ -11,7 +11,6 @@
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
 #include "../block/PaletteBlockStorage.h"
-#include "../block/PaletteChunkView.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
@@ -53,9 +52,9 @@ Z
 struct MeshData {
 	std::vector<Face> faces;
 	std::vector<Vertex> vertices;
-	uint32_t col_face_masks[CHUNK_SIZE * CHUNK_SIZE * 6];
-	uint32_t merged_forward[CHUNK_SIZE * CHUNK_SIZE];
-	uint32_t merged_right[CHUNK_SIZE * CHUNK_SIZE];
+	uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6];
+	uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)];
+	uint64_t merged_right[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)];
 };
 
 struct FaceCornersAo {
@@ -118,12 +117,9 @@ private:
 	LevelOfDetail::LevelOfDetail m_lod;
 	unsigned int m_added_faces{ 0 };
 
-	void addInsideFaces();
-	void addBorderFaces();
-	void mesh();
-	bool isFaceVisible(glm::ivec3 world_pos) const;
-	bool isInsideBlock(glm::ivec3 block_pos);
-	void addBlockVisibleFaces(glm::ivec3 block_pos);
+	void addFaces();
+	bool isFaceVisible(glm::ivec3 block_pos) const;
+	bool isNeighborFaceVisible(glm::ivec3 block_pos) const;
 	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
 	void addFaceBasedOnFaceDirection(int direction, int right, int forward, int bit_pos);
 	const int get_axis_i(const int axis, const int a, const int b, const int c);
