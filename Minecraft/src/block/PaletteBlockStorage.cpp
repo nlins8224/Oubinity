@@ -2,11 +2,11 @@
 
 
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
-	: m_padded_chunk_size{uint8_t(chunk_size)},
+	: m_chunk_size{uint8_t(chunk_size)},
 	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
 {
 	
-	int chunk_size_cubed = m_padded_chunk_size * m_padded_chunk_size * m_padded_chunk_size;
+	int chunk_size_cubed = m_chunk_size * m_chunk_size * m_chunk_size;
 	m_palette.resize(initial_palettes_amount, { chunk_size_cubed, block_id::AIR});
 	m_occupancy_mask.resize(chunk_size_cubed, 0);
 }
@@ -141,7 +141,6 @@ int Block::PaletteBlockStorage::findIndexOfPaletteHoldingOrEmpty(uint8_t block_t
 
 int Block::PaletteBlockStorage::getBlockIndex(glm::ivec3 block_pos) const
 {
-	glm::ivec3 padded_block_pos = block_pos;// +glm::ivec3(1, 1, 1);
-	int x = padded_block_pos.x, y = padded_block_pos.y, z = padded_block_pos.z;
-	return z + (x * m_padded_chunk_size) + (y * m_padded_chunk_size * m_padded_chunk_size);
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	return z + (x * m_chunk_size) + (y * m_chunk_size * m_chunk_size);
 }

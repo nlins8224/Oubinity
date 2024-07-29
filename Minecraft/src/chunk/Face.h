@@ -2,24 +2,19 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-/*
-x - 5 bits
-y - 5 bits
-z - 5 bits
-texture_id - 5 bits (t)
-face_id - 3 bits (f)
-vertex_id - 3 bits (v)
-
-0 00 00 00 00 000 00000 00000 00000 00000
-  aa aa	aa aa fff ttttt zzzzz yyyyy xxxxx
-*/
-
 struct Face
 {
-	GLuint packed_face;
+	GLuint packed_face_one;
+	GLuint packed_face_two;
 };
 
-static inline GLuint packFace(GLubyte x, GLubyte y, GLubyte z, GLubyte texture_id, GLubyte face_id, GLubyte a0, GLubyte a1, GLubyte a2, GLubyte a3)
+
+static inline GLuint packFaceOne(GLubyte x, GLubyte y, GLubyte z, GLubyte w, GLubyte h)
 {
-	return x | y << 5 | z << 10 | texture_id << 15 | face_id << 20 | a0 << 23 | a1 << 25 | a2 << 27 | a3 << 29;
+	return x | y << 6 | z << 12 | w << 18 | h << 24;
+}
+
+static inline GLuint packFaceTwo(GLubyte face_id, GLubyte texture_id)
+{
+	return face_id | texture_id << 3;
 }

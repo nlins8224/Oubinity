@@ -100,7 +100,7 @@ private:
 	using Palette = std::vector<PaletteEntry>;
 	Palette m_palette;
 	PaletteIndexStorage m_index_storage;
-	uint8_t m_padded_chunk_size;
+	uint8_t m_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
 };
 

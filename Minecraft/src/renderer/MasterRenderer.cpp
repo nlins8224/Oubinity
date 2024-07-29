@@ -13,9 +13,9 @@ MasterRenderer::MasterRenderer(TerrainGenerator& terrain_generator, Camera& came
 void MasterRenderer::initConfig()
 {
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
 }
 
 void MasterRenderer::clear() const

@@ -52,9 +52,9 @@ Z
 struct MeshData {
 	std::vector<Face> faces;
 	std::vector<Vertex> vertices;
-	uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6];
-	uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)];
-	uint64_t merged_right[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)];
+	uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
+	uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)]{0};
+	uint64_t merged_right[(CHUNK_SIZE + 2)]{0};
 };
 
 struct FaceCornersAo {
@@ -64,6 +64,13 @@ struct FaceCornersAo {
 	uint8_t bottom_left;
 };
 
+struct GreedyQuad {
+	uint8_t left;
+	uint8_t front;
+	uint8_t up;
+	uint8_t width;
+	uint8_t height;
+};
 
 // unordered_map is not used here, because it takes too much memory space
 using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
@@ -120,9 +127,9 @@ private:
 	void addFaces();
 	bool isFaceVisible(glm::ivec3 block_pos) const;
 	bool isNeighborFaceVisible(glm::ivec3 block_pos) const;
-	void addFace(Block::block_mesh face_side, glm::ivec3 block_pos);
-	void addFaceBasedOnFaceDirection(int direction, int right, int forward, int bit_pos);
-	const int get_axis_i(const int axis, const int a, const int b, const int c);
+	Block::block_id getNeighborBlockId(glm::ivec3 block_pos) const;
+	void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, Block::block_id type);
+	const uint64_t get_axis_i(const int axis, const int x, const int y, const int z);
 	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
 	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
