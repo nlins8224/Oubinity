@@ -73,7 +73,7 @@ vec2 tex[4] = vec2[4](
     vec2(0.0f, 1.0f)  // v2
 );
 
-float shading_table[6] = float[6](0.8f, 0.8f, 0.6f, 0.6f, 1.0f, 0.4f);
+float shading_table[6] = float[6](1.0f, 0.4f, 0.6f, 0.6f, 0.8f, 0.8f);
 float ambient_occlusion_values[4] = float[4](0.25f, 0.5f, 0.75f, 1.0f);
 
 /*
@@ -91,8 +91,6 @@ uint h_dir_lookup[6] = uint[6](2, 2, 2, 2, 1, 1); // Z, Z, Z, Z, Y, Y
 uint w_mod_lookup[4] = uint[4](0, 0, 1, 1); // F, F, T, T
 uint h_mod_lookup[4] = uint[4](0, 1, 1, 0); // F, T, T, F
 
-int flip_lookup[6] = int[6](1, -1, -1, 1, -1, 1); // TODO: fix
-
 void main()
 {
 	// VERTICES_PER_FACE and face_stream_idx has to be uint, otherwise
@@ -109,13 +107,23 @@ void main()
 	uint h          = (target_face_one >> 24u) & 63u; // 6 bits
 	uint face_id    = target_face_two		   & 7u;  // 3 bits
 	uint texture_id = (target_face_two >> 3u)  & 31u; // 5 bits
+	uint ao_v0      = (target_face_two >> 8u)  & 3u;  // 2 bits
+	uint ao_v1      = (target_face_two >> 10u) & 3u;  // 2 bits
+	uint ao_v2      = (target_face_two >> 12u) & 3u;  // 2 bits
+	uint ao_v3      = (target_face_two >> 14u) & 3u;  // 2 bits
 
-	if (face_id == 4 || face_id == 5) {
+	if (face_id == 4 ) {
 		debug_color = vec4(1.0, 0.0, 0.0, 0.0);
-	} else if (face_id == 2 || face_id == 3){
+	} else if (face_id == 2){
 		debug_color = vec4(0.0, 0.0, 1.0, 0.0);
-	} else if (face_id == 0 || face_id == 1){
+	} else if (face_id == 0){
 		debug_color = vec4(0.0, 1.0, 0.0, 0.0);
+	} else if (face_id == 1) {
+		debug_color = vec4(1.0, 1.0, 0.0, 0.0);
+	} else if (face_id == 3) {
+		debug_color = vec4(0.0, 1.0, 1.0, 0.0);
+	} else if (face_id == 5) {
+		debug_color = vec4(0.5, 0.5, 0.5, 0.0);
 	}
 
 	// Reverse winding order
@@ -126,8 +134,8 @@ void main()
 	uint vertex_id  = gl_VertexID % 6;
 	uint quad_index = quad_index_lookup[vertex_id];
 
-	//uint ao_corners[4] = uint[4](ao_v0, ao_v1, ao_v2, ao_v3);
-	float ao_val = 1.0f;
+	uint ao_corners[4] = uint[4](ao_v0, ao_v1, ao_v2, ao_v3);
+	float ao_val = ambient_occlusion_values[ao_corners[quad_index]];
 
 	shading_values = shading_table[face_id] * ao_val;
 
@@ -135,7 +143,7 @@ void main()
 	uint w_dir = w_dir_lookup[face_id], h_dir = h_dir_lookup[face_id];
 	uint w_mod = w_mod_lookup[quad_index], h_mod = h_mod_lookup[quad_index];
 
-	vertex_pos[w_dir] += w * w_mod;// * flip_lookup[face_id];
+	vertex_pos[w_dir] += w * w_mod;
 	vertex_pos[h_dir] += h * h_mod;
 
 	vertex_pos *= lod.block_size[gl_DrawID];
