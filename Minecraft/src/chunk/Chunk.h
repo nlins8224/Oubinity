@@ -50,8 +50,6 @@ Z
 */
 
 struct MeshData {
-	std::vector<Face> faces;
-	std::vector<Vertex> vertices;
 	uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
 	uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)]{0};
 	uint64_t merged_right[(CHUNK_SIZE + 2)]{0};
@@ -115,6 +113,7 @@ public:
 	ChunkNeighbors& getNeighbors();
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isVisible() const;
+	bool isBlockPresent(glm::ivec3 block_pos) const;
 	void setIsVisible(bool is_visible);
 	std::vector<Vertex>& getMesh();
 	Block::PaletteBlockStorage& getBlockArray();
@@ -128,9 +127,10 @@ public:
 	void setNeighbors(ChunkNeighbors neighbors);
 
 private:
-	MeshData m_mesh;
+	MeshData* m_mesh;
 	Block::PaletteBlockStorage* m_blocks; // deleted after it's unpacked
 	std::vector<Face> m_faces;
+	std::vector<Vertex> m_vertices;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
 	bool m_is_visible;
@@ -140,7 +140,6 @@ private:
 	void addFaces();
 	bool isFaceVisible(glm::ivec3 block_pos) const;
 	bool isNeighborFaceVisible(glm::ivec3 block_pos) const;
-	Block::block_id getNeighborBlockId(glm::ivec3 block_pos) const;
 	void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, Block::block_id type, FaceCornersAo ao);
 	const uint64_t get_axis_i(const int axis, const int x, const int y, const int z);
 	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);

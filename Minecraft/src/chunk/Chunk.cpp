@@ -27,12 +27,20 @@ Chunk::Chunk(const Chunk& chunk)
 
 Chunk::~Chunk()
 {
-	delete m_blocks;
+	if (m_blocks != nullptr) {
+		delete m_blocks;
+	}
 }
 
 void Chunk::addChunkMesh()
 {
+	m_mesh = new MeshData();
 	addFaces();
+	// Do not store blocks after meshing
+	m_blocks->clear();
+	if (m_mesh != nullptr) {
+		delete m_mesh;
+	}
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
@@ -92,11 +100,6 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 
 bool Chunk::isNeighborFaceVisible(glm::ivec3 block_pos) const
 {
-	return getNeighborBlockId(block_pos) != block_id::AIR;
-}
-
-Block::block_id Chunk::getNeighborBlockId(glm::ivec3 block_pos) const
-{
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
 	int c_x = roundDownDivide(x, m_lod.block_amount);
@@ -113,16 +116,16 @@ Block::block_id Chunk::getNeighborBlockId(glm::ivec3 block_pos) const
 	if (neighbor_chunk == nullptr
 		|| neighbor_chunk->getLevelOfDetail().block_amount != m_lod.block_amount
 		|| !neighbor_chunk->isVisible()) {
-		return block_id::AIR;
+		return false;
 	}
 
 	int l_x = getMod(x, m_lod.block_amount);
 	int l_y = getMod(y, m_lod.block_amount);
 	int l_z = getMod(z, m_lod.block_amount);
 
-	block_id neighbor_block = neighbor_chunk->getBlockId({ l_x, l_y, l_z });
-	return neighbor_block;
+	return neighbor_chunk->isBlockPresent({ l_x, l_y, l_z });
 }
+
 
 void Chunk::addFaces()
 {
@@ -149,15 +152,17 @@ void Chunk::addFaces()
 			{
 				glm::ivec3 unpadded_block_pos = glm::ivec3{ x - 1, y - 1, z - 1 };
 				if (z == 0 || z == CS_P - 1 || x == 0 || x == CS_P - 1 || y == 0 || y == CS_P - 1) {
-					padded_blocks_presence_cache.push_back(isNeighborFaceVisible(unpadded_block_pos));
-					padded_blocks_id_cache.push_back(getNeighborBlockId(unpadded_block_pos));
-				}
-				else if (z > 0 && y > 0 && x > 0 && z < CS + 1 && y < CS + 1 && x < CS + 1) {
-					padded_blocks_presence_cache.push_back(blocks_presence_cache[((uint64_t)z - 1) + (((uint64_t)x - 1) * CS) + (((uint64_t)y - 1) * CS * CS)]); // Bug here? TODO: sus condition z, x, y < 0?
-					padded_blocks_id_cache.push_back(getBlockId(unpadded_block_pos));
+					bool neighbor_visible = isNeighborFaceVisible(unpadded_block_pos);
+					padded_blocks_presence_cache.push_back(neighbor_visible);
+					// Optimization: blocks in padding will not be visible and all needed
+					// to know is if block is opaque or not.
+					// This makes checking the neighbor block type unnecessary and allows to use only
+					// block presence cache.
+					padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
 				}
 				else {
-					LOG_F(ERROR, "NOT REACHED");
+					padded_blocks_presence_cache.push_back(blocks_presence_cache[(z - 1) + ((x - 1) * CS) + ((y - 1) * CS * CS)]);
+					padded_blocks_id_cache.push_back(getBlockId(unpadded_block_pos));
 				}
 			}
 		}
@@ -214,8 +219,8 @@ void Chunk::addFaces()
 		for (int i = 0; i < CS_P2; i++)
 		{
 			uint64_t col = axis_cols[(CS_P2 * axis) + i];
-			m_mesh.col_face_masks[(CS_P2 * (axis * 2)) + i] = col & ~((col >> 1) | (1ULL << CS_LAST_BIT));
-			m_mesh.col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] = col & ~((col << 1) | 1ULL);
+			m_mesh->col_face_masks[(CS_P2 * (axis * 2)) + i] = col & ~((col >> 1) | (1ULL << CS_LAST_BIT));
+			m_mesh->col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] = col & ~((col << 1) | 1ULL);
 		}
 	}
 
@@ -225,20 +230,20 @@ void Chunk::addFaces()
 		int axis = face / 2;
 		int air_dir = face % 2 == 0 ? 1 : -1;
 
-		memset(m_mesh.merged_forward, 0, CS_P2 * 8);
+		memset(m_mesh->merged_forward, 0, CS_P2 * 8);
 
 		for (int forward = 1; forward < CS_P - 1; forward++) {
 			uint64_t bits_walking_right = 0;
 
 			int forwardIndex = (forward * CS_P) + (face * CS_P2);
 
-			memset(m_mesh.merged_right, 0, CS_P * 8);
+			memset(m_mesh->merged_right, 0, CS_P * 8);
 
 			for (int right = 1; right < CS_P - 1; right++) {
 
-				uint64_t bits_here = m_mesh.col_face_masks[forwardIndex + right] &~ BORDER_MASK;
-				uint64_t bits_right = right >= CS ? 0 : m_mesh.col_face_masks[forwardIndex + right + 1];
-				uint64_t bits_forward = forward >= CS ? 0 : m_mesh.col_face_masks[forwardIndex + right + CS_P];
+				uint64_t bits_here = m_mesh->col_face_masks[forwardIndex + right] &~ BORDER_MASK;
+				uint64_t bits_right = right >= CS ? 0 : m_mesh->col_face_masks[forwardIndex + right + 1];
+				uint64_t bits_forward = forward >= CS ? 0 : m_mesh->col_face_masks[forwardIndex + right + CS_P];
 
 				uint64_t bits_merging_forward = bits_here & bits_forward & ~bits_walking_right;
 				uint64_t bits_merging_right = bits_here & bits_right;
@@ -255,7 +260,7 @@ void Chunk::addFaces()
 					copy_front &= ~(1ULL << bit_pos);
 					if (padded_blocks_id_cache[get_axis_i(axis, right, forward, bit_pos)] == padded_blocks_id_cache[get_axis_i(axis, right, forward + 1, bit_pos)]
 						&& compareAO(padded_blocks_id_cache, axis, forward, right, bit_pos + air_dir, 1, 0)) {
-					    m_mesh.merged_forward[(right * CS_P) + bit_pos]++;
+					    m_mesh->merged_forward[(right * CS_P) + bit_pos]++;
 					}
 					else {
 						bits_merging_forward &= ~(1ULL << bit_pos);
@@ -275,36 +280,33 @@ void Chunk::addFaces()
 
 					if (
 						(bits_merging_right & (1ULL << bit_pos)) != 0 && 
-						(m_mesh.merged_forward[(right * CS_P) + bit_pos] == m_mesh.merged_forward[(right + 1) * CS_P + bit_pos]) &&
+						(m_mesh->merged_forward[(right * CS_P) + bit_pos] == m_mesh->merged_forward[(right + 1) * CS_P + bit_pos]) &&
 						(type == padded_blocks_id_cache[get_axis_i(axis, right + 1, forward, bit_pos)]
 						  && compareAO(padded_blocks_id_cache, axis, forward, right, bit_pos + air_dir, 0, 1))
 						) {
 						bits_walking_right |= 1ULL << bit_pos;
-						m_mesh.merged_right[bit_pos]++;
-						m_mesh.merged_forward[(right * CS_P) + bit_pos] = 0;
+						m_mesh->merged_right[bit_pos]++;
+						m_mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
 						continue;
 					}
-
-					//LOG_F(WARNING, "merged_forward: %d", m_mesh.merged_forward[(right * CS_P) + bit_pos]);
-					//LOG_F(WARNING, "merged_forward to right: %d", m_mesh.merged_forward[((right + 1) * CS_P) + bit_pos]);
 
 					bits_walking_right &= ~(1ULL << bit_pos);
 
 					GreedyQuad greedy_quad;
-					greedy_quad.front = forward - m_mesh.merged_forward[(right * CS_P) + bit_pos];
-					greedy_quad.left = right - m_mesh.merged_right[bit_pos];
+					greedy_quad.front = forward - m_mesh->merged_forward[(right * CS_P) + bit_pos];
+					greedy_quad.left = right - m_mesh->merged_right[bit_pos];
 					greedy_quad.up = bit_pos + (face % 2 == 0 ? 1 : 0);
 
 					greedy_quad.right = right + 1;
 					greedy_quad.back = forward + 1;
 
-					greedy_quad.width = m_mesh.merged_right[bit_pos] + 1;
-					greedy_quad.height = m_mesh.merged_forward[(right * CS_P) + bit_pos] + 1;
+					greedy_quad.width = m_mesh->merged_right[bit_pos] + 1;
+					greedy_quad.height = m_mesh->merged_forward[(right * CS_P) + bit_pos] + 1;
 
 					FaceCornersAo ao = bakeAO(padded_blocks_id_cache, bit_pos, air_dir, axis, right, forward);
 	
-					m_mesh.merged_forward[(right * CS_P) + bit_pos] = 0;
-					m_mesh.merged_right[bit_pos] = 0;
+					m_mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
+					m_mesh->merged_right[bit_pos] = 0;
 
 					addGreedyFace(greedy_quad, static_cast<block_mesh>(face), type, ao);
 				}
@@ -312,8 +314,6 @@ void Chunk::addFaces()
 		}
 
 	}
-
-	LOG_F(WARNING, "Added faces: %d", m_added_faces);
 }
 
 const uint64_t Chunk::get_axis_i(const int axis, const int x, const int y, const int z) {
@@ -536,6 +536,15 @@ bool Chunk::isVisible() const
 	return m_is_visible;
 }
 
+bool Chunk::isBlockPresent(glm::ivec3 block_pos) const
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	sul::dynamic_bitset<>& blocks_presence_cache = m_blocks->getOccupancyMask();
+	const uint64_t CS = m_lod.block_amount;
+	int index = z + (x * CS) + (y * CS * CS);
+	return blocks_presence_cache[index];
+}
+
 void Chunk::setIsVisible(bool is_visible)
 {
 	m_is_visible = is_visible;
@@ -543,7 +552,7 @@ void Chunk::setIsVisible(bool is_visible)
 
 std::vector<Vertex>& Chunk::getMesh()
 {
-	return m_mesh.vertices;
+	return m_vertices;
 }
 
 std::vector<Face>& Chunk::getFaces()
@@ -560,6 +569,7 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 {
 	m_chunk_neighbors = neighbors;
 }
+
 
 Block::PaletteBlockStorage& Chunk::getBlockArray()
 {

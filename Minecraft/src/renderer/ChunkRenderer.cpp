@@ -391,10 +391,9 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			//if (pair.second->isVisible()) {
-			//	pair.second->addChunkMesh();
-			//}
-			pair.second->addChunkMesh();
+			if (pair.second->isVisible()) {
+				pair.second->addChunkMesh();
+			}
 			pair.second->setState(ChunkState::MESHED);
 		});
 

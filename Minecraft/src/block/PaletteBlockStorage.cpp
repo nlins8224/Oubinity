@@ -63,6 +63,19 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 
 }
 
+void Block::PaletteBlockStorage::clearIndexStorage()
+{
+	m_index_storage.indexes.clear();
+	m_index_storage.palette_index_size = 1;
+	m_index_storage.indexes_amount = 0;
+}
+
+void Block::PaletteBlockStorage::clear()
+{
+	clearIndexStorage();
+	m_palette.clear();
+}
+
 Block::PaletteIndexStorage& Block::PaletteBlockStorage::getPaletteIndexStorage()
 {
 	return m_index_storage;

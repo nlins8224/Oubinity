@@ -3,8 +3,8 @@
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:
 	m_water_height{ water_height },
-	m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_heightmap.png", scale)},
-	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/gaea31_colormap.png", scale)},
+	m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/n4.png", scale)},
+	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/n4_color.png", scale)},
 	m_tree_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_treemap.png", scale)}
 {
 }
