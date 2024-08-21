@@ -27,7 +27,6 @@ bool LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 			}
 		}
 	}
-
 	return anything_added;
 }
 

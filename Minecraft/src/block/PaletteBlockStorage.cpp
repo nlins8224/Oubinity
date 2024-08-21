@@ -1,12 +1,14 @@
 #include "PaletteBlockStorage.h"
 
+
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
-	: m_chunk_size{chunk_size},
+	: m_chunk_size{uint8_t(chunk_size)},
 	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
 {
 	
-	int chunk_size_cubed = chunk_size * chunk_size * chunk_size;
+	int chunk_size_cubed = m_chunk_size * m_chunk_size * m_chunk_size;
 	m_palette.resize(initial_palettes_amount, { chunk_size_cubed, block_id::AIR});
+	m_occupancy_mask.resize(chunk_size_cubed, 0);
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -26,6 +28,7 @@ Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 {
 	int block_index = getBlockIndex(block_pos);
+	m_occupancy_mask[block_index] = block_type != block_id::AIR;
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
 	//LOG_F(INFO, "palette_index: %d, palette size: %d", palette_index, m_palette.size());
@@ -60,18 +63,14 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 
 }
 
-void Block::PaletteBlockStorage::fill(block_id block_type)
+Block::PaletteIndexStorage& Block::PaletteBlockStorage::getPaletteIndexStorage()
 {
-	for (int x = 0; x < m_chunk_size; x++)
-	{
-		for (int z = 0; z < m_chunk_size; z++)
-		{
-			for (int y = 0; y < m_chunk_size; y++)
-			{
-				set({ x, y, z }, block_type);
-			}
-		}
-	}
+	return m_index_storage;
+}
+
+sul::dynamic_bitset<>& Block::PaletteBlockStorage::getOccupancyMask()
+{
+	return m_occupancy_mask;
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()
@@ -142,5 +141,6 @@ int Block::PaletteBlockStorage::findIndexOfPaletteHoldingOrEmpty(uint8_t block_t
 
 int Block::PaletteBlockStorage::getBlockIndex(glm::ivec3 block_pos) const
 {
-	return block_pos.x * m_chunk_size * m_chunk_size + block_pos.y * m_chunk_size + block_pos.z;
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	return z + (x * m_chunk_size) + (y * m_chunk_size * m_chunk_size);
 }

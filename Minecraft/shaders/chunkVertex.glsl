@@ -14,6 +14,11 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+struct Face {
+	uint one;
+	uint two;
+};
+
 layout (std430, binding = 0) readonly buffer ChunkInfo
 {
 	vec4 chunk_pos[];
@@ -26,7 +31,7 @@ layout (std430, binding = 1) readonly buffer Lod
 
 layout (std430, binding = 2) readonly buffer FaceStream
 {
-	uint face[];
+	Face face[];
 } faceStream;
 
 /*
@@ -68,132 +73,78 @@ vec2 tex[4] = vec2[4](
     vec2(0.0f, 1.0f)  // v2
 );
 
-vec3 back_face[4] = vec3[4](
-	vec3(0.0f, 0.0f, 0.0f),
-	vec3(0.0f, 1.0f, 0.0f),
-	vec3(1.0f, 1.0f, 0.0f),
-	vec3(1.0f, 0.0f, 0.0f)
-);
-
-vec3 front_face[4] = vec3[4](
-	vec3(0.0f, 0.0f, 1.0f),
-	vec3(0.0f, 1.0f, 1.0f),
-	vec3(1.0f, 1.0f, 1.0f),
-	vec3(1.0f, 0.0f, 1.0f) 
-);
-
-vec3 left_face[4] = vec3[4](
-	vec3(0.0f, 0.0f, 0.0f),
-	vec3(0.0f, 1.0f, 0.0f),
-	vec3(0.0f, 1.0f, 1.0f),
-	vec3(0.0f, 0.0f, 1.0f) 
-);
-
-vec3 right_face[4] = vec3[4](
-	vec3(1.0f, 0.0f, 0.0f),
-	vec3(1.0f, 1.0f, 0.0f),
-	vec3(1.0f, 1.0f, 1.0f),
-	vec3(1.0f, 0.0f, 1.0f) 
-);
-
-vec3 top_face[4] = vec3[4](
-	vec3(0.0f, 1.0f, 0.0f),
-	vec3(1.0f, 1.0f, 0.0f),
-	vec3(1.0f, 1.0f, 1.0f),
-	vec3(0.0f, 1.0f, 1.0f) 
-);
-
-vec3 bottom_face[4] = vec3[4](
-	vec3(0.0f, 0.0f, 0.0f),
-	vec3(1.0f, 0.0f, 0.0f),
-	vec3(1.0f, 0.0f, 1.0f),
-	vec3(0.0f, 0.0f, 1.0f)  
-);
-
-float shading_table[6] = float[6](0.8f, 0.8f, 0.6f, 0.6f, 1.0f, 0.4f);
+float shading_table[6] = float[6](1.0f, 0.4f, 0.6f, 0.6f, 0.8f, 0.8f);
 float ambient_occlusion_values[4] = float[4](0.25f, 0.5f, 0.75f, 1.0f);
 
-uint back_face_indices[6]   = uint[6](3, 0, 1, 3, 1, 2);
-uint front_face_indices[6]  = uint[6](3, 1, 0, 3, 2, 1);
-uint left_face_indices[6]   = uint[6](3, 1, 0, 3, 2, 1);
-uint right_face_indices[6]  = uint[6](3, 0, 1, 3, 1, 2);
-uint top_face_indices[6]    = uint[6](1, 0, 3, 1, 3, 2);
-uint bottom_face_indices[6] = uint[6](1, 3, 0, 1, 2, 3);
+/*
+3-------2
+|       |
+|       |
+|       |
+0-------1
+*/
+uint quad_index_lookup[6] = uint[6](1, 2, 3, 0, 1, 3);
+
+uint w_dir_lookup[6] = uint[6](0, 0, 1, 1, 0, 0); // X, X, Y, Y, X, X
+uint h_dir_lookup[6] = uint[6](2, 2, 2, 2, 1, 1); // Z, Z, Z, Z, Y, Y
+
+uint w_mod_lookup[4] = uint[4](0, 0, 1, 1); // F, F, T, T
+uint h_mod_lookup[4] = uint[4](0, 1, 1, 0); // F, T, T, F
 
 void main()
 {
-	// VERTICES_PER_FACE and face_idx has to be uint, otherwise
-	// expression result is incorrect for gl_VertexID > 9e5, 
-	// don't know why, AFAIK GLSL spec states that ints could be used here as well
+	// VERTICES_PER_FACE and face_stream_idx has to be uint, otherwise
+	// expression result is incorrect for gl_VertexID > 9e5
 	uint VERTICES_PER_FACE = 6;
-	uint face_idx = uint(gl_VertexID) / VERTICES_PER_FACE;
+	uint face_stream_idx = uint(gl_VertexID) / VERTICES_PER_FACE;
+	uint target_face_one = faceStream.face[face_stream_idx].one;
+	uint target_face_two = faceStream.face[face_stream_idx].two;
 
-	uint target_face = faceStream.face[face_idx];
-	
-	uint x          = target_face          & 31u; // 5 bits
-	uint y          = (target_face >> 5u)  & 31u; // 5 bits
-	uint z          = (target_face >> 10u) & 31u; // 5 bits
-	uint texture_id = (target_face >> 15u) & 31u; // 5 bits
-	uint face_id    = (target_face >> 20u) & 7u;  // 3 bits
-	uint ao_v0      = (target_face >> 23u) & 3u;  // 2 bits
-	uint ao_v1      = (target_face >> 25u) & 3u;  // 2 bits
-	uint ao_v2      = (target_face >> 27u) & 3u;  // 2 bits
-	uint ao_v3      = (target_face >> 29u) & 3u;  // 2 bits
+	uint x          = target_face_one          & 63u; // 6 bits
+	uint y          = (target_face_one >> 6u)  & 63u; // 6 bits
+	uint z          = (target_face_one >> 12u) & 63u; // 6 bits
+	uint w          = (target_face_one >> 18u) & 63u; // 6 bits
+	uint h          = (target_face_one >> 24u) & 63u; // 6 bits
+	uint face_id    = target_face_two		   & 7u;  // 3 bits
+	uint texture_id = (target_face_two >> 3u)  & 31u; // 5 bits
+	uint ao_v0      = (target_face_two >> 8u)  & 3u;  // 2 bits
+	uint ao_v1      = (target_face_two >> 10u) & 3u;  // 2 bits
+	uint ao_v2      = (target_face_two >> 12u) & 3u;  // 2 bits
+	uint ao_v3      = (target_face_two >> 14u) & 3u;  // 2 bits
+
+	if (face_id == 4 ) {
+		debug_color = vec4(1.0, 0.0, 0.0, 0.0);
+	} else if (face_id == 2){
+		debug_color = vec4(0.0, 0.0, 1.0, 0.0);
+	} else if (face_id == 0){
+		debug_color = vec4(0.0, 1.0, 0.0, 0.0);
+	} else if (face_id == 1) {
+		debug_color = vec4(1.0, 1.0, 0.0, 0.0);
+	} else if (face_id == 3) {
+		debug_color = vec4(0.0, 1.0, 1.0, 0.0);
+	} else if (face_id == 5) {
+		debug_color = vec4(0.5, 0.5, 0.5, 0.0);
+	}
+
+	// Reverse winding order
+	if (face_id == 1 || face_id == 2 || face_id == 4) {
+		quad_index_lookup = uint[6](3, 1, 0, 3, 2, 1);
+	}
 
 	uint vertex_id  = gl_VertexID % 6;
+	uint quad_index = quad_index_lookup[vertex_id];
+
+	uint ao_corners[4] = uint[4](ao_v0, ao_v1, ao_v2, ao_v3);
+	float ao_val = ambient_occlusion_values[ao_corners[quad_index]];
+
+	shading_values = shading_table[face_id] * ao_val;
 
 	vec3 vertex_pos = vec3(x, y, z);
+	uint w_dir = w_dir_lookup[face_id], h_dir = h_dir_lookup[face_id];
+	uint w_mod = w_mod_lookup[quad_index], h_mod = h_mod_lookup[quad_index];
 
-	// prevent anisotropy
-	if (ao_v1 + ao_v3 > ao_v0 + ao_v2)
-	{	
-		back_face_indices   = uint[6](3,0,1,3,1,2);
-		front_face_indices  = uint[6](3,1,0,3,2,1);
-		left_face_indices   = uint[6](3,1,0,3,2,1);
-		right_face_indices  = uint[6](3,0,1,3,1,2);
-		top_face_indices    = uint[6](1,0,3,1,3,2);
-	    bottom_face_indices = uint[6](1,3,0,1,2,3);
-	}
-
-
-	uint index = 0;
-	uint ao_corners[4] = uint[4](ao_v0, ao_v1, ao_v2, ao_v3);
-	float ao_val = 1.0f;
-	switch(face_id)
-	{
-		case 0u: // back 
-			index = back_face_indices[vertex_id];
-			vertex_pos += back_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 1u: // front 
-			index = front_face_indices[vertex_id];
-			vertex_pos += front_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 2u: // left 
-			index = left_face_indices[vertex_id];
-			vertex_pos += left_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 3u: // right
-			index = right_face_indices[vertex_id];
-			vertex_pos += right_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 4u: // top
-			index = top_face_indices[vertex_id];
-			vertex_pos += top_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-		case 5u: // bottom
-			index = bottom_face_indices[vertex_id];
-			vertex_pos += bottom_face[index];
-			ao_val = ambient_occlusion_values[ao_corners[index]];
-			break;
-	}
-	tex_coords = vec3(tex[index], texture_id);
-	shading_values = shading_table[face_id] * ao_val;
+	vertex_pos[w_dir] += w * w_mod;
+	vertex_pos[h_dir] += h * h_mod;
 
 	vertex_pos *= lod.block_size[gl_DrawID];
 	/*
@@ -206,6 +157,12 @@ void main()
 	vertex_pos.x += chunkInfo.chunk_pos[gl_DrawID].x;
 	vertex_pos.y += chunkInfo.chunk_pos[gl_DrawID].y;
 	vertex_pos.z += chunkInfo.chunk_pos[gl_DrawID].z;
+
+	tex[1][0] += h;
+	tex[2][0] += h; 
+	tex[2][1] += w;
+	tex[3][1] += w;
+	tex_coords = vec3(tex[quad_index], texture_id);
 
 	gl_Position = projection * view * model * vec4(vertex_pos, 1.0);
 
