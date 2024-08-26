@@ -270,7 +270,7 @@ namespace VertexPool {
         auto lods_it = Lods.begin();
         for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end(); zones_it++, lods_it++)
         {
-            (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 2 - buckets_added;
+            (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 2 * Settings::SETTING_BLOCK_MARGIN - buckets_added;
             buckets_added += (*zones_it)->buckets_amount;
             if (lods_it != Lods.end() && lods_it + 1 != Lods.end() && (lods_it + 1)->draw_distance >= MAX_RENDERED_CHUNKS_IN_XZ_AXIS) {
                 return buckets_added;

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include "../loguru.hpp"
+#include "../Settings.h"
 
 namespace VertexPool {
 	constexpr size_t MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
