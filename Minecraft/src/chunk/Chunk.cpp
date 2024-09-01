@@ -91,14 +91,14 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 	}
 	if (x < 0 || z < 0 || x >= m_lod.block_amount || y == m_lod.block_amount || z >= m_lod.block_amount)
 	{
-		return isNeighborFaceVisible(block_pos);
+		return isNeighborBlockVisible(block_pos);
 	}
 
 	block_id block_type = m_blocks->get(glm::ivec3(x, y, z));
 	return block_type != block_id::AIR;
 }
 
-bool Chunk::isNeighborFaceVisible(glm::ivec3 block_pos) const
+bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
@@ -152,7 +152,7 @@ void Chunk::addFaces()
 			{
 				glm::ivec3 unpadded_block_pos = glm::ivec3{ x - 1, y - 1, z - 1 };
 				if (z == 0 || z == CS_P - 1 || x == 0 || x == CS_P - 1 || y == 0 || y == CS_P - 1) {
-					bool neighbor_visible = isNeighborFaceVisible(unpadded_block_pos);
+					bool neighbor_visible = isNeighborBlockVisible(unpadded_block_pos);
 					padded_blocks_presence_cache.push_back(neighbor_visible);
 					// Optimization: blocks in padding will not be visible and all needed
 					// to know is if block is opaque or not.
@@ -539,10 +539,11 @@ bool Chunk::isVisible() const
 bool Chunk::isBlockPresent(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	sul::dynamic_bitset<>& blocks_presence_cache = m_blocks->getOccupancyMask();
-	const uint64_t CS = m_lod.block_amount;
-	int index = z + (x * CS) + (y * CS * CS);
-	return blocks_presence_cache[index];
+	int chunk_size = m_lod.block_amount;
+	if (x < 0 || y < 0 || z < 0 || x >= chunk_size || y >= chunk_size || z >= chunk_size) {
+		return isNeighborBlockVisible(block_pos);
+	}
+	return m_blocks->isBlockPresent(block_pos);
 }
 
 void Chunk::setIsVisible(bool is_visible)

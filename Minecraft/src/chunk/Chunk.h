@@ -139,7 +139,7 @@ private:
 
 	void addFaces();
 	bool isFaceVisible(glm::ivec3 block_pos) const;
-	bool isNeighborFaceVisible(glm::ivec3 block_pos) const;
+	bool isNeighborBlockVisible(glm::ivec3 block_pos) const;
 	void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, Block::block_id type, FaceCornersAo ao);
 	const uint64_t get_axis_i(const int axis, const int x, const int y, const int z);
 	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);

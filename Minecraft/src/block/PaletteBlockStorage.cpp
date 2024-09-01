@@ -3,11 +3,26 @@
 
 Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount)
 	: m_chunk_size{uint8_t(chunk_size)},
-	m_index_storage{std::max((int)log2(initial_palettes_amount), 1), chunk_size}
+	m_index_storage{(uint8_t)std::max(static_cast<int>(log2(initial_palettes_amount)), 1), chunk_size}
 {
 	
 	int chunk_size_cubed = m_chunk_size * m_chunk_size * m_chunk_size;
-	m_palette.resize(initial_palettes_amount, { chunk_size_cubed, block_id::AIR});
+
+	if (initial_palettes_amount > 0) {
+		m_palette.resize(1, { chunk_size_cubed, block_id::AIR });
+	}
+	if (initial_palettes_amount > 1) {
+		m_palette.resize(2, { chunk_size_cubed, block_id::STONE });
+	}
+	if (initial_palettes_amount > 2) {
+		m_palette.resize(3, { chunk_size_cubed, block_id::GRASS });
+	}
+	if (initial_palettes_amount > 3) {
+		m_palette.resize(4, { chunk_size_cubed, block_id::SAND });
+	}
+	if (initial_palettes_amount > 4) {
+		m_palette.resize(5, { chunk_size_cubed, block_id::DIRT });
+	}
 	m_occupancy_mask.resize(chunk_size_cubed, 0);
 }
 
@@ -53,7 +68,7 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 		current.refcount = 1;
 		return;
 	}
-
+	LOG_F(WARNING, "(Costly) New palette needed for block type: %d", block_type);
 	// create new palette entry
 	uint8_t new_entry_index = newPaletteEntry();
 	m_palette.at(new_entry_index) = PaletteEntry(1, block_type);
@@ -61,6 +76,12 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	bit_offset = block_index * m_index_storage.palette_index_size;
 	m_index_storage.set(bit_offset, new_entry_index);
 
+}
+
+bool Block::PaletteBlockStorage::isBlockPresent(glm::ivec3 block_pos)
+{
+	int block_index = getBlockIndex(block_pos);
+	return m_occupancy_mask[block_index];
 }
 
 void Block::PaletteBlockStorage::clearIndexStorage()

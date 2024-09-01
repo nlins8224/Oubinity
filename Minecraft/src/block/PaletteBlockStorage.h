@@ -38,11 +38,6 @@ struct PaletteIndexStorage
 
 	inline uint8_t get(uint32_t bit_offset) const
 	{
-		if (bit_offset + palette_index_size > indexes.size())
-		{
-			LOG_F(ERROR, "indexes size: %d, bit offset: %d, bit offset + palette_index_size: %d", indexes.size(), bit_offset, bit_offset + palette_index_size);
-		}
-
 		uint8_t palette_index = 0;
 		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
 		{
@@ -53,11 +48,6 @@ struct PaletteIndexStorage
 
 	inline void set(uint32_t bit_offset, uint8_t palette_index)
 	{
-		if (bit_offset + palette_index_size > indexes.size())
-		{
-			LOG_F(ERROR, "indexes size: %d, bit offset: %d, bit offset + palette_index_size: %d", indexes.size(), bit_offset, bit_offset + palette_index_size);
-		}
-
 		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
 		{
 			indexes[i] = palette_index & 1;
@@ -83,11 +73,12 @@ struct PaletteIndexStorage
 class PaletteBlockStorage
 {
 public:
-	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 1);
-	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 1);
+	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 8);
+	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 8);
 	virtual ~PaletteBlockStorage() = default;
 	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
+	bool isBlockPresent(glm::ivec3 block_pos);
 	void clear(); // Preserves m_occupancy_mask
 	PaletteIndexStorage& getPaletteIndexStorage();
 	sul::dynamic_bitset<>& getOccupancyMask();

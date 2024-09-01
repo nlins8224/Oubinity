@@ -73,8 +73,8 @@ bool ProceduralGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightM
 bool ProceduralGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
 {
 	int block_amount = lod.block_amount;
-	double min_height = 99999;
-	double max_height = -99999;
+	double min_height = std::numeric_limits<double>::max();
+	double max_height = std::numeric_limits<double>::min();
 	for (int x = 0; x < block_amount; x++)
 	{
 		for (int z = 0; z < block_amount; z++)

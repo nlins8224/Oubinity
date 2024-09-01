@@ -4,6 +4,7 @@
 #include "ShapeGenerator.h"
 #include "LayerGenerator.h"
 #include "DecorationGenerator.h"
+#include <limits> 
 
 class ProceduralGenerator
 {

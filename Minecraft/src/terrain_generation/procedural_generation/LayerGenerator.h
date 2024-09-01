@@ -17,6 +17,7 @@ public:
 	bool processChunk(Chunk& chunk, const HeightMap& height_map);
 	bool processChunk(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map);
 private:
+	bool isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size);
 	int m_seed;
 	uint8_t m_water_height;
 };
