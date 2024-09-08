@@ -62,30 +62,27 @@ bool LayerGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, const 
 		for (int z = 0; z < block_amount; z++)
 		{
 			int l_y = ((int)height_map[x][z] % block_amount) - 1;
-			if (l_y < 0 || l_y >= block_amount) {
+			std::pair<bool, glm::ivec3> should_add_blocks = shouldAddBlocksToColumn(chunk, x, l_y, z );
+			if (!should_add_blocks.first) {
 				continue;
 			}
-			for (int y = l_y; y >= l_y - 8 && y > 0; y--)
+
+			int end_pos = should_add_blocks.second.y;
+			for (int y = l_y; y > end_pos; y--)
 			{
-				glm::ivec3 block_pos{ x, y, z };
 				if (!isBlockInSurfaceHeightBounds({ x, l_y + 1, z }, chunk.getPos(), height_map[x][z], block_size)) {
 					continue;
 				}
-
-				glm::ivec3 up{ x, y + 1, z };
-				glm::ivec3 left{ x - 1, y, z };
-				glm::ivec3 right{ x + 1, y, z };
-				glm::ivec3 forward{ x, y, z - 1 };
-				glm::ivec3 backward{ x, y, z + 1 };
-
-				bool is_visible =
-					!chunk.isBlockPresent(up)
-					|| !chunk.isBlockPresent(left)
-					|| !chunk.isBlockPresent(right)
-					|| !chunk.isBlockPresent(forward)
-					|| !chunk.isBlockPresent(backward);
-
-				if (is_visible) {
+				glm::ivec3 block_pos{ x, y, z };
+				if (chunk.isBlockOutsideChunk(block_pos)) {
+					Chunk* neighbor = chunk.findNeighborChunk(block_pos);
+					if (neighbor) {
+						glm::ivec3 neighbor_block_pos = chunk.findNeighborBlockPos(block_pos);
+						neighbor->setBlock(neighbor_block_pos, block_id::STONE);
+						anything_added = true;
+					}
+				}
+				else {
 					chunk.setBlock(block_pos, block_id::STONE);
 					anything_added = true;
 				}
@@ -101,4 +98,25 @@ bool LayerGenerator::isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ive
 	int max_surface_height = std::min(block_world_pos.y + block_size, 255);
 	int min_surface_height = std::max(block_world_pos.y - (block_size * Settings::SETTING_BLOCK_MARGIN), 0);
 	return surface_height >= min_surface_height && surface_height <= max_surface_height;
+}
+
+bool LayerGenerator::hasBlocksInHorizontalNeighborhood(Chunk& chunk, glm::ivec3 block_pos)
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	glm::ivec3 left{ x - 1, y, z }, right{ x + 1, y, z }, forward{ x, y, z - 1 }, backward{ x, y, z + 1 };
+	return chunk.isBlockPresent(left) || chunk.isBlockPresent(right) || chunk.isBlockPresent(forward) || chunk.isBlockPresent(backward);
+}
+
+std::pair<bool, glm::ivec3> LayerGenerator::shouldAddBlocksToColumn(Chunk& chunk, int col_x, int heightmap_y, int col_z)
+{
+	bool found_anything = false;
+	glm::ivec3 found_at_pos{ 0, 0, 0 };
+	for (int y = heightmap_y - 12; y <= heightmap_y; y++) {
+		if (hasBlocksInHorizontalNeighborhood(chunk, {col_x, y, col_z})) {
+			found_anything = true;
+			found_at_pos = { col_x, y, col_z };
+			return { found_anything, found_at_pos };
+		}
+	}
+	return { found_anything, found_at_pos };
 }

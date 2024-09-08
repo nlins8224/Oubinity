@@ -19,6 +19,8 @@ public:
 	bool generatePreloadedChunkUndergroundLayer(Chunk& chunk, const HeightMap& height_map);
 private:
 	bool isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size);
+	bool hasBlocksInHorizontalNeighborhood(Chunk& chunk, glm::ivec3 block_pos);
+	std::pair<bool, glm::ivec3> shouldAddBlocksToColumn(Chunk& chunk, int col_x, int heightmap_y, int col_z);
 	int m_seed;
 	uint8_t m_water_height;
 };

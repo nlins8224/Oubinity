@@ -154,9 +154,7 @@ private:
 	ChunkNeighbors m_chunk_neighbors;
 	ChunkState m_state;
 
-
 	const int vertexAO(uint8_t side_first, uint8_t side_second, uint8_t corner);
 	const bool compareAO(const std::vector<Block::block_id>& voxels, int axis, int forward, int right, int c, int forward_offset, int right_offset);
 	FaceCornersAo bakeAO(const std::vector<Block::block_id>& voxels, uint64_t bit_pos, int air_dir, uint64_t axis, uint64_t right, uint64_t forward);
-
 };
