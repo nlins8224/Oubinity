@@ -108,25 +108,32 @@ public:
 	virtual ~Chunk();
 
 	void addChunkMesh();
+
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
+	void setNeighbors(ChunkNeighbors neighbors);
+	void setState(ChunkState state);
+	void setIsVisible(bool is_visible);
+	void setBlockArray();
+
 	glm::ivec3 getPos() const;
 	glm::ivec2 getPosXZ() const;
+	const glm::vec3 getWorldPos() const;
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
+	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	ChunkNeighbors& getNeighbors();
+	std::vector<Vertex>& getMesh();
+	std::vector<Face>& getFaces();
+	Block::PaletteBlockStorage& getBlockArray();
+	sul::dynamic_bitset<> getBlocksBitset();
+	unsigned int getAddedFacesAmount();
+
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isVisible() const;
 	bool isBlockPresent(glm::ivec3 block_pos) const;
-	void setIsVisible(bool is_visible);
-	std::vector<Vertex>& getMesh();
-	Block::PaletteBlockStorage& getBlockArray();
-	void setBlockArray();
-	const glm::vec3 getWorldPos() const;
-	LevelOfDetail::LevelOfDetail getLevelOfDetail();
-	unsigned int getAddedFacesAmount();
-	sul::dynamic_bitset<> getBlocksBitset();
-	std::vector<Face>& getFaces();
-	void setState(ChunkState state);
-	void setNeighbors(ChunkNeighbors neighbors);
+	bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
+
+	Chunk* findNeighborChunk(glm::ivec3 block_pos) const;
+	glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
 private:
 	MeshData* m_mesh;
@@ -144,10 +151,6 @@ private:
 	bool isNeighborBlockVisible(glm::ivec3 block_pos) const;
 	void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, Block::block_id type, FaceCornersAo ao);
 	const uint64_t get_axis_i(const int axis, const int x, const int y, const int z);
-	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
 	ChunkNeighbors m_chunk_neighbors;
 	ChunkState m_state;
 

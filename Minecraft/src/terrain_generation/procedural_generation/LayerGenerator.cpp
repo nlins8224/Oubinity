@@ -65,7 +65,7 @@ bool LayerGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, const 
 			if (l_y < 0 || l_y >= block_amount) {
 				continue;
 			}
-			for (int y = l_y; y >= l_y - 8 && y >= 0; y--)
+			for (int y = l_y; y >= l_y - 8 && y > 0; y--)
 			{
 				glm::ivec3 block_pos{ x, y, z };
 				if (!isBlockInSurfaceHeightBounds({ x, l_y + 1, z }, chunk.getPos(), height_map[x][z], block_size)) {

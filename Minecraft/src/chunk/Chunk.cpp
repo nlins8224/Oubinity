@@ -71,17 +71,6 @@ inline int getMod(int pos, int mod)
 	return ((pos % mod) + mod) % mod;
 }
 
-inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos, const ChunkNeighbors& chunk_neighbors)
-{
-	for (const auto& [chunk_pos, chunk] : chunk_neighbors) {
-		if (target_chunk_pos == chunk_pos) {
-			return chunk;
-		}
-	}
-	return nullptr;
-}
-
-
 bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 {
 	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
@@ -89,7 +78,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 	if (y < 0 || y > m_lod.block_amount) {
 		return true;
 	}
-	if (x < 0 || z < 0 || x >= m_lod.block_amount || y == m_lod.block_amount || z >= m_lod.block_amount)
+	if (isBlockOutsideChunk(block_pos))
 	{
 		return isNeighborBlockVisible(block_pos);
 	}
@@ -100,16 +89,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 
 bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const
 {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-	int c_x = roundDownDivide(x, m_lod.block_amount);
-	int c_y = roundDownDivide(y, m_lod.block_amount);
-	int c_z = roundDownDivide(z, m_lod.block_amount);
-
-	glm::ivec3 neighbor_chunk_offset = glm::ivec3(c_x, c_y, c_z);
-	glm::ivec3 neighbor_chunk_pos = m_chunk_pos + neighbor_chunk_offset;
-
-	Chunk* neighbor_chunk = findNeighborAt(neighbor_chunk_pos, m_chunk_neighbors);
+	Chunk* neighbor_chunk = findNeighborChunk(block_pos);
 
 	// If LOD don't match, return false to have seamless transitions between lod levels
 	// This creates additional "wall" and it costs a bit of FPS, but not much.
@@ -119,11 +99,7 @@ bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const
 		return false;
 	}
 
-	int l_x = getMod(x, m_lod.block_amount);
-	int l_y = getMod(y, m_lod.block_amount);
-	int l_z = getMod(z, m_lod.block_amount);
-
-	return neighbor_chunk->isBlockPresent({ l_x, l_y, l_z });
+	return neighbor_chunk->isBlockPresent(findNeighborBlockPos(block_pos));
 }
 
 
@@ -335,22 +311,22 @@ void Chunk::addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, b
 	Face greedy_face;
 	switch (face_side) {
 		case block_mesh::TOP:
-		case block_mesh::BOTTOM: // TODO: check
+		case block_mesh::BOTTOM:
 			x = greedy_quad.left;
 			y = greedy_quad.up;
 			z = greedy_quad.front;
 			w = greedy_quad.width;
 			h = greedy_quad.height;
-			break;
+		break;
 		case block_mesh::RIGHT:
-		case block_mesh::LEFT: // TODO: check
+		case block_mesh::LEFT:
 			x = greedy_quad.up;
 			y = greedy_quad.front;
 			z = greedy_quad.left;
 			w = greedy_quad.height;
 			h = greedy_quad.width;
 		break;
-		case block_mesh::FRONT: // TODO: check
+		case block_mesh::FRONT:
 		case block_mesh::BACK:
 			x = greedy_quad.front;
 			y = greedy_quad.left;
@@ -367,7 +343,7 @@ void Chunk::addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, b
 		ao_r.right_back = ao.left_back;
 		ao_r.right_front = ao.right_back;
 		ao_r.left_front = ao.right_front;
-		break;
+	break;
 	case block_mesh::RIGHT:
 	case block_mesh::LEFT:
 		ao_r.left_back = ao.right_back;
@@ -380,102 +356,13 @@ void Chunk::addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, b
 		ao_r.right_back = ao.right_front;
 		ao_r.right_front = ao.right_back;
 		ao_r.left_front = ao.left_back;
-		break;
+	break;
 	}
 
 	greedy_face.packed_face_one = packFaceOne(x, y, z, w, h);
 	greedy_face.packed_face_two = packFaceTwo(face_side, type, ao_r.left_back, ao_r.right_back, ao_r.right_front, ao_r.left_front);
 	m_faces.push_back(greedy_face);
 	m_added_faces++;
-}
-
-FaceCornersAo Chunk::calculateAmbientOcclusion(block_mesh face_side, glm::ivec3 block_pos) {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	FaceCornersAo corners_ao;
-
-	switch (face_side) {
-		case block_mesh::RIGHT:
-			corners_ao = calculateAoPlaneX({x + 1, y, z});
-			break;
-		case block_mesh::LEFT:
-			corners_ao = calculateAoPlaneX({x - 1, y, z});
-			break;
-		case block_mesh::TOP:
-			corners_ao = calculateAoPlaneY({x, y + 1, z});
-			break;
-		case block_mesh::BOTTOM:
-			corners_ao = calculateAoPlaneY({x, y - 1, z});
-			break;
-		case block_mesh::FRONT:
-			corners_ao = calculateAoPlaneZ({x, y, z + 1});
-			break;
-		case block_mesh::BACK:
-			corners_ao = calculateAoPlaneZ({x, y, z - 1});
-			break;
-		default:
-			LOG_F(ERROR, "This should not be reached!");
-	}
-	return corners_ao;
-}
-
-FaceCornersAo Chunk::calculateAoPlaneY(glm::ivec3 block_pos) {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-	uint8_t top          = !isFaceVisible({ x,     y, z - 1 });
-	uint8_t top_left	 = !isFaceVisible({ x - 1, y, z - 1 });
-	uint8_t left         = !isFaceVisible({ x - 1, y, z     });
-	uint8_t bottom_left  = !isFaceVisible({ x - 1, y, z + 1 });
-	uint8_t bottom       = !isFaceVisible({ x,     y, z + 1 });
-	uint8_t bottom_right = !isFaceVisible({ x + 1, y, z + 1 });
-	uint8_t right	     = !isFaceVisible({ x + 1, y, z     });
-	uint8_t top_right    = !isFaceVisible({ x + 1, y, z - 1 });
-
-	uint8_t top_left_corner = left + top_left + top;
-	uint8_t top_right_corner = top + top_right + right;
-	uint8_t bottom_right_corner = right + bottom_right + bottom;
-	uint8_t bottom_left_corner = bottom + bottom_left + left;
-
-	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
-}
-
-FaceCornersAo Chunk::calculateAoPlaneX(glm::ivec3 block_pos) {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-	uint8_t top			 = !isFaceVisible({ x, y,     z - 1 });
-	uint8_t top_left     = !isFaceVisible({ x, y - 1, z - 1 });
-	uint8_t left		 = !isFaceVisible({ x, y - 1, z     });
-	uint8_t bottom_left  = !isFaceVisible({ x, y - 1, z + 1 });
-	uint8_t bottom		 = !isFaceVisible({ x, y ,    z + 1 });
-	uint8_t bottom_right = !isFaceVisible({ x, y + 1, z + 1 });
-	uint8_t right		 = !isFaceVisible({ x, y + 1, z	   });
-	uint8_t top_right    = !isFaceVisible({ x, y + 1, z - 1 });
-
-	uint8_t top_left_corner = left + top_left + top;
-	uint8_t top_right_corner = top + top_right + right;
-	uint8_t bottom_right_corner = right + bottom_right + bottom;
-	uint8_t bottom_left_corner = bottom + bottom_left + left;
-
-	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
-}
-
-FaceCornersAo Chunk::calculateAoPlaneZ(glm::ivec3 block_pos) {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-	uint8_t top			 = !isFaceVisible({ x - 1, y,     z });
-	uint8_t top_left	 = !isFaceVisible({ x - 1, y - 1, z });
-	uint8_t left		 = !isFaceVisible({ x,	   y - 1, z });
-	uint8_t bottom_left  = !isFaceVisible({ x + 1, y - 1, z });
-	uint8_t bottom	     = !isFaceVisible({ x + 1, y,     z });
-	uint8_t bottom_right = !isFaceVisible({ x + 1, y + 1, z });
-	uint8_t right		 = !isFaceVisible({ x,	   y + 1, z });
-	uint8_t top_right	 = !isFaceVisible({ x - 1, y + 1, z });
-
-	uint8_t top_left_corner = left + top_left + top;
-	uint8_t top_right_corner = top + top_right + right;
-	uint8_t bottom_right_corner = right + bottom_right + bottom;
-	uint8_t bottom_left_corner = bottom + bottom_left + left;
-
-	return { top_left_corner, top_right_corner, bottom_right_corner, bottom_left_corner };
 }
 
 const int Chunk::vertexAO(uint8_t side_first, uint8_t side_second, uint8_t corner)
@@ -538,12 +425,17 @@ bool Chunk::isVisible() const
 
 bool Chunk::isBlockPresent(glm::ivec3 block_pos) const
 {
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	int chunk_size = m_lod.block_amount;
-	if (x < 0 || y < 0 || z < 0 || x >= chunk_size || y >= chunk_size || z >= chunk_size) {
+	if (isBlockOutsideChunk(block_pos)) {
 		return isNeighborBlockVisible(block_pos);
 	}
 	return m_blocks->isBlockPresent(block_pos);
+}
+
+bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+	int chunk_size = m_lod.block_amount;
+	return x < 0 || y < 0 || z < 0 || x >= chunk_size || y >= chunk_size || z >= chunk_size;
 }
 
 void Chunk::setIsVisible(bool is_visible)
@@ -571,6 +463,35 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors)
 	m_chunk_neighbors = neighbors;
 }
 
+Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+
+	int c_x = roundDownDivide(x, m_lod.block_amount);
+	int c_y = roundDownDivide(y, m_lod.block_amount);
+	int c_z = roundDownDivide(z, m_lod.block_amount);
+
+	glm::ivec3 neighbor_chunk_offset = glm::ivec3(c_x, c_y, c_z);
+	glm::ivec3 neighbor_chunk_pos = m_chunk_pos + neighbor_chunk_offset;
+
+	for (const auto& [chunk_pos, chunk] : m_chunk_neighbors) {
+		if (neighbor_chunk_pos == chunk_pos) {
+			return chunk;
+		}
+	}
+	return nullptr;
+}
+
+glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const
+{
+	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
+
+	int l_x = getMod(x, m_lod.block_amount);
+	int l_y = getMod(y, m_lod.block_amount);
+	int l_z = getMod(z, m_lod.block_amount);
+	return { l_x, l_y, l_z };
+}
+
 
 Block::PaletteBlockStorage& Chunk::getBlockArray()
 {
@@ -580,7 +501,6 @@ Block::PaletteBlockStorage& Chunk::getBlockArray()
 void Chunk::setBlockArray()
 {
 	m_blocks = new Block::PaletteBlockStorage(m_lod);
-	//m_blocks->fill(Block::AIR);
 }
 
 const glm::vec3 Chunk::getWorldPos() const
