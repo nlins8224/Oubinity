@@ -40,9 +40,13 @@ public:
 	void traverseSceneLoop();
 private:
 	void initChunks();
-	bool createInRenderDistanceChunks(); // called when scene was already traversed
+	bool createChunksInRenderDistance(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
+	bool generateChunksTerrain();
+	bool generateChunkTerrain(glm::ivec3 chunk_pos);
+	bool populateChunksNeighbors();
+	bool populateChunkNeighbor(glm::ivec3 chunk_pos);
 	bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
 	bool decorateChunks();
 	bool meshChunks();
@@ -78,6 +82,9 @@ private:
 	pmap m_chunks_by_coord; // used in thread safe manner, shared between render and main threads
 	std::vector<glm::ivec3> m_border_chunks; // used only on render thread
 	std::queue<glm::ivec3> m_chunks_to_create; // used only on render thread
+
+	std::queue<glm::ivec3> m_chunks_to_populate_neighbors; // used only on render thread
+	std::queue<glm::ivec3> m_chunks_to_generate_terrain; // used only on render thread
 
 	std::queue<glm::ivec3> m_chunks_to_decorate; // used only on render thread
 

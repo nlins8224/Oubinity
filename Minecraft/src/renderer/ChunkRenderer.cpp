@@ -72,7 +72,9 @@ void ChunkRenderer::initChunks()
 		}
 	}
 
-	createInRenderDistanceChunks();
+	createChunksInRenderDistance();
+	// AddChunksNeighbors
+	generateChunksTerrain();
 	decorateChunks();
 	meshChunks();
 	updateBufferIfNeedsUpdate();
@@ -122,7 +124,7 @@ void ChunkRenderer::traverseScene()
 
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
-		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createInRenderDistanceChunks() | decorateChunks() | meshChunks());
+		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createChunksInRenderDistance() | decorateChunks() | meshChunks());
 	}
 }
 
@@ -283,9 +285,9 @@ void ChunkRenderer::runTraverseSceneInDetachedThread()
 }
 
 // render thread
-bool ChunkRenderer::createInRenderDistanceChunks()
+bool ChunkRenderer::createChunksInRenderDistance()
 {
-	LOG_F(INFO, "createInRenderDistanceChunks");
+	LOG_F(INFO, "createChunksInRenderDistance");
 	bool anything_created = false;
 	while (!m_chunks_to_create.empty())
 	{
@@ -322,11 +324,52 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		[](auto) {}, // unused, called if value is already present, we know that it is not
 		[&](const pmap::constructor& ctor) {
 			Chunk* chunk = new Chunk(chunk_pos, lod);
-			m_terrain_generator.generateChunkTerrain(*chunk, height_map, is_chunk_visible);
 			ctor(chunk_pos, std::move(chunk));
-			m_chunks_to_decorate.push(chunk_pos);
+			m_chunks_to_generate_terrain.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
 		});
+}
+
+bool ChunkRenderer::generateChunksTerrain()
+{
+	LOG_F(INFO, "generateChunksTerrain");
+	bool anything_generated = false;
+	while (!m_chunks_to_generate_terrain.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_generate_terrain.front();
+		anything_generated |= generateChunkTerrain(chunk_pos);
+		m_chunks_to_generate_terrain.pop();
+	}
+	return anything_generated;
+}
+
+bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
+{
+	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+	if (!is_chunk_visible) {
+		return false;
+	}
+
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			m_terrain_generator.generateChunkTerrain(*pair.second, height_map, is_chunk_visible);
+			m_chunks_to_decorate.push(chunk_pos);
+			pair.second->setState(ChunkState::TERRAIN_GENERATED);
+		});
+	return true;
+}
+
+bool ChunkRenderer::populateChunksNeighbors()
+{
+	return false;
+}
+
+bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos)
+{
+	return false;
 }
 
 // render thread
