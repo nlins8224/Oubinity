@@ -33,6 +33,11 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk, HeightMap& height_map,
 	chunk.setIsVisible(is_chunk_visible);
 }
 
+bool TerrainGenerator::generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map)
+{
+	return m_procedural_generator.generatePreloadedUndergroundLayer(chunk, height_map);
+}
+
 uint8_t TerrainGenerator::getWaterHeight()
 {
 	return m_water_height;

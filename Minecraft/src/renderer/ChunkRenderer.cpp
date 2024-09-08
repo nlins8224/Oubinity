@@ -73,7 +73,7 @@ void ChunkRenderer::initChunks()
 	}
 
 	createChunksInRenderDistance();
-	// AddChunksNeighbors
+	populateChunksNeighbors();
 	generateChunksTerrain();
 	decorateChunks();
 	meshChunks();
@@ -325,21 +325,74 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		[&](const pmap::constructor& ctor) {
 			Chunk* chunk = new Chunk(chunk_pos, lod);
 			ctor(chunk_pos, std::move(chunk));
-			m_chunks_to_generate_terrain.push(chunk_pos);
+			m_chunks_to_populate_neighbors.push(chunk_pos);
 			chunk->setState(ChunkState::CREATED);
 		});
+}
+
+bool ChunkRenderer::populateChunksNeighbors()
+{
+	LOG_F(INFO, "populateChunksNeighbors");
+	bool anything_populated = false;
+	while (!m_chunks_to_populate_neighbors.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_populate_neighbors.front();
+		anything_populated |= populateChunkNeighbor(chunk_pos);
+		m_chunks_to_populate_neighbors.pop();
+	}
+	return anything_populated;
+}
+
+bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos)
+{
+	ChunkNeighbors chunk_neighbors;
+	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+
+	for (int x_offset : {-1, 0, 1}) {
+		for (int y_offset : {-1, 0, 1}) {
+			for (int z_offset : {-1, 0, 1}) {
+				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
+				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors.push_back(pair); });
+			}
+		}
+	}
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			pair.second->setNeighbors(chunk_neighbors);
+			m_chunks_to_generate_terrain.push(chunk_pos);
+			pair.second->setState(ChunkState::NEIGHBORS_POPULATED);
+		});
+
+	return true;
 }
 
 bool ChunkRenderer::generateChunksTerrain()
 {
 	LOG_F(INFO, "generateChunksTerrain");
 	bool anything_generated = false;
+#if SETTING_USE_PRELOADED_HEIGHTMAP
+	std::queue<glm::ivec3> chunks_to_generate_underground_layer;
+	while (!m_chunks_to_generate_terrain.empty())
+	{
+		glm::ivec3 chunk_pos = m_chunks_to_generate_terrain.front();
+		anything_generated |= generateChunkTerrain(chunk_pos);
+		m_chunks_to_generate_terrain.pop();
+		chunks_to_generate_underground_layer.push(chunk_pos);
+	}
+	while (!chunks_to_generate_underground_layer.empty())
+	{
+		glm::ivec3 chunk_pos = chunks_to_generate_underground_layer.front();
+		generatePreloadedChunkUndergroundLayer(chunk_pos);
+		chunks_to_generate_underground_layer.pop();
+	}
+#else
 	while (!m_chunks_to_generate_terrain.empty())
 	{
 		glm::ivec3 chunk_pos = m_chunks_to_generate_terrain.front();
 		anything_generated |= generateChunkTerrain(chunk_pos);
 		m_chunks_to_generate_terrain.pop();
 	}
+#endif
 	return anything_generated;
 }
 
@@ -353,43 +406,43 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 		return false;
 	}
 
+#if SETTING_USE_PRELOADED_HEIGHTMAP
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
 			m_terrain_generator.generateChunkTerrain(*pair.second, height_map, is_chunk_visible);
 			m_chunks_to_decorate.push(chunk_pos);
 			pair.second->setState(ChunkState::TERRAIN_GENERATED);
 		});
+#else
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			m_terrain_generator.generateChunkTerrain(*pair.second, height_map, is_chunk_visible);
+			m_chunks_to_decorate.push(chunk_pos);
+			pair.second->setState(ChunkState::TERRAIN_GENERATED);
+		});
+#endif
 	return true;
 }
 
-bool ChunkRenderer::populateChunksNeighbors()
+// render thread
+bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 {
-	return false;
-}
+	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
 
-bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos)
-{
-	return false;
+	m_chunks_by_coord.modify_if(chunk_pos,
+		[&](const pmap::value_type& pair) {
+			m_terrain_generator.generatePreloadedUndergroundLayer(*pair.second, height_map);
+		});
+	return true;
 }
 
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 {
-	ChunkNeighbors chunk_neighbors;
-	int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
-
-	for (int x_offset : {-1, 0, 1}) {
-		for (int y_offset : {-1, 0, 1}) {
-			for (int z_offset : {-1, 0, 1}) {
-				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
-				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors.push_back(pair); });
-			}
-		}
-	}
-
 	m_chunks_by_coord.modify_if(chunk_pos,
 		[&](const pmap::value_type& pair) {
-			pair.second->setNeighbors(chunk_neighbors);
 			#if SETTING_TREES_ENABLED
 				m_terrain_generator.generateTrees(*pair.second);
 			#endif

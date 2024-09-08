@@ -15,6 +15,7 @@ public:
 	// true if chunk is visible, false if it's not
 	bool generateChunkTerrain(Chunk& chunk);
 	void generateChunkTerrain(Chunk& chunk, HeightMap& height_map, bool is_chunk_visible);
+	bool generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map);
 	void generateTrees(Chunk& chunk);
 	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
 	HeightMap generateHeightMap(Chunk& chunk);

@@ -49,7 +49,14 @@ bool LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 			}
 		}
 	}
+	return anything_added;
+}
 
+bool LayerGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, const HeightMap& height_map)
+{
+	int block_amount = chunk.getLevelOfDetail().block_amount;
+	int block_size = chunk.getLevelOfDetail().block_size;
+	bool anything_added = false;
 	for (int x = 0; x < block_amount; x++)
 	{
 		for (int z = 0; z < block_amount; z++)
@@ -61,7 +68,7 @@ bool LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map, con
 			for (int y = l_y; y >= l_y - 8 && y >= 0; y--)
 			{
 				glm::ivec3 block_pos{ x, y, z };
-				if (!isBlockInSurfaceHeightBounds({x, l_y + 1, z}, chunk.getPos(), height_map[x][z], block_size)) {
+				if (!isBlockInSurfaceHeightBounds({ x, l_y + 1, z }, chunk.getPos(), height_map[x][z], block_size)) {
 					continue;
 				}
 

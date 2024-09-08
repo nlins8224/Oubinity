@@ -58,6 +58,12 @@ void ProceduralGenerator::generateTrees(Chunk& chunk, HeightMap& height_map)
 	m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map, m_water_height);
 }
 
+bool ProceduralGenerator::generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map)
+{
+	LayerGenerator layer_generator(m_world_seed, m_water_height);
+	return layer_generator.generatePreloadedChunkUndergroundLayer(chunk, height_map);
+}
+
 uint8_t ProceduralGenerator::getWaterHeight()
 {
 	return m_water_height;

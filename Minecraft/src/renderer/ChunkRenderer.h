@@ -43,10 +43,10 @@ private:
 	bool createChunksInRenderDistance(); // called when scene was already traversed
 	bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
 	void createChunk(glm::ivec3 chunk_pos);
-	bool generateChunksTerrain();
-	bool generateChunkTerrain(glm::ivec3 chunk_pos);
 	bool populateChunksNeighbors();
 	bool populateChunkNeighbor(glm::ivec3 chunk_pos);
+	bool generateChunksTerrain();
+	bool generateChunkTerrain(glm::ivec3 chunk_pos);
 	bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
 	bool decorateChunks();
 	bool meshChunks();
@@ -64,6 +64,10 @@ private:
 	void allocateChunk();
 	void freeChunks();
 	void freeChunk();
+
+	#if SETTING_USE_PRELOADED_HEIGHTMAP
+	bool generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos);
+	#endif
 
 	Camera& m_camera;
 	glm::ivec3 m_camera_last_chunk_pos;
