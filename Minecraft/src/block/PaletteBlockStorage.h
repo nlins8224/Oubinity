@@ -82,11 +82,13 @@ public:
 	void clear(); // Preserves m_occupancy_mask
 	PaletteIndexStorage& getPaletteIndexStorage();
 	sul::dynamic_bitset<>& getOccupancyMask();
+	sul::dynamic_bitset<>& getPaddedOccupancyMask();
 
 private:
 	uint8_t newPaletteEntry();
 	void growPalette();
 	int getBlockIndex(glm::ivec3 block_pos) const;
+	int getPaddedBlockIndex(glm::ivec3 block_pos) const;
 	int findIndexOfPaletteHolding(uint8_t block_type);
 	int findIndexOfPaletteHoldingOrEmpty(uint8_t block_type);
 	void clearIndexStorage();
@@ -95,6 +97,7 @@ private:
 	PaletteIndexStorage m_index_storage;
 	uint8_t m_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
+	sul::dynamic_bitset<> m_padded_occupancy_mask;
 };
 
 }

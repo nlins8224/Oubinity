@@ -114,11 +114,11 @@ void Chunk::addFaces()
     const uint64_t CS_LAST_BIT = CS_P - 1;
 	const uint64_t BORDER_MASK = (1ULL | (1ULL << (CS_P - 1)));
 
-	sul::dynamic_bitset<>& blocks_presence_cache = m_blocks->getOccupancyMask();
-	sul::dynamic_bitset<> padded_blocks_presence_cache;
+	sul::dynamic_bitset<> padded_blocks_presence_cache = m_blocks->getPaddedOccupancyMask();
 
 	std::vector<block_id> padded_blocks_id_cache;
 
+	Timer START_PADDING("start padding", true);
 	// 1. Prepare padding
 	for (int y = 0; y < CS_P; y++)
 	{
@@ -137,12 +137,13 @@ void Chunk::addFaces()
 					padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
 				}
 				else {
-					padded_blocks_presence_cache.push_back(blocks_presence_cache[(z - 1) + ((x - 1) * CS) + ((y - 1) * CS * CS)]);
+					//padded_blocks_presence_cache.push_back(blocks_presence_cache[(z - 1) + ((x - 1) * CS) + ((y - 1) * CS * CS)]);
 					padded_blocks_id_cache.push_back(getBlockId(unpadded_block_pos));
 				}
 			}
 		}
 	}
+	START_PADDING.end();
 
 	// 2.
 	/*
@@ -154,7 +155,7 @@ void Chunk::addFaces()
 	  axis_cols[2CS_P2, 3CS_P2) - iterating over xy plane in z direction, front and back faces
 	*/
 	std::vector<uint64_t> axis_cols(CS_P2 * 3, 0);
-
+	//Timer PREPARE_MESH("prepare mesh", true);
 	int bit_pos = 0;
 	for (uint64_t y = 0; y < CS_P; y++)
 	{
@@ -199,7 +200,9 @@ void Chunk::addFaces()
 			m_mesh->col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] = col & ~((col << 1) | 1ULL);
 		}
 	}
+	//PREPARE_MESH.end();
 
+	//Timer GREEDY_MESH("Greedy mesh", true);
 	// 4. Greedy meshing
 	bit_pos = 0;
 	for (uint8_t face = 0; face < 6; face++) {
@@ -290,6 +293,7 @@ void Chunk::addFaces()
 		}
 
 	}
+	//GREEDY_MESH.end();
 }
 
 const uint64_t Chunk::get_axis_i(const int axis, const int x, const int y, const int z) {

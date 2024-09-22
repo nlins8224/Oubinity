@@ -15,6 +15,7 @@
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
 #include "../dynamic_bitset.hpp"
+#include "../third_party/timer.h"
 
 /*
 Convention:
