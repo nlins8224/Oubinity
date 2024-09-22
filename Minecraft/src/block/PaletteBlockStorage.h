@@ -99,6 +99,9 @@ private:
 	uint8_t m_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
 	sul::dynamic_bitset<> m_padded_occupancy_mask;
+	// TODO: Uncompressed block_id generally goes against 
+	// palette block storage. Even if it's cleared and freed after meshing.
+	// Integrate padding into palette block storage and remove cache.
 	std::vector<block_id> m_padded_block_id_cache;
 };
 

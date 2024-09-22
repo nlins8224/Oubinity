@@ -117,28 +117,54 @@ void Chunk::addFaces()
 	sul::dynamic_bitset<> padded_blocks_presence_cache = m_blocks->getPaddedOccupancyMask();
 	std::vector<block_id> padded_blocks_id_cache = m_blocks->getPaddedBlockIdCache();;
 
-	//Timer START_PADDING("start padding", true);
-	// 1. Fill neighbors padding
+	int min_y = 0, max_y = CS_P;
+	int min_x = 0, max_x = CS_P;
+	int min_z = 0, max_z = CS_P;
+
+	bool neighbor_visible = false;
+
+	// 1. Prepare neighbors padding
+	// Optimization: blocks in padding will not be visible and all needed
+	// to know is if block is opaque or not.
+	// hence |neighbor_visible ? Block::STONE : Block::AIR| is sufficient check.
 	for (int y = 0; y < CS_P; y++)
 	{
-		for (int x = 0; x < CS_P; x++)
+		for (int x : {min_x, max_x})
 		{
-			for (int z = 0; z < CS_P; z++)
+			for (int z : {min_z, max_z})
 			{
-				glm::ivec3 unpadded_block_pos = glm::ivec3{ x - 1, y - 1, z - 1 };
-				if (z == 0 || z == CS_P - 1 || x == 0 || x == CS_P - 1 || y == 0 || y == CS_P - 1) {
-					bool neighbor_visible = isNeighborBlockVisible(unpadded_block_pos);
-					padded_blocks_presence_cache.push_back(neighbor_visible);
-					// Optimization: blocks in padding will not be visible and all needed
-					// to know is if block is opaque or not.
-					// This makes checking the neighbor block type unnecessary and allows to use only
-					// block presence cache.
-					padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
-				}
+				neighbor_visible = isNeighborBlockVisible({ x, y, z });
+				padded_blocks_presence_cache.push_back(neighbor_visible);
+				padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
 			}
 		}
 	}
-	//START_PADDING.end();
+
+	for (int y : {min_y, max_y})
+	{
+		for (int x = 0; x < CS_P; x++)
+		{
+			for (int z : {min_z, max_z})
+			{
+				neighbor_visible = isNeighborBlockVisible({ x, y, z });
+				padded_blocks_presence_cache.push_back(neighbor_visible);
+				padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
+			}
+		}
+	}
+
+	for (int y : {min_y, max_y})
+	{
+		for (int x : {min_x, max_x})
+		{
+			for (int z = 0; z < CS_P; z++)
+			{
+				neighbor_visible = isNeighborBlockVisible({ x, y, z });
+				padded_blocks_presence_cache.push_back(neighbor_visible);
+				padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
+			}
+		}
+	}
 
 	// 2.
 	/*
@@ -150,7 +176,6 @@ void Chunk::addFaces()
 	  axis_cols[2CS_P2, 3CS_P2) - iterating over xy plane in z direction, front and back faces
 	*/
 	std::vector<uint64_t> axis_cols(CS_P2 * 3, 0);
-	//Timer PREPARE_MESH("prepare mesh", true);
 	int bit_pos = 0;
 	for (uint64_t y = 0; y < CS_P; y++)
 	{
@@ -195,9 +220,7 @@ void Chunk::addFaces()
 			m_mesh->col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] = col & ~((col << 1) | 1ULL);
 		}
 	}
-	//PREPARE_MESH.end();
 
-	//Timer GREEDY_MESH("Greedy mesh", true);
 	// 4. Greedy meshing
 	bit_pos = 0;
 	for (uint8_t face = 0; face < 6; face++) {
@@ -288,7 +311,6 @@ void Chunk::addFaces()
 		}
 
 	}
-	//GREEDY_MESH.end();
 }
 
 const uint64_t Chunk::get_axis_i(const int axis, const int x, const int y, const int z) {
