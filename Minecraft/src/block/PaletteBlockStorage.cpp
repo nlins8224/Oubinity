@@ -26,6 +26,7 @@ Block::PaletteBlockStorage::PaletteBlockStorage(uint8_t chunk_size, uint8_t init
 	m_occupancy_mask.resize(chunk_size_cubed, 0);
 	int padded_chunk_size_cubed = (m_chunk_size + 2) * (m_chunk_size + 2) * (m_chunk_size + 2);
 	m_padded_occupancy_mask.resize(padded_chunk_size_cubed, 0);
+	m_padded_block_id_cache.resize(padded_chunk_size_cubed, block_id::AIR);
 }
 
 Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount)
@@ -48,6 +49,7 @@ void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)
 	m_occupancy_mask[block_index] = block_type != block_id::AIR;
 	int padded_block_index = getPaddedBlockIndex(block_pos);
 	m_padded_occupancy_mask[padded_block_index] = block_type != block_id::AIR;
+	m_padded_block_id_cache[padded_block_index] = block_type;
 	int bit_offset = block_index * m_index_storage.palette_index_size;
 	uint8_t palette_index = m_index_storage.get(bit_offset);
 	//LOG_F(INFO, "palette_index: %d, palette size: %d", palette_index, m_palette.size());
@@ -99,6 +101,8 @@ void Block::PaletteBlockStorage::clear()
 {
 	clearIndexStorage();
 	m_palette.clear();
+	m_padded_block_id_cache.clear();
+	m_padded_block_id_cache = std::move(std::vector<block_id>());
 }
 
 Block::PaletteIndexStorage& Block::PaletteBlockStorage::getPaletteIndexStorage()
@@ -114,6 +118,11 @@ sul::dynamic_bitset<>& Block::PaletteBlockStorage::getOccupancyMask()
 sul::dynamic_bitset<>& Block::PaletteBlockStorage::getPaddedOccupancyMask()
 {
 	return m_padded_occupancy_mask;
+}
+
+std::vector<Block::block_id>& Block::PaletteBlockStorage::getPaddedBlockIdCache()
+{
+	return m_padded_block_id_cache;
 }
 
 uint8_t Block::PaletteBlockStorage::newPaletteEntry()

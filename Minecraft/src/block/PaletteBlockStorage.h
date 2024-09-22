@@ -79,10 +79,11 @@ public:
 	block_id get(glm::ivec3 block_pos);
 	void set(glm::ivec3 block_pos, block_id block_type);
 	bool isBlockPresent(glm::ivec3 block_pos);
-	void clear(); // Preserves m_occupancy_mask
+	void clear(); // Preserves m_*_occupancy_mask
 	PaletteIndexStorage& getPaletteIndexStorage();
 	sul::dynamic_bitset<>& getOccupancyMask();
 	sul::dynamic_bitset<>& getPaddedOccupancyMask();
+	std::vector<block_id>& getPaddedBlockIdCache();
 
 private:
 	uint8_t newPaletteEntry();
@@ -98,6 +99,7 @@ private:
 	uint8_t m_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
 	sul::dynamic_bitset<> m_padded_occupancy_mask;
+	std::vector<block_id> m_padded_block_id_cache;
 };
 
 }

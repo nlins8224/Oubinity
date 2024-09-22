@@ -115,11 +115,10 @@ void Chunk::addFaces()
 	const uint64_t BORDER_MASK = (1ULL | (1ULL << (CS_P - 1)));
 
 	sul::dynamic_bitset<> padded_blocks_presence_cache = m_blocks->getPaddedOccupancyMask();
+	std::vector<block_id> padded_blocks_id_cache = m_blocks->getPaddedBlockIdCache();;
 
-	std::vector<block_id> padded_blocks_id_cache;
-
-	Timer START_PADDING("start padding", true);
-	// 1. Prepare padding
+	//Timer START_PADDING("start padding", true);
+	// 1. Fill neighbors padding
 	for (int y = 0; y < CS_P; y++)
 	{
 		for (int x = 0; x < CS_P; x++)
@@ -136,14 +135,10 @@ void Chunk::addFaces()
 					// block presence cache.
 					padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE : Block::AIR);
 				}
-				else {
-					//padded_blocks_presence_cache.push_back(blocks_presence_cache[(z - 1) + ((x - 1) * CS) + ((y - 1) * CS * CS)]);
-					padded_blocks_id_cache.push_back(getBlockId(unpadded_block_pos));
-				}
 			}
 		}
 	}
-	START_PADDING.end();
+	//START_PADDING.end();
 
 	// 2.
 	/*
