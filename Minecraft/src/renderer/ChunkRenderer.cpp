@@ -124,7 +124,13 @@ void ChunkRenderer::traverseScene()
 
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
-		m_buffer_needs_update.store(m_buffer_needs_update | deleteOutOfRenderDistanceChunks() | createChunksInRenderDistance() | decorateChunks() | meshChunks());
+		m_buffer_needs_update.store(m_buffer_needs_update 
+			| deleteOutOfRenderDistanceChunks()
+			| createChunksInRenderDistance()
+			| populateChunksNeighbors()
+		    | generateChunksTerrain()
+			| decorateChunks()
+			| meshChunks());
 	}
 }
 
@@ -424,6 +430,7 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 	return true;
 }
 
+#if SETTING_USE_PRELOADED_HEIGHTMAP
 // render thread
 bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 {
@@ -437,6 +444,7 @@ bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 		});
 	return true;
 }
+#endif
 
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
