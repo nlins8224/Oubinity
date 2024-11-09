@@ -200,6 +200,7 @@
     <ClCompile Include="src\gui\ImGuiUIManager.cpp" />
     <ClCompile Include="src\gui\ImGuiWindow.cpp" />
     <ClCompile Include="src\loguru.cpp" />
+    <ClCompile Include="src\renderer\ChunkSlidingWindow.cpp" />
     <ClCompile Include="src\renderer\GradientRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="src\renderer\SkyRenderer.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="src\gpu_loader\WaterLoader.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
+    <ClInclude Include="src\renderer\ChunkSlidingWindow.h" />
     <ClInclude Include="src\renderer\SkyRenderer.h" />
     <ClInclude Include="src\renderer\WaterRenderer.h" />
     <ClInclude Include="src\Settings.h" />

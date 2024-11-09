@@ -64,10 +64,7 @@ void ChunkRenderer::initChunks()
 		{
 			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 			{
-				if (!m_chunks_by_coord.if_contains({cx, cy, cz}, [](auto) {}))
-				{
-					m_chunks_to_create.push({ cx, cy, cz });
-				}
+				m_chunks_to_create.push({ cx, cy, cz });
 			}
 		}
 	}
@@ -141,39 +138,39 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(ChunkBorder chunk_border)
 	int min_z = chunk_border.min_z;
 	int max_z = chunk_border.max_z;
 
-	// x-/x+ iterate over z
-	for (int cz = min_z; cz < max_z; cz++)
-	{
-		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-		{
-			if (!m_chunks_by_coord.if_contains({ min_x, cy, cz }, [](auto) {}))
-			{
-				m_chunks_to_create.push({ min_x, cy, cz });
-			}
+	//// x-/x+ iterate over z
+	//for (int cz = min_z; cz < max_z; cz++)
+	//{
+	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+	//	{
+	//		if (!m_chunks_by_coord.if_contains({ min_x, cy, cz }, [](auto) {}))
+	//		{
+	//			m_chunks_to_create.push({ min_x, cy, cz });
+	//		}
 
-			if (!m_chunks_by_coord.if_contains({ max_x, cy, cz }, [](auto) {}))
-			{
-				m_chunks_to_create.push({ max_x, cy, cz });
-			}
-		}
-	}
+	//		if (!m_chunks_by_coord.if_contains({ max_x, cy, cz }, [](auto) {}))
+	//		{
+	//			m_chunks_to_create.push({ max_x, cy, cz });
+	//		}
+	//	}
+	//}
 
-	// z-/z+ iterate over x
-	for (int cx = min_x; cx < max_x; cx++)
-	{
-		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-		{
-			if (!m_chunks_by_coord.if_contains({ cx, cy, min_z }, [](auto) {}))
-			{
-				m_chunks_to_create.push({ cx, cy, min_z });
-			}
+	//// z-/z+ iterate over x
+	//for (int cx = min_x; cx < max_x; cx++)
+	//{
+	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+	//	{
+	//		if (!m_chunks_by_coord.if_contains({ cx, cy, min_z }, [](auto) {}))
+	//		{
+	//			m_chunks_to_create.push({ cx, cy, min_z });
+	//		}
 
-			if (!m_chunks_by_coord.if_contains({ cx, cy, max_z }, [](auto) {}))
-			{
-				m_chunks_to_create.push({ cx, cy, max_z });
-			}
-		}
-	}
+	//		if (!m_chunks_by_coord.if_contains({ cx, cy, max_z }, [](auto) {}))
+	//		{
+	//			m_chunks_to_create.push({ cx, cy, max_z });
+	//		}
+	//	}
+	//}
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndDelete(ChunkBorder chunk_border)
@@ -183,39 +180,39 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(ChunkBorder chunk_border)
 	int min_z = chunk_border.min_z;
 	int max_z = chunk_border.max_z;
 
-	// x-/x+ iterate over z
-	for (int cz = min_z - 1; cz < max_z + 1; cz++)
-	{
-		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-		{
-			if (m_chunks_by_coord.if_contains({ min_x - 1, cy, cz }, [](auto) {}))
-			{
-				m_chunks_to_delete.push({ min_x - 1, cy, cz });
-			}
+	//// x-/x+ iterate over z
+	//for (int cz = min_z - 1; cz < max_z + 1; cz++)
+	//{
+	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+	//	{
+	//		if (m_chunks_by_coord.if_contains({ min_x - 1, cy, cz }, [](auto) {}))
+	//		{
+	//			m_chunks_to_delete.push({ min_x - 1, cy, cz });
+	//		}
 
-			if (m_chunks_by_coord.if_contains({ max_x + 1, cy, cz }, [](auto) {}))
-			{
-				m_chunks_to_delete.push({ max_x + 1, cy, cz });
-			}
-		}
-	}
+	//		if (m_chunks_by_coord.if_contains({ max_x + 1, cy, cz }, [](auto) {}))
+	//		{
+	//			m_chunks_to_delete.push({ max_x + 1, cy, cz });
+	//		}
+	//	}
+	//}
 
-	// z-/z+ iterate over x
-	for (int cx = min_x - 1; cx < max_x + 1; cx++)
-	{
-		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-		{
-			if (m_chunks_by_coord.if_contains({ cx, cy, min_z - 1 }, [](auto) {}))
-			{
-				m_chunks_to_delete.push({ cx, cy, min_z - 1 });
-			}
+	//// z-/z+ iterate over x
+	//for (int cx = min_x - 1; cx < max_x + 1; cx++)
+	//{
+	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+	//	{
+	//		if (m_chunks_by_coord.if_contains({ cx, cy, min_z - 1 }, [](auto) {}))
+	//		{
+	//			m_chunks_to_delete.push({ cx, cy, min_z - 1 });
+	//		}
 
-			if (m_chunks_by_coord.if_contains({ cx, cy, max_z + 1 }, [](auto) {}))
-			{
-				m_chunks_to_delete.push({ cx, cy, max_z + 1 });
-			}
-		}
-	}
+	//		if (m_chunks_by_coord.if_contains({ cx, cy, max_z + 1 }, [](auto) {}))
+	//		{
+	//			m_chunks_to_delete.push({ cx, cy, max_z + 1 });
+	//		}
+	//	}
+	//}
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border)
@@ -308,8 +305,8 @@ bool ChunkRenderer::createChunksInRenderDistance()
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos)
 {
-	if (m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
-		return false;
+	//if (m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
+	//	return false;
 
 	createChunk(chunk_pos);
 	return true;
@@ -326,14 +323,10 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 		return;
 	}
 
-	m_chunks_by_coord.lazy_emplace_l(chunk_pos,
-		[](auto) {}, // unused, called if value is already present, we know that it is not
-		[&](const pmap::constructor& ctor) {
-			Chunk* chunk = new Chunk(chunk_pos, lod);
-			ctor(chunk_pos, std::move(chunk));
-			m_chunks_to_populate_neighbors.push(chunk_pos);
-			chunk->setState(ChunkState::CREATED);
-		});
+	Chunk* chunk = new Chunk(chunk_pos, lod);
+	m_chunks_to_populate_neighbors.push(chunk_pos);
+	chunk->setState(ChunkState::CREATED);
+	m_chunks_by_coord.set(chunk_pos, chunk);
 }
 
 bool ChunkRenderer::populateChunksNeighbors()
@@ -357,17 +350,14 @@ bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos)
 	for (int x_offset : {-1, 0, 1}) {
 		for (int y_offset : {-1, 0, 1}) {
 			for (int z_offset : {-1, 0, 1}) {
-				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };
-				m_chunks_by_coord.if_contains(target_chunk_pos, [&](const pmap::value_type& pair) { chunk_neighbors.push_back(pair); });
+				glm::ivec3 target_chunk_pos = { x + x_offset, y + y_offset, z + z_offset };				
+				chunk_neighbors.push_back({ target_chunk_pos, m_chunks_by_coord.get(target_chunk_pos) });
 			}
 		}
 	}
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			pair.second->setNeighbors(chunk_neighbors);
-			m_chunks_to_generate_terrain.push(chunk_pos);
-			pair.second->setState(ChunkState::NEIGHBORS_POPULATED);
-		});
+	m_chunks_by_coord.get(chunk_pos)->setNeighbors(chunk_neighbors);
+	m_chunks_by_coord.get(chunk_pos)->setState(ChunkState::NEIGHBORS_POPULATED);
+	m_chunks_to_generate_terrain.push(chunk_pos);
 
 	return true;
 }
@@ -420,12 +410,10 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 			pair.second->setState(ChunkState::TERRAIN_GENERATED);
 		});
 #else
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			m_terrain_generator.generateChunkTerrain(*pair.second, height_map, is_chunk_visible);
-			m_chunks_to_decorate.push(chunk_pos);
-			pair.second->setState(ChunkState::TERRAIN_GENERATED);
-		});
+	m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos), height_map, is_chunk_visible);
+	m_chunks_to_decorate.push(chunk_pos);
+	m_chunks_by_coord.get(chunk_pos)->setState(ChunkState::TERRAIN_GENERATED);
+
 #endif
 	return true;
 }
@@ -449,14 +437,12 @@ bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 {
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			#if SETTING_TREES_ENABLED
-				m_terrain_generator.generateTrees(*pair.second);
-			#endif
-			m_chunks_to_mesh.push(chunk_pos);
-			pair.second->setState(ChunkState::DECORATED);
-		});
+	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+	#if SETTING_TREES_ENABLED
+		m_terrain_generator.generateTrees(*chunk);
+	#endif
+	m_chunks_to_mesh.push(chunk_pos);
+	chunk->setState(ChunkState::DECORATED);
 
 	return true;
 }
@@ -493,13 +479,11 @@ bool ChunkRenderer::meshChunks()
 // render thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 {
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			if (pair.second->isVisible()) {
-				pair.second->addChunkMesh();
-			}
-			pair.second->setState(ChunkState::MESHED);
-		});
+	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+	if (chunk->isVisible()) {
+		chunk->addChunkMesh();
+	}
+	chunk->setState(ChunkState::MESHED);
 
 	return true;
 }
@@ -522,8 +506,8 @@ bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
 // render thread
 bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 {
-	if (!m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
-		return false;
+	//if (!m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
+	//	return false;
 
 	deleteChunk(chunk_pos);
 	return true;
@@ -533,7 +517,7 @@ bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_to_free.push(chunk_pos);
-	m_chunks_by_coord.erase_if(chunk_pos, [](auto) { return true; });
+	m_chunks_by_coord.set(chunk_pos, nullptr);
 }
 
 // render thread
@@ -542,9 +526,9 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 	bool needs_update = false;
-	m_chunks_by_coord.if_contains(chunk_pos, [&](const pmap::value_type& pair) {
-		needs_update = pair.second->getLevelOfDetail().level != lod.level;
-		});
+	//m_chunks_by_coord.if_contains(chunk_pos, [&](const pmap::value_type& pair) {
+	//	needs_update = pair.second->getLevelOfDetail().level != lod.level;
+	//	});
 	return needs_update;
 }
 
@@ -562,22 +546,19 @@ void ChunkRenderer::allocateChunks()
 void ChunkRenderer::allocateChunk()
 {
 	glm::ivec3 chunk_pos = m_chunks_to_allocate.front();
+	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
 	VertexPool::ChunkAllocData alloc_data;
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			alloc_data._chunk_pos = pair.second->getPos();
-			alloc_data._added_faces_amount = pair.second->getAddedFacesAmount();
-			alloc_data._lod = pair.second->getLevelOfDetail();
-			alloc_data._mesh = std::move(pair.second->getMesh()); // chunk mesh is about to be allocated, vertex pool takes ownership
-			alloc_data._mesh_faces = std::move(pair.second->getFaces());
-			alloc_data._chunk_world_pos = pair.second->getWorldPos();
-			alloc_data._ready = true;
-			pair.second->setState(ChunkState::ALLOCATED);
-		});
-	if (alloc_data._ready)
-	{
-		m_vertexpool->allocate(std::move(alloc_data));
-	}
+
+	alloc_data._chunk_pos = chunk->getPos();
+	alloc_data._added_faces_amount = chunk->getAddedFacesAmount();
+	alloc_data._lod = chunk->getLevelOfDetail();
+	alloc_data._mesh = std::move(chunk->getMesh()); // chunk mesh is about to be allocated, vertex pool takes ownership
+	alloc_data._mesh_faces = std::move(chunk->getFaces());
+	alloc_data._chunk_world_pos = chunk->getWorldPos();
+	alloc_data._ready = true;
+
+	chunk->setState(ChunkState::ALLOCATED);
+	m_vertexpool->allocate(std::move(alloc_data));
 	m_chunks_to_allocate.pop();
 }
 

@@ -5,6 +5,7 @@
 #include <atomic>
 #include "Renderer.h"
 #include "ChunkRendererSettings.h"
+#include "ChunkSlidingWindow.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "../gpu_loader/ZoneVertexPool.h"
 #include "../Camera.h"
@@ -15,7 +16,6 @@
 #include "../frustum/AABox.h"
 
 #include "../third_party/BS_thread_pool.hpp"
-#include "../third_party/parallel_hashmap/phmap.h"
 #include "../loguru.hpp"
 
 struct ChunkBorder
@@ -77,13 +77,7 @@ private:
 	// done on main thread, because of OpenGL context requirements
 	std::atomic<bool> m_buffer_needs_update; 
 
-	using pmap = phmap::parallel_flat_hash_map<glm::ivec3, Chunk*,
-		phmap::priv::hash_default_hash<glm::ivec3>,
-		phmap::priv::hash_default_eq<glm::ivec3>,
-		std::allocator<std::pair<const glm::ivec3, Chunk*>>,
-		4, // 2^N submaps
-		std::mutex>;
-	pmap m_chunks_by_coord; // used in thread safe manner, shared between render and main threads
+	ChunkSlidingWindow m_chunks_by_coord; // shared between render and main threads
 	std::vector<glm::ivec3> m_border_chunks; // used only on render thread
 	std::queue<glm::ivec3> m_chunks_to_create; // used only on render thread
 
