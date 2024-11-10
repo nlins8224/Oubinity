@@ -259,6 +259,7 @@
     <ClInclude Include="src\gpu_loader\WaterLoader.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
+    <ClInclude Include="src\renderer\ChunkBorder.h" />
     <ClInclude Include="src\renderer\ChunkSlidingWindow.h" />
     <ClInclude Include="src\renderer\SkyRenderer.h" />
     <ClInclude Include="src\renderer\WaterRenderer.h" />

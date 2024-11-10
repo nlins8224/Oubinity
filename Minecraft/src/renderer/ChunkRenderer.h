@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "ChunkRendererSettings.h"
 #include "ChunkSlidingWindow.h"
+#include "ChunkBorder.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "../gpu_loader/ZoneVertexPool.h"
 #include "../Camera.h"
@@ -18,13 +19,7 @@
 #include "../third_party/BS_thread_pool.hpp"
 #include "../loguru.hpp"
 
-struct ChunkBorder
-{
-	int min_x;
-	int max_x;
-	int min_z;
-	int max_z;
-};
+
 
 class ChunkRenderer : public Renderer
 {
@@ -55,8 +50,8 @@ private:
 	bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
 	void deleteChunk(glm::ivec3 chunk_pos);
 	bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-	void iterateOverChunkBorderAndCreate(ChunkBorder chunk_border);
-	void iterateOverChunkBorderAndDelete(ChunkBorder chunk_border);
+	void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir);
+	void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir);
 	void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
 	bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
@@ -64,6 +59,8 @@ private:
 	void allocateChunk();
 	void freeChunks();
 	void freeChunk();
+
+	bool checkCameraPosChanged();
 
 	#if SETTING_USE_PRELOADED_HEIGHTMAP
 	bool generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos);

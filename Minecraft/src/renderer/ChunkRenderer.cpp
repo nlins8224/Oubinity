@@ -11,7 +11,11 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
 	m_vertexpool = new VertexPool::ZoneVertexPool{ };
 	initChunks();
 	m_buffer_needs_update = true;
-	m_camera_last_chunk_pos = { -999, -999, -999 };
+	m_camera_last_chunk_pos = { 
+		m_camera.getCameraPos().x / CHUNK_SIZE,
+		m_camera.getCameraPos().y / CHUNK_SIZE,
+		m_camera.getCameraPos().z / CHUNK_SIZE,
+	};
 }
 
 void ChunkRenderer::render(Camera& camera)
@@ -45,10 +49,12 @@ void ChunkRenderer::traverseSceneLoop()
 void ChunkRenderer::initChunks()
 {
 	int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
+	int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
+
+
 	int min_x = camera_chunk_pos_x - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 	int max_x = camera_chunk_pos_x + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 
-	int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 	int min_z = camera_chunk_pos_z - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 	int max_z = camera_chunk_pos_z + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
 
@@ -58,9 +64,11 @@ void ChunkRenderer::initChunks()
 	chunk_border.min_z = min_z;
 	chunk_border.max_z = max_z;
 
-	for (int cx = max_x; cx > min_x; cx--)
+	m_chunks_by_coord.setBorder(chunk_border);
+	LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d", chunk_border.min_x, chunk_border.max_x, chunk_border.min_z, chunk_border.max_z);
+	for (int cx = min_x; cx < max_x; cx++)
 	{
-		for (int cz = max_z; cz > min_z; cz--)
+		for (int cz = min_z; cz < max_z; cz++)
 		{
 			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 			{
@@ -101,118 +109,125 @@ void ChunkRenderer::traverseScene()
 	m_camera_last_chunk_pos.z = camera_chunk_pos_z;
 
 	ChunkBorder chunk_border;
-	for (int i = 1; i < LevelOfDetail::Lods.size(); i++)
-	{
-		int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-		chunk_border.min_x = camera_chunk_pos_x - border_dist;
-		chunk_border.max_x = camera_chunk_pos_x + border_dist;
-		chunk_border.min_z = camera_chunk_pos_z - border_dist;
-		chunk_border.max_z = camera_chunk_pos_z + border_dist;
-		iterateOverChunkBorderAndUpdateLod(chunk_border);
-	}
+	//for (int i = 1; i < LevelOfDetail::Lods.size(); i++)
+	//{
+	//	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+	//	chunk_border.min_x = camera_chunk_pos_x - border_dist;
+	//	chunk_border.max_x = camera_chunk_pos_x + border_dist;
+	//	chunk_border.min_z = camera_chunk_pos_z - border_dist;
+	//	chunk_border.max_z = camera_chunk_pos_z + border_dist;
+	//	iterateOverChunkBorderAndUpdateLod(chunk_border);
+	//}
 
-	chunk_border.min_x = camera_chunk_pos_x - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-	chunk_border.max_x = camera_chunk_pos_x + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-	chunk_border.min_z = camera_chunk_pos_z - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-	chunk_border.max_z = camera_chunk_pos_z + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
+	int border_dist = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
+	chunk_border.min_x = camera_chunk_pos_x - border_dist;
+	chunk_border.max_x = camera_chunk_pos_x + border_dist;
+	chunk_border.min_z = camera_chunk_pos_z - border_dist;
+	chunk_border.max_z = camera_chunk_pos_z + border_dist;
 
-	iterateOverChunkBorderAndDelete(chunk_border);
-	iterateOverChunkBorderAndCreate(chunk_border);
+	WindowMovementDirection move_dir = m_chunks_by_coord.moveWindow(chunk_border);
+	LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p, move_dir.x_n, move_dir.z_p, move_dir.z_n);
+	LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d", chunk_border.min_x, chunk_border.max_x, chunk_border.min_z, chunk_border.max_z);
+	iterateOverChunkBorderAndDelete(move_dir);
+	iterateOverChunkBorderAndCreate(move_dir);
 
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
 		m_buffer_needs_update.store(m_buffer_needs_update 
 			| deleteOutOfRenderDistanceChunks()
 			| createChunksInRenderDistance()
-			| populateChunksNeighbors()
-		    | generateChunksTerrain()
-			| decorateChunks()
-			| meshChunks());
+			);
+		populateChunksNeighbors();
+		generateChunksTerrain();
+		decorateChunks();
+		meshChunks();
 	}
 }
 
-void ChunkRenderer::iterateOverChunkBorderAndCreate(ChunkBorder chunk_border)
+void ChunkRenderer::iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir)
 {	
+	ChunkBorder chunk_border = m_chunks_by_coord.getBorder();
 	int min_x = chunk_border.min_x;
 	int max_x = chunk_border.max_x;
 	int min_z = chunk_border.min_z;
 	int max_z = chunk_border.max_z;
 
-	//// x-/x+ iterate over z
-	//for (int cz = min_z; cz < max_z; cz++)
-	//{
-	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-	//	{
-	//		if (!m_chunks_by_coord.if_contains({ min_x, cy, cz }, [](auto) {}))
-	//		{
-	//			m_chunks_to_create.push({ min_x, cy, cz });
-	//		}
+	// x-/x+ iterate over z
+	for (int cz = min_z; cz < max_z; cz++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (move_dir.x_n)
+			{
+				m_chunks_to_create.push({ min_x, cy, cz });
+			}
 
-	//		if (!m_chunks_by_coord.if_contains({ max_x, cy, cz }, [](auto) {}))
-	//		{
-	//			m_chunks_to_create.push({ max_x, cy, cz });
-	//		}
-	//	}
-	//}
+			if (move_dir.x_p)
+			{
+				m_chunks_to_create.push({ max_x, cy, cz });
+			}
+		}
+	}
 
-	//// z-/z+ iterate over x
-	//for (int cx = min_x; cx < max_x; cx++)
-	//{
-	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-	//	{
-	//		if (!m_chunks_by_coord.if_contains({ cx, cy, min_z }, [](auto) {}))
-	//		{
-	//			m_chunks_to_create.push({ cx, cy, min_z });
-	//		}
+	// z-/z+ iterate over x
+	for (int cx = min_x; cx < max_x; cx++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (move_dir.z_n)
+			{
+				m_chunks_to_create.push({ cx, cy, min_z });
+			}
 
-	//		if (!m_chunks_by_coord.if_contains({ cx, cy, max_z }, [](auto) {}))
-	//		{
-	//			m_chunks_to_create.push({ cx, cy, max_z });
-	//		}
-	//	}
-	//}
+			if (move_dir.z_p)
+			{
+				m_chunks_to_create.push({ cx, cy, max_z });
+			}
+		}
+	}
 }
 
-void ChunkRenderer::iterateOverChunkBorderAndDelete(ChunkBorder chunk_border)
+void ChunkRenderer::iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir)
 {
+	ChunkBorder chunk_border = m_chunks_by_coord.getBorder();
 	int min_x = chunk_border.min_x;
 	int max_x = chunk_border.max_x;
 	int min_z = chunk_border.min_z;
 	int max_z = chunk_border.max_z;
 
-	//// x-/x+ iterate over z
-	//for (int cz = min_z - 1; cz < max_z + 1; cz++)
-	//{
-	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-	//	{
-	//		if (m_chunks_by_coord.if_contains({ min_x - 1, cy, cz }, [](auto) {}))
-	//		{
-	//			m_chunks_to_delete.push({ min_x - 1, cy, cz });
-	//		}
+	// x-/x+ iterate over z
+	for (int cz = min_z; cz < max_z; cz++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (move_dir.x_n)
+			{
+				m_chunks_to_delete.push({ max_x, cy, cz });
+			}
 
-	//		if (m_chunks_by_coord.if_contains({ max_x + 1, cy, cz }, [](auto) {}))
-	//		{
-	//			m_chunks_to_delete.push({ max_x + 1, cy, cz });
-	//		}
-	//	}
-	//}
+			if (move_dir.x_p)
+			{
+				m_chunks_to_delete.push({ min_x, cy, cz });
+			}
+		}
+	}
 
-	//// z-/z+ iterate over x
-	//for (int cx = min_x - 1; cx < max_x + 1; cx++)
-	//{
-	//	for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
-	//	{
-	//		if (m_chunks_by_coord.if_contains({ cx, cy, min_z - 1 }, [](auto) {}))
-	//		{
-	//			m_chunks_to_delete.push({ cx, cy, min_z - 1 });
-	//		}
+	// z-/z+ iterate over x
+	for (int cx = min_x; cx < max_x; cx++)
+	{
+		for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
+		{
+			if (move_dir.z_n)
+			{
+				m_chunks_to_delete.push({ cx, cy, max_z });
+			}
 
-	//		if (m_chunks_by_coord.if_contains({ cx, cy, max_z + 1 }, [](auto) {}))
-	//		{
-	//			m_chunks_to_delete.push({ cx, cy, max_z + 1 });
-	//		}
-	//	}
-	//}
+			if (move_dir.z_p)
+			{
+				m_chunks_to_delete.push({ cx, cy, min_z});
+			}
+		}
+	}
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border)
@@ -290,7 +305,7 @@ void ChunkRenderer::runTraverseSceneInDetachedThread()
 // render thread
 bool ChunkRenderer::createChunksInRenderDistance()
 {
-	LOG_F(INFO, "createChunksInRenderDistance");
+	LOG_F(INFO, "chuns to create: %d", m_chunks_to_create.size());
 	bool anything_created = false;
 	while (!m_chunks_to_create.empty())
 	{
@@ -331,7 +346,7 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 
 bool ChunkRenderer::populateChunksNeighbors()
 {
-	LOG_F(INFO, "populateChunksNeighbors");
+	LOG_F(INFO, "chunks to populate neighbors: %d", m_chunks_to_populate_neighbors.size());
 	bool anything_populated = false;
 	while (!m_chunks_to_populate_neighbors.empty())
 	{
@@ -364,7 +379,7 @@ bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos)
 
 bool ChunkRenderer::generateChunksTerrain()
 {
-	LOG_F(INFO, "generateChunksTerrain");
+	LOG_F(INFO, "chunks to generate terrain: %d", m_chunks_to_generate_terrain.size());
 	bool anything_generated = false;
 #if SETTING_USE_PRELOADED_HEIGHTMAP
 	std::queue<glm::ivec3> chunks_to_generate_underground_layer;
@@ -450,7 +465,7 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::decorateChunks()
 {
-	LOG_F(INFO, "decorateChunks");
+	LOG_F(INFO, "chunks to decorate: %d", m_chunks_to_decorate.size());
 	bool anything_decorated = false;
 	while (!m_chunks_to_decorate.empty())
 	{
@@ -517,7 +532,7 @@ bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos)
 {
 	m_chunks_to_free.push(chunk_pos);
-	m_chunks_by_coord.set(chunk_pos, nullptr);
+	//m_chunks_by_coord.set(chunk_pos, nullptr);
 }
 
 // render thread
@@ -525,11 +540,8 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 {
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
-	bool needs_update = false;
-	//m_chunks_by_coord.if_contains(chunk_pos, [&](const pmap::value_type& pair) {
-	//	needs_update = pair.second->getLevelOfDetail().level != lod.level;
-	//	});
-	return needs_update;
+	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+	return chunk->getLevelOfDetail().level != lod.level;
 }
 
 // main thread
@@ -578,4 +590,17 @@ void ChunkRenderer::freeChunk()
 	glm::ivec3 chunk_pos = m_chunks_to_free.front();
 	m_vertexpool->free(chunk_pos);
 	m_chunks_to_free.pop();
+}
+
+bool ChunkRenderer::checkCameraPosChanged()
+{
+	int x, y, z;
+	x = m_camera.getCameraPos().x / CHUNK_SIZE;
+	y = m_camera.getCameraPos().y / CHUNK_SIZE;
+	z = m_camera.getCameraPos().z / CHUNK_SIZE;
+
+	glm::ivec3 camera_chunk_pos{ x, y, z };
+	bool pos_changed = camera_chunk_pos == m_camera_last_chunk_pos;
+	m_camera_last_chunk_pos = camera_chunk_pos;
+	return pos_changed;
 }
