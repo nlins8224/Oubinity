@@ -63,8 +63,7 @@ uint8_t TerrainGenerator::getWaterHeight()
 
 HeightMap TerrainGenerator::generateHeightMap(Chunk& chunk)
 {
-	glm::ivec3 chunk_pos = chunk.getPos();
-	return m_preloaded_generator.getHeightMap(chunk_pos);
+	return m_procedural_generator.generateHeightMap(chunk.getPos(), chunk.getLevelOfDetail());
 }
 
 HeightMap TerrainGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
@@ -72,12 +71,11 @@ HeightMap TerrainGenerator::generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetai
 	return m_procedural_generator.generateHeightMap(chunk_pos, lod);
 }
 
-
 bool TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
-	BlockMap block_map = m_preloaded_generator.getBlockMap(chunk.getPos());
-	return m_preloaded_generator.generateLayers(chunk, height_map, block_map);
+	return m_procedural_generator.generateLayers(chunk, height_map);
 }
+
 
 void TerrainGenerator::generateTrees(Chunk& chunk)
 {
