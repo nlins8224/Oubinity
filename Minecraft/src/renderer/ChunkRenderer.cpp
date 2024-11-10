@@ -541,7 +541,7 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos)
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-	return chunk->getLevelOfDetail().level != lod.level;
+	return chunk && chunk->getLevelOfDetail().level != lod.level;
 }
 
 // main thread
