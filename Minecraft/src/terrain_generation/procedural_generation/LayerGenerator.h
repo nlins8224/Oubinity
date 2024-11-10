@@ -1,10 +1,6 @@
  #pragma once
 #include <array>
-#include "layers/AirLayerHandler.h"
-#include "layers/SurfaceLayerHandler.h"
-#include "layers/SurfacePreloadedLayerHandler.h"
-#include "layers/UndergroundLayerHandler.h"
-#include "layers/OceanLayerHandler.h"
+#include "../../Settings.h"
 #include "../../chunk/Chunk.h"
 #include "../../loguru.hpp"
 #include "../TerrainGenerationTypes.h"

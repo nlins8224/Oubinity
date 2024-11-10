@@ -84,22 +84,7 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\procedural_generation\ShapeGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shader\SkyboxShader.cpp">
@@ -187,9 +172,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gpu_loader\WaterLoader.cpp">
@@ -302,22 +284,7 @@
     <ClInclude Include="src\terrain_generation\procedural_generation\LayerGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\procedural_generation\ShapeGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shader\SkyboxShader.h">
@@ -462,9 +429,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\water\WaterMesh.h">
