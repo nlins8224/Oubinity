@@ -43,7 +43,7 @@ TreePresenceMap PreloadedGenerator::generateTreePresenceMap(HeightMap& tree_map)
 
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 {
-	return chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS - 1) / 2);
+	return chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
 }
 
 

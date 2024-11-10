@@ -110,15 +110,15 @@ void ChunkRenderer::traverseScene()
 
 	ChunkBorder chunk_border;
 	uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
-	for (int i = 1; i < max_lod_level; i++)
-	{
-		int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-		chunk_border.min_x = camera_chunk_pos_x - border_dist;
-		chunk_border.max_x = camera_chunk_pos_x + border_dist;
-		chunk_border.min_z = camera_chunk_pos_z - border_dist;
-		chunk_border.max_z = camera_chunk_pos_z + border_dist;
-		iterateOverChunkBorderAndUpdateLod(chunk_border);
-	}
+	//for (int i = 1; i < max_lod_level; i++)
+	//{
+	//	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+	//	chunk_border.min_x = camera_chunk_pos_x - border_dist;
+	//	chunk_border.max_x = camera_chunk_pos_x + border_dist;
+	//	chunk_border.min_z = camera_chunk_pos_z - border_dist;
+	//	chunk_border.max_z = camera_chunk_pos_z + border_dist;
+	//	iterateOverChunkBorderAndUpdateLod(chunk_border);
+	//}
 
 	int border_dist = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
 	chunk_border.min_x = camera_chunk_pos_x - border_dist;
@@ -419,12 +419,10 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 	}
 
 #if SETTING_USE_PRELOADED_HEIGHTMAP
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			m_terrain_generator.generateChunkTerrain(*pair.second, height_map, is_chunk_visible);
-			m_chunks_to_decorate.push(chunk_pos);
-			pair.second->setState(ChunkState::TERRAIN_GENERATED);
-		});
+	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+	m_terrain_generator.generateChunkTerrain(*chunk, height_map, is_chunk_visible);
+	m_chunks_to_decorate.push(chunk_pos);
+	chunk->setState(ChunkState::TERRAIN_GENERATED);
 #else
 	m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos), height_map, is_chunk_visible);
 	m_chunks_to_decorate.push(chunk_pos);
@@ -442,10 +440,7 @@ bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
 
-	m_chunks_by_coord.modify_if(chunk_pos,
-		[&](const pmap::value_type& pair) {
-			m_terrain_generator.generatePreloadedUndergroundLayer(*pair.second, height_map);
-		});
+	m_terrain_generator.generatePreloadedUndergroundLayer(*m_chunks_by_coord.get(chunk_pos), height_map);
 	return true;
 }
 #endif
