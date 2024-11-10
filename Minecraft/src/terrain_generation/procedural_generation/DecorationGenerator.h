@@ -1,5 +1,4 @@
 #pragma once
-#include "ShapeGenerator.h"
 #include "../TerrainGenerationTypes.h"
 #include "../../chunk/Chunk.h"
 #include "../../tree/Tree.h"
