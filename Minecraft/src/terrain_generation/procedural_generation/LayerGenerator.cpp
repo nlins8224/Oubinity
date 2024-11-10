@@ -7,15 +7,11 @@ LayerGenerator::LayerGenerator(int seed, uint8_t water_height)
 }
 
 bool LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
-{
-	auto layer_handler = std::make_shared<SurfaceLayerHandler>();
-	auto underground_layer = std::make_shared<UndergroundLayerHandler>();
-	auto air_layer = std::make_shared<AirLayerHandler>();
-
-	//layer_handler
-	//	->addNextLayer(underground_layer);
-		
+{		
 	int block_amount = chunk.getLevelOfDetail().block_amount;
+	int block_size = chunk.getLevelOfDetail().block_size;
+	glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
+
 	bool anything_added = false;
 	for (int x = 0; x < block_amount; x++)
 	{
@@ -23,7 +19,17 @@ bool LayerGenerator::processChunk(Chunk& chunk, const HeightMap& height_map)
 		{
 			for (int z = 0; z < block_amount; z++)
 			{
-				anything_added |= layer_handler->handle(chunk, { x, y, z }, height_map[x][z], m_seed);
+				glm::ivec3 block_pos = { x, y, z };
+				int surface_height = height_map[x][z];
+				glm::ivec3 block_world_pos = chunk_world_pos + (block_pos * block_size);
+				if (surface_height > block_world_pos.y - block_size && surface_height < block_world_pos.y + block_size)
+				{
+					chunk.setBlock(block_pos, Block::GRASS);
+					anything_added = true;
+				}
+				else {
+					chunk.setBlock(block_pos, Block::AIR);
+				}
 			}
 		}
 	}
