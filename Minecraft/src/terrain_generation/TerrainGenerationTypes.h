@@ -9,6 +9,7 @@ using Block::Pixel_RGBA;
 
 // 2D surface maps
 using HeightMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
+using PreloadedHeightMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;
 using ProceduralHeightMap = std::vector<float>;
 using TreePresenceMap = std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE>;
 using ColorMap = std::array<std::array<Pixel_RGBA, CHUNK_SIZE>, CHUNK_SIZE>;

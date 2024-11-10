@@ -28,6 +28,7 @@ public:
 	ChunkBorder getBorder();
 private:
 	glm::ivec3 calculateIndex(glm::ivec3 chunk_pos);
+	//TODO: Allocate this on heap
 	Chunk* m_chunks_window[ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS][ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS][ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS];
 	ChunkBorder m_chunk_border;
 

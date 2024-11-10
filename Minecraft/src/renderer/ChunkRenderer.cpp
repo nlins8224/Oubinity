@@ -333,7 +333,11 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 {
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+#if SETTING_USE_PRELOADED_HEIGHTMAP
+	HeightMap height_map = m_terrain_generator.generatePreloadedHeightMap(chunk_pos);
+#else
 	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+#endif
 	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 	if (!is_chunk_visible) {
 		return;
@@ -412,15 +416,19 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 {
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+#if SETTING_USE_PRELOADED_HEIGHTMAP
+	HeightMap height_map = m_terrain_generator.generatePreloadedHeightMap(chunk_pos);
+#else
 	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+#endif
 	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 	if (!is_chunk_visible) {
 		return false;
 	}
 
-#if SETTING_USE_PRELOADED_HEIGHTMAP
+#if SETTING_USE_PRELOADED_COLORMAP
 	Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-	m_terrain_generator.generateChunkTerrain(*chunk, height_map, is_chunk_visible);
+	m_terrain_generator.generatePreloadedLayers(*chunk, height_map);
 	m_chunks_to_decorate.push(chunk_pos);
 	chunk->setState(ChunkState::TERRAIN_GENERATED);
 #else
@@ -438,7 +446,7 @@ bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos)
 {
 	glm::ivec3 camera_pos = m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
 	LevelOfDetail::LevelOfDetail lod = LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
-	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+	HeightMap height_map = m_terrain_generator.generatePreloadedHeightMap(chunk_pos);
 
 	m_terrain_generator.generatePreloadedUndergroundLayer(*m_chunks_by_coord.get(chunk_pos), height_map);
 	return true;
