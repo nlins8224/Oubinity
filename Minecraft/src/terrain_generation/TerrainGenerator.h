@@ -16,7 +16,8 @@ public:
 	bool generateChunkTerrain(Chunk& chunk);
 	void generateChunkTerrain(Chunk& chunk, HeightMap& height_map, bool is_chunk_visible);
 	void generateTrees(Chunk& chunk);
-	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
+	bool isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map);
+	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
 	HeightMap generateHeightMap(Chunk& chunk);
 	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 	bool generateLayers(Chunk& chunk, HeightMap height_map);

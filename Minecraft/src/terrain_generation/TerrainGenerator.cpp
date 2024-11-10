@@ -18,7 +18,7 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
 	HeightMap height_map = generateHeightMap(chunk);
-	bool is_chunk_visible = !m_procedural_generator.isChunkBelowOrAboveSurface(chunk, height_map);
+	bool is_chunk_visible = !isChunkBelowOrAboveSurface(chunk, height_map);
 	generateChunkTerrain(chunk, height_map, is_chunk_visible);
 	return is_chunk_visible;
 }
@@ -90,7 +90,29 @@ void TerrainGenerator::generateTrees(Chunk& chunk)
 #endif	
 }
 
-bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
+bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map)
 {
-	return m_procedural_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+	return isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+}
+
+bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
+{
+	int block_amount = lod.block_amount;
+	double min_height = std::numeric_limits<double>::max();
+	double max_height = std::numeric_limits<double>::min();
+	for (int x = 0; x < block_amount; x++)
+	{
+		for (int z = 0; z < block_amount; z++)
+		{
+			min_height = std::min(min_height, height_map[x][z]);
+			max_height = std::max(max_height, height_map[x][z]);
+		}
+	}
+	// Real CHUNK_SIZE here is correct
+	int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
+	bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
+	bool above_surface = chunk_pos_y > max_height;
+	return below_surface || above_surface;
 }
