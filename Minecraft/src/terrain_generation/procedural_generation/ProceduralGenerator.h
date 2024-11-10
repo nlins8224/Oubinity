@@ -15,10 +15,8 @@ public:
 	HeightMap generateHeightMap(Chunk& chunk);
 	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 	bool generateLayers(Chunk& chunk, HeightMap height_map);
-	bool generateLayers(Chunk& chunk, HeightMap height_map, BlockMap block_map);
 	void generateTrees(Chunk& chunk);
 	void generateTrees(Chunk& chunk, HeightMap& height_map);
-	bool generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map);
 	uint8_t getWaterHeight();
 	bool isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map);
 	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);

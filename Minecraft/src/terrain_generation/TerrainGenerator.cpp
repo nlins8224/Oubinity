@@ -35,7 +35,7 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk, HeightMap& height_map,
 
 bool TerrainGenerator::generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map)
 {
-	return m_procedural_generator.generatePreloadedUndergroundLayer(chunk, height_map);
+	return m_preloaded_generator.generatePreloadedChunkUndergroundLayer(chunk, height_map);
 }
 
 uint8_t TerrainGenerator::getWaterHeight()
@@ -68,7 +68,7 @@ bool TerrainGenerator::generateLayers(Chunk& chunk, HeightMap height_map)
 {
 #if SETTING_USE_PRELOADED_COLORMAP
 	BlockMap block_map = m_preloaded_generator.getBlockMap(chunk.getPos());
-	return m_procedural_generator.generateLayers(chunk, height_map, block_map);
+	return m_preloaded_generator.generateLayers(chunk, height_map, block_map);
 #else 
 	return m_procedural_generator.generateLayers(chunk, height_map);
 #endif

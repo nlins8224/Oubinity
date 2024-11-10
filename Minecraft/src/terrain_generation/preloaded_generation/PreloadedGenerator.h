@@ -13,13 +13,20 @@ class PreloadedGenerator
 public:
 	PreloadedGenerator(uint8_t water_height, glm::vec3 scale = Settings::SETTING_SCALE);
 	virtual ~PreloadedGenerator() = default;
+	bool generateLayers(Chunk& chunk, const HeightMap& height_map, const BlockMap& block_map);
+	bool generatePreloadedChunkUndergroundLayer(Chunk& chunk, const HeightMap& height_map);
+
 	HeightMap& getHeightMap(glm::ivec3 chunk_pos);
 	BlockMap& getBlockMap(glm::ivec3 chunk_pos);
 	void generateTrees(Chunk& chunk);
 private:
 	HeightMap& getTreeMap(glm::ivec3 chunk_pos);
 	TreePresenceMap generateTreePresenceMap(HeightMap& tree_map);
+	bool isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size);
+	bool hasBlocksInHorizontalNeighborhood(Chunk& chunk, glm::ivec3 block_pos);
+	std::pair<bool, glm::ivec3> shouldAddBlocksToColumn(Chunk& chunk, int col_x, int heightmap_y, int col_z);
 	glm::ivec3 mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos);
+
 	std::vector<HeightMap> m_height_maps;
 	std::vector<BlockMap> m_block_maps;
 	std::vector<HeightMap> m_tree_maps;
