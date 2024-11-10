@@ -134,7 +134,7 @@ void ChunkRenderer::traverseScene()
 	if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0)
 	{
 		m_buffer_needs_update.store(m_buffer_needs_update 
-			| deleteOutOfRenderDistanceChunks()
+			//| deleteOutOfRenderDistanceChunks()
 			| createChunksInRenderDistance()
 			);
 		populateChunksNeighbors();
@@ -164,7 +164,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(WindowMovementDirection move
 
 			if (move_dir.x_p)
 			{
-				m_chunks_to_create.push({ max_x, cy, cz });
+				m_chunks_to_create.push({ max_x - 1, cy, cz });
 			}
 		}
 	}
@@ -181,7 +181,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(WindowMovementDirection move
 
 			if (move_dir.z_p)
 			{
-				m_chunks_to_create.push({ cx, cy, max_z });
+				m_chunks_to_create.push({ cx, cy, max_z - 1 });
 			}
 		}
 	}
