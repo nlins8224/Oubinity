@@ -2,7 +2,6 @@
 #include "../../chunk/Chunk.h"
 #include "../../chunk/ChunkSize.h"
 #include "ShapeGenerator.h"
-#include "LayerGenerator.h"
 #include "DecorationGenerator.h"
 #include <limits> 
 

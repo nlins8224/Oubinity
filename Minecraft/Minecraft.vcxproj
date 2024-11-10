@@ -219,7 +219,6 @@
     <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\DecorationGenerator.cpp" />
-    <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\ShapeGenerator.cpp" />
     <ClCompile Include="src\third_party\glad.cpp" />
@@ -297,7 +296,6 @@
     <ClInclude Include="src\shader\SceneShader.h" />
     <ClInclude Include="src\shader\SkyboxShader.h" />
     <ClInclude Include="src\skybox\SkyboxMesh.h" />
-    <ClInclude Include="src\terrain_generation\procedural_generation\LayerGenerator.h" />
     <ClInclude Include="src\terrain_generation\procedural_generation\ShapeGenerator.h" />
     <ClInclude Include="src\chunk\Mesh.h" />
     <ClInclude Include="src\block\Block.h" />
