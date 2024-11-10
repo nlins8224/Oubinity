@@ -109,15 +109,16 @@ void ChunkRenderer::traverseScene()
 	m_camera_last_chunk_pos.z = camera_chunk_pos_z;
 
 	ChunkBorder chunk_border;
-	//for (int i = 1; i < LevelOfDetail::Lods.size(); i++)
-	//{
-	//	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-	//	chunk_border.min_x = camera_chunk_pos_x - border_dist;
-	//	chunk_border.max_x = camera_chunk_pos_x + border_dist;
-	//	chunk_border.min_z = camera_chunk_pos_z - border_dist;
-	//	chunk_border.max_z = camera_chunk_pos_z + border_dist;
-	//	iterateOverChunkBorderAndUpdateLod(chunk_border);
-	//}
+	uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
+	for (int i = 1; i < max_lod_level; i++)
+	{
+		int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+		chunk_border.min_x = camera_chunk_pos_x - border_dist;
+		chunk_border.max_x = camera_chunk_pos_x + border_dist;
+		chunk_border.min_z = camera_chunk_pos_z - border_dist;
+		chunk_border.max_z = camera_chunk_pos_z + border_dist;
+		iterateOverChunkBorderAndUpdateLod(chunk_border);
+	}
 
 	int border_dist = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
 	chunk_border.min_x = camera_chunk_pos_x - border_dist;
@@ -248,10 +249,10 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border)
 				m_chunks_to_create.push({ min_x, cy, cz });
 			}
 
-			if (checkIfChunkLodNeedsUpdate({ max_x, cy, cz }))
+			if (checkIfChunkLodNeedsUpdate({ max_x - 1, cy, cz }))
 			{
-				m_chunks_to_delete.push({ max_x, cy, cz });
-				m_chunks_to_create.push({ max_x, cy, cz });
+				m_chunks_to_delete.push({ max_x - 1, cy, cz });
+				m_chunks_to_create.push({ max_x - 1, cy, cz });
 			}
 		}
 	}
@@ -267,10 +268,10 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border)
 				m_chunks_to_create.push({ cx, cy, min_z });
 			}
 
-			if (checkIfChunkLodNeedsUpdate({ cx, cy, max_z }))
+			if (checkIfChunkLodNeedsUpdate({ cx, cy, max_z - 1 }))
 			{
-				m_chunks_to_delete.push({ cx, cy, max_z });
-				m_chunks_to_create.push({ cx, cy, max_z });
+				m_chunks_to_delete.push({ cx, cy, max_z - 1 });
+				m_chunks_to_create.push({ cx, cy, max_z - 1 });
 			}
 		}
 	}
@@ -521,8 +522,9 @@ bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
 // render thread
 bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos)
 {
-	//if (!m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
-	//	return false;
+	if (!m_chunks_by_coord.get(chunk_pos))
+		return false;
+
 
 	deleteChunk(chunk_pos);
 	return true;
