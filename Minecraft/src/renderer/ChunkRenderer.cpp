@@ -1,5 +1,4 @@
 #include "ChunkRenderer.h"
-
 ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader, Camera& camera, GLuint texture_array)
 	: 
 	  m_terrain_generator{terrain_generator},

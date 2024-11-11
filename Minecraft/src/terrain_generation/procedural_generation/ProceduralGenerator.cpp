@@ -56,7 +56,6 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk, ProceduralHeightMap heigh
 	int block_size = chunk.getLevelOfDetail().block_size;
 	glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
 
-	Timer t1 = Timer("generate", true);
 	bool anything_added = false;
 	for (int x = 0; x < block_amount; x++)
 	{
@@ -72,13 +71,9 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk, ProceduralHeightMap heigh
 					chunk.setBlock(block_pos, Block::GRASS);
 					anything_added = true;
 				}
-				else {
-					chunk.setBlock(block_pos, Block::AIR);
-				}
 			}
 		}
 	}
-	t1.end();
 
 	return anything_added;
 }
