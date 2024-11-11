@@ -83,8 +83,8 @@ void TerrainGenerator::generateTrees(Chunk& chunk)
 	#if SETTING_USE_PRELOADED_TREEMAP
 		m_preloaded_generator.generateTrees(chunk);
 	#else
-		HeightMap height_map = m_preloaded_generator.getHeightMap(chunk.getPos());
-		m_procedural_generator.generateTrees(chunk, height_map);
+		//HeightMap height_map = m_preloaded_generator.getHeightMap(chunk.getPos());
+		//m_preloaded_generator.generateTrees(chunk, height_map);
 	#endif
 #else
 	m_procedural_generator.generateTrees(chunk);
@@ -92,6 +92,13 @@ void TerrainGenerator::generateTrees(Chunk& chunk)
 }
 
 bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const ProceduralHeightMap& height_map)
+{
+	glm::ivec3 chunk_pos = chunk.getPos();
+	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+	return isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
+}
+
+bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map)
 {
 	glm::ivec3 chunk_pos = chunk.getPos();
 	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
@@ -109,6 +116,26 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const Pr
 		{
 			min_height = std::min(min_height, (double)height_map[z * block_amount + x]);
 			max_height = std::max(max_height, (double)height_map[z * block_amount + x]);
+		}
+	}
+	// Real CHUNK_SIZE here is correct
+	int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
+	bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
+	bool above_surface = chunk_pos_y > max_height;
+	return below_surface || above_surface;
+}
+
+bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
+{
+	int block_amount = lod.block_amount;
+	double min_height = std::numeric_limits<double>::max();
+	double max_height = std::numeric_limits<double>::min();
+	for (int x = 0; x < block_amount; x++)
+	{
+		for (int z = 0; z < block_amount; z++)
+		{
+			min_height = std::min(min_height, height_map[x][z]);
+			max_height = std::max(max_height, height_map[x][z]);
 		}
 	}
 	// Real CHUNK_SIZE here is correct
