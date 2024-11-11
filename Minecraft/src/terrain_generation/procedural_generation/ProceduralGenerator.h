@@ -60,12 +60,12 @@ public:
 	ProceduralGenerator();
 	ProceduralGenerator(int world_seed, uint8_t water_height);
 	virtual ~ProceduralGenerator() = default;
-	HeightMap generateHeightMap(Chunk& chunk);
-	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
-	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
-	bool generateLayers(Chunk& chunk, HeightMap height_map);
+	ProceduralHeightMap generateHeightMap(Chunk& chunk);
+	ProceduralHeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
+	ProceduralHeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
+	bool generateLayers(Chunk& chunk, ProceduralHeightMap height_map);
 	void generateTrees(Chunk& chunk);
-	void generateTrees(Chunk& chunk, HeightMap& height_map);
+	void generateTrees(Chunk& chunk, ProceduralHeightMap& height_map);
 	uint8_t getWaterHeight();
 private:
 	TreePresenceMap generateTreePresenceMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod, NoiseSettings::Settings settings, int seed);
@@ -73,7 +73,7 @@ private:
 	int m_world_seed;
 	uint8_t m_water_height;
 	DecorationGenerator m_decoration_generator;
-	std::unordered_map<glm::ivec3, HeightMap> m_heightmaps;
+	std::unordered_map<glm::ivec3, ProceduralHeightMap> m_heightmaps;
 
 };
 

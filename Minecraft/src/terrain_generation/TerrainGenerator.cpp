@@ -17,13 +17,13 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
 
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk)
 {
-	HeightMap height_map = generateProceduralHeightMap(chunk);
+	ProceduralHeightMap height_map = generateProceduralHeightMap(chunk);
 	bool is_chunk_visible = !isChunkBelowOrAboveSurface(chunk, height_map);
 	generateChunkTerrain(chunk, height_map, is_chunk_visible);
 	return is_chunk_visible;
 }
 
-void TerrainGenerator::generateChunkTerrain(Chunk& chunk, HeightMap& height_map, bool is_chunk_visible)
+void TerrainGenerator::generateChunkTerrain(Chunk& chunk, ProceduralHeightMap& height_map, bool is_chunk_visible)
 {
 	if (is_chunk_visible)
 	{
@@ -61,17 +61,17 @@ uint8_t TerrainGenerator::getWaterHeight()
 	return m_water_height;
 }
 
-HeightMap TerrainGenerator::generateProceduralHeightMap(Chunk& chunk)
+ProceduralHeightMap TerrainGenerator::generateProceduralHeightMap(Chunk& chunk)
 {
 	return m_procedural_generator.generateHeightMap(chunk.getPos(), chunk.getLevelOfDetail());
 }
 
-HeightMap TerrainGenerator::generateProceduralHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
+ProceduralHeightMap TerrainGenerator::generateProceduralHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	return m_procedural_generator.generateHeightMap(chunk_pos, lod);
 }
 
-bool TerrainGenerator::generateProceduralLayers(Chunk& chunk, HeightMap height_map)
+bool TerrainGenerator::generateProceduralLayers(Chunk& chunk, ProceduralHeightMap height_map)
 {
 	return m_procedural_generator.generateLayers(chunk, height_map);
 }
@@ -91,14 +91,14 @@ void TerrainGenerator::generateTrees(Chunk& chunk)
 #endif	
 }
 
-bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map)
+bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk, const ProceduralHeightMap& height_map)
 {
 	glm::ivec3 chunk_pos = chunk.getPos();
 	LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 	return isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 }
 
-bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
+bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const ProceduralHeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
 {
 	int block_amount = lod.block_amount;
 	double min_height = std::numeric_limits<double>::max();
@@ -107,8 +107,8 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const He
 	{
 		for (int z = 0; z < block_amount; z++)
 		{
-			min_height = std::min(min_height, height_map[x][z]);
-			max_height = std::max(max_height, height_map[x][z]);
+			min_height = std::min(min_height, (double)height_map[z * block_amount + x]);
+			max_height = std::max(max_height, (double)height_map[z * block_amount + x]);
 		}
 	}
 	// Real CHUNK_SIZE here is correct
