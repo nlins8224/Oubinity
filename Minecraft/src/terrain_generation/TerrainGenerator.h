@@ -14,13 +14,25 @@ public:
 	~TerrainGenerator() = default;
 	// true if chunk is visible, false if it's not
 	bool generateChunkTerrain(Chunk& chunk);
-	void generateChunkTerrain(Chunk& chunk, HeightMap& height_map, bool is_chunk_visible);
+	void generateChunkTerrain(Chunk& chunk, ProceduralHeightMap& height_map, bool is_chunk_visible);
 	void generateTrees(Chunk& chunk);
-	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
-	HeightMap generateHeightMap(Chunk& chunk);
-	HeightMap generateHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
-	bool generateLayers(Chunk& chunk, HeightMap height_map);
+	bool isChunkBelowOrAboveSurface(Chunk& chunk, const ProceduralHeightMap& height_map);
+	bool isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map);
+	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const ProceduralHeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
+	bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod);
+	ProceduralHeightMap generateProceduralHeightMap(Chunk& chunk);
+	ProceduralHeightMap generateProceduralHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
+	bool generateProceduralLayers(Chunk& chunk, ProceduralHeightMap height_map);
 	uint8_t getWaterHeight();
+#if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
+	bool generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map);
+	PreloadedHeightMap generatePreloadedHeightMap(glm::ivec3 chunk_pos);
+#endif
+
+#if SETTING_USE_PRELOADED_COLORMAP
+	bool generatePreloadedLayers(Chunk& chunk, HeightMap height_map);
+#endif
+
 private:
 	ProceduralGenerator m_procedural_generator;
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP

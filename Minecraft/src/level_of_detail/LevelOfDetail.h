@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "../chunk/ChunkSize.h"
 #include "../Camera.h"
+#include "../renderer/ChunkRendererSettings.h"
 
 namespace LevelOfDetail {
 
@@ -132,6 +133,23 @@ namespace LevelOfDetail {
 			return Four;
 
 		return Five;
+	}
+
+	static uint8_t getMaxLodLevel()
+	{
+		uint8_t chunks_amount = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+		if (chunks_amount <= One.draw_distance)
+			return 0;
+		if (chunks_amount <= Two.draw_distance)
+			return 1;
+		if (chunks_amount <= Three.draw_distance)
+			return 2;
+		if (chunks_amount <= Four.draw_distance)
+			return 3;
+		if (chunks_amount <= Five.draw_distance)
+			return 4;
+
+		return 5;
 	}
 }
 

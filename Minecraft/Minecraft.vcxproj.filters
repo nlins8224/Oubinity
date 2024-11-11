@@ -81,27 +81,6 @@
     <ClCompile Include="src\frustum\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\LayerGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\ShapeGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\shader\SkyboxShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -189,9 +168,6 @@
     <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gpu_loader\WaterLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,6 +196,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tree\BranchGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\ChunkSlidingWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -294,27 +273,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk\Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\LayerGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\ChunkLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\AirLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfaceLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\UndergroundLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\ShapeGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\OceanLayerHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shader\SkyboxShader.h">
@@ -461,9 +419,6 @@
     <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\procedural_generation\layers\SurfacePreloadedLayerHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\water\WaterMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -498,6 +453,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tree\BranchGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\ChunkSlidingWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\ChunkBorder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third_party\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

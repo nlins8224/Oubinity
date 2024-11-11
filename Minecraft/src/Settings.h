@@ -2,8 +2,8 @@
 #include <glm/glm.hpp>
 
 
-#define SETTING_USE_PRELOADED_HEIGHTMAP 0;
-#define SETTING_USE_PRELOADED_COLORMAP 0;
+#define SETTING_USE_PRELOADED_HEIGHTMAP 1;
+#define SETTING_USE_PRELOADED_COLORMAP 1;
 // Using PRELOADED_HEIGHTMAP is prerequisite
 #define SETTING_USE_PRELOADED_TREEMAP 0;
 
@@ -20,4 +20,6 @@ namespace Settings
 
 	// Used to determine thickness of a surface layer, when using PRELOADED_COLORMAP.
 	static constexpr int SETTING_BLOCK_MARGIN = SETTING_SCALE.y;
+
+	static constexpr int SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH = 3;
 }

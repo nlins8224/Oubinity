@@ -10,11 +10,12 @@
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
-#include "../block/PaletteBlockStorage.h"
+#include "../block/BlockStorage.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
 #include "../dynamic_bitset.hpp"
+#include "../third_party/timer.h"
 
 /*
 Convention:
@@ -50,8 +51,6 @@ Z
 */
 
 struct MeshData {
-	std::vector<Face> faces;
-	std::vector<Vertex> vertices;
 	uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
 	uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)]{0};
 	uint64_t merged_right[(CHUNK_SIZE + 2)]{0};
@@ -82,6 +81,8 @@ enum class ChunkState
 	NONE = 0,
 	NEW,
 	CREATED,
+	NEIGHBORS_POPULATED,
+	TERRAIN_GENERATED,
 	DECORATED,
 	MESHED,
 	ALLOCATED
@@ -108,29 +109,37 @@ public:
 	virtual ~Chunk();
 
 	void addChunkMesh();
+
 	void setBlock(glm::ivec3 block_pos, Block::block_id type);
+	void setNeighbors(ChunkNeighbors neighbors);
+	void setState(ChunkState state);
+	void setIsVisible(bool is_visible);
+	void setBlockArray();
+
 	glm::ivec3 getPos() const;
 	glm::ivec2 getPosXZ() const;
+	const glm::vec3 getWorldPos() const;
 	Block::block_id getBlockId(glm::ivec3 block_pos) const;
+	LevelOfDetail::LevelOfDetail getLevelOfDetail();
 	ChunkNeighbors& getNeighbors();
+	std::vector<Vertex>& getMesh();
+	std::vector<Face>& getFaces();
+	Block::BlockStorage& getBlockArray();
+	unsigned int getAddedFacesAmount();
+
 	bool isTransparent(glm::ivec3 block_pos) const;
 	bool isVisible() const;
-	void setIsVisible(bool is_visible);
-	std::vector<Vertex>& getMesh();
-	Block::PaletteBlockStorage& getBlockArray();
-	void setBlockArray();
-	const glm::vec3 getWorldPos() const;
-	LevelOfDetail::LevelOfDetail getLevelOfDetail();
-	unsigned int getAddedFacesAmount();
-	sul::dynamic_bitset<> getBlocksBitset();
-	std::vector<Face>& getFaces();
-	void setState(ChunkState state);
-	void setNeighbors(ChunkNeighbors neighbors);
+	bool isBlockPresent(glm::ivec3 block_pos) const;
+	bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
+
+	Chunk* findNeighborChunk(glm::ivec3 block_pos) const;
+	glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
 private:
-	MeshData m_mesh;
-	Block::PaletteBlockStorage* m_blocks; // deleted after it's unpacked
+	MeshData* m_mesh;
+	Block::BlockStorage* m_blocks; // deleted after it's unpacked
 	std::vector<Face> m_faces;
+	std::vector<Vertex> m_vertices;
 	glm::ivec3 m_chunk_pos;
 	glm::vec3 m_world_pos;
 	bool m_is_visible;
@@ -139,20 +148,13 @@ private:
 
 	void addFaces();
 	bool isFaceVisible(glm::ivec3 block_pos) const;
-	bool isNeighborFaceVisible(glm::ivec3 block_pos) const;
-	Block::block_id getNeighborBlockId(glm::ivec3 block_pos) const;
+	bool isNeighborBlockVisible(glm::ivec3 block_pos) const;
 	void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side, Block::block_id type, FaceCornersAo ao);
 	const uint64_t get_axis_i(const int axis, const int x, const int y, const int z);
-	FaceCornersAo calculateAmbientOcclusion(Block::block_mesh face_side, glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneX(glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneY(glm::ivec3 block_pos);
-	FaceCornersAo calculateAoPlaneZ(glm::ivec3 block_pos);
 	ChunkNeighbors m_chunk_neighbors;
 	ChunkState m_state;
-
 
 	const int vertexAO(uint8_t side_first, uint8_t side_second, uint8_t corner);
 	const bool compareAO(const std::vector<Block::block_id>& voxels, int axis, int forward, int right, int c, int forward_offset, int right_offset);
 	FaceCornersAo bakeAO(const std::vector<Block::block_id>& voxels, uint64_t bit_pos, int air_dir, uint64_t axis, uint64_t right, uint64_t forward);
-
 };
