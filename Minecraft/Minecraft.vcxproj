@@ -180,7 +180,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\block\PaletteBlockStorage.cpp" />
+    <ClCompile Include="src\block\BlockStorage.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\frustum\Plane.cpp" />
     <ClCompile Include="src\frustum\AABox.cpp" />
@@ -244,7 +244,7 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="src\block\PaletteBlockStorage.h" />
+    <ClInclude Include="src\block\BlockStorage.h" />
     <ClInclude Include="src\chunk\Face.h" />
     <ClInclude Include="src\dynamic_bitset.hpp" />
     <ClInclude Include="src\gpu_loader\SkyLoader.h" />

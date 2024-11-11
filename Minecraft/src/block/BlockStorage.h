@@ -9,12 +9,12 @@
 namespace Block
 {
 
-class PaletteBlockStorage
+class BlockStorage
 {
 public:
-	PaletteBlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 8);
-	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 8);
-	virtual ~PaletteBlockStorage() = default;
+	BlockStorage(uint8_t chunk_size, uint8_t initial_palettes_amount = 8);
+	BlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 8);
+	virtual ~BlockStorage() = default;
 	block_id getRaw(glm::ivec3 block_pos);
 	void setRaw(glm::ivec3 block_pos, block_id block_type);
 	bool isBlockPresent(glm::ivec3 block_pos);

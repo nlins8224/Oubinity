@@ -10,7 +10,7 @@
 #include "../block/Block.h"
 #include "../block/BlockMesh.h"
 #include "../block/BlockArray.h"
-#include "../block/PaletteBlockStorage.h"
+#include "../block/BlockStorage.h"
 #include "../shader/Shader.h"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
@@ -124,7 +124,7 @@ public:
 	ChunkNeighbors& getNeighbors();
 	std::vector<Vertex>& getMesh();
 	std::vector<Face>& getFaces();
-	Block::PaletteBlockStorage& getBlockArray();
+	Block::BlockStorage& getBlockArray();
 	unsigned int getAddedFacesAmount();
 
 	bool isTransparent(glm::ivec3 block_pos) const;
@@ -137,7 +137,7 @@ public:
 
 private:
 	MeshData* m_mesh;
-	Block::PaletteBlockStorage* m_blocks; // deleted after it's unpacked
+	Block::BlockStorage* m_blocks; // deleted after it's unpacked
 	std::vector<Face> m_faces;
 	std::vector<Vertex> m_vertices;
 	glm::ivec3 m_chunk_pos;
