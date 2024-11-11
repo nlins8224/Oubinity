@@ -88,7 +88,7 @@ bool PreloadedGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, co
 				glm::ivec3 block_pos{ x, y, z };
 				if (chunk.isBlockOutsideChunk(block_pos)) {
 					Chunk* neighbor = chunk.findNeighborChunk(block_pos);
-					if (neighbor) {
+					if (neighbor && neighbor->getState() == ChunkState::NEIGHBORS_POPULATED) {
 						glm::ivec3 neighbor_block_pos = chunk.findNeighborBlockPos(block_pos);
 						neighbor->setBlock(neighbor_block_pos, block_id::STONE);
 						anything_added = true;

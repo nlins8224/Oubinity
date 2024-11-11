@@ -479,6 +479,11 @@ void Chunk::setState(ChunkState state)
 	m_state = state;
 }
 
+ChunkState Chunk::getState()
+{
+	return m_state;
+}
+
 void Chunk::setNeighbors(ChunkNeighbors neighbors)
 {
 	m_chunk_neighbors = neighbors;

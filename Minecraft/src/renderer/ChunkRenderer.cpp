@@ -50,7 +50,7 @@ void ChunkRenderer::initChunks()
 	int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
 	int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
-	int border_dist = (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
+	int border_dist = ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
 	int min_x = camera_chunk_pos_x - border_dist;
 	int max_x = camera_chunk_pos_x + border_dist;
 
@@ -65,9 +65,9 @@ void ChunkRenderer::initChunks()
 
 	m_chunks_by_coord.setBorder(chunk_border);
 	LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d", chunk_border.min_x, chunk_border.max_x, chunk_border.min_z, chunk_border.max_z);
-	for (int cx = min_x; cx < max_x; cx++)
+	for (int cx = min_x; cx < max_x - 1; cx++)
 	{
-		for (int cz = min_z; cz < max_z; cz++)
+		for (int cz = min_z; cz < max_z - 1; cz++)
 		{
 			for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--)
 			{
