@@ -125,7 +125,6 @@ public:
 	std::vector<Vertex>& getMesh();
 	std::vector<Face>& getFaces();
 	Block::PaletteBlockStorage& getBlockArray();
-	sul::dynamic_bitset<> getBlocksBitset();
 	unsigned int getAddedFacesAmount();
 
 	bool isTransparent(glm::ivec3 block_pos) const;

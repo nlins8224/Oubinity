@@ -6,69 +6,8 @@
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../dynamic_bitset.hpp"
 
-
-// credits to: https://www.reddit.com/r/VoxelGameDev/comments/9yu8qy/palettebased_compression_for_chunked_discrete/
-
 namespace Block
 {
-
-struct PaletteEntry
-{
-	PaletteEntry(int refcount, block_id block_type)
-	{
-		this->refcount = refcount;
-		this->block_type = block_type;
-	}
-
-	int refcount;
-	block_id block_type;
-};
-
-
-// PaletteIndexStorage holds palette indices
-// PaletteIndexStorage operates on bits.
-struct PaletteIndexStorage
-{
-	PaletteIndexStorage(uint8_t index_size, uint32_t chunk_size)
-	{
-		this->palette_index_size = index_size;
-		this->indexes_amount = chunk_size * chunk_size * chunk_size;
-		indexes.resize(index_size * indexes_amount);
-	}
-
-	inline uint8_t get(uint32_t bit_offset) const
-	{
-		uint8_t palette_index = 0;
-		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
-		{
-			palette_index |= indexes[i] << (i - bit_offset);
-		}
-		return palette_index;
-	}
-
-	inline void set(uint32_t bit_offset, uint8_t palette_index)
-	{
-		for (uint32_t i = bit_offset; i < bit_offset + palette_index_size; i++)
-		{
-			indexes[i] = palette_index & 1;
-			palette_index >>= 1;
-		}
-	}
-
-	sul::dynamic_bitset<>& data()
-	{
-		return indexes;
-	}
-
-	uint8_t getIndexSize()
-	{
-		return palette_index_size;
-	}
-
-	sul::dynamic_bitset<> indexes; 
-	uint8_t palette_index_size; // in bits
-	uint32_t indexes_amount;
-};
 
 class PaletteBlockStorage
 {
@@ -77,33 +16,19 @@ public:
 	PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod, uint8_t initial_palettes_amount = 8);
 	virtual ~PaletteBlockStorage() = default;
 	block_id getRaw(glm::ivec3 block_pos);
-	block_id get(glm::ivec3 block_pos);
 	void setRaw(glm::ivec3 block_pos, block_id block_type);
-	void set(glm::ivec3 block_pos, block_id block_type);
 	bool isBlockPresent(glm::ivec3 block_pos);
 	void clear(); // Preserves m_*_occupancy_mask
-	PaletteIndexStorage& getPaletteIndexStorage();
 	sul::dynamic_bitset<>& getOccupancyMask();
 	sul::dynamic_bitset<>& getPaddedOccupancyMask();
 	std::vector<block_id>& getPaddedBlockIdCache();
 
 private:
-	uint8_t newPaletteEntry();
-	void growPalette();
 	int getBlockIndex(glm::ivec3 block_pos) const;
 	int getPaddedBlockIndex(glm::ivec3 block_pos) const;
-	int findIndexOfPaletteHolding(uint8_t block_type);
-	int findIndexOfPaletteHoldingOrEmpty(uint8_t block_type);
-	void clearIndexStorage();
-	using Palette = std::vector<PaletteEntry>;
-	Palette m_palette;
-	PaletteIndexStorage m_index_storage;
 	uint8_t m_chunk_size;
 	sul::dynamic_bitset<> m_occupancy_mask;
 	sul::dynamic_bitset<> m_padded_occupancy_mask;
-	// TODO: Uncompressed block_id generally goes against 
-	// palette block storage. Even if it's cleared and freed after meshing.
-	// Integrate padding into palette block storage and remove cache.
 	std::vector<block_id> m_padded_block_id_cache;
 };
 

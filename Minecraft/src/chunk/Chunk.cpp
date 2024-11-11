@@ -538,8 +538,3 @@ unsigned int Chunk::getAddedFacesAmount()
 {
 	return m_added_faces;
 }
-
-sul::dynamic_bitset<> Chunk::getBlocksBitset()
-{
-	return m_blocks->getPaletteIndexStorage().data();
-}
