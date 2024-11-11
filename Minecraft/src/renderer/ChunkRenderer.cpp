@@ -336,7 +336,7 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos)
 #if SETTING_USE_PRELOADED_HEIGHTMAP
 	HeightMap height_map = m_terrain_generator.generatePreloadedHeightMap(chunk_pos);
 #else
-	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+	HeightMap height_map = m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
 #endif
 	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 	if (!is_chunk_visible) {
@@ -419,7 +419,7 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos)
 #if SETTING_USE_PRELOADED_HEIGHTMAP
 	HeightMap height_map = m_terrain_generator.generatePreloadedHeightMap(chunk_pos);
 #else
-	HeightMap height_map = m_terrain_generator.generateHeightMap(chunk_pos, lod);
+	HeightMap height_map = m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
 #endif
 	bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(chunk_pos, height_map, lod);
 	if (!is_chunk_visible) {
