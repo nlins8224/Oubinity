@@ -25,11 +25,13 @@ Block::block_id Block::BlockStorage::getRaw(glm::ivec3 block_pos)
 
 void Block::BlockStorage::setRaw(glm::ivec3 block_pos, block_id block_type)
 {
-	int block_index = getBlockIndex(block_pos);
-	m_occupancy_mask[block_index] = block_type != block_id::AIR;
 	int padded_block_index = getPaddedBlockIndex(block_pos);
+	if (padded_block_index > m_padded_block_id_cache.size()) {
+		m_padded_block_id_cache.resize((m_chunk_size + 2) * (m_chunk_size + 2) * (m_chunk_size + 2));
+		LOG_F(ERROR, "padded_block_index size: %d > m_padded_block_id_cache size: %d ", padded_block_index, m_padded_block_id_cache.size());
+	}
 	m_padded_occupancy_mask[padded_block_index] = block_type != block_id::AIR;
-	m_padded_block_id_cache[padded_block_index] = block_type;
+	m_padded_block_id_cache.at(padded_block_index) = block_type;
 }
 
 bool Block::BlockStorage::isBlockPresent(glm::ivec3 block_pos)

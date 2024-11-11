@@ -50,12 +50,12 @@ void ChunkRenderer::initChunks()
 	int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
 	int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
+	int border_dist = (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
+	int min_x = camera_chunk_pos_x - border_dist;
+	int max_x = camera_chunk_pos_x + border_dist;
 
-	int min_x = camera_chunk_pos_x - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-	int max_x = camera_chunk_pos_x + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-
-	int min_z = camera_chunk_pos_z - (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
-	int max_z = camera_chunk_pos_z + (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2);
+	int min_z = camera_chunk_pos_z - border_dist;
+	int max_z = camera_chunk_pos_z + border_dist;
 
 	ChunkBorder chunk_border;
 	chunk_border.min_x = min_x;
@@ -510,7 +510,7 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos)
 // render thread
 bool ChunkRenderer::deleteOutOfRenderDistanceChunks()
 {
-	LOG_F(INFO, "deleteOutOfRenderDistanceChunks");
+	LOG_F(INFO, "chunks to delete: %d", m_chunks_to_delete.size());
 	bool anything_deleted = false;
 	while (!m_chunks_to_delete.empty())
 	{

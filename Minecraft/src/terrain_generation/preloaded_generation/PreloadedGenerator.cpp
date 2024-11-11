@@ -1,4 +1,5 @@
 #include "PreloadedGenerator.h"
+#include "../../Util.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:
@@ -11,14 +12,16 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 
 HeightMap& PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos)
 {
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk_pos);
-	return m_height_maps.at(chunk_pos_in_heightmap.x * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS + chunk_pos_in_heightmap.z);
+	return m_height_maps.at(chunk_pos_in_heightmap.x * c_a + chunk_pos_in_heightmap.z);
 }
 
 BlockMap& PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos)
 {
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
-	return m_block_maps.at(chunk_pos_in_map.x * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS + chunk_pos_in_map.z);
+	return m_block_maps.at(chunk_pos_in_map.x * c_a + chunk_pos_in_map.z);
 }
 
 HeightMap& PreloadedGenerator::getTreeMap(glm::ivec3 chunk_pos)
@@ -108,7 +111,19 @@ bool PreloadedGenerator::isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm:
 
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 {
-	return chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
+	glm::ivec3 translated_chunk_pos = chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
+	//LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y, chunk_pos.z);
+	//LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)", translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
+
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+	int x{ translated_chunk_pos.x }, y{ translated_chunk_pos.y }, z{ translated_chunk_pos.z };
+	glm::ivec3 target_chunk_pos = {
+		Util::getMod(x, c_a),
+		chunk_pos.y,
+		Util::getMod(z, c_a)
+	};
+	//LOG_F(WARNING, "target_chunk_pos: (%d, %d, %d)", target_chunk_pos.x, target_chunk_pos.y, target_chunk_pos.z);
+	return target_chunk_pos;
 }
 
 void PreloadedGenerator::generateTrees(Chunk& chunk)

@@ -321,6 +321,7 @@
     <ClInclude Include="src\third_party\timer.h" />
     <ClInclude Include="src\tree\BranchGenerator.h" />
     <ClInclude Include="src\tree\Tree.h" />
+    <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\water\WaterMesh.h" />
   </ItemGroup>
   <ItemGroup>
