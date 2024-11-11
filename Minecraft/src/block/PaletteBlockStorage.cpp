@@ -34,6 +34,13 @@ Block::PaletteBlockStorage::PaletteBlockStorage(LevelOfDetail::LevelOfDetail lod
 {
 }
 
+Block::block_id Block::PaletteBlockStorage::getRaw(glm::ivec3 block_pos)
+{
+	int padded_block_index = getPaddedBlockIndex(block_pos);
+	return m_padded_block_id_cache[padded_block_index];
+}
+
+
 Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 {
 	int block_index = getBlockIndex(block_pos);
@@ -41,6 +48,15 @@ Block::block_id Block::PaletteBlockStorage::get(glm::ivec3 block_pos)
 	uint8_t palette_index = m_index_storage.get(bit_offset);
 
 	return m_palette.at(palette_index).block_type;
+}
+
+void Block::PaletteBlockStorage::setRaw(glm::ivec3 block_pos, block_id block_type)
+{
+	//int block_index = getBlockIndex(block_pos);
+	//m_occupancy_mask[block_index] = block_type != block_id::AIR;
+	int padded_block_index = getPaddedBlockIndex(block_pos);
+	m_padded_occupancy_mask[padded_block_index] = block_type != block_id::AIR;
+	m_padded_block_id_cache[padded_block_index] = block_type;
 }
 
 void Block::PaletteBlockStorage::set(glm::ivec3 block_pos, block_id block_type)

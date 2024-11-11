@@ -318,6 +318,7 @@
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerator.h" />
     <ClInclude Include="src\chunk\Vertex.h" />
+    <ClInclude Include="src\third_party\timer.h" />
     <ClInclude Include="src\tree\BranchGenerator.h" />
     <ClInclude Include="src\tree\Tree.h" />
     <ClInclude Include="src\water\WaterMesh.h" />

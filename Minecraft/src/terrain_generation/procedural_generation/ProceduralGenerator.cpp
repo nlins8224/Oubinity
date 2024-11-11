@@ -1,4 +1,5 @@
 #include "ProceduralGenerator.h"
+#include "../../third_party/timer.h"
 
 ProceduralGenerator::ProceduralGenerator(int world_seed, uint8_t water_height)
 	: m_world_seed{ world_seed },
@@ -55,6 +56,7 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk, ProceduralHeightMap heigh
 	int block_size = chunk.getLevelOfDetail().block_size;
 	glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
 
+	Timer t1 = Timer("generate", true);
 	bool anything_added = false;
 	for (int x = 0; x < block_amount; x++)
 	{
@@ -76,6 +78,8 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk, ProceduralHeightMap heigh
 			}
 		}
 	}
+	t1.end();
+
 	return anything_added;
 }
 

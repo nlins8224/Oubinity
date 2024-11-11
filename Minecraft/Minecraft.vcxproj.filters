@@ -461,6 +461,9 @@
     <ClInclude Include="src\renderer\ChunkBorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\third_party\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\chunkVertex.glsl" />

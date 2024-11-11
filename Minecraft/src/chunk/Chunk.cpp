@@ -45,7 +45,7 @@ void Chunk::addChunkMesh()
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type)
 {
-	m_blocks->set(block_pos, type);
+	m_blocks->setRaw(block_pos, type);
 }
 
 glm::ivec3 Chunk::getPos() const
@@ -83,7 +83,7 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) const
 		return isNeighborBlockVisible(block_pos);
 	}
 
-	block_id block_type = m_blocks->get(glm::ivec3(x, y, z));
+	block_id block_type = m_blocks->getRaw(glm::ivec3(x, y, z));
 	return block_type != block_id::AIR;
 }
 
@@ -426,7 +426,7 @@ FaceCornersAo Chunk::bakeAO(const std::vector<block_id>& voxels, uint64_t bit_po
 
 Block::block_id Chunk::getBlockId(glm::ivec3 block_pos) const
 {
-	return m_blocks->get(block_pos);
+	return m_blocks->getRaw(block_pos);
 }
 
 ChunkNeighbors& Chunk::getNeighbors()
