@@ -74,13 +74,7 @@ bool PreloadedGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, co
 		for (int z = 0; z < block_amount; z++)
 		{
 			int l_y = ((int)height_map[x][z] % block_amount) - 1;
-			std::pair<bool, glm::ivec3> should_add_blocks = shouldAddBlocksToColumn(chunk, x, l_y, z);
-			if (!should_add_blocks.first) {
-				continue;
-			}
-
-			int end_pos = should_add_blocks.second.y;
-			for (int y = l_y; y > end_pos; y--)
+			for (int y = l_y; y > l_y - Settings::SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH; y--)
 			{
 				if (!isBlockInSurfaceHeightBounds({ x, l_y + 1, z }, chunk.getPos(), height_map[x][z], block_size)) {
 					continue;
@@ -112,32 +106,10 @@ bool PreloadedGenerator::isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm:
 	return surface_height >= min_surface_height && surface_height <= max_surface_height;
 }
 
-bool PreloadedGenerator::hasBlocksInHorizontalNeighborhood(Chunk& chunk, glm::ivec3 block_pos)
-{
-	int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-	glm::ivec3 left{ x - 1, y, z }, right{ x + 1, y, z }, forward{ x, y, z - 1 }, backward{ x, y, z + 1 };
-	return chunk.isBlockPresent(left) || chunk.isBlockPresent(right) || chunk.isBlockPresent(forward) || chunk.isBlockPresent(backward);
-}
-
-std::pair<bool, glm::ivec3> PreloadedGenerator::shouldAddBlocksToColumn(Chunk& chunk, int col_x, int heightmap_y, int col_z)
-{
-	bool found_anything = false;
-	glm::ivec3 found_at_pos{ 0, 0, 0 };
-	for (int y = heightmap_y - 12; y <= heightmap_y; y++) {
-		if (hasBlocksInHorizontalNeighborhood(chunk, { col_x, y, col_z })) {
-			found_anything = true;
-			found_at_pos = { col_x, y, col_z };
-			return { found_anything, found_at_pos };
-		}
-	}
-	return { found_anything, found_at_pos };
-}
-
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 {
 	return chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
 }
-
 
 void PreloadedGenerator::generateTrees(Chunk& chunk)
 {

@@ -20,4 +20,6 @@ namespace Settings
 
 	// Used to determine thickness of a surface layer, when using PRELOADED_COLORMAP.
 	static constexpr int SETTING_BLOCK_MARGIN = SETTING_SCALE.y;
+
+	static constexpr int SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH = 3;
 }
