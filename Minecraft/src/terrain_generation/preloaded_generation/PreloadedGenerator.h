@@ -23,6 +23,7 @@ private:
 	HeightMap& getTreeMap(glm::ivec3 chunk_pos);
 	TreePresenceMap generateTreePresenceMap(HeightMap& tree_map);
 	bool isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size);
+	bool isBlockUnderneathSurface(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size);
 	glm::ivec3 mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos);
 
 	std::vector<HeightMap> m_height_maps;

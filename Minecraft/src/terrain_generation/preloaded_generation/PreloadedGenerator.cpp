@@ -56,11 +56,14 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk, const HeightMap& height_ma
 		for (int z = 0; z < block_amount; z++)
 		{
 			int l_y = (int)height_map[x][z] % block_amount;
-			glm::ivec3 block_pos{ x, l_y, z };
-			if (isBlockInSurfaceHeightBounds(block_pos, chunk.getPos(), height_map[x][z], block_size)) {
-				block_id block = block_map[block_pos.x][block_pos.z];
-				chunk.setBlock(block_pos, block);
-				anything_added = true;
+			for (int y = 0; y < block_amount; y++)
+			{
+				glm::ivec3 block_pos{ x, y, z };
+				if (isBlockInSurfaceHeightBounds(block_pos, chunk.getPos(), height_map[x][z], block_size)) {
+					block_id block = block_map[block_pos.x][block_pos.z];
+					chunk.setBlock(block_pos, block);
+					anything_added = true;
+				}
 			}
 		}
 	}
@@ -104,14 +107,20 @@ bool PreloadedGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, co
 bool PreloadedGenerator::isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size)
 {
 	glm::ivec3 block_world_pos = chunk_pos * CHUNK_SIZE + (block_pos * block_size);
-	int max_surface_height = std::min(block_world_pos.y + block_size, 255);
-	int min_surface_height = std::max(block_world_pos.y - (block_size * Settings::SETTING_BLOCK_MARGIN), 0);
+	int max_surface_height = block_world_pos.y + block_size;
+	int min_surface_height = block_world_pos.y - (block_size * Settings::SETTING_BLOCK_MARGIN);
 	return surface_height >= min_surface_height && surface_height <= max_surface_height;
+}
+
+bool PreloadedGenerator::isBlockUnderneathSurface(glm::ivec3 block_pos, glm::ivec3 chunk_pos, int surface_height, int block_size)
+{
+	glm::ivec3 block_world_pos = chunk_pos * CHUNK_SIZE + (block_pos * block_size);
+	return block_world_pos.y < surface_height;
 }
 
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 {
-	glm::ivec3 translated_chunk_pos = chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
+	glm::ivec3 translated_chunk_pos = chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS - 1) / 2);
 	//LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y, chunk_pos.z);
 	//LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)", translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
 
