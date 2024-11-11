@@ -84,17 +84,17 @@ namespace VertexPool {
 
         LevelOfDetail::LevelOfDetail lod = alloc_data._lod;
         size_t id = first_free_bucket->_id;
-        LOG_F(INFO, "Allocating bucket at level: %d, with id: %d, vertex offset: %d, vertices: %d, faces: %d, at chunk pos: (%d, %d, %d)", zone.level, id, first_free_bucket->_start_offset, added_vertices, added_faces, chunk_pos.x, chunk_pos.y, chunk_pos.z);
+        LOG_F(1, "Allocating bucket at level: %d, with id: %d, vertex offset: %d, vertices: %d, faces: %d, at chunk pos: (%d, %d, %d)", zone.level, id, first_free_bucket->_start_offset, added_vertices, added_faces, chunk_pos.x, chunk_pos.y, chunk_pos.z);
         int vertex_offset = first_free_bucket->_start_offset;
         int face_offset = vertex_offset / Block::VERTICES_PER_FACE;
         if (face_offset == 0) face_offset = 1;
-        LOG_F(INFO, "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d", vertex_offset, face_offset, vertex_offset / face_offset);
+        LOG_F(1, "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d", vertex_offset, face_offset, vertex_offset / face_offset);
 
         m_chunk_metadata.active_daics.push_back(daic);
         first_free_bucket->_is_free = false;
 
         size_t daic_id = m_chunk_metadata.active_daics.size() - 1;
-        LOG_F(INFO, "daic_id: %d", daic_id);
+        LOG_F(1, "daic_id: %d", daic_id);
 
 
         m_chunk_metadata.active_chunk_info.chunk_pos[daic_id] = { alloc_data._chunk_world_pos, id };
@@ -347,7 +347,7 @@ namespace VertexPool {
     {
         if (m_buffer_needs_update_count >= BUFFER_NEEDS_UPDATE)
         {
-            LOG_F(INFO, "updateMeshBufferDAIC");
+            LOG_F(1, "updateMeshBufferDAIC");
             glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
             glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL, GL_STATIC_DRAW);
             glBufferData(GL_DRAW_INDIRECT_BUFFER, m_chunk_metadata.active_daics.size() * sizeof(DAIC), m_chunk_metadata.active_daics.data(), GL_STATIC_DRAW);
@@ -385,7 +385,7 @@ namespace VertexPool {
         waitBuffer(m_face_buffer_sync);
         std::move(mesh.begin(), mesh.end(), m_face_stream_buffer + face_offset );
         lockBuffer(m_face_buffer_sync);
-        LOG_F(INFO, "face offset: %d, faces amount: %d", face_offset, mesh.size());
+        LOG_F(1, "face offset: %d, faces amount: %d", face_offset, mesh.size());
     }
 
     void ZoneVertexPool::createChunkInfoBuffer()
