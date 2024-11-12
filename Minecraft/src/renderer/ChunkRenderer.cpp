@@ -397,7 +397,7 @@ bool ChunkRenderer::generateChunksTerrain()
 	while (!chunks_to_generate_underground_layer.empty())
 	{
 		glm::ivec3 chunk_pos = chunks_to_generate_underground_layer.front();
-		generatePreloadedChunkUndergroundLayer(chunk_pos);
+		//generatePreloadedChunkUndergroundLayer(chunk_pos);
 		chunks_to_generate_underground_layer.pop();
 	}
 #else

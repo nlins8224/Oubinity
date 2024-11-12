@@ -50,6 +50,7 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk, const HeightMap& height_ma
 	int block_amount = chunk.getLevelOfDetail().block_amount;
 	int block_size = chunk.getLevelOfDetail().block_size;
 	bool anything_added = false;
+	glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
 
 	for (int x = 0; x < block_amount; x++)
 	{
@@ -59,10 +60,15 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk, const HeightMap& height_ma
 			for (int y = 0; y < block_amount; y++)
 			{
 				glm::ivec3 block_pos{ x, y, z };
-				if (isBlockInSurfaceHeightBounds(block_pos, chunk.getPos(), height_map[x][z], block_size)) {
+				float surface_height = height_map[x][z];
+				glm::ivec3 block_world_pos = chunk_world_pos + (block_pos * block_size);
+				if (surface_height > block_world_pos.y - block_size && surface_height < block_world_pos.y + block_size) {
 					block_id block = block_map[block_pos.x][block_pos.z];
 					chunk.setBlock(block_pos, block);
 					anything_added = true;
+				}
+				else if (surface_height >= block_world_pos.y + block_size) {
+					chunk.setBlock(block_pos, Block::STONE);
 				}
 			}
 		}
@@ -79,16 +85,16 @@ bool PreloadedGenerator::generatePreloadedChunkUndergroundLayer(Chunk& chunk, co
 	{
 		for (int z = 0; z < block_amount; z++)
 		{
-			int l_y = ((int)height_map[x][z] % block_amount) - 1;
+			int l_y = ((int)height_map[x][z] % block_amount);
 			for (int y = l_y; y > l_y - Settings::SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH; y--)
 			{
-				if (!isBlockInSurfaceHeightBounds({ x, l_y + 1, z }, chunk.getPos(), height_map[x][z], block_size)) {
+				if (!isBlockInSurfaceHeightBounds({ x, y, z }, chunk.getPos(), height_map[x][z], block_size)) {
 					continue;
 				}
 				glm::ivec3 block_pos{ x, y, z };
 				if (chunk.isBlockOutsideChunk(block_pos)) {
 					Chunk* neighbor = chunk.findNeighborChunk(block_pos);
-					if (neighbor && neighbor->getState() == ChunkState::NEIGHBORS_POPULATED) {
+					if (neighbor && neighbor->getState() >= ChunkState::NEIGHBORS_POPULATED) {
 						glm::ivec3 neighbor_block_pos = chunk.findNeighborBlockPos(block_pos);
 						neighbor->setBlock(neighbor_block_pos, block_id::STONE);
 						anything_added = true;
