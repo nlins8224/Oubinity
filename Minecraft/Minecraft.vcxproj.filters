@@ -192,13 +192,13 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\DecorationGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\block\PaletteBlockStorage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\tree\BranchGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\ChunkSlidingWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\block\BlockStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -446,9 +446,6 @@
     <ClInclude Include="src\terrain_generation\procedural_generation\DecorationGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\block\PaletteBlockStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\dynamic_bitset.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -462,6 +459,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\third_party\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\block\BlockStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\TextureUntiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\TextureGrad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

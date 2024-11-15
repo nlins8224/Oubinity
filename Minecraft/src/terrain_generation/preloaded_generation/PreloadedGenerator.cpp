@@ -1,5 +1,6 @@
 #include "PreloadedGenerator.h"
 #include "../../Util.h"
+#include "TextureUntiler.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:

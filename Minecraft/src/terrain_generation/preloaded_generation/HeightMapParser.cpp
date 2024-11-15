@@ -1,32 +1,18 @@
 #include "HeightMapParser.h"
+#include "PngFileReader.h"
+#include "../../chunk/Chunk.h"
+#include "../../third_party/stb_image.h"
+#include "../../loguru.hpp"
+#include "../../renderer/ChunkRendererSettings.h"
+#include "TextureUntiler.h"
 
 namespace PreloadedGeneration
 {
 	std::vector<HeightMap> parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
 	{
-		int width, height, channels;
-		unsigned char* png_image = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-		if (!png_image)
-		{
-			LOG_F(ERROR, "image loaded under path: %s does not exist", filepath);
-		}
-
-		LOG_F(INFO, "PNG Image height: %d", height);
-		LOG_F(INFO, "PNG Image width: %d", width);
-
-		int width_mod = width % CHUNK_SIZE;
-		if (width_mod != 0)
-		{
-			width -= width_mod;
-			LOG_F(WARNING, "width mod CHUNK_SIZE is: %d, but should be 0, trimmed width to: %d", width_mod, width);
-		}
-
-		int height_mod = height % CHUNK_SIZE;
-		if (height_mod != 0)
-		{
-			height -= height_mod;
-			LOG_F(WARNING, "height mod CHUNK_SIZE is: %d, but should be 0, trimmed height to: %d.", height_mod, height);
-		}
+		PreloadedGeneration::ImageBundle img_bundle = untile(read_png_image(filepath));
+		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
+		unsigned char* png_image{ img_bundle.image };
 
 		std::vector<HeightMap> height_maps{};
 		for (int x = 0; x < height; x += CHUNK_SIZE / scale.x) {
@@ -48,7 +34,7 @@ namespace PreloadedGeneration
 	{
 		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
 		int block_size = 1;
-		int block_amount = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+		int block_amount = CHUNK_SIZE;
 		int scale_factor_x = static_cast<int>(scale.x);
 		int scale_factor_z = static_cast<int>(scale.z);
 

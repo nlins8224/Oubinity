@@ -29,7 +29,7 @@ namespace LevelOfDetail {
 		.level{ 1 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
-		.draw_distance{ 16 },
+		.draw_distance{ 500 },
 		.divide_factor{ 2 }
 	};
 

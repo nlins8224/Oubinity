@@ -1,12 +1,9 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "../../third_party/stb_image.h"
 #include "../TerrainGenerationTypes.h"
-#include "../../loguru.hpp"
-#include "../../chunk/Chunk.h"
-#include "../../renderer/ChunkRendererSettings.h"
-#include "../../block/Block.h"
+#include "../../third_party/stb_image.h"
+#include "glm/glm.hpp"
 
 namespace PreloadedGeneration
 {
