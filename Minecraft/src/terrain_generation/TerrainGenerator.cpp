@@ -40,9 +40,9 @@ bool TerrainGenerator::generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap
 	return m_preloaded_generator.generatePreloadedChunkUndergroundLayer(chunk, height_map);
 }
 
-PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(glm::ivec3 chunk_pos)
+PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
-	return m_preloaded_generator.getHeightMap(chunk_pos);
+	return m_preloaded_generator.getHeightMap(chunk_pos, lod);
 }
 
 #endif
@@ -51,7 +51,7 @@ PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(glm::ivec3 chunk
 bool TerrainGenerator::generatePreloadedLayers(Chunk& chunk, HeightMap height_map)
 {
 	chunk.setBlockArray();
-	BlockMap block_map = m_preloaded_generator.getBlockMap(chunk.getPos());
+	BlockMap block_map = m_preloaded_generator.getBlockMap(chunk.getPos(), chunk.getLevelOfDetail());
 	return m_preloaded_generator.generateLayers(chunk, height_map, block_map);;
 }
 #endif
@@ -127,6 +127,7 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const Pr
 
 bool TerrainGenerator::isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos, const HeightMap& height_map, LevelOfDetail::LevelOfDetail lod)
 {
+	//TODO: Calculate it once in HeightMapParser
 	int block_amount = lod.block_amount;
 	double min_height = std::numeric_limits<double>::max();
 	double max_height = std::numeric_limits<double>::min();

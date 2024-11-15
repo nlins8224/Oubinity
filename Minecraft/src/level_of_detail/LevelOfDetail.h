@@ -29,7 +29,7 @@ namespace LevelOfDetail {
 		.level{ 1 },
 		.block_amount{ CHUNK_SIZE / 2 },
 		.block_size{ 2.0f },
-		.draw_distance{ 12 },
+		.draw_distance{ 16 },
 		.divide_factor{ 2 }
 	};
 
@@ -38,7 +38,7 @@ namespace LevelOfDetail {
 		.level{ 2 },
 		.block_amount{ CHUNK_SIZE / 4 },
 		.block_size{ 4.0f },
-		.draw_distance{ 128 },
+		.draw_distance{ 1000 },
 		.divide_factor{ 4 }
 	};
 
@@ -47,7 +47,7 @@ namespace LevelOfDetail {
 		.level{ 3 },
 		.block_amount{ CHUNK_SIZE / 8 },
 		.block_size{ 8.0f },
-		.draw_distance{ 256 },
+		.draw_distance{ 2000 },
 		.divide_factor{ 8 }
 	};
 
@@ -56,7 +56,7 @@ namespace LevelOfDetail {
 		.level{ 4 },
 		.block_amount{ CHUNK_SIZE / 16 },
 		.block_size{ 16.0f },
-		.draw_distance{ 512 },
+		.draw_distance{ 3000 },
 		.divide_factor{ 16 }
 	};
 
@@ -65,7 +65,7 @@ namespace LevelOfDetail {
 		.level{ 5 },
 		.block_amount{ CHUNK_SIZE / 32 },
 		.block_size{ 32.0f },
-		.draw_distance{ 1024 },
+		.draw_distance{ 4000 },
 		.divide_factor{ 32 }
 	};
 
@@ -81,37 +81,8 @@ namespace LevelOfDetail {
 
 	static uint16_t distanceToCameraInChunks(glm::ivec3 camera_pos, glm::ivec3 chunk_pos)
 	{
-
-		/* 
-		   draw_distance |AC| segment consists of N chunks, N is even
-		   Camera is located in chunk B, in half of |AC| segment
-		   |AC| segment is divided to two segments: |AB| and |B'C|, where B' is chunk next to chunk B
-		   |AB| segment contains chunk B where camera is
-		   |B'C| segment does not contain chunk where camera is
-		   If distance being calculated is between chunks B and A, we add 1 to take into account chunk B
-
-		   Example 1:
-		   AXXBXXXC
-		   C - B = XXXC
-		   B - A = AXX
-		   Include B to even out distances: AXXB
-
-		   Example 2:
-		   Point A: (-3, 0)
-		   Point B: (0, 0) <- camera position
-		   Point C: (0, 4)
-
-		   |0 - (-3)| = 3, the distance to camera is correct, but we should include camera chunk and return 4 to calculate LOD correctly
-		*/
-		bool is_x_in_camera_segment = chunk_pos.x < camera_pos.x;
-		bool is_z_in_camera_segment = chunk_pos.z < camera_pos.z;
-
 		uint16_t distance_x = std::abs(camera_pos.x - chunk_pos.x);
 		uint16_t distance_z = std::abs(camera_pos.z - chunk_pos.z);
-
-		distance_x += is_x_in_camera_segment;
-		distance_z += is_z_in_camera_segment;
-
 		return std::max(distance_x, distance_z);
 	}
 

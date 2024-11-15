@@ -51,8 +51,8 @@ namespace PreloadedGeneration
 	BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width, int image_height, glm::ivec3 chunk_pos_xz, int channels, glm::vec3 scale)
 	{
 		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
-		int block_size = lod.block_size;
-		int block_amount = lod.block_amount;
+		int block_size = 1;
+		int block_amount = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 		int scale_factor_x = static_cast<int>(scale.x);
 		int scale_factor_z = static_cast<int>(scale.z);
 

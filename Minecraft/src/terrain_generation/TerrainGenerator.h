@@ -26,7 +26,7 @@ public:
 	uint8_t getWaterHeight();
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
 	bool generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map);
-	PreloadedHeightMap generatePreloadedHeightMap(glm::ivec3 chunk_pos);
+	PreloadedHeightMap generatePreloadedHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 #endif
 
 #if SETTING_USE_PRELOADED_COLORMAP

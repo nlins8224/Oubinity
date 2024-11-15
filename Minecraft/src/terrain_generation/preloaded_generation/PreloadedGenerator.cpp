@@ -10,18 +10,56 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 {
 }
 
-HeightMap& PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos)
+HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk_pos);
-	return m_height_maps.at(chunk_pos_in_heightmap.x * c_a + chunk_pos_in_heightmap.z);
+	HeightMap height_map = m_height_maps.at(chunk_pos_in_heightmap.x * c_a + chunk_pos_in_heightmap.z);
+	return increaseHeightMapLodLevel(height_map, lod);
 }
 
-BlockMap& PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos)
+BlockMap PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
 	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
-	return m_block_maps.at(chunk_pos_in_map.x * c_a + chunk_pos_in_map.z);
+	BlockMap color_map = m_block_maps.at(chunk_pos_in_map.x * c_a + chunk_pos_in_map.z);
+	return increaseBlockMapLodLevel(color_map, lod);
+}
+
+HeightMap PreloadedGenerator::increaseHeightMapLodLevel(HeightMap base_height_map, LevelOfDetail::LevelOfDetail lod)
+{
+	if (lod.level == 0) {
+		return base_height_map;
+	}
+
+	int block_size = lod.block_size;
+	int block_amount = lod.block_amount;;
+
+	HeightMap height_map{};
+	for (int x = 0; x < block_amount; x += 1) {
+		for (int z = 0; z < block_amount; z += 1) {
+			height_map[x][z] = base_height_map[x * block_size][z * block_size];
+		}
+	}
+	return height_map;
+}
+
+BlockMap PreloadedGenerator::increaseBlockMapLodLevel(BlockMap base_color_map, LevelOfDetail::LevelOfDetail lod)
+{
+	if (lod.level == 0) {
+		return base_color_map;
+	}
+
+	int block_size = lod.block_size;
+	int block_amount = lod.block_amount;;
+
+	BlockMap height_map{};
+	for (int x = 0; x < block_amount; x += 1) {
+		for (int z = 0; z < block_amount; z += 1) {
+			height_map[x][z] = base_color_map[x * block_size][z * block_size];
+		}
+	}
+	return height_map;
 }
 
 HeightMap& PreloadedGenerator::getTreeMap(glm::ivec3 chunk_pos)
@@ -143,8 +181,8 @@ glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 
 void PreloadedGenerator::generateTrees(Chunk& chunk)
 {
-	glm::ivec3 chunk_pos = chunk.getPos();
-	HeightMap& height_map = getHeightMap(chunk_pos);
-	TreePresenceMap tree_presence_map = generateTreePresenceMap(getTreeMap(chunk_pos));
-	m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map, m_water_height);
+	//glm::ivec3 chunk_pos = chunk.getPos();
+	//HeightMap height_map = getHeightMap(chunk_pos);
+	//TreePresenceMap tree_presence_map = generateTreePresenceMap(getTreeMap(chunk_pos));
+	//m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map, m_water_height);
 }
