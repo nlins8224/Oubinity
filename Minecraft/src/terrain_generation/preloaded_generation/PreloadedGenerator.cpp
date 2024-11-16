@@ -13,7 +13,7 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 
 HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
-	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+	int c_a = CHUNK_SIZE;
 	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk_pos);
 	HeightMap height_map = m_height_maps.at(chunk_pos_in_heightmap.x * c_a + chunk_pos_in_heightmap.z);
 	return increaseHeightMapLodLevel(height_map, lod);
@@ -21,7 +21,7 @@ HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 
 BlockMap PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
-	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+	int c_a = CHUNK_SIZE;
 	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
 	BlockMap color_map = m_block_maps.at(chunk_pos_in_map.x * c_a + chunk_pos_in_map.z);
 	return increaseBlockMapLodLevel(color_map, lod);
@@ -168,12 +168,11 @@ glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 	//LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y, chunk_pos.z);
 	//LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)", translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
 
-	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	int x{ translated_chunk_pos.x }, y{ translated_chunk_pos.y }, z{ translated_chunk_pos.z };
 	glm::ivec3 target_chunk_pos = {
-		Util::getMod(x, c_a),
+		Util::getMod(x, CHUNK_SIZE),
 		chunk_pos.y,
-		Util::getMod(z, c_a)
+		Util::getMod(z, CHUNK_SIZE)
 	};
 	//LOG_F(WARNING, "target_chunk_pos: (%d, %d, %d)", target_chunk_pos.x, target_chunk_pos.y, target_chunk_pos.z);
 	return target_chunk_pos;
