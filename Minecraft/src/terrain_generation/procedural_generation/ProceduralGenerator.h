@@ -37,10 +37,10 @@ namespace NoiseSettings
 	static const Settings TestSettings
 	{
 		.frequency{ 0.0005 },
-		.octaves{ 4 },
-		.lacunarity{ 2.1 },
-		.fractal_gain{ 0.8 },
-		.weighted_strength{ 0.1 },
+		.octaves{ 5 },
+		.lacunarity{ 2.5 },
+		.fractal_gain{ 0.5 },
+		.weighted_strength{ 0.3 },
 	};
 
 	static const Settings TreeSettings

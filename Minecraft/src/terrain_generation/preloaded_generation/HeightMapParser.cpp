@@ -10,7 +10,7 @@ namespace PreloadedGeneration
 {
 	std::vector<HeightMap> parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
 	{
-		PreloadedGeneration::ImageBundle img_bundle = untile(read_png_image(filepath));
+		PreloadedGeneration::ImageBundle img_bundle = read_png_image(filepath);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
 		unsigned char* png_image{ img_bundle.image };
 

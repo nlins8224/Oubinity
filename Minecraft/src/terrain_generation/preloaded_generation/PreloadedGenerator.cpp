@@ -95,7 +95,6 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk, const HeightMap& height_ma
 	{
 		for (int z = 0; z < block_amount; z++)
 		{
-			int l_y = (int)height_map[x][z] % block_amount;
 			for (int y = 0; y < block_amount; y++)
 			{
 				glm::ivec3 block_pos{ x, y, z };

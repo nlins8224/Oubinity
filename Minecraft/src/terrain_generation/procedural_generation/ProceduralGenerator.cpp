@@ -43,9 +43,19 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(glm::ivec3 chunk_pos,
 	fnScale->SetSource(fnFractal);
 	fnScale->SetScale(lod.block_size);
 
-	std::vector<float> height_map(CHUNK_SIZE * CHUNK_SIZE);
+	std::vector<float> data_out(CHUNK_SIZE * CHUNK_SIZE);
 	glm::ivec3 world_pos = chunk_pos * CHUNK_SIZE;
-	fnScale->GenUniformGrid2D(height_map.data(), chunk_pos.x * lod.block_amount, chunk_pos.z * lod.block_amount, lod.block_amount, lod.block_amount, settings.frequency, seed);
+	fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount, chunk_pos.z * lod.block_amount, lod.block_amount, lod.block_amount, settings.frequency, seed);
+	HeightMap height_map{};
+
+	for (int x = 0; x < lod.block_amount; x++)
+	{
+		for (int z = 0; z < lod.block_amount; z++)
+		{
+			height_map[x][z] = data_out[z * lod.block_amount + x];
+			height_map[x][z] = std::sqrt(height_map[x][z] * height_map[x][z]) * 220.0f;
+		}
+	}
 
 	return height_map;
 }
@@ -64,8 +74,9 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk, ProceduralHeightMap heigh
 			for (int z = 0; z < block_amount; z++)
 			{
 				glm::ivec3 block_pos = { x, y, z };
-				float surface_height = ((height_map[z * block_amount + x] + 1.0f) / 2) * 30.0f;
+				float surface_height = height_map[x][z];
 				glm::ivec3 block_world_pos = chunk_world_pos + (block_pos * block_size);
+
 				if (surface_height > block_world_pos.y - block_size && surface_height < block_world_pos.y + block_size)
 				{
 					chunk.setBlock(block_pos, Block::GRASS);
@@ -85,7 +96,7 @@ TreePresenceMap ProceduralGenerator::generateTreePresenceMap(glm::ivec3 chunk_po
 	{
 		for (int z = 0; z < lod.block_amount; z++)
 		{
-			float height_normalized = (height_map[z * lod.block_amount + x] / 2.0) + 0.5;
+			float height_normalized = (height_map[x][z] / 2.0) + 0.5;
 			tree_presence_map[x][z] = (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) == 0;
 		}
 	}
@@ -103,8 +114,8 @@ void ProceduralGenerator::generateTrees(Chunk& chunk)
 	{
 		for (int z = 0; z < lod.block_amount; z++)
 		{
-			float height_normalized = (base_map[z * lod.block_amount + x] / 2.0) + 0.5;
-			height_map[x][z] = base_map[z * lod.block_amount + x];
+			float height_normalized = (base_map[x][z] / 2.0) + 0.5;
+			height_map[x][z] = base_map[x][z];
 			tree_presence_map[x][z] = (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) == 0;
 		}
 	}
@@ -122,8 +133,8 @@ void ProceduralGenerator::generateTrees(Chunk& chunk, ProceduralHeightMap& heigh
 	{
 		for (int z = 0; z < lod.block_amount; z++)
 		{
-			float height_normalized = (height_map[z * lod.block_amount + x] / 2.0) + 0.5;
-			height_map_2D[x][z] = height_map[z * lod.block_amount + x];
+			float height_normalized = (height_map[x][z] / 2.0) + 0.5;
+			height_map_2D[x][z] = height_map[x][z];
 			tree_presence_map[x][z] = (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) == 0;
 		}
 	}
