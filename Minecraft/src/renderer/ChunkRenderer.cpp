@@ -4,7 +4,8 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
 	  m_terrain_generator{terrain_generator},
 	  Renderer(shader),
 	  m_texture_array{texture_array},
-      m_camera{camera}
+      m_camera{camera},
+	  m_chunks_by_coord{}
 	  
 {
 	m_vertexpool = new VertexPool::ZoneVertexPool{ };
