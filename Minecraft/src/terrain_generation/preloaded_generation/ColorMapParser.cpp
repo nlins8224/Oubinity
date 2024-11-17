@@ -15,6 +15,8 @@ namespace PreloadedGeneration
 		unsigned char* png_image{ img_bundle.image };
 		std::vector<BlockMap> block_maps{};
 
+		int chunks_in_blockmap_xz = width / CHUNK_SIZE;
+
 		int bytes_per_pixel = channels;
 		for (int x = 0; x < height; x += CHUNK_SIZE / scale.x) {
 			for (int z = 0; z < width; z += CHUNK_SIZE / scale.z) {
@@ -22,7 +24,7 @@ namespace PreloadedGeneration
 				glm::ivec3 chunk_pos_xz{ x * scale.x, 0, z * scale.z };
 				chunk_pos_xz /= CHUNK_SIZE;
 				// map from height map coords to chunk pos coords
-				chunk_pos_xz -= (ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS - 1) / 2;
+				chunk_pos_xz -= (chunks_in_blockmap_xz - 1) / 2;
 				block_maps.push_back(parsePNGToBlockMap(png_image + chunk_offset, width, height, chunk_pos_xz, channels, scale));
 			}
 		}
