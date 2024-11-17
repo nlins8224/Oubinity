@@ -193,10 +193,7 @@
     <ClCompile Include="src\gpu_loader\VAOBinder.cpp" />
     <ClCompile Include="src\gpu_loader\StaticVertexPool.cpp" />
     <ClCompile Include="src\gui\GuiLayout.cpp" />
-    <ClCompile Include="src\gui\ImGuiLogsWindow.cpp" />
     <ClCompile Include="src\gui\ImGuiSceneWindow.cpp" />
-    <ClCompile Include="src\gui\ImGuiSettingsWindow.cpp" />
-    <ClCompile Include="src\gui\ImGuiInfoWindow.cpp" />
     <ClCompile Include="src\gui\ImGuiUIManager.cpp" />
     <ClCompile Include="src\gui\ImGuiWindow.cpp" />
     <ClCompile Include="src\loguru.cpp" />
@@ -250,6 +247,7 @@
     <ClInclude Include="src\gpu_loader\WaterLoader.h" />
     <ClInclude Include="src\gpu_loader\Zone.h" />
     <ClInclude Include="src\gpu_loader\ZoneVertexPool.h" />
+    <ClInclude Include="src\gui\ImGuiUIManager.h" />
     <ClInclude Include="src\renderer\ChunkBorder.h" />
     <ClInclude Include="src\renderer\ChunkSlidingWindow.h" />
     <ClInclude Include="src\renderer\SkyRenderer.h" />
@@ -272,11 +270,7 @@
     <ClInclude Include="src\gpu_loader\SkyboxLoader.h" />
     <ClInclude Include="src\gpu_loader\VAOBinder.h" />
     <ClInclude Include="src\gpu_loader\StaticVertexPool.h" />
-    <ClInclude Include="src\gui\ImGuiLogsWindow.h" />
     <ClInclude Include="src\gui\ImGuiSceneWindow.h" />
-    <ClInclude Include="src\gui\ImGuiSettingsWindow.h" />
-    <ClInclude Include="src\gui\ImGuiInfoWindow.h" />
-    <ClInclude Include="src\gui\ImGuiUIManager.h" />
     <ClInclude Include="src\gui\ImGuiWindow.h" />
     <ClInclude Include="src\gui\GuiLayout.h" />
     <ClInclude Include="src\level_of_detail\LevelOfDetail.h" />

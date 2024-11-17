@@ -1,8 +1,5 @@
 #pragma once
 #include "ImGuiSceneWindow.h"
-#include "ImGuiSettingsWindow.h"
-#include "ImGuiInfoWindow.h"
-#include "ImGuiLogsWindow.h"
 #include "ImGuiUIManager.h"
 #include "../FrameBuffer.h"
 
@@ -19,7 +16,4 @@ private:
     FrameBuffer* m_scene_buffer;
 
     ImGuiSceneWindow m_scene_window;
-    ImGuiLogsWindow m_logs_window;
-    ImGuiSettingsWindow m_settings_window;
-    ImGuiInfoWindow m_info_window;
 };
