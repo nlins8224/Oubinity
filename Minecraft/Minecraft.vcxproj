@@ -216,7 +216,6 @@
     <ClCompile Include="src\shader\SkyShader.cpp" />
     <ClCompile Include="src\shader\WaterShader.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp" />
-    <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp" />
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\DecorationGenerator.cpp" />
     <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp" />
@@ -259,9 +258,7 @@
     <ClInclude Include="src\shader\SkyShader.h" />
     <ClInclude Include="src\shader\WaterShader.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h" />
-    <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\ImageBundle.h" />
-    <ClInclude Include="src\terrain_generation\preloaded_generation\MapResizer.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\TextureGrad.h" />

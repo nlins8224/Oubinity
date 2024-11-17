@@ -15,8 +15,9 @@ namespace PreloadedGeneration
 			LOG_F(ERROR, "image loaded under path: %s does not exist", filepath);
 		}
 
-		LOG_F(INFO, "PNG Image height: %d", height);
-		LOG_F(INFO, "PNG Image width: %d", width);
+		LOG_F(INFO, "Image height: %d", height);
+		LOG_F(INFO, "Image width: %d", width);
+		LOG_F(INFO, "Image channels: %d", channels);
 
 		int width_mod = width % CHUNK_SIZE;
 		if (width_mod != 0)

@@ -1,14 +1,13 @@
 #include "PreloadedGenerator.h"
 #include "../../Util.h"
 #include "MapExpander.h"
-#include "MapResizer.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:
 	m_water_height{ water_height }
 {
 	HeightMapBundle height_map_bundle = PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea30.png", scale);
-	BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap_v2.png", scale);
+	BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap.png", scale);
 	HeightMapBundle tree_map_bundle = PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_treemap.png", scale);
 
 	m_height_maps = std::vector(height_map_bundle.maps.begin(), height_map_bundle.maps.end());

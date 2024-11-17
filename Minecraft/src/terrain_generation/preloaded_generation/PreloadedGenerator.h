@@ -4,7 +4,6 @@
 #include "../../renderer/ChunkRendererSettings.h"
 #include "../../Settings.h"
 #include "../TerrainGenerationTypes.h"
-#include "HeightMapParser.h"
 #include "ColorMapParser.h"
 #include "../procedural_generation/DecorationGenerator.h"
 

@@ -159,9 +159,6 @@
     <ClCompile Include="src\terrain_generation\procedural_generation\ProceduralGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\preloaded_generation\HeightMapParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -407,9 +404,6 @@
     <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -474,9 +468,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\MapResizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\ImageBundle.h">

@@ -8,9 +8,56 @@
 
 namespace PreloadedGeneration
 {
+	HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
+	{
+		ImageBundle img_bundle = resizeImage(read_png_image(filepath), 2048, 2048, image_type::GRAYSCALE);
+		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
+		unsigned char* png_image{ img_bundle.image };
+
+		int chunks_in_heightmap_xz = width / CHUNK_SIZE;
+
+		std::vector<HeightMap> height_maps{};
+		for (int x = 0; x < height; x += CHUNK_SIZE / scale.x) {
+			for (int z = 0; z < width; z += CHUNK_SIZE / scale.z) {
+				int chunk_offset = x * width + z;
+				glm::ivec3 chunk_pos_xz{ x * scale.x, 0, z * scale.z };
+				chunk_pos_xz /= CHUNK_SIZE;
+				// map from height map coords to chunk pos coords
+				chunk_pos_xz -= (chunks_in_heightmap_xz - 1) / 2;
+				height_maps.push_back(parsePNGToHeightMap_8BIT(png_image + chunk_offset, width, chunk_pos_xz, scale));
+			}
+		}
+
+		LOG_F(INFO, "height_maps size: %d", height_maps.size());
+		return { width, height, height_maps };
+	}
+
+	HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz, glm::vec3 scale)
+	{
+		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
+		int block_size = 1;
+		int block_amount = CHUNK_SIZE;
+		int scale_factor_x = static_cast<int>(scale.x);
+		int scale_factor_z = static_cast<int>(scale.z);
+
+		HeightMap height_map{};
+		for (int x = 0; x < block_amount; x += scale_factor_x) {
+			for (int z = 0; z < block_amount; z += scale_factor_z) {
+				int surface_height = chunk_image[((x / scale_factor_x) * block_size * width) + ((z / scale_factor_z) * block_size)] * scale.y;
+				for (int i = 0; i < scale_factor_x; i++) {
+					for (int j = 0; j < scale_factor_z; j++) {
+						height_map[x + i][z + j] = surface_height;
+					}
+				}
+			}
+		}
+
+		return height_map;
+	}
+
 	BlockMapBundle parsePNGToBlockMaps(std::string filepath, glm::vec3 scale)
 	{
-		ImageBundle img_bundle = read_png_image(filepath);
+		ImageBundle img_bundle = resizeImage(read_png_image(filepath), 2048, 2048, image_type::COLOR);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
 		unsigned char* png_image{ img_bundle.image };
 		std::vector<BlockMap> block_maps{};
@@ -64,7 +111,6 @@ namespace PreloadedGeneration
 		pixel_rgba.g = p[1];
 		pixel_rgba.b = p[2];
 		pixel_rgba.a = 0;
-		//LOG_F(INFO, "Pixel channels=%d, offset=%d r=%d, g=%d, b=%d, a=%d", channels, offset, pixel_rgba.r, pixel_rgba.g, pixel_rgba.b, pixel_rgba.a);
 		return pixel_rgba;
 	}
 
@@ -86,9 +132,110 @@ namespace PreloadedGeneration
 
 	uint32_t calculateColorDifference(Block::Pixel_RGBA p_one, Block::Pixel_RGBA p_two)
 	{		
-		// squared euclidean distance for now
+		// squared euclidean distance
 		return (p_one.r - p_two.r) * (p_one.r - p_two.r)
 			+ (p_one.g - p_two.g) * (p_one.g - p_two.g)
 			+ (p_one.b - p_two.b) * (p_one.b - p_two.b);
+	}
+
+	static inline unsigned char bilinearInterpolateGrayscale(
+		const unsigned char* src, int src_width, int src_height,
+		float x, float z
+	) {
+		int x1 = std::floor(x);
+		int z1 = std::floor(z);
+		int x2 = std::min(x1 + 1, src_width - 1);
+		int z2 = std::min(z1 + 1, src_height - 1);
+
+		float a = x - x1;
+		float b = z - z1;
+
+		auto get_pixel = [&](int px, int pz) -> unsigned char {
+			return src[px * src_width + pz];
+			};
+
+		unsigned char p1 = get_pixel(x1, z1);
+		unsigned char p2 = get_pixel(x2, z1);
+		unsigned char p3 = get_pixel(x1, z2);
+		unsigned char p4 = get_pixel(x2, z2);
+
+		return static_cast<unsigned char>(
+			(1 - a) * (1 - b) * p1 +
+			a * (1 - b) * p2 +
+			(1 - a) * b * p3 +
+			a * b * p4
+			);
+	}
+
+	static unsigned char bilinearInterpolateColor(
+		const unsigned char* src, int src_width, int src_height,
+		float x, float z, int channel
+	) {
+		int x1 = std::floor(x);
+		int z1 = std::floor(z);
+		int x2 = std::min(x1 + 1, src_width - 1);
+		int z2 = std::min(z1 + 1, src_height - 1);
+
+		float a = x - x1;
+		float b = z - z1;
+
+		auto get_pixel = [&](int px, int pz, int c) -> unsigned char {
+			return src[(px * src_width + pz) * 3 + c];
+			};
+
+		unsigned char p1 = get_pixel(x1, z1, channel);
+		unsigned char p2 = get_pixel(x2, z1, channel);
+		unsigned char p3 = get_pixel(x1, z2, channel);
+		unsigned char p4 = get_pixel(x2, z2, channel);
+
+		return static_cast<unsigned char>(
+			(1 - a) * (1 - b) * p1 +
+			a * (1 - b) * p2 +
+			(1 - a) * b * p3 +
+			a * b * p4
+			);
+	}
+
+	static ImageBundle resizeImage(
+		ImageBundle src, int dst_width, int dst_height, image_type type) {
+		int channels = 1;
+		if (type == image_type::COLOR) {
+			channels = 3;
+		}
+		ImageBundle dst_img{
+			.width = dst_width,
+			.height = dst_height,
+			.channels = 1,
+			.image = new unsigned char[dst_height * dst_width]
+		};
+		dst_img.height = dst_height;
+		dst_img.width = dst_width;
+
+		float x_scale = static_cast<float>(src.width) / dst_width;
+		float z_scale = static_cast<float>(src.height) / dst_height;
+
+		if (type == image_type::GRAYSCALE) {
+			for (int x = 0; x < dst_width; ++x) {
+				for (int z = 0; z < dst_height; ++z) {
+					float src_x = x * x_scale;
+					float src_z = z * z_scale;
+					dst_img.image[x * dst_width + z] = bilinearInterpolateGrayscale(src.image, src.width, src.height, src_x, src_z);
+				}
+			}
+		}
+		else if (type == image_type::COLOR) {
+			for (int x = 0; x < dst_width; ++x) {
+				for (int z = 0; z < dst_height; ++z) {
+					float src_x = x * x_scale;
+					float src_z = z * z_scale;
+					for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
+						dst_img.image[(x * dst_width + z)] =
+							bilinearInterpolateColor(src.image, src.width, src.height, src_x, src_z, c);
+					}
+				}
+			}
+		}
+
+		return dst_img;
 	}
 }

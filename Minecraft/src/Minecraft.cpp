@@ -12,7 +12,6 @@
 #include <filesystem>
 
 #include "terrain_generation/TerrainGenerator.h"
-#include "terrain_generation/preloaded_generation/HeightMapParser.h"
 #include "PlayerInput.h"
 #include "io/Window.h"
 #include "shader/Shader.h"
