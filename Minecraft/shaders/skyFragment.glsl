@@ -153,7 +153,7 @@ void main()
     rd = roty(rd, -dir_x * 2 * PI);
     vec3 col = vec3(0);
     
-    float plane = plane(ro, rd, vec3(0.,-4.,0), vec3(1.,0.,0.), vec3(0.0,.0,1.0));
+    float plane = plane(ro, rd, vec3(0.,-2000.,0), vec3(1.,0.,0.), vec3(0.0,.0,1.0));
     if (plane < 5000. && plane > 0.)
     {
        col = vec3(0.46, 0.77, 0.9);
