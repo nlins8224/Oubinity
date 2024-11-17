@@ -11,7 +11,7 @@ namespace PreloadedGeneration
 	{
 		ImageBundle img_bundle = resizeImage(read_png_image(filepath), scale);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
-		unsigned char* png_image{ img_bundle.image };
+		std::unique_ptr<unsigned char[]> png_image{std::move(img_bundle.image)};
 
 		int chunks_in_heightmap_xz = width / CHUNK_SIZE;
 
@@ -23,7 +23,7 @@ namespace PreloadedGeneration
 				chunk_pos_xz /= CHUNK_SIZE;
 				// map from height map coords to chunk pos coords
 				chunk_pos_xz -= (chunks_in_heightmap_xz - 1) / 2;
-				height_maps.push_back(parsePNGToHeightMap_8BIT(png_image + chunk_offset, width, chunk_pos_xz, scale));
+				height_maps.push_back(parsePNGToHeightMap_8BIT(png_image.get() + chunk_offset, width, chunk_pos_xz, scale));
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace PreloadedGeneration
 	{
 		ImageBundle img_bundle = resizeImage(read_png_image(filepath), scale);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
-		unsigned char* png_image{ img_bundle.image };
+		std::unique_ptr<unsigned char[]> png_image{std::move(img_bundle.image)};
 		std::vector<BlockMap> block_maps{};
 
 		int chunks_in_blockmap_xz = width / CHUNK_SIZE;
@@ -64,7 +64,7 @@ namespace PreloadedGeneration
 				chunk_pos_xz /= CHUNK_SIZE;
 				// map from height map coords to chunk pos coords
 				chunk_pos_xz -= (chunks_in_blockmap_xz - 1) / 2;
-				block_maps.push_back(parsePNGToBlockMap(png_image + chunk_offset, width, height, chunk_pos_xz, channels));
+				block_maps.push_back(parsePNGToBlockMap(png_image.get() + chunk_offset, width, height, chunk_pos_xz, channels));
 			}
 		}
 
@@ -161,7 +161,7 @@ namespace PreloadedGeneration
 			.width = dst_width,
 			.height = dst_height,
 			.channels = 1, // parse channels linearly, even if it's RGB
-			.image = new unsigned char[dst_height * dst_width]
+			.image = std::make_unique<unsigned char[]>(dst_height * dst_width)
 		};
 
 		dst_img.height = dst_height;
@@ -174,7 +174,7 @@ namespace PreloadedGeneration
 				for (int z = 0; z < dst_height; ++z) {
 					float src_x = x * x_scale;
 					float src_z = z * z_scale;
-					dst_img.image[x * dst_width + z] = bilinearInterpolate(src.image, src.width, src.height, src_x, src_z, src.channels);
+					dst_img.image[x * dst_width + z] = bilinearInterpolate(src.image.get(), src.width, src.height, src_x, src_z, src.channels);
 				}
 			}
 
@@ -199,6 +199,6 @@ namespace PreloadedGeneration
 			width -= width_mod;
 			LOG_F(WARNING, "width mod CHUNK_SIZE is: %d, but should be 0, trimmed width to: %d", width_mod, width);
 		}
-		return { width, height, channels, png_image };
+		return { width, height, channels, std::unique_ptr<unsigned char[]>(png_image) };
 	}
 }

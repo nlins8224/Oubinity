@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <memory>
 #include "../TerrainGenerationTypes.h"
 #include "../../third_party/stb_image.h"
 #include "glm/glm.hpp"
@@ -11,7 +12,7 @@ namespace PreloadedGeneration
 		int width;
 		int height;
 		int channels;
-		unsigned char* image;
+		std::unique_ptr<unsigned char[]> image;
 	};
 
 	// Grayscale
