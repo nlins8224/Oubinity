@@ -7,11 +7,6 @@
 
 namespace PreloadedGeneration
 {
-	enum class image_type {
-		GRAYSCALE,
-		COLOR
-	};
-
 	struct ImageBundle {
 		int width;
 		int height;
