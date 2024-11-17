@@ -30,7 +30,7 @@ namespace PreloadedGeneration
 	block_id pixelToBlock(Block::Pixel_RGBA pixel);
 	uint32_t calculateColorDifference(Block::Pixel_RGBA p_one, Block::Pixel_RGBA p_two);
 
-	// Util
-	static ImageBundle resizeImage(ImageBundle src, int dst_width, int dst_height, image_type type);
+	// Common
+	static ImageBundle resizeImage(ImageBundle src, glm::vec3 scale);
 	static ImageBundle read_png_image(std::string filepath);
 }

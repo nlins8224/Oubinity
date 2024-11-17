@@ -15,8 +15,9 @@
 namespace Settings
 {
 	// Used to determine scale of a height map or color map -> world map mapping, i.e. setting this to {2.0, 2.0, 2.0}
-	// means that each pixel on a height map or color map corresponds to 2x2x2 area in the world map
-	static constexpr glm::vec3 SETTING_SCALE = { 1.0, 1.0, 1.0 };
+	// means that each pixel on a height map or color map corresponds to 2x2x2 area in the world map.
+	// Bilinear interpolation is used on XZ plane, while heightmap is scaled on Y axis
+	static constexpr glm::vec3 SETTING_SCALE = { 2.0, 2.0, 2.0 };
 
 	// Used to determine thickness of a surface layer, when using PRELOADED_COLORMAP.
 	static constexpr int SETTING_BLOCK_MARGIN = SETTING_SCALE.y;

@@ -9,7 +9,7 @@ namespace PreloadedGeneration
 {
 	HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
 	{
-		ImageBundle img_bundle = resizeImage(read_png_image(filepath), 2048, 2048, image_type::GRAYSCALE);
+		ImageBundle img_bundle = resizeImage(read_png_image(filepath), scale);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
 		unsigned char* png_image{ img_bundle.image };
 
@@ -49,7 +49,7 @@ namespace PreloadedGeneration
 
 	BlockMapBundle parsePNGToBlockMaps(std::string filepath, glm::vec3 scale)
 	{
-		ImageBundle img_bundle = resizeImage(read_png_image(filepath), 2048, 2048, image_type::COLOR);
+		ImageBundle img_bundle = resizeImage(read_png_image(filepath), scale);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
 		unsigned char* png_image{ img_bundle.image };
 		std::vector<BlockMap> block_maps{};
@@ -154,7 +154,9 @@ namespace PreloadedGeneration
 	}
 
 	static ImageBundle resizeImage(
-		ImageBundle src, int dst_width, int dst_height, image_type type) {
+		ImageBundle src, glm::vec3 scale) {
+		int dst_width = scale.x * src.width;
+		int dst_height = scale.z * src.height;
 		ImageBundle dst_img{
 			.width = dst_width,
 			.height = dst_height,
