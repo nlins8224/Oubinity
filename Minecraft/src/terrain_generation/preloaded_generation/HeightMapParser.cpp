@@ -9,7 +9,7 @@
 
 namespace PreloadedGeneration
 {
-	std::vector<HeightMap> parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
+	HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
 	{
 		ImageBundle img_bundle = resizeImageGrayscale(read_png_image(filepath), 2048, 2048);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
@@ -28,7 +28,7 @@ namespace PreloadedGeneration
 		}
 
 		LOG_F(INFO, "height_maps size: %d", height_maps.size());
-		return height_maps;
+		return { width, height, height_maps };
 	}
 
 	HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz, glm::vec3 scale)

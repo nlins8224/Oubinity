@@ -5,11 +5,18 @@
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:
-	m_water_height{ water_height },
-	m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea30.png", scale)},
-	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap_v2.png", scale)},
-	m_tree_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_treemap.png", scale)}
+	m_water_height{ water_height }
 {
+	HeightMapBundle height_map_bundle = PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea30.png", scale);
+	BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap_v2.png", scale);
+	HeightMapBundle tree_map_bundle = PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_treemap.png", scale);
+
+	m_height_maps = std::vector(height_map_bundle.maps.begin(), height_map_bundle.maps.end());
+	m_block_maps = std::vector(block_map_bundle.maps.begin(), block_map_bundle.maps.end());
+	m_tree_maps = std::vector(tree_map_bundle.maps.begin(), tree_map_bundle.maps.end());
+
+	m_chunks_in_heightmap_xz = height_map_bundle.world_width / CHUNK_SIZE;
+	m_chunks_in_blockmap_xz = block_map_bundle.world_width / CHUNK_SIZE;
 }
 
 HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)

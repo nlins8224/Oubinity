@@ -8,7 +8,7 @@
 
 namespace PreloadedGeneration
 {
-	std::vector<BlockMap> parsePNGToBlockMaps(std::string filepath, glm::vec3 scale)
+	BlockMapBundle parsePNGToBlockMaps(std::string filepath, glm::vec3 scale)
 	{
 		ImageBundle img_bundle = read_png_image(filepath);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
@@ -28,7 +28,7 @@ namespace PreloadedGeneration
 		}
 
 		LOG_F(INFO, "block_maps size: %d", block_maps.size());
-		return block_maps;
+		return { width, height, block_maps };
 	}
 
 	BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width, int image_height, glm::ivec3 chunk_pos_xz, int channels, glm::vec3 scale)

@@ -31,6 +31,10 @@ private:
 	std::vector<HeightMap> m_height_maps;
 	std::vector<BlockMap> m_block_maps;
 	std::vector<HeightMap> m_tree_maps;
+
+	uint32_t m_chunks_in_heightmap_xz;
+	uint32_t m_chunks_in_blockmap_xz;
+
 	uint8_t m_water_height;
 	DecorationGenerator m_decoration_generator;
 };
