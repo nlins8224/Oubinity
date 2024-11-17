@@ -162,7 +162,7 @@
     <ClCompile Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\terrain_generation\preloaded_generation\ColorMapParser.cpp">
+    <ClCompile Include="src\terrain_generation\preloaded_generation\FileMapParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gpu_loader\WaterLoader.cpp">
@@ -410,7 +410,7 @@
     <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h">
+    <ClInclude Include="src\terrain_generation\preloaded_generation\FileMapParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\water\WaterMesh.h">
@@ -459,18 +459,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\MapExpander.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\TextureGrad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\ImageBundle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

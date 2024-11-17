@@ -1,6 +1,5 @@
-#include "ColorMapParser.h"
+#include "FileMapParser.h"
 #include "../../chunk/Chunk.h"
-#include "PngFileReader.h"
 #include "../../loguru.hpp"
 #include "../../renderer/ChunkRendererSettings.h"
 #include "../../block/Block.h"
@@ -138,9 +137,9 @@ namespace PreloadedGeneration
 			+ (p_one.b - p_two.b) * (p_one.b - p_two.b);
 	}
 
-	static inline unsigned char bilinearInterpolateGrayscale(
+	static unsigned char bilinearInterpolate(
 		const unsigned char* src, int src_width, int src_height,
-		float x, float z
+		float x, float z, int channel
 	) {
 		int x1 = std::floor(x);
 		int z1 = std::floor(z);
@@ -151,7 +150,7 @@ namespace PreloadedGeneration
 		float b = z - z1;
 
 		auto get_pixel = [&](int px, int pz) -> unsigned char {
-			return src[px * src_width + pz];
+			return src[(px * src_width + pz) * channel];
 			};
 
 		unsigned char p1 = get_pixel(x1, z1);
@@ -167,75 +166,50 @@ namespace PreloadedGeneration
 			);
 	}
 
-	static unsigned char bilinearInterpolateColor(
-		const unsigned char* src, int src_width, int src_height,
-		float x, float z, int channel
-	) {
-		int x1 = std::floor(x);
-		int z1 = std::floor(z);
-		int x2 = std::min(x1 + 1, src_width - 1);
-		int z2 = std::min(z1 + 1, src_height - 1);
-
-		float a = x - x1;
-		float b = z - z1;
-
-		auto get_pixel = [&](int px, int pz, int c) -> unsigned char {
-			return src[(px * src_width + pz) * 3 + c];
-			};
-
-		unsigned char p1 = get_pixel(x1, z1, channel);
-		unsigned char p2 = get_pixel(x2, z1, channel);
-		unsigned char p3 = get_pixel(x1, z2, channel);
-		unsigned char p4 = get_pixel(x2, z2, channel);
-
-		return static_cast<unsigned char>(
-			(1 - a) * (1 - b) * p1 +
-			a * (1 - b) * p2 +
-			(1 - a) * b * p3 +
-			a * b * p4
-			);
-	}
-
 	static ImageBundle resizeImage(
 		ImageBundle src, int dst_width, int dst_height, image_type type) {
-		int channels = 1;
-		if (type == image_type::COLOR) {
-			channels = 3;
-		}
 		ImageBundle dst_img{
 			.width = dst_width,
 			.height = dst_height,
-			.channels = 1,
+			.channels = 1, // parse channels linearly, even if it's RGB
 			.image = new unsigned char[dst_height * dst_width]
 		};
+
 		dst_img.height = dst_height;
 		dst_img.width = dst_width;
 
 		float x_scale = static_cast<float>(src.width) / dst_width;
 		float z_scale = static_cast<float>(src.height) / dst_height;
 
-		if (type == image_type::GRAYSCALE) {
 			for (int x = 0; x < dst_width; ++x) {
 				for (int z = 0; z < dst_height; ++z) {
 					float src_x = x * x_scale;
 					float src_z = z * z_scale;
-					dst_img.image[x * dst_width + z] = bilinearInterpolateGrayscale(src.image, src.width, src.height, src_x, src_z);
+					dst_img.image[x * dst_width + z] = bilinearInterpolate(src.image, src.width, src.height, src_x, src_z, src.channels);
 				}
 			}
-		}
-		else if (type == image_type::COLOR) {
-			for (int x = 0; x < dst_width; ++x) {
-				for (int z = 0; z < dst_height; ++z) {
-					float src_x = x * x_scale;
-					float src_z = z * z_scale;
-					for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
-						dst_img.image[(x * dst_width + z)] =
-							bilinearInterpolateColor(src.image, src.width, src.height, src_x, src_z, c);
-					}
-				}
-			}
-		}
 
 		return dst_img;
+	}
+
+	static ImageBundle read_png_image(std::string filepath) {
+		int width, height, channels;
+		unsigned char* png_image = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
+		if (!png_image)
+		{
+			LOG_F(ERROR, "image loaded under path: %s does not exist", filepath);
+		}
+
+		LOG_F(INFO, "Image height: %d", height);
+		LOG_F(INFO, "Image width: %d", width);
+		LOG_F(INFO, "Image channels: %d", channels);
+
+		int width_mod = width % CHUNK_SIZE;
+		if (width_mod != 0)
+		{
+			width -= width_mod;
+			LOG_F(WARNING, "width mod CHUNK_SIZE is: %d, but should be 0, trimmed width to: %d", width_mod, width);
+		}
+		return { width, height, channels, png_image };
 	}
 }

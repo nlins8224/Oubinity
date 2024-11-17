@@ -12,6 +12,13 @@ namespace PreloadedGeneration
 		COLOR
 	};
 
+	struct ImageBundle {
+		int width;
+		int height;
+		int channels;
+		unsigned char* image;
+	};
+
 	// Grayscale
 	HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale);
 	HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width, glm::ivec3 chunk_pos_xz, glm::vec3 scale);
@@ -25,4 +32,5 @@ namespace PreloadedGeneration
 
 	// Util
 	static ImageBundle resizeImage(ImageBundle src, int dst_width, int dst_height, image_type type);
+	static ImageBundle read_png_image(std::string filepath);
 }

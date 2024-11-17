@@ -4,7 +4,7 @@
 #include "../../renderer/ChunkRendererSettings.h"
 #include "../../Settings.h"
 #include "../TerrainGenerationTypes.h"
-#include "ColorMapParser.h"
+#include "FileMapParser.h"
 #include "../procedural_generation/DecorationGenerator.h"
 
 class PreloadedGenerator
