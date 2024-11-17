@@ -260,10 +260,12 @@
     <ClInclude Include="src\shader\WaterShader.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\ColorMapParser.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\HeightMapParser.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\ImageBundle.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\MapResizer.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\PreloadedGenerator.h" />
     <ClInclude Include="src\terrain_generation\preloaded_generation\TextureGrad.h" />
-    <ClInclude Include="src\terrain_generation\preloaded_generation\TextureUntiler.h" />
+    <ClInclude Include="src\terrain_generation\preloaded_generation\MapExpander.h" />
     <ClInclude Include="src\terrain_generation\procedural_generation\DecorationGenerator.h" />
     <ClInclude Include="src\terrain_generation\procedural_generation\ProceduralGenerator.h" />
     <ClInclude Include="src\terrain_generation\TerrainGenerationTypes.h" />

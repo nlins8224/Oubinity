@@ -467,13 +467,19 @@
     <ClInclude Include="src\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\terrain_generation\preloaded_generation\TextureUntiler.h">
+    <ClInclude Include="src\terrain_generation\preloaded_generation\MapExpander.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\TextureGrad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\terrain_generation\preloaded_generation\PngFileReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\MapResizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\terrain_generation\preloaded_generation\ImageBundle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,19 +1,20 @@
 #include "PreloadedGenerator.h"
 #include "../../Util.h"
-#include "TextureUntiler.h"
+#include "MapExpander.h"
+#include "MapResizer.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 	:
 	m_water_height{ water_height },
 	m_height_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea30.png", scale)},
-	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap.png", scale)},
+	m_block_maps{ PreloadedGeneration::parsePNGToBlockMaps("assets/gaea30_colormap_v2.png", scale)},
 	m_tree_maps{ PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea31_treemap.png", scale)}
 {
 }
 
 HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
-	int c_a = CHUNK_SIZE;
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_heightmap = mapChunkPosToHeightMapPos(chunk_pos);
 	HeightMap height_map = m_height_maps.at(chunk_pos_in_heightmap.x * c_a + chunk_pos_in_heightmap.z);
 	return increaseHeightMapLodLevel(height_map, lod);
@@ -21,7 +22,7 @@ HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos, LevelOfDetail::
 
 BlockMap PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 {
-	int c_a = CHUNK_SIZE;
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
 	glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
 	BlockMap color_map = m_block_maps.at(chunk_pos_in_map.x * c_a + chunk_pos_in_map.z);
 	return increaseBlockMapLodLevel(color_map, lod);
@@ -164,15 +165,16 @@ bool PreloadedGenerator::isBlockUnderneathSurface(glm::ivec3 block_pos, glm::ive
 
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos)
 {
-	glm::ivec3 translated_chunk_pos = chunk_pos + ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS - 1) / 2);
+	int c_a = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+	glm::ivec3 translated_chunk_pos = chunk_pos + ((c_a - 1) / 2);
 	//LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y, chunk_pos.z);
 	//LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)", translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
 
 	int x{ translated_chunk_pos.x }, y{ translated_chunk_pos.y }, z{ translated_chunk_pos.z };
 	glm::ivec3 target_chunk_pos = {
-		Util::getMod(x, CHUNK_SIZE),
+		Util::getMod(x, c_a),
 		chunk_pos.y,
-		Util::getMod(z, CHUNK_SIZE)
+		Util::getMod(z, c_a)
 	};
 	//LOG_F(WARNING, "target_chunk_pos: (%d, %d, %d)", target_chunk_pos.x, target_chunk_pos.y, target_chunk_pos.z);
 	return target_chunk_pos;

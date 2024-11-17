@@ -15,3 +15,9 @@ using TreePresenceMap = std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE>;
 using ColorMap = std::array<std::array<Pixel_RGBA, CHUNK_SIZE>, CHUNK_SIZE>;
 using BlockMap = std::array<std::array<block_id, CHUNK_SIZE>, CHUNK_SIZE>;
 
+struct ImageBundle {
+	int width;
+	int height;
+	int channels;
+	unsigned char* image;
+};

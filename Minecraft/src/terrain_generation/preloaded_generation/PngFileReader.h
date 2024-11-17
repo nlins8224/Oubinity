@@ -3,16 +3,10 @@
 #include "../../third_party/stb_image.h"
 #include "../../loguru.hpp"
 #include "../../chunk/ChunkSize.h"
+#include "../TerrainGenerationTypes.h"
 
 namespace PreloadedGeneration
 {
-	struct ImageBundle {
-		int width;
-		int height;
-		int channels;
-		unsigned char* image;
-	};
-
 	inline ImageBundle read_png_image(std::string filepath) {
 		int width, height, channels;
 		unsigned char* png_image = stbi_load(filepath.c_str(), &width, &height, &channels, 0);

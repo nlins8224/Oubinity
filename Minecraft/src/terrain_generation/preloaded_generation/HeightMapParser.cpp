@@ -4,13 +4,14 @@
 #include "../../third_party/stb_image.h"
 #include "../../loguru.hpp"
 #include "../../renderer/ChunkRendererSettings.h"
-#include "TextureUntiler.h"
+#include "../TerrainGenerationTypes.h"
+#include "MapResizer.h"
 
 namespace PreloadedGeneration
 {
 	std::vector<HeightMap> parsePNGToHeightMaps_8BIT(std::string filepath, glm::vec3 scale)
 	{
-		PreloadedGeneration::ImageBundle img_bundle = read_png_image(filepath);
+		ImageBundle img_bundle = resizeImageGrayscale(read_png_image(filepath), 2048, 2048);
 		int height{ img_bundle.height }, width{ img_bundle.width }, channels{ img_bundle.channels };
 		unsigned char* png_image{ img_bundle.image };
 
