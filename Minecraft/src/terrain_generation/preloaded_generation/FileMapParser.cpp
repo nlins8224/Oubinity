@@ -16,10 +16,10 @@ namespace PreloadedGeneration
 		int chunks_in_heightmap_xz = width / CHUNK_SIZE;
 
 		std::vector<HeightMap> height_maps{};
-		for (int x = 0; x < height; x += CHUNK_SIZE / scale.x) {
-			for (int z = 0; z < width; z += CHUNK_SIZE / scale.z) {
+		for (int x = 0; x < height; x += CHUNK_SIZE) {
+			for (int z = 0; z < width; z += CHUNK_SIZE) {
 				int chunk_offset = x * width + z;
-				glm::ivec3 chunk_pos_xz{ x * scale.x, 0, z * scale.z };
+				glm::ivec3 chunk_pos_xz{ x, 0, z };
 				chunk_pos_xz /= CHUNK_SIZE;
 				// map from height map coords to chunk pos coords
 				chunk_pos_xz -= (chunks_in_heightmap_xz - 1) / 2;
@@ -36,18 +36,11 @@ namespace PreloadedGeneration
 		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
 		int block_size = 1;
 		int block_amount = CHUNK_SIZE;
-		int scale_factor_x = static_cast<int>(scale.x);
-		int scale_factor_z = static_cast<int>(scale.z);
-
 		HeightMap height_map{};
-		for (int x = 0; x < block_amount; x += scale_factor_x) {
-			for (int z = 0; z < block_amount; z += scale_factor_z) {
-				int surface_height = chunk_image[((x / scale_factor_x) * block_size * width) + ((z / scale_factor_z) * block_size)] * scale.y;
-				for (int i = 0; i < scale_factor_x; i++) {
-					for (int j = 0; j < scale_factor_z; j++) {
-						height_map[x + i][z + j] = surface_height;
-					}
-				}
+		for (int x = 0; x < block_amount; x++) {
+			for (int z = 0; z < block_amount; z++) {
+				int surface_height = chunk_image[(x * block_size * width) + (z * block_size)] * scale.y;
+				height_map[x][z] = surface_height;
 			}
 		}
 
@@ -64,14 +57,14 @@ namespace PreloadedGeneration
 		int chunks_in_blockmap_xz = width / CHUNK_SIZE;
 
 		int bytes_per_pixel = channels;
-		for (int x = 0; x < height; x += CHUNK_SIZE / scale.x) {
-			for (int z = 0; z < width; z += CHUNK_SIZE / scale.z) {
+		for (int x = 0; x < height; x += CHUNK_SIZE) {
+			for (int z = 0; z < width; z += CHUNK_SIZE) {
 				int chunk_offset = (x * width + z) * bytes_per_pixel;
-				glm::ivec3 chunk_pos_xz{ x * scale.x, 0, z * scale.z };
+				glm::ivec3 chunk_pos_xz{ x, 0, z };
 				chunk_pos_xz /= CHUNK_SIZE;
 				// map from height map coords to chunk pos coords
 				chunk_pos_xz -= (chunks_in_blockmap_xz - 1) / 2;
-				block_maps.push_back(parsePNGToBlockMap(png_image + chunk_offset, width, height, chunk_pos_xz, channels, scale));
+				block_maps.push_back(parsePNGToBlockMap(png_image + chunk_offset, width, height, chunk_pos_xz, channels));
 			}
 		}
 
@@ -79,23 +72,17 @@ namespace PreloadedGeneration
 		return { width, height, block_maps };
 	}
 
-	BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width, int image_height, glm::ivec3 chunk_pos_xz, int channels, glm::vec3 scale)
+	BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width, int image_height, glm::ivec3 chunk_pos_xz, int channels)
 	{
 		auto lod = LevelOfDetail::chooseLevelOfDetail({ 0, 0, 0 }, chunk_pos_xz);
 		int block_size = 1;
 		int block_amount = CHUNK_SIZE;
-		int scale_factor_x = static_cast<int>(scale.x);
-		int scale_factor_z = static_cast<int>(scale.z);
 
 		BlockMap block_map{};
-		for (int x = 0; x < block_amount; x += scale_factor_x) {
-			for (int z = 0; z < block_amount; z += scale_factor_z) {
-				Block::Pixel_RGBA pixel = getPixelRGBA(chunk_image, image_width, image_height, (x / scale_factor_x), (z / scale_factor_z), block_size, channels);
-				for (int i = 0; i < scale_factor_x; i++) {
-					for (int j = 0; j < scale_factor_z; j++) {
-						block_map[x + i][z + j] = pixelToBlock(pixel);
-					}
-				}
+		for (int x = 0; x < block_amount; x++) {
+			for (int z = 0; z < block_amount; z++) {
+				Block::Pixel_RGBA pixel = getPixelRGBA(chunk_image, image_width, image_height, x, z, block_size, channels);
+				block_map[x][z] = pixelToBlock(pixel);
 			}
 		}
 		return block_map;
