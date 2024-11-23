@@ -1,4 +1,4 @@
-set(PROJECT_NAME Minecraft)
+set(PROJECT_NAME Oubinity)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
@@ -132,7 +132,7 @@ set(Source_Files
     "src/io/Mouse.cpp"
     "src/io/Window.cpp"
     "src/loguru.cpp"
-    "src/Minecraft.cpp"
+    "src/Oubinity.cpp"
     "src/PlayerInput.cpp"
     "src/renderer/ChunkRenderer.cpp"
     "src/renderer/ChunkSlidingWindow.cpp"
@@ -183,7 +183,7 @@ set(ALL_FILES
 
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-set(ROOT_NAMESPACE Minecraft)
+set(ROOT_NAMESPACE Oubinity)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm;"

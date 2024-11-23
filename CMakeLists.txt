@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
-project(Minecraft CXX)
+project(Oubinity CXX)
 
 set(CMAKE_CONFIGURATION_TYPES
     "Debug"
@@ -33,5 +33,5 @@ if(MSVC)
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-add_subdirectory(Minecraft)
+add_subdirectory(Oubinity)
 
