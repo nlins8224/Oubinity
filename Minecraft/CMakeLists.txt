@@ -186,22 +186,22 @@ add_executable(${PROJECT_NAME} ${ALL_FILES})
 set(ROOT_NAMESPACE Minecraft)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-"${CMAKE_CURRENT_SOURCE_DIR}/src/dependencies/glm;"
+"${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm;"
 "${CMAKE_CURRENT_SOURCE_DIR}/imgui;"
-"${CMAKE_CURRENT_SOURCE_DIR}/src/dependencies/GLAD/"
+"${CMAKE_CURRENT_SOURCE_DIR}/dependencies/GLAD/"
 )
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/dependencies/glfw/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/)
 find_package(OpenGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 
 set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE) #example if don't need the graph tool
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/dependencies/FastNoise2/)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/FastNoise2/)
 target_link_libraries(${PROJECT_NAME} FastNoise)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
