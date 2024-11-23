@@ -1,6 +1,6 @@
 #pragma once
 #include <shared_mutex>
-#include <GLAD/glad.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "ChunkRenderer.h"
 #include "SkyboxRenderer.h"

@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <vector>
 #include "../chunk/ChunkSize.h"
 #include "../Camera.h"
 #include "../renderer/ChunkRendererSettings.h"

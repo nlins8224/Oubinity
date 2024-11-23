@@ -1,4 +1,5 @@
 #include "BlockArray.h"
+#include <cstring>
 namespace Block
 {
 	BlockArray::BlockArray(LevelOfDetail::LevelOfDetail lod)
