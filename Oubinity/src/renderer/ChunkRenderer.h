@@ -59,7 +59,9 @@ class ChunkRenderer : public Renderer {
   void allocateChunks();
   void allocateChunk();
   void freeChunks();
-  void freeChunk();
+  void freeChunk(glm::ivec3 chunk_pos);
+
+  void updateChunkPipeline();
 
   bool checkCameraPosChanged();
 
