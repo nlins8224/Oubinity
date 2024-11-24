@@ -12,12 +12,12 @@ face_id - 3 bits (f)
             fff ttttt zzzzz yyyyy xxxxx
 */
 
-struct Vertex
-{
-	GLubyte packed_vertex;
+struct Vertex {
+  GLubyte packed_vertex;
 };
 
-//static inline GLuint packVertex(GLubyte x, GLubyte y, GLubyte z, GLubyte texture_id, GLubyte face_id)
+// static inline GLuint packVertex(GLubyte x, GLubyte y, GLubyte z, GLubyte
+// texture_id, GLubyte face_id)
 //{
 //	return x | y << 5 | z << 10 | texture_id << 15 | face_id << 20;
-//} 
+//}

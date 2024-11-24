@@ -2,9 +2,8 @@
 
 #include "Shader.h"
 
-class GradientShader : public Shader
-{
-public:
-	GradientShader();
-	~GradientShader() = default;
+class GradientShader : public Shader {
+ public:
+  GradientShader();
+  ~GradientShader() = default;
 };

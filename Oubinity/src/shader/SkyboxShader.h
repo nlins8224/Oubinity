@@ -2,9 +2,8 @@
 
 #include "Shader.h"
 
-class SkyboxShader : public Shader
-{
-public:
-	SkyboxShader();
-	~SkyboxShader() = default;
+class SkyboxShader : public Shader {
+ public:
+  SkyboxShader();
+  ~SkyboxShader() = default;
 };

@@ -2,9 +2,8 @@
 
 #include "Shader.h"
 
-class WaterShader : public Shader
-{
-public:
-	WaterShader();
-	~WaterShader() = default;
+class WaterShader : public Shader {
+ public:
+  WaterShader();
+  ~WaterShader() = default;
 };

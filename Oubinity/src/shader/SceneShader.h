@@ -1,9 +1,8 @@
 #pragma once
 #include "Shader.h"
 
-class SceneShader : public Shader
-{
-public:
-	SceneShader();
-	~SceneShader() = default;
+class SceneShader : public Shader {
+ public:
+  SceneShader();
+  ~SceneShader() = default;
 };

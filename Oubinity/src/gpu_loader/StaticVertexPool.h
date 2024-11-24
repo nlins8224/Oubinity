@@ -14,32 +14,35 @@
 //#include "optick.h"
 //
 ///*
-//This VertexPool is a simple one, with one fixed bucket size.
-//It is used mainly for debug purposes, to compare results with other pools
+// This VertexPool is a simple one, with one fixed bucket size.
+// It is used mainly for debug purposes, to compare results with other pools
 //*/
-//namespace DebugVertexPool {
-//	constexpr int CHUNKS_AMOUNT = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
-//	constexpr int BACKUP_BUFFER = 2000;
-//	constexpr int MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
-//	constexpr int FACES_IN_BLOCK = 6;
-//	constexpr int VERTICES_IN_FACE = 6;
+// namespace DebugVertexPool {
+//	constexpr int CHUNKS_AMOUNT =
+//ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
+//ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
+//ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS; 	constexpr int
+//BACKUP_BUFFER = 2000; 	constexpr int MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE *
+//CHUNK_SIZE; 	constexpr int FACES_IN_BLOCK = 6; 	constexpr int VERTICES_IN_FACE =
+//6;
 //
-//	constexpr int MAX_ADDED_VERTICES = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK * VERTICES_IN_FACE;
+//	constexpr int MAX_ADDED_VERTICES = MAX_BLOCKS_IN_CHUNK * FACES_IN_BLOCK
+//* VERTICES_IN_FACE;
 //
 //	constexpr size_t MAX_VERTICES_IN_BUCKET = MAX_ADDED_VERTICES;
 //	constexpr size_t MAX_DAIC_AMOUNT = CHUNKS_AMOUNT + BACKUP_BUFFER;
 //
-//struct ChunkInfo
+// struct ChunkInfo
 //{
 //	glm::vec4 chunk_pos[MAX_DAIC_AMOUNT];
 //};
 //
-//struct ChunksLod
+// struct ChunksLod
 //{
 //	GLuint chunks_lod[MAX_DAIC_AMOUNT];
 //};
 //
-//struct MeshBucket
+// struct MeshBucket
 //{
 //	bool _is_free{ true };
 //	Vertex* _start_ptr;
@@ -47,7 +50,7 @@
 //	size_t _id;
 //};
 //
-//struct DAIC
+// struct DAIC
 //{
 //	DAIC(unsigned int c, unsigned int ic, unsigned int f, unsigned int bi)
 //	{
@@ -64,22 +67,22 @@
 //};
 //
 //// All struct elements in ChunkMetadata share the same ID
-//struct ChunkMetadata
+// struct ChunkMetadata
 //{
 //	ChunkInfo active_chunk_info;
 //	ChunksLod active_chunks_lod;
 //	std::vector<DAIC> active_daics;
 //};
 //
-//struct VertexPoolStats
+// struct VertexPoolStats
 //{
 //	size_t max_vertices_occurred;
 //	size_t min_vertices_occurred;
 //};
 //
-//class StaticVertexPool
+// class StaticVertexPool
 //{
-//public:
+// public:
 //	StaticVertexPool();
 //	virtual ~StaticVertexPool();
 //	void draw();
@@ -88,7 +91,7 @@
 //
 //	void createChunkInfoBuffer();
 //	void createChunkLodBuffer();
-//private:
+// private:
 //	void initBuckets();
 //	void createMeshBuffer();
 //	void updateMeshBuffer(std::vector<Vertex>& mesh, int buffer_offset);
