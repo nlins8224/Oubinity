@@ -260,12 +260,12 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos,
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
   if (m_buffer_needs_update.load()) {
+    m_buffer_needs_update.store(false);
     // free should go first, before allocate
     freeChunks();
     allocateChunks();
     m_vertexpool->createChunkInfoBuffer();
     m_vertexpool->createChunkLodBuffer();
-    m_buffer_needs_update.store(false);
   }
 }
 
