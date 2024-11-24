@@ -1,4 +1,5 @@
 #pragma once
+// clang-format off
 
 /**
  * @file BS_thread_pool.hpp
@@ -817,3 +818,5 @@ private:
 // ============================================================================================= //
 
 } // namespace BS
+
+// clang-format on
