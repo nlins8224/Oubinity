@@ -204,14 +204,15 @@ set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE) #example if do
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/FastNoise2/)
 target_link_libraries(${PROJECT_NAME} FastNoise)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+if (MSVC)
+    add_compile_options(/W2)
+    # Avoid Release or Debug directories to align config with Linux
+    set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_SOURCE_DIR}/bin>)
+else()
+    set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+    add_compile_options(-Wall -Wextra -pedantic)
+endif()
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/bin")
-
-
-if (MSVC)
-    add_compile_options(/W2)
-else()
-    add_compile_options(-Wall -Wextra -pedantic)
-endif()
