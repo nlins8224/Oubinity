@@ -77,8 +77,7 @@ void TerrainGenerator::generateTrees(Chunk& chunk) {
 #if SETTING_USE_PRELOADED_TREEMAP
   m_preloaded_generator.generateTrees(chunk);
 #else
-  // HeightMap height_map = m_preloaded_generator.getHeightMap(chunk.getPos());
-  // m_preloaded_generator.generateTrees(chunk, height_map);
+  m_preloaded_generator.generateTrees(chunk);
 #endif
 #else
   m_procedural_generator.generateTrees(chunk);

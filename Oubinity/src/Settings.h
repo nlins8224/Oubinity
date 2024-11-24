@@ -6,6 +6,7 @@
 // Using PRELOADED_HEIGHTMAP is prerequisite
 #define SETTING_USE_PRELOADED_TREEMAP 0
 
+// Each tree is unique, which makes this option very slow and unoptimized
 #define SETTING_TREES_ENABLED 0
 
 // Produces mesh per each vertex on CPU and allocates a buffer

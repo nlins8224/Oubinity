@@ -197,10 +197,10 @@ glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos) {
 }
 
 void PreloadedGenerator::generateTrees(Chunk& chunk) {
-  // glm::ivec3 chunk_pos = chunk.getPos();
-  // HeightMap height_map = getHeightMap(chunk_pos);
-  // TreePresenceMap tree_presence_map =
-  // generateTreePresenceMap(getTreeMap(chunk_pos));
-  // m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
-  // m_water_height);
+   glm::ivec3 chunk_pos = chunk.getPos();
+   HeightMap height_map = getHeightMap(chunk_pos, chunk.getLevelOfDetail());
+   TreePresenceMap tree_presence_map =
+   generateTreePresenceMap(getTreeMap(chunk_pos));
+   m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
+   m_water_height);
 }

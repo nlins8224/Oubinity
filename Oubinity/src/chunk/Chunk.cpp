@@ -32,7 +32,7 @@ void Chunk::addChunkMesh() {
     delete m_mesh;
   }
   // Do not store blocks after meshing
-  m_blocks->clear();
+  //m_blocks->clear();
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
