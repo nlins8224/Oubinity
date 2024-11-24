@@ -28,10 +28,11 @@ Chunk::~Chunk() {
 void Chunk::addChunkMesh() {
   m_mesh = new MeshData();
   addFaces();
-  // Do not store blocks after meshing
   if (m_mesh != nullptr) {
     delete m_mesh;
   }
+  // Do not store blocks after meshing
+  m_blocks->clear();
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
