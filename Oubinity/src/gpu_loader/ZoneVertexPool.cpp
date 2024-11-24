@@ -403,9 +403,12 @@ void ZoneVertexPool::createFaceStreamBuffer() {
 
 void ZoneVertexPool::updateFaceStreamBuffer(std::vector<Face>& mesh,
                                             int face_offset) {
-  waitBuffer(m_face_buffer_sync);
+  /*
+    |waitBuffer| blocks forever on some hardware configurations, not yet sure why is that.
+  */                                            
+  //waitBuffer(m_face_buffer_sync);
   std::move(mesh.begin(), mesh.end(), m_face_stream_buffer + face_offset);
-  lockBuffer(m_face_buffer_sync);
+  //lockBuffer(m_face_buffer_sync);
   LOG_F(1, "face offset: %d, faces amount: %d", face_offset, mesh.size());
 }
 
