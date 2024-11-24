@@ -2,19 +2,19 @@
 #include <vector>
 #include "../FrameBuffer.h"
 #include "../io/Window.h"
-#include "ImGuiWindow.h"
+#include "GuiWindow.h"
 
-class ImGuiUIManager {
+class GuiUIManager {
  public:
-  ImGuiUIManager(Window* window);
-  ~ImGuiUIManager() = default;
+  GuiUIManager(Window* window);
+  ~GuiUIManager() = default;
   void update();
   void render();
-  void addWindow(ImGuiWindow* newWin);
+  void addWindow(GuiWindow* newWin);
   void shutDownImGui();
 
  private:
-  std::vector<ImGuiWindow*> m_windows;
+  std::vector<GuiWindow*> m_windows;
   void showDockSpace(bool* p_open);
   void setstyle();
   void updateWindows();

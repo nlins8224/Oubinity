@@ -4,10 +4,10 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-class ImGuiWindow {
+class GuiWindow {
  public:
-  ImGuiWindow() = default;
-  ~ImGuiWindow() = default;
+  GuiWindow() = default;
+  ~GuiWindow() = default;
   virtual void update();
 
  protected:

@@ -1,17 +1,17 @@
 #pragma once
 #include "../FrameBuffer.h"
-#include "ImGuiSceneWindow.h"
-#include "ImGuiUIManager.h"
+#include "GuiSceneWindow.h"
+#include "GuiUIManager.h"
 
 class GuiLayout {
  public:
-  GuiLayout(ImGuiUIManager* manager, FrameBuffer* scene_buffer);
+  GuiLayout(GuiUIManager* manager, FrameBuffer* scene_buffer);
   ~GuiLayout();
   void createLayout();
 
  private:
-  ImGuiUIManager* m_manager;
+  GuiUIManager* m_manager;
   FrameBuffer* m_scene_buffer;
 
-  ImGuiSceneWindow m_scene_window;
+  GuiSceneWindow m_scene_window;
 };

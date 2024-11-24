@@ -1,6 +1,7 @@
-#include "ImGuiUIManager.h"
+#include "GuiUIManager.h"
+#include <imgui.h>
 
-ImGuiUIManager::ImGuiUIManager(Window* window) {
+GuiUIManager::GuiUIManager(Window* window) {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -17,7 +18,7 @@ ImGuiUIManager::ImGuiUIManager(Window* window) {
   const char* glsl_version = "#version 460";
   ImGui_ImplOpenGL3_Init(glsl_version);
 }
-void ImGuiUIManager::update() {
+void GuiUIManager::update() {
   bool show = true;
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -36,11 +37,11 @@ void ImGuiUIManager::update() {
   }
 }
 
-void ImGuiUIManager::render() {
+void GuiUIManager::render() {
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiUIManager::showDockSpace(bool* p_open) {
+void GuiUIManager::showDockSpace(bool* p_open) {
   bool opt_fullscreen = true;
   static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
@@ -91,7 +92,7 @@ void ImGuiUIManager::showDockSpace(bool* p_open) {
   ImGui::End();
 }
 
-void ImGuiUIManager::setstyle() {
+void GuiUIManager::setstyle() {
   ImGuiStyle* style = &ImGui::GetStyle();
   ImVec4* colors = style->Colors;
 
@@ -161,18 +162,18 @@ void ImGuiUIManager::setstyle() {
   style->WindowRounding = 4.0f;
 }
 
-void ImGuiUIManager::updateWindows() {
+void GuiUIManager::updateWindows() {
   for (auto i = 0; i < m_windows.size(); i++) {
     m_windows[i]->update();
   }
 }
 
-void ImGuiUIManager::shutDownImGui() {
+void GuiUIManager::shutDownImGui() {
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 }
 
-void ImGuiUIManager::addWindow(ImGuiWindow* newWin) {
+void GuiUIManager::addWindow(GuiWindow* newWin) {
   m_windows.push_back(newWin);
 }

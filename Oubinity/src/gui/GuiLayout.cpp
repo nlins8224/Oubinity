@@ -1,6 +1,6 @@
 #include "GuiLayout.h"
 
-GuiLayout::GuiLayout(ImGuiUIManager* manager, FrameBuffer* scene_buffer)
+GuiLayout::GuiLayout(GuiUIManager* manager, FrameBuffer* scene_buffer)
     : m_manager{manager},
       m_scene_buffer{scene_buffer},
       m_scene_window{scene_buffer} {}

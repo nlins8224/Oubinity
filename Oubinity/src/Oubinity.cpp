@@ -18,7 +18,7 @@
 #include "PlayerInput.h"
 #include "TextureManager.h"
 #include "gui/GuiLayout.h"
-#include "gui/ImGuiUIManager.h"
+#include "gui/GuiUIManager.h"
 #include "io/Window.h"
 #include "renderer/MasterRenderer.h"
 #include "shader/SceneShader.h"
@@ -46,7 +46,7 @@ int main() {
       ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE,
       m_texture_manager.getCloudNoiseId(), glm::ivec2{699, 393});
   FrameBuffer scene_buffer{Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT};
-  ImGuiUIManager imgui_manager(&window);
+  GuiUIManager imgui_manager(&window);
   GuiLayout gui_layout{&imgui_manager, &scene_buffer};
   gui_layout.createLayout();
 
