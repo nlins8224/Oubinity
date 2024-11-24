@@ -29,7 +29,6 @@ void Chunk::addChunkMesh() {
   m_mesh = new MeshData();
   addFaces();
   // Do not store blocks after meshing
-  m_blocks->clear();
   if (m_mesh != nullptr) {
     delete m_mesh;
   }
