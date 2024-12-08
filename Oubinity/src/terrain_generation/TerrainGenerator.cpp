@@ -41,7 +41,25 @@ PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(
     glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod) {
   return m_preloaded_generator.getHeightMap(chunk_pos, lod);
 }
+#endif
 
+#if SETTING_USE_HEIGHTMAP_BLENDING
+PreloadedHeightMap TerrainGenerator::generateBlendedHeightMap(
+    glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod) {
+  auto preloaded_height_map = std::make_unique<PreloadedHeightMap>(
+      m_preloaded_generator.getHeightMap(chunk_pos, lod));
+  auto procedural_height_map = std::make_unique<ProceduralHeightMap>(
+      m_procedural_generator.generateHeightMap(chunk_pos, lod));
+  for (int x = 0; x < lod.block_amount; x++) {
+    for (int z = 0; z < lod.block_amount; z++) {
+      double proc_height = procedural_height_map->data()[x][z];
+      double from_texture_height = preloaded_height_map->data()[x][z];
+      preloaded_height_map->data()[x][z] =
+          from_texture_height * 0.8f + proc_height * 0.2f;
+    }
+  }
+  return *preloaded_height_map;
+}
 #endif
 
 #if SETTING_USE_PRELOADED_COLORMAP

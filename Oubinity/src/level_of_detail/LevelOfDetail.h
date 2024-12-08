@@ -25,31 +25,31 @@ static const LevelOfDetail Zero{.level{0},
 static const LevelOfDetail One{.level{1},
                                .block_amount{CHUNK_SIZE / 2},
                                .block_size{2.0f},
-                               .draw_distance{32},
+                               .draw_distance{64},
                                .divide_factor{2}};
 
 static const LevelOfDetail Two{.level{2},
                                .block_amount{CHUNK_SIZE / 4},
                                .block_size{4.0f},
-                               .draw_distance{48},
+                               .draw_distance{128},
                                .divide_factor{4}};
 
 static const LevelOfDetail Three{.level{3},
                                  .block_amount{CHUNK_SIZE / 8},
                                  .block_size{8.0f},
-                                 .draw_distance{64},
+                                 .draw_distance{256},
                                  .divide_factor{8}};
 
 static const LevelOfDetail Four{.level{4},
                                 .block_amount{CHUNK_SIZE / 16},
                                 .block_size{16.0f},
-                                .draw_distance{256},
+                                .draw_distance{512},
                                 .divide_factor{16}};
 
 static const LevelOfDetail Five{.level{5},
                                 .block_amount{CHUNK_SIZE / 32},
                                 .block_size{32.0f},
-                                .draw_distance{512},
+                                .draw_distance{1024},
                                 .divide_factor{32}};
 
 static const std::vector<LevelOfDetail> Lods{{Zero},  {One},  {Two},
