@@ -26,7 +26,7 @@ void Block::BlockStorage::setRaw(glm::ivec3 block_pos, block_id block_type) {
     LOG_F(ERROR,
           "padded_block_index size: %d > m_padded_block_id_cache size: %d ",
           padded_block_index, m_padded_block_id_cache.size());
-    // m_padded_block_id_cache.resize((m_chunk_size + 2) * (m_chunk_size + 2) *
+    //m_padded_block_id_cache.resize((m_chunk_size + 2) * (m_chunk_size + 2) *
     // (m_chunk_size + 2));
   }
   m_padded_occupancy_mask[padded_block_index] = block_type != block_id::AIR;
@@ -41,6 +41,13 @@ bool Block::BlockStorage::isBlockPresent(glm::ivec3 block_pos) {
 void Block::BlockStorage::clear() {
   m_padded_block_id_cache.clear();
   m_padded_block_id_cache = std::move(std::vector<block_id>());
+}
+
+void Block::BlockStorage::resizeIfNeeded() { 
+   int padded_chunk_size_cubed = (m_chunk_size + 2) * (m_chunk_size + 2) * (m_chunk_size + 2);
+   if (m_padded_block_id_cache.size() < padded_chunk_size_cubed) {
+     m_padded_block_id_cache.resize(padded_chunk_size_cubed, block_id::AIR);
+   }
 }
 
 sul::dynamic_bitset<>& Block::BlockStorage::getOccupancyMask() {

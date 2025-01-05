@@ -148,7 +148,7 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
         chunk_border.max_z);
   m_tasks.emplace(
       [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
-  m_tasks.emplace([this] { deleteOutOfRenderDistanceChunks(); });
+  //m_tasks.emplace([this] { deleteOutOfRenderDistanceChunks(); });
   m_tasks.emplace(
       [this, move_dir] { iterateOverChunkBorderAndCreate(move_dir); });
   m_tasks.emplace([this] { updateChunkPipeline(); });
@@ -585,7 +585,7 @@ void ChunkRenderer::freeChunk(glm::ivec3 chunk_pos) {
 void ChunkRenderer::updateChunkPipeline() {
   if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0) {
     m_buffer_needs_update.store(m_buffer_needs_update |
-                                deleteOutOfRenderDistanceChunks() |
+                                deleteOutOfRenderDistanceChunks() |                     
         createChunksInRenderDistance() | populateChunksNeighbors() |
         generateChunksTerrain() | decorateChunks() | meshChunks());
   }

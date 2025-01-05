@@ -86,6 +86,13 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
         "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d",
         vertex_offset, face_offset, vertex_offset / face_offset);
 
+  if (m_chunk_metadata.active_daics.size() > MAX_DAIC_AMOUNT) {
+    LOG_F(ERROR,
+          "m_chunk_metadata.active_daics.size()=%d, but MAX_DAIC_AMOUNT=%d",
+          m_chunk_metadata.active_daics.size(), MAX_DAIC_AMOUNT);
+    return;
+  }
+
   m_chunk_metadata.active_daics.emplace_back(
       added_vertices,  // vertices in face * added_faces
       1u, 

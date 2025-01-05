@@ -26,6 +26,7 @@ Chunk::~Chunk() {
 }
 
 void Chunk::addChunkMesh() {
+  m_blocks->resizeIfNeeded();
   m_mesh = new MeshData();
   addFaces();
   delete m_mesh;

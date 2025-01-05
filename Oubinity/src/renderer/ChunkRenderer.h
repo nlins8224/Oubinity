@@ -19,12 +19,6 @@
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
 
-struct Task {
-  int id;
-  std::function<void()> f;
-  void operator()() { f(); }
-};
-
 class ChunkRenderer : public Renderer {
  public:
   ChunkRenderer() = delete;
