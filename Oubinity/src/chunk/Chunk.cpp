@@ -229,10 +229,9 @@ col_face_masks[2CS_P2, 3CS_P2)
 #endif
 
           copy_front &= ~(1ULL << bit_pos);
-          if (padded_blocks_id_cache[get_axis_i(axis, right, forward,
-                                                bit_pos)] ==
-                  padded_blocks_id_cache[get_axis_i(axis, right, forward + 1,
-                                                    bit_pos)] &&
+          int column = get_axis_i(axis, right, forward, bit_pos);
+          int column_forward = get_axis_i(axis, right, forward + 1, bit_pos);
+          if (padded_blocks_id_cache[column] == padded_blocks_id_cache[column_forward] &&
               compareAO(padded_blocks_id_cache, axis, forward, right,
                         bit_pos + air_dir, 1, 0)) {
             m_mesh->merged_forward[(right * CS_P) + bit_pos]++;
