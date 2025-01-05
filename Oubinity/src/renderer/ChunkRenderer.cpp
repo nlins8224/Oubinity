@@ -62,8 +62,8 @@ void ChunkRenderer::initChunks() {
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
         chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
         chunk_border.max_z);
-  for (int cx = min_x; cx < max_x - 1; cx++) {
-    for (int cz = min_z; cz < max_z - 1; cz++) {
+  for (int cx = min_x; cx < max_x; cx++) {
+    for (int cz = min_z; cz < max_z; cz++) {
       for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
         m_chunks_to_create.push({cx, cy, cz});
