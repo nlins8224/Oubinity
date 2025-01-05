@@ -1,11 +1,11 @@
-# Oubinity
+# Oubinity Documentation
 
-This document aims to provide an overview of the engine and to describe core algorithms and techniques used. It is not meant to be a tutorial, however I would like to describe it in a way that it does not have a high barrier of entry. Some prerequisites are required though. My assumption is that the reader has knowledge of any programming language and a basic knowledge of OpenGL or similar graphics API. Please bear in mind there are bugs and things that needs to be rewritten, however I did not want to wait with this wiki until everything else is finished, as there always is something that could be improved.
+This document aims to provide an overview of the engine and to describe core algorithms and techniques used. It's not supposed to be a tutorial, but it shouldn't have a high barrier of entry either. Assumption is that the reader has knowledge of any programming language, preferably C++ and a basic knowledge of OpenGL or similar graphics API. Engine is work in progress. There are known bugs and components that need to be redesigned. However the core mechanics and major components described here should be quite stable.
 
 ### Contents
 1. Overview
     * Introduction
-    * Architecture
+    * World scene management
 2. Terrain Generation
     * Chunk Preloaded & Procedural generation
     * Trees
@@ -15,7 +15,7 @@ This document aims to provide an overview of the engine and to describe core alg
     * Meshing Overview
     * Binary greedy meshing
 4. Rendering
-    * Vertexpool, gl Multi-Draw, persistent mapped buffers, AZDO
+    * Vertexpool, gl Multi-Draw and persistent mapped buffers
     * Data packing
     * Vertex pulling
 
@@ -23,24 +23,22 @@ This document aims to provide an overview of the engine and to describe core alg
 ### Overview
 
 ### Introduction - what is a Voxel Engine
-Oubinity is a voxel terrain engine[^1]. Voxel is a 3D counterpart to a 2D pixel. It is a 3D cube located on a three-dimnesional grid. Main focus of this engine is on terrain and every object in the rendered world is composed of voxels.
+Oubinity is a voxel engine[^1]. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example, can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
 
 Voxel in the wild:
 ![Voxel in the wild](https://i.ibb.co/nQJkwtt/Screenshot-2024-11-26-194137.png)
 
-Voxels amount in the world scene scale up quickly (millions, billions) and storing or rendering all of them would make PC quickly run out of CPU and memory resources. The strategy is to not store and to not render geometry whenever possible. Voxels are grouped into chunks[^2]. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
+Voxels amount in the world scene scale up cubically. Voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. The strategy is to identify what data does not need to be stored. To illustrate, voxels that cannot be seen by a player camera do not need to be stored. Voxels are grouped into chunks[^2]. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
 
 World generation can be divided conceptually into three phases:
 
-1. Terrain chunk generation
-Chunk generation is a first step to create a chunk. The idea is to determine voxel types for each voxel in a chunk. 
+1. Terrain chunk generation: first step to create a chunk is to determine voxel type (sand, air, stone) for each voxel in a chunk. 
 
-2. Chunk meshing 
-Voxel is the smallest interactable unit from the player point of view, but it is not the smallest unit to render overall. Voxels are composed of faces (quads) and each voxel has 6 faces (quads). Not every voxel or face is visible to a camera, thus not every face needs to be in mesh. Mesh is a collection of faces (quads) to render on a screen. Meshing is a phase that takes chunk voxels and produces an array of faces that engine considers as visible.
+2. Chunk meshing:  
+Voxel is the smallest interactable unit from the player point of view, but it is not the smallest unit to render overall. Voxels are composed of faces (quads) and each voxel has 6 faces (quads). Not every voxel or face is visible to a camera, thus not every face needs to be in mesh. Mesh is a collection of faces (quads) to render on a screen. Meshing is a phase that takes chunk's voxels and produces an array of faces that engine considers as visible.
 
-3. Mesh rendering
-This is a phase when mesh is passed to GPU via OpenGL API calls, to be rendered. 
-
+3. Mesh rendering: a phase when mesh is passed to GPU via OpenGL API calls, to be rendered. 
+ 
 These three phases are main building blocks of chunk pipeline and they will be described in greater detail in next sections. Each phase has a great potential to be optimized.
 
 
@@ -49,67 +47,73 @@ These three phases are main building blocks of chunk pipeline and they will be d
 [^2]: Using chunks is not the only to write a rasterized voxel engine. There are other methods, for example global lattice: https://www.youtube.com/watch?v=4xs66m1Of4A&t.
 
 ---
-### Architecture
-`MasterRenderer` class manages logic related to scene rendering. It manages chunk rendering via `ChunkRenderer` class, rendering sky via `SkyRenderer` and water via `WaterRenderer`.
+### World scene management
 
-`ChunkRenderer` is one of the most important components of the engine. It manages chunks on the scene and decides when a chunk should be created or deleted. Chunks are represented by `Chunk` class and are stored in a flat 1D array that acts similarly to a circular buffer (`ChunkSlidingWindow` class). Chunk creation logic is done in batches and goes as follows:
+Ideas described above have their representation in the engine's code logic. This section describes management of objects on a world scene in greater detail.
+`MasterRenderer` class manages world scene. Chunks are handled by `ChunkRenderer` class, sky by `SkyRenderer` and water by `WaterRenderer`.
+
+`ChunkRenderer` is one of the most important components of the engine. It manages chunks on the scene and decides when a chunk should be created, deleted or updated. Chunks are represented by `Chunk` class and are stored in a flat 1D array that acts similarly to a circular buffer (`ChunkSlidingWindow` class). Chunk creation logic is done in batches and goes as follow, for a batch of chunks:
 
 1. Determine if there are chunks in render distance that should be created and queue them.
 
 For queued chunks:
+
 2. Create `chunk` instances, choose `chunk` level of detail
 3. Add chunk neighbors references
 4. Generate chunks terrain
 5. Decorate chunks, i.e. generate trees
 6. Mesh chunks
-7. Allocate chunks
+7. Allocate and draw chunks
 
-Chunks advance to next steps in batches as well, all of the chunks have to complete current step for next one to be unlocked. This is because chunks may need their neighbors data from previous steps. Steps 1-5 are executed on a render thread while step 6 is done on a main thread[^7]. Terrain generation is a hybrid between loading data from texture maps and procedural generation. Binary Greedy Meshing is a meshing algorithm of choice. A custom memory allocator in a persistent mapped buffer is used to allocate chunks data on GPU, to reduce draw calls by utilizing OpenGL's multidraw API (`glMultiDrawArraysIndirectCount`).
+Chunks advance to next steps in batches as well, all of the chunks in a batch have to complete current step for next one to be unlocked. This is because chunks may need their neighbors data from previous steps. Steps 1-6 are executed on a render thread while step 7 is done on a main thread[^7]. Terrain generation is a hybrid between loading data from texture maps and procedural generation. Binary Greedy Meshing is a meshing algorithm of choice. OpenGL is used as a graphics backend. A custom memory allocator in a persistent mapped buffer is used to allocate chunks data on GPU, to reduce draw calls by utilizing OpenGL's multidraw API (`glMultiDrawArraysIndirectCount`).
+
+
+### Level of detail
+
 
 ### TerrainGeneration
 
-`TerrainGenerator` is a class that handles terrain generation. It has two main components: `ProceduralGenerator` and `PreloadedGenerator`. 
-
-Terrain generation is a phase in which each voxel in each visible chunk gets it's type (air, stone, sand...) assigned. Terrain generation pipeline is a hybrid between procedural generation and preloaded generation.
+Terrain generation is a step done when chunk instance is already created, level of detail is chosen and chunk 'knows' it's neighbors. `TerrainGenerator` is a main class. It has two major components: `ProceduralGenerator` and `PreloadedGenerator`. 
+In this step voxel types will be determined for each visible voxel in each visible chunk. Terrain generation pipeline is a hybrid between procedural generation and preloaded generation.
 * Procedural generation is a method of calculating voxel types algorithmically, at runtime. Main building blocks are chosen from a family of  noise algorithms. FastNoise2 library is used.
 * Preloaded generation is a term used in this engine to describe terrain generation based on reading terrain data from maps stored as image files. 
 
 Terrain generation consists of four phases:
-1. Shaping phase, where shape of the terrain is determined or read from heightmap
-2. Layering phase, where block types are determined or read from colormap
-3. Decoration phase, where trees locations are determined or read from treemap
-4. Decoration phase, where trees are generated.
+1. Shaping phase, where shape of the terrain is determined. In other words this phase checks if voxel type should be `air` or should be a solid (e.g. `stone`). A surface is formed and is stored in a heightmap, where each `xz` coordinate of a chunk's stores `y` height of a voxel that belongs to the surface. Voxels that are on the surface are the most important. There is air layer above the surface and underground layer beneath. Voxels and chunks that are in air layer do not need to be stored and can be skipped during computations. The same applies in general for an underground layer. Voxels that are occluded by surface voxels and cannot be visible do not need to be stored in principle.
+2. Layering phase, where block types are determined.
+3. Decoration phase, where trees locations are determined.
+4. Decoration phase, where trees are generated procedurally.
 
 First phase can be either purely procedural, purely preloaded or a blended hybrid. Second and third phase can be either preloaded or procedural. Tree generation is procedural only and is optional. Generation modes can be chosen in `Settings` class and they are applied at compile time.
 
 
 <img src="https://i.ibb.co/xhzGWyT/scene-1.png"/>
 
-A fully preloaded example, the shape of the terrain is determined via a heightmap, which is parsed, chunked and then optionally scaled by interpolation. Next, colormap is parsed, chunked and optionally scaled. A function is used to map a color to a closest matching block type.
+Above, a fully preloaded example. The shape of the terrain is determined via a preloaded heightmap, which is parsed, chunked and then optionally scaled (bilinear interpolation). Next, colormap is parsed, chunked and optionally scaled. A function is used to map a color to a closest matching block type.
 
 <img src="https://i.ibb.co/tMwX9m9/Screenshot-2024-11-27-220341.png"/>
 
-In this example shape of the terrain (heightmap) is calculated procedurally, while colormap is preloaded. The world is infinite and fog is enabled.
+In this example above shape of the terrain (heightmap) is calculated procedurally, while colormap is preloaded. The world is infinite and fog is enabled.
 
-Preloaded generation allows to create maps in third party tools[^3] and does not require any knowledge of the engine. It also offers fine-grained control over the terrain and to use more costly algorithms, like erosion[^4], because it will be baked into texture. Texture map generation itself does not have to be fast because it will be calculated once and will be saved into PNG file after. Reading from PNG file that is already loaded to RAM is fast and cheap. 
+Preloaded generation allows to create maps in third party tools[^3] and does not require any knowledge of the engine. It also offers fine-grained control over the terrain and to use more costly algorithms, like erosion[^4], because it will be baked into colormap. Texture map generation itself does not have to be fast because it will be calculated once, will not be done at runtime and will be saved into PNG file after. Reading from PNG file that is already loaded to RAM is fast and cheap. 
 
 Determining height and voxel types distribution is not the only way to change appearence of the terrain. Different voxel palette can be chosen to change how the terrain looks. In the example below, the same heightmap and colormap are used, but with different voxel type palette.
 
 <img src="https://i.ibb.co/X8VxyJH/green-erosion.png" width="50%" height="337"/>
 <img src="https://i.ibb.co/JC1gR2j/weird-terrain.png" width="50%" height="337"/>
 
-There are limitations as well. Image files are finite. It does not mean that the world must be finite. World scene from image can be scrolled, but it's the same terrain over and over. There's a solution. In some way maps from images are a hardcoded layered noise. That hardcoded 'noise' is not as flexible to modify as it could be if it was generated procedurally. To illustrate, layered noise can be presented as a graph, where nodes represent single noise types. In that representation procedural noises could be modified 'in the middle', while preloaded noise can be only extended. However just extending that preloaded hardcoded node is quite powerful on its own.
+There are limitations to loading terrain from texture maps as well. Image files are finite, which means that either world will be finite or the same world will be repeated multiple times. A single texture map is not sufficient to represent an infinite world. Texture maps are mixed with procedural noise for a better outcome.
+In some way texture maps are a hardcoded layered procedural noise. Preloaded and procedural noises can be represented in a graph form, where single procedural noise or preloaded texture map is a node. Nodes can be combined together in various ways.
 
 ![procedural_preloaded](https://i.ibb.co/5LGYzww/procedural-preloaded-composed.png)
 
-A blended heightmap terrain, preloaded texture acts as a node and is composed with another procedural simplex noise node. This gives infinite terrain and also maintains preloaded node properties, while offering varied, not so repeating world.
+Above, a blended heightmap terrain, preloaded texture acts as a node and is composed with another procedural simplex noise node. This gives infinite terrain and also maintains preloaded node properties, while offering varied, not so repeating world.
 
 
-World scenes can be bigger. Here's an example of 768x8x768 chunks in the render distance with camera in the middle. World shape is purely procedural in this example. A single simplex node was used. Repetitions in the terrain are visible.
+World scenes can be bigger. Here's an example of 768x8x768 chunks in the render distance with camera in the middle. World shape is purely procedural in this example. A single simplex node was used. Repetitions in the terrain are visible. One single noise node is often not enough to get a varied terrain.
 
 <img src="https://i.ibb.co/JKsFGkT/Screenshot-2024-11-27-223856.png"/>
 
-Most chunks are not generated at all, as there is no need to generate a chunk that camera cannot see. Same goes for voxels and faces. Voxel engines often use compression algorithms like palette compression[^7] to store large amount of voxel types data. Palette Compression was actually used previously. Currently engine does not use compression as voxel types data is not stored at all. Data is deleted after chunk meshing and regenerated on the fly, if needed.
 
 # Oubinity water
 
@@ -139,7 +143,7 @@ Tree locations can be determined basing on a preloaded tree map or from procedur
 ### Tree generation
 Trees are generated procedurally. Each generated tree can be unique.
 A technique from "Modeling Trees with a Space Colonization Algorithm" paper: http://algorithmicbotany.org/papers/colonization.egwnp2007.large.pdf
-was used to generate trees. This algorithm simulates tree growth by creating a set of 'attraction points' located in a 3D space. Tree skeleton is created iteratively. In each iteration, an attraction point may influence the tree node that is closest to it, making tree branches grow towards attraction points. To add more variety, attraction points have also their kill distance. Attraction point is removed (killed) when there is at least one tree node within kill distance threshold. There are additional settings and rules that allow for a lot of variety. Reading the paper is recommended.
+was used to generate trees. This algorithm simulates tree growth by creating a set of 'attraction points' located in a 3D space. Tree skeleton is created iteratively. In each iteration, an attraction point may influence the tree node that is closest to it, making tree branches grow towards attraction points. Attraction points have their kill distance. Attraction point is removed (killed) when there is at least one tree node within kill distance threshold. There are additional settings and rules that allow for more variety. Reading the paper is recommended.
 
 Source code can be found in `BranchGenerator` class
 
@@ -158,20 +162,20 @@ ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
   return m_branches;
 }
 ```
-This algorithm output is stored as an array of branches. A branch has two nodes that store their position vector. Branches are voxelized by using a technique from "A Fast Voxel Traversal Algorithm for Ray Tracing" paper: http://www.cs.yorku.ca/~amana/research/grid.pdf
+This algorithm outputs an array of branches. A branch has two nodes and each node stores its position vector. Branches are voxelized by using a technique from "A Fast Voxel Traversal Algorithm for Ray Tracing" paper: http://www.cs.yorku.ca/~amana/research/grid.pdf
 
 Source code can be found in `Tree` class
+
 ![tree](https://i.ibb.co/FxnsNHr/tree.png)
 
 # Oubinity - Binary greedy meshing
 
 #### Introduction
-
-Meshing takes array of voxel types on input and produces faces as an output. Meshing is done per chunk. It is generally worth to reduce faces amount on a world scene, as it reduces memory footprint and allows GPU to render less data, which reduces render times. The idea is to reduce faces, without changing the scene from camera's perspective. This can be illustrated by looking at a single chunk:
+Meshing is a phase that is done after chunk terrain is generated. It takes array of voxel types on input and produces visible faces (quads) as an output. Meshing is done per chunk. It is generally worth to reduce faces amount on a world scene, as it reduces memory footprint and allows GPU to render less data, which reduces render times. The idea is to reduce faces, without changing the scene from camera's perspective. This can be illustrated by looking at a single chunk:
 
 ![naive8x8x8](https://hackmd.io/_uploads/Sk_iU__X1g.png)
 
-In this example every face possible is present in a chunk mesh. This can be seen because of wireframe mode. Most of those faces would not be visible to a camera, if wireframe mode was not used. One of optimizations is to cull out (skip) faces that are occluded by their neighbors. It is possible, because each voxel type in a chunk is already known, it is given as an input. 
+In this example every face possible is present in a chunk mesh. This can be seen because of wireframe mode. Most of those faces would not be visible to a camera, if wireframe mode was not used. One of optimizations is to cull out (skip) interior faces that are occluded by their neighbors. It is possible, because each voxel type in a chunk is already known, it is given as an input. 
 
 ![culled8x8x8](https://hackmd.io/_uploads/Sk8ftu_mkl.png)
 Second example illustrates this. Faces that were inside chunk are not meshed nor rendered at all. This improves the performance, as it reduces faces amount from O(n^3) to O(n^2). Changes would be unnoticeable from the camera point of view, if not for wireframe.
@@ -220,12 +224,12 @@ This article actually covers greedy meshing as well, but it's not the one used i
 
 #### Binary Greedy Meshing
 
-Binary Greedy Meshing will be introduced in steps. It can be understood as two algorithms in one:
+Binary greedy meshing combines faces of the same orientation (top, left) and type (sand, stone) that lie on the same plane into a single quad using a few bitwise operations. It has two main phases:
 1. Binary meshing (binary face culling)
 2. Greedy meshing
 
 ##### Binary meshing:
-This part of the whole algorithm determines if a face should be visible. The idea is to group faces in a way that allows to determine visibility not just for one face, but for a whole column simultaneously in one or few bitwise operations. 
+This part of the algorithm determines if a face should be visible. An array of chunk's voxel types is given as an input. At first each face of solid voxel type (i.e. not air) is considered visible. Faces in chunk interior will be culled out. The idea is to group faces in a way that allows to determine visibility not just for one face, but for a whole column simultaneously in one or few bitwise operations.
 
 First, we need to store faces in columns. We have three axises (x, y, z), so we have three column types, one per axis.
 ![Column](https://i.ibb.co/qsyPJ1s/Screenshot-2024-11-30-191422.png)
@@ -240,26 +244,30 @@ ZY plane stores X axis columns. There are 32 X axis columns per chunk. X column 
 XY plane stores Z axis columns. There are 32 Z axis columns per chunk. Z column stores front and back faces.
 
 
-There is a possible off by one error:
+Each column stores two types of faces (e.g. top and bottom faces):
 ![Overlap](https://i.ibb.co/3RpcLX9/Screenshot-2024-11-30-192315.png)
-There are 32 slots for Top faces and 32 slots for Bottom faces, first and last do not overlap. It means that a column needs CHUNK_SIZE + 1 slots. Same goes for other axises. We need to know chunk neighbors voxel types, to determine those border slots visibility.
-We solve this by adding neighbor voxels padding to a chunk. In other words, instead of storing 32x32x32 chunks, we store 34x34x34 chunks, where additional voxels are.[^1]
+There are 32 slots for Top faces and 32 slots for Bottom faces in Y column (also - column has CHUNK_SIZE + 1 slots). 
+Top and bottom faces overlap with each other. First and last face does not overlap with faces inside a chunk, but they may overlap with faces that are present in chunk neighbors adjacent to them. We need to know those adjacent faces type to determine border slots visibility.
+We solve this by adding neighbor voxels padding to a chunk. In other words, instead of storing 32x32x32 chunks, we store 34x34x34 chunks, where additional voxels are taken from neighboring chunks.[^1]
 
 ![Padding](https://i.ibb.co/kJ740JQ/Screenshot-2024-11-30-205320.png)
 Blue 32x32x32 chunk now stores it's neighbor chunks voxels, that it borders with.
 Blue chunk size is now (32+2)x(32+2)x(32+2)
 
-We can now represent a chunk column as a binary word, for example:
-`uint64_t c = 0b00..0010100010111101101101011011101111`
-`1` means that face is of solid type (is present), `0` means that it is air (is not present).
-
-Axis columns are stored in a flat (1D) array. Logic for the step is:
+Axis columns are stored in a flat (1D) array. We iterate over chunk voxels with padding already applied. `padded_blocks_presence_cache` is an array of voxels that is extended by padding. We check if voxel type is solid: `padded_blocks_presence_cache[bit_pos]`. If it is we mark faces as visible in their respective slots in their columns. To summarize, in this code snippet below, we take an array of voxels and store their faces in columns. 
 ```cpp
-   // STEP 1
-	/* axis 0: axis_cols[0, CS_P2) - iterating over xz plane in y direction, top and bottom faces
-	  axis 1: axis_cols[CS_P2, 2CS_P2) - iterating over zy plane in x direction, left and right faces
-	  axis 2: axis_cols[2CS_P2, 3CS_P2) - iterating over xy plane in z direction, front and back faces */
-	for (uint64_t y = 0; y < CS_P; y++) {
+    
+     /* 
+     CS_P == chunk size with padding == 34
+     CS_P2 == CS_P * CS_P
+     axis cols store data in flat 1D array:
+     axis 0    axis 1  axis 2
+     [0, CS_P2|2*CS_P2|3*CS_P2]
+     
+    axis 0: axis_cols[0, CS_P2) - iterating over xz plane in y direction, top and bottom faces
+    axis 1: axis_cols[CS_P2, 2CS_P2) - iterating over zy plane in x direction, left and right faces
+    axis 2: axis_cols[2CS_P2, 3CS_P2) - iterating over xy plane in z direction, front and back faces */
+	for (uint64_t y = 0; y < CS_P; y++) { 
 		for (uint64_t x = 0; x < CS_P; x++) {
 			uint64_t zb = 0;
 			for (uint64_t z = 0; z < CS_P; z++) {
@@ -275,7 +283,9 @@ Axis columns are stored in a flat (1D) array. Logic for the step is:
 	}
 ```
 
-STEP 2:
+We can now represent a chunk column as a binary word, for example:
+`uint64_t c = 0b00..0010100010111101101101011011101111`
+`1` means that face is of solid type (is present), `0` means that it is air (is not present).
 
 We will now take that binary columns representation and apply bitwise operations to determine if face should be visible.
 Let's take any binary word that represents a column.
@@ -298,13 +308,18 @@ We apply AND operation on first and third result, that gives us faces that have 
 
 ```cpp
 	/*
+	 col_face_masks stores data in flat 1D array:
+     
+        axis 0  axis 1 axis 2
+     [0, 2CS_P2|4CS_P2|6CS_P2]
+     
 	axis 0: Top and Bottom faces
 	  col[0, CS_P2)
 	  col_face_masks[0, CS_P2)
 	  col_face_masks[CS_P2, 2CS_P2)
 	axis 1: Left and Right faces
 	  col[CS_P2, 2CS_P2)
-      col_face_masks[2CS_P2, 3CS_P2)
+          col_face_masks[2CS_P2, 3CS_P2)
 	  col_face_masks[3CS_P2, 4CS_P2)
 	axis 2: Front and Back faces
 	  col[2CS_P2, 3CS_P2)
@@ -321,15 +336,15 @@ We apply AND operation on first and third result, that gives us faces that have 
 
 ```
 
-That was binary meshing part of the algorithm. Faces that should be visible are stored in columns and they could be collected and rendered as they are. However there is also greedy meshing part.
+That was binary meshing part of the algorithm. Faces that should be visible are stored in columns and they could be collected and rendered as they are. This part can be used as a standalone algorithm: TODO LINK. Greedy meshing, which is next part, takes `col_face_masks` as an input and merges faces of the same type into bigger quads.
 
 ##### Greedy meshing
 Faces of the same voxel type can be merged into a bigger face quads. Textures will not be stretched. They will be repeatably applied, so this will not be visible.
-Picture below illustrates a grid plane view. There are 32 (chunk size) grids per each axis. Each cell represents a column. Colors represent different voxel types. The end result:
+Picture below illustrates a grid plane view. There are 32 (chunk size) grids per each axis. Each cell represents a **column**. Colors represent different voxel types. The end result:
 ![merged](https://i.ibb.co/MpgsS97/Screenshot-2024-12-01-122205.png)
-Algorithm starts in bottom left corner. Algorithm merges faces in forward direction first and in right direction when merging forward is no longer possible. This is done iteratively, faces from columns in first row are merged with neighbors from second row. Face is added to an array of faces when it is no longer possible to merge in any direction.
+Algorithm starts in bottom left corner. Algorithm merges faces in forward direction first and in right direction when merging forward is no longer possible. This is done iteratively, iterating to the right. Faces from columns in first row are merged with neighbors from second row. Face is added to an array of faces when it is no longer possible to merge in any direction.
 ![merging](https://i.ibb.co/kDkPQgB/Screenshot-2024-12-01-195855.png)
-In example above algorithm is in a row and column indicated by an arrow. On the left, algorithm already merged faces from previous rows with their forward neighbors and is about to merge another one in a forward direction. On the right, merging forward was no longer possible, so algorithm merged in the right direction.
+In example above algorithm is in a row and column indicated by an arrow. On the left, algorithm already merged faces from previous rows with their forward neighbors and is about to merge another one in a forward direction. On the right, merging forward was no longer possible, so algorithm merged to the right direction.
 
 We start with:
 ```cpp
@@ -357,7 +372,7 @@ From columns perspective, merging current and next to the 'right' columns:
 ![columns](https://i.ibb.co/dmZBF6R/Screenshot-2024-12-01-143045.png)
 Notice that there are visible gaps, one is marked by curly brace and an asterisk (*). That represents empty slots in a column. Not every face is visible. Notice that there are also double colored fields in 'Bits merging right', marked by curly brace and exclamation mark (!). This is because algorithm checked only if visible faces are next to each other. It did not check if they are the same type yet. 
 
-Next step is to check if faces are of the same voxel type. Algorithm takes a column and 'unpacks' it, i.e. it iterates through faces that were merged and checks if they are of the same type. They will be cleared, if not. Algorithm checks 'forward' direction first.
+Next step is to check if faces are of the same voxel type. Algorithm takes a column and 'unpacks' it, i.e. it iterates through faces that were merged and checks if they are of the same type. If they are not, they will be cleared. Algorithm checks 'forward' direction first.
 
 ```cpp
         // this is copied, because bits will be cleared
@@ -445,19 +460,19 @@ Those faces are merged in right direction
 ```
 `bits_walking_right &= ~(1ULL << bit_pos);` Is used to mark faces no longer mergeable to the right. If algorithm cannot continue merging in any direction a greedyQuad is added via `addGreedyFace`
 
-
+When meshing phase will be finished, a batch of meshes will passed to next phase that will allocate data on the GPU and render it.  
 
 https://github.com/nlins8224/Oubinity/blob/78bb0ab6cedb1ed23b5ed8315130610c13a35398/Minecraft/src/chunk/Chunk.cpp
 
 [^1]:We are gloriously solving a problem that has been introduced along with data stucture for this algorithm, but I don't mind. Original algorithm uses padding as well, but they use slightly smaller chunk size, which is generally smarter.
 
 
-### Introduction
+### Vertexpool allocation and drawing commands
 Vertexpool follows AZDO approach and combines multi-draw (`glMultiDrawArraysIndirect`) with persistent mapped buffers. Source code can be found in `ZoneVertexPool` class. 
 
 When meshing phase is done, a batch of mesh data is passed to a lower level layer that handles communication with GPU. Mesh to be rendered is passed via OpenGL API calls. A popular strategy is to render each chunk mesh separately. In that strategy, there is one OpenGL draw call and one vertex buffer object per chunk. However, as the number of chunks increases, the number of draw calls increases as well. To the point that communication between engine and GPU that is handled by a GPU driver becomes a bottleneck.
 
-OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that allows to render many different meshes within a single API call[^1] and using only a single buffer. Multi-draw takes a batch of draw commands (`DrawArraysIndirectCommand`) called DAIC for short. Each DAIC stores an offset to a particular mesh location and a size of a mesh.
+OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that allows to render many different meshes within a single API call[^1] and using only one mesh data buffer. Multi-draw takes a batch of draw commands (`DrawArraysIndirectCommand`) called DAIC for short. Each DAIC stores an offset to a particular mesh location and a size of a mesh.
 In other words one of multi-draw requirements is to handle GPU memory management on engine side. This involves writing a custom memory allocator. OpenGL has a concept of persistently mapped buffers. Persistently mapped buffer is a buffer that is allocated once, is immutable (cannot be enlarged/shrinked in runtime), is always mapped and allows to write to GPUs memory. A manual synchronisation on the engine side is also required - GPU should not read the buffer when engine writes. Persistently mapped buffer is used as a base of memory pool allocator.
 
 
@@ -535,7 +550,7 @@ Example of `glMultiDrawArraysIndirect` usage:
       0                                      // tightly packed, no additional parameters
   );
 ```
-DAIC can have additional custom parameters specified in it's struct. If additional parameters are present, a `stride` needs to be specified. If no additional parameters are present array of DAIC structs is tightly packed and the distance between each struct equals to 0. 
+DAIC can have additional custom parameters specified in it's struct. If additional parameters are present, a `stride` needs to be specified. If no additional parameters are present array of DAIC structs is tightly packed and the distance between each struct is equal to 0. 
 `indirect` parameter can either be an offset or a pointer. If the DAIC buffer is bound to a `GL_DRAW_INDIRECT_BUFFER` then it's an offset. Otherwise it's a pointer.
 It's used as an offset in the engine:
 ```cpp
@@ -691,7 +706,7 @@ Mesh data format is an array of faces. Each face consists of
 4. face type
 5. ambient occlusion data
 
-SSBO is used to store faces data. Per-chunk data like chunk position and level of detail is stored and passed separately, as there is no need to store per chunk data in each face. Currently no unique data is stored per single vertex. 
+SSBO is used to store faces data and per-chunk data. Per-chunk data like chunk position and level of detail is stored and passed separately, as there is no need to store per chunk data in each face. Currently no unique data is stored per single vertex. 
 Moving non-unique data to a shared storage, e.g. moving non-unique vertex data to a face data or moving per-chunk data to per-chunk memory data storage is sometimes called vertex pulling https://voxel.wiki/wiki/vertex-pulling/
 
 
