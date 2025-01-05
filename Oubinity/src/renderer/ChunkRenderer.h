@@ -19,6 +19,12 @@
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
 
+struct Task {
+  int id;
+  std::function<void()> f;
+  void operator()() { f(); }
+};
+
 class ChunkRenderer : public Renderer {
  public:
   ChunkRenderer() = delete;
@@ -27,6 +33,7 @@ class ChunkRenderer : public Renderer {
   void render(Camera& camera) override;
 
   void traverseScene();
+  void doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z);
   void updateBufferIfNeedsUpdate();
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
@@ -96,6 +103,8 @@ class ChunkRenderer : public Renderer {
       m_chunks_to_allocate;  // render thread writes, main thread reads
   std::queue<glm::ivec3>
       m_chunks_to_free;  // render thread writes, main thread reads
+
+  std::queue<std::function<void()>> m_tasks;
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
   TerrainGenerator& m_terrain_generator;     // called only on render thread

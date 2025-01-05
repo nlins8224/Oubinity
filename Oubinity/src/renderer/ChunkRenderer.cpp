@@ -1,4 +1,5 @@
 #include "ChunkRenderer.h"
+
 ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
                              Camera& camera, GLuint texture_array)
     : m_terrain_generator{terrain_generator},
@@ -37,6 +38,10 @@ void ChunkRenderer::drawChunksSceneMesh() {
 void ChunkRenderer::traverseSceneLoop() {
   while (true) {
     traverseScene();
+    while (!m_tasks.empty()) {
+      m_tasks.front()();
+      m_tasks.pop();
+    }
   }
 }
 
@@ -86,11 +91,11 @@ void ChunkRenderer::initChunks() {
 // some updates to be lost. All actions should be queued or traverseScene should
 // be faster
 void ChunkRenderer::traverseScene() {
-  int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
-  int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
+  int last_camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
+  int last_camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
-  int dx = std::abs(camera_chunk_pos_x - m_camera_last_chunk_pos.x);
-  int dz = std::abs(camera_chunk_pos_z - m_camera_last_chunk_pos.z);
+  int dx = std::abs(last_camera_chunk_pos_x - m_camera_last_chunk_pos.x);
+  int dz = std::abs(last_camera_chunk_pos_z - m_camera_last_chunk_pos.z);
   if (dx < 1 && dz < 1) {
     return;
   }
@@ -101,19 +106,33 @@ void ChunkRenderer::traverseScene() {
           dx, dz);
   }
 
+  int camera_chunk_pos_x = last_camera_chunk_pos_x;
+  int camera_chunk_pos_z = last_camera_chunk_pos_z;
+
+  for (int i = 0; i < dx; i++) {
+    camera_chunk_pos_x = last_camera_chunk_pos_x + i;
+    doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
+  }
+
+  for (int j = 0; j < dz; j++) {
+    camera_chunk_pos_z = last_camera_chunk_pos_z + j;
+    doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
+  }
   m_camera_last_chunk_pos.x = camera_chunk_pos_x;
   m_camera_last_chunk_pos.z = camera_chunk_pos_z;
+}
 
+void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   ChunkBorder chunk_border;
   uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
-  for (int i = 1; i < max_lod_level; i++) {
-  	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-  	chunk_border.min_x = camera_chunk_pos_x - border_dist;
-  	chunk_border.max_x = camera_chunk_pos_x + border_dist;
-  	chunk_border.min_z = camera_chunk_pos_z - border_dist;
-  	chunk_border.max_z = camera_chunk_pos_z + border_dist;
-  	iterateOverChunkBorderAndUpdateLod(chunk_border);
-  }
+  // for (int i = 1; i < max_lod_level; i++) {
+  //	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+  //	chunk_border.min_x = camera_chunk_pos_x - border_dist;
+  //	chunk_border.max_x = camera_chunk_pos_x + border_dist;
+  //	chunk_border.min_z = camera_chunk_pos_z - border_dist;
+  //	chunk_border.max_z = camera_chunk_pos_z + border_dist;
+  //	iterateOverChunkBorderAndUpdateLod(chunk_border);
+  // }
 
   int border_dist = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
   chunk_border.min_x = camera_chunk_pos_x - border_dist;
@@ -127,10 +146,12 @@ void ChunkRenderer::traverseScene() {
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
         chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
         chunk_border.max_z);
-  iterateOverChunkBorderAndDelete(move_dir);
-  iterateOverChunkBorderAndCreate(move_dir);
-
-  updateChunkPipeline();
+  m_tasks.emplace(
+      [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
+  m_tasks.emplace([this] { deleteOutOfRenderDistanceChunks(); });
+  m_tasks.emplace(
+      [this, move_dir] { iterateOverChunkBorderAndCreate(move_dir); });
+  m_tasks.emplace([this] { updateChunkPipeline(); });
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndCreate(
