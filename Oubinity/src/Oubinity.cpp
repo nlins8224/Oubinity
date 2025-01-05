@@ -38,13 +38,14 @@ int main() {
   Camera camera{glm::vec3(0.0f, 128.0f, 0.0f)};
   TerrainGenerator terrain_generator{1337, 1};
   TextureManager m_texture_manager{16, 16, 256};
-  PlayerInput player_input{window.getWindow(), camera};
   MasterRenderer master_renderer(
       terrain_generator, camera, m_texture_manager.getSkyboxTextureId(),
       m_texture_manager.getTextureArrayId(),
       m_texture_manager.getWaterTextureId(), terrain_generator.getWaterHeight(),
       ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS * CHUNK_SIZE,
       m_texture_manager.getCloudNoiseId(), glm::ivec2{699, 393});
+  PlayerInput player_input{window.getWindow(), camera,
+                           master_renderer.getChunkRenderer()};
   FrameBuffer scene_buffer{Window::SCREEN_WIDTH, Window::SCREEN_HEIGHT};
   GuiUIManager imgui_manager(&window);
   GuiLayout gui_layout{&imgui_manager, &scene_buffer};

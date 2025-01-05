@@ -32,11 +32,13 @@ class ChunkRenderer : public Renderer {
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
   void traverseSceneLoop();
+  Chunk* getChunkByWorldPos(glm::ivec3 world_block_pos);
+  block_id getBlockIdByWorldPos(glm::ivec3 world_block_pos);
+  void updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type);
 
  private:
   void initChunks();
-  bool
-  createChunksInRenderDistance();  // called when scene was already traversed
+  bool createChunksInRenderDistance();  // called when scene was already traversed
   bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
   void createChunk(glm::ivec3 chunk_pos);
   bool populateChunksNeighbors();
@@ -47,8 +49,7 @@ class ChunkRenderer : public Renderer {
   bool decorateChunks();
   bool meshChunks();
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool
-  deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
+  bool deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
   bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
   void deleteChunk(glm::ivec3 chunk_pos);
   bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);

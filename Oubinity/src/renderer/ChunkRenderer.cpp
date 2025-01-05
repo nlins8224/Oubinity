@@ -1,4 +1,5 @@
 #include "ChunkRenderer.h"
+#include "../Util.h"
 
 ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
                              Camera& camera, GLuint texture_array)
@@ -42,6 +43,34 @@ void ChunkRenderer::traverseSceneLoop() {
       m_tasks.front()();
       m_tasks.pop();
     }
+  }
+}
+
+Chunk* ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
+  glm::ivec3 chunk_pos = {world_block_pos.x / CHUNK_SIZE,
+                          world_block_pos.y / CHUNK_SIZE,
+                          world_block_pos.z / CHUNK_SIZE};
+  if (!m_chunks_by_coord.get(chunk_pos)) {
+    return nullptr;
+  }
+  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  return m_chunks_by_coord.get(chunk_pos);
+}
+
+block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
+  Chunk* chunk = getChunkByWorldPos(world_block_pos);
+  if (!chunk) {
+    return block_id::NONE;
+  }
+  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  return chunk->getBlockId(local_pos);
+}
+
+void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type) {
+  Chunk* chunk = getChunkByWorldPos(world_block_pos);
+  if (chunk) {
+    glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+    chunk->setBlock(local_pos, type);
   }
 }
 
