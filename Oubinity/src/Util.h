@@ -1,4 +1,6 @@
 #pragma once
+#include "chunk/ChunkSize.h"
+
 namespace Util {
 static inline int getMod(int pos, int mod) { return ((pos % mod) + mod) % mod; }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <vector>
+#include <map>
 
 #include "ChunkBorder.h"
 #include "ChunkRendererSettings.h"
@@ -24,13 +25,8 @@ class ChunkSlidingWindow {
   Chunk* get(glm::ivec3 chunk_pos);
   void setBorder(ChunkBorder chunk_border);
   ChunkBorder getBorder();
-
  private:
   int calculateIndex(glm::ivec3 chunk_pos);
-  // TODO: Allocate this on heap
   std::vector<Chunk*> m_chunks_window;
   ChunkBorder m_chunk_border;
-
-  // true modulo instead of C++ remainder modulo
-  inline int getMod(int pos, int mod) { return ((pos % mod) + mod) % mod; }
 };

@@ -85,7 +85,7 @@ int main() {
   glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &max_ssbo_size);
   LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
 
-  master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
+  //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
   // PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap.png");
 
   double xpos, ypos;
@@ -103,8 +103,8 @@ int main() {
       glm::vec3 player_pos = player_input.getCamera().getCameraPos();
 
       LOG_F(INFO, "FPS: %d", frames_per_second);
-      LOG_F(INFO, "Player Pos XYZ: (%d, %d, %d)", (int)player_pos.x,
-            (int)player_pos.y, (int)player_pos.z);
+      LOG_F(INFO, "Player Pos XYZ: (%d, %d, %d)", (int)player_pos.x / CHUNK_SIZE, (int)player_pos.y / CHUNK_SIZE,
+            (int)player_pos.z / CHUNK_SIZE);
 
       seconds_elapsed += 1.0f;
       frames_per_second = 0;

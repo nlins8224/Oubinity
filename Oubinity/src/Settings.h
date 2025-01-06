@@ -1,11 +1,11 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#define SETTING_USE_PRELOADED_HEIGHTMAP 1
-#define SETTING_USE_PRELOADED_COLORMAP 1
+#define SETTING_USE_PRELOADED_HEIGHTMAP 0
+#define SETTING_USE_PRELOADED_COLORMAP 0
 // Using PRELOADED_HEIGHTMAP is prerequisite
 // Blends preloaded and procedural heightmap
-#define SETTING_USE_HEIGHTMAP_BLENDING 1
+#define SETTING_USE_HEIGHTMAP_BLENDING 0
 // Using PRELOADED_HEIGHTMAP is prerequisite
 #define SETTING_USE_PRELOADED_TREEMAP 0
 
@@ -20,7 +20,7 @@ namespace Settings {
 // i.e. setting this to {2.0, 2.0, 2.0} means that each pixel on a height map or
 // color map corresponds to 2x2x2 area in the world map. Bilinear interpolation
 // is used on XZ plane, while heightmap is scaled on Y axis
-static constexpr glm::vec3 SETTING_SCALE = {2.0, 1.0, 2.0};
+static constexpr glm::vec3 SETTING_SCALE = {1.0, 1.0, 1.0};
 
 // Used to determine thickness of a surface layer, when using
 // PRELOADED_COLORMAP.

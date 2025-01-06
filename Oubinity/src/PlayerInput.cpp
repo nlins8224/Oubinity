@@ -6,7 +6,6 @@ PlayerInput::PlayerInput(GLFWwindow* window, Camera& default_camera, ChunkRender
       m_default_camera{default_camera},
       m_world{chunk_renderer} {
   setWindowCallbacks();
-  m_is_wireframe_enabled = false;
 }
 
 void PlayerInput::setWindowCallbacks() {
@@ -17,29 +16,43 @@ void PlayerInput::setWindowCallbacks() {
 }
 
 void PlayerInput::onMouseLeftPress() {
-  LOG_F(INFO, "onMouseLeftPress");
-  auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
-      this->m_world.updateBlockByWorldPos(next_block, Block::AIR);
-  };
-  Ray hit_ray{ this->m_world, m_default_camera.getCameraPos(),
-              m_default_camera.getCameraFront()};
-  while (hit_ray.getDistance() < 10.0) {
-      if (hit_ray.step(hit_callback))
-          break;
+  if (!m_is_left_mouse_pressed) {
+    m_is_left_mouse_pressed = true;
+    LOG_F(INFO, "onMouseLeftPress");
+    auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
+        this->m_world.updateBlockByWorldPos(next_block, Block::AIR);
+    };
+    LOG_F(INFO, "camera_pos=(%d, %d, %d)", (int)m_default_camera.getCameraPos().x / CHUNK_SIZE,
+          (int)m_default_camera.getCameraPos().y / CHUNK_SIZE, (int)m_default_camera.getCameraPos().z / CHUNK_SIZE);
+    Ray hit_ray{ this->m_world, m_default_camera.getCameraPos(),
+                m_default_camera.getCameraFront()};
+    while (hit_ray.getDistance() < 10.0) {
+      if (hit_ray.step(hit_callback)) {
+        LOG_F(INFO, "HIT");
+        break;
+      }
+            
+    }
+    m_is_left_mouse_pressed = false;
   }
 }
 
 void PlayerInput::onMouseRightPress() {
-   LOG_F(INFO, "onMouseRightPress");
-   auto hit_callback = [&](glm::vec3 current_block, glm::vec3 next_block) mutable {
-    m_world.updateBlockByWorldPos(current_block, Block::PLANKS);
-   };
+  if (!m_is_right_mouse_pressed) {
+    m_is_right_mouse_pressed = true;
+    LOG_F(INFO, "onMouseRightPress");
+    auto hit_callback = [&](glm::vec3 current_block,
+                            glm::vec3 next_block) mutable {
+      m_world.updateBlockByWorldPos(current_block, Block::PLANKS);
+    };
 
-   Ray hit_ray{ m_world, m_default_camera.getCameraPos(), m_default_camera.getCameraFront() }; 
-   while (hit_ray.getDistance() < 10.0) {
-       if (hit_ray.step(hit_callback))
-           break;
-   }
+    Ray hit_ray{m_world, m_default_camera.getCameraPos(),
+                m_default_camera.getCameraFront()};
+    while (hit_ray.getDistance() < 10.0) {
+      if (hit_ray.step(hit_callback)) break;
+    }
+    m_is_right_mouse_pressed = false;
+  }
 }
 
 void PlayerInput::toggleWireframeMode() {

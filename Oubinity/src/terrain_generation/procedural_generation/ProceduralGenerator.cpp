@@ -49,8 +49,8 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
   for (int x = 0; x < lod.block_amount; x++) {
     for (int z = 0; z < lod.block_amount; z++) {
       height_map[x][z] = data_out[z * lod.block_amount + x];
-      height_map[x][z] =
-          std::sqrt(height_map[x][z] * height_map[x][z]) * 220.0f;
+      height_map[x][z] = 200;
+          //std::sqrt(height_map[x][z] * height_map[x][z]) * 220.0f;
     }
   }
 

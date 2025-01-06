@@ -7,9 +7,9 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
       m_lod{lod},
       m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE,
                             chunk_pos.z * CHUNK_SIZE}},
-      m_state{ChunkState::NEW} {
-  m_is_visible = true;
-}
+      m_state{ChunkState::NEW},
+      m_is_visible{true},
+      m_was_edited{false} {}
 
 Chunk::Chunk(const Chunk& chunk)
     : m_mesh{chunk.m_mesh},
@@ -26,12 +26,15 @@ Chunk::~Chunk() {
 }
 
 void Chunk::addChunkMesh() {
-  m_blocks->resizeIfNeeded();
+  //m_blocks->resizeIfNeeded();
   m_mesh = new MeshData();
   addFaces();
   delete m_mesh;
-  // Do not store blocks after meshing
-  m_blocks->clear();
+  // No need to store blocks if chunk was not edited by a player.
+  // Blocks will be regenerated on a fly
+  if (!m_was_edited) {
+    m_blocks->clear();
+  }
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
@@ -97,7 +100,6 @@ void Chunk::addFaces() {
       m_blocks->getPaddedOccupancyMask();
   std::vector<block_id> padded_blocks_id_cache =
       m_blocks->getPaddedBlockIdCache();
-  ;
 
   int min_y = 0, max_y = CS_P;
   int min_x = 0, max_x = CS_P;
@@ -458,6 +460,8 @@ bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const {
          z >= chunk_size;
 }
 
+bool Chunk::wasChunkEdited() const { return m_was_edited; }
+
 void Chunk::setIsVisible(bool is_visible) { m_is_visible = is_visible; }
 
 std::vector<Vertex>& Chunk::getMesh() { return m_vertices; }
@@ -502,6 +506,8 @@ glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const {
 Block::BlockStorage& Chunk::getBlockArray() { return *m_blocks; }
 
 void Chunk::setBlockArray() { m_blocks = new Block::BlockStorage(m_lod); }
+
+void Chunk::setWasChunkEdited(bool was_edited) { m_was_edited = was_edited; }
 
 const glm::vec3 Chunk::getWorldPos() const { return m_world_pos; }
 

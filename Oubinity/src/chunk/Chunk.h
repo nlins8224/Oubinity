@@ -17,12 +17,12 @@
 #include "Face.h"
 #include "Vertex.h"
 
+// clang-format off
 /*
 Convention:
 world_pos is what it seems to be
-chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) /
-CHUNK_SIZE block_pos is position of a block inside the chunk, calculated by:
-floor(world_pos) % CHUNK_SIZE
+chunk_pos is position of a chunk in the world, calculated by: floor(world_pos) / CHUNK_SIZE 
+block_pos is position of a block inside the chunk, calculated by: floor(world_pos) % CHUNK_SIZE
 
 Voxel:
 * 0 - (0, 0, 1)
@@ -37,9 +37,9 @@ Voxel:
           ^ Y
           |
           |
-          6--------7
-         /        / |
-        /        /  |
+     6--------7
+    /         / |
+   /         /  |
    2--------3   |
    |        |   |
    |  4-----|---5  --> X
@@ -50,6 +50,7 @@ Voxel:
  /
 Z
 */
+// clang-format on
 
 struct MeshData {
   uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
@@ -108,6 +109,7 @@ class Chunk {
   ChunkState getState();
   void setIsVisible(bool is_visible);
   void setBlockArray();
+  void setWasChunkEdited(bool was_edited);
 
   glm::ivec3 getPos() const;
   glm::ivec2 getPosXZ() const;
@@ -124,18 +126,20 @@ class Chunk {
   bool isVisible() const;
   bool isBlockPresent(glm::ivec3 block_pos) const;
   bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
+  bool wasChunkEdited() const;
 
   Chunk* findNeighborChunk(glm::ivec3 block_pos) const;
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
   MeshData* m_mesh;
-  Block::BlockStorage* m_blocks;  // deleted after it's unpacked
+  Block::BlockStorage* m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;
   glm::ivec3 m_chunk_pos;
   glm::vec3 m_world_pos;
   bool m_is_visible;
+  bool m_was_edited;
   LevelOfDetail::LevelOfDetail m_lod;
   unsigned int m_added_faces{0};
 

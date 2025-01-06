@@ -53,7 +53,6 @@ Chunk* ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
   if (!m_chunks_by_coord.get(chunk_pos)) {
     return nullptr;
   }
-  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
   return m_chunks_by_coord.get(chunk_pos);
 }
 
@@ -66,12 +65,38 @@ block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
   return chunk->getBlockId(local_pos);
 }
 
-void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type) {
+bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
   Chunk* chunk = getChunkByWorldPos(world_block_pos);
-  if (chunk) {
-    glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
-    chunk->setBlock(local_pos, type);
+  if (!chunk) {
+    return block_id::NONE;
   }
+  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  return chunk->isBlockPresent(local_pos);
+}
+
+// main thread
+void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type) {
+  glm::ivec3 chunk_pos = {world_block_pos.x / CHUNK_SIZE,
+                          world_block_pos.y / CHUNK_SIZE,
+                          world_block_pos.z / CHUNK_SIZE};
+  LOG_F(INFO, "refreshChunk at chunk_pos=(%d,%d,%d)", chunk_pos.x, chunk_pos.y,
+        chunk_pos.z);
+  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+  if (!chunk) {
+    LOG_F(ERROR, "CHUNK DOES NOT EXIST (%d, %d, %d)", chunk_pos.x, chunk_pos.y,
+          chunk_pos.z);
+    return;
+  }
+  if (!chunk->wasChunkEdited()) {
+    m_terrain_generator.generateChunkTerrain(*chunk);
+  }
+  chunk->setBlock(Util::chunkWorldPosToLocalPos(world_block_pos), type);
+  chunk->setWasChunkEdited(true);
+  meshChunk(chunk_pos);
+  freeChunk(chunk_pos);
+  allocateChunk(chunk_pos);
+  m_vertexpool->createChunkInfoBuffer();
+  m_vertexpool->createChunkLodBuffer();
 }
 
 void ChunkRenderer::initChunks() {
@@ -310,6 +335,7 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos,
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
   if (m_buffer_needs_update.load()) {
+    LOG_F(INFO, "updateBufferIfNeedsUpdate");
     m_buffer_needs_update.store(false);
     // free should go first, before allocate
     freeChunks();
@@ -338,8 +364,8 @@ bool ChunkRenderer::createChunksInRenderDistance() {
 
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
-  // if (m_chunks_by_coord.if_contains(chunk_pos, [](auto) {}))
-  //	return false;
+   if (m_chunks_by_coord.get(chunk_pos))
+  	return false;
 
   createChunk(chunk_pos);
   return true;
@@ -351,16 +377,7 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
       m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
   LevelOfDetail::LevelOfDetail lod =
       LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
-#if SETTING_USE_HEIGHTMAP_BLENDING
-  HeightMap height_map =
-      m_terrain_generator.generateBlendedHeightMap(chunk_pos, lod);
-#elif SETTING_USE_PRELOADED_HEIGHTMAP
-  HeightMap height_map =
-      m_terrain_generator.generatePreloadedHeightMap(chunk_pos, lod);
-#else
-  ProceduralHeightMap height_map =
-      m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
-#endif
+  HeightMap height_map = generateHeightmap(chunk_pos, lod);
   bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
       chunk_pos, height_map, lod);
   if (!is_chunk_visible) {
@@ -371,6 +388,17 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
   m_chunks_to_populate_neighbors.push(chunk_pos);
   chunk->setState(ChunkState::CREATED);
   m_chunks_by_coord.set(chunk_pos, chunk);
+}
+
+HeightMap ChunkRenderer::generateHeightmap(glm::ivec3 chunk_pos,
+    LevelOfDetail::LevelOfDetail lod) {
+#if SETTING_USE_HEIGHTMAP_BLENDING
+      return m_terrain_generator.generateBlendedHeightMap(chunk_pos, lod);
+#elif SETTING_USE_PRELOADED_HEIGHTMAP
+      return m_terrain_generator.generatePreloadedHeightMap(chunk_pos, lod);
+#else
+      return m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
+#endif
 }
 
 bool ChunkRenderer::populateChunksNeighbors() {
@@ -420,7 +448,7 @@ bool ChunkRenderer::generateChunksTerrain() {
   }
   while (!chunks_to_generate_underground_layer.empty()) {
     glm::ivec3 chunk_pos = chunks_to_generate_underground_layer.front();
-    // generatePreloadedChunkUndergroundLayer(chunk_pos);
+    //generatePreloadedChunkUndergroundLayer(chunk_pos);
     chunks_to_generate_underground_layer.pop();
   }
 #else
@@ -571,13 +599,13 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
 void ChunkRenderer::allocateChunks() {
   LOG_F(INFO, "allocateChunks");
   while (!m_chunks_to_allocate.empty()) {
-    allocateChunk();
+    allocateChunk(m_chunks_to_allocate.front());
+    m_chunks_to_allocate.pop();
   }
 }
 
 // main thread
-void ChunkRenderer::allocateChunk() {
-  glm::ivec3 chunk_pos = m_chunks_to_allocate.front();
+void ChunkRenderer::allocateChunk(glm::ivec3 chunk_pos) {
   Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
   VertexPool::ChunkAllocData alloc_data;
 
@@ -593,7 +621,6 @@ void ChunkRenderer::allocateChunk() {
 
   chunk->setState(ChunkState::ALLOCATED);
   m_vertexpool->allocate(std::move(alloc_data));
-  m_chunks_to_allocate.pop();
 }
 
 // main thread

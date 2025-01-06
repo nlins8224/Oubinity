@@ -1,5 +1,11 @@
 #include "Ray.h"
 
+Ray::Ray(ChunkRenderer& world, glm::vec3 origin, glm::vec3 direction)
+    : m_world{world}, m_origin{origin}, m_direction{direction} {
+  m_world_block_pos = glm::round(origin);
+  m_current_pos = origin;
+};
+
 double Ray::getDistance() { return m_distance_travelled; }
 
 bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback) {
@@ -75,8 +81,9 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback) {
 
 bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback,
                 double distance, glm::vec3 current_block, glm::vec3 next_block) {
-  block_id block_type = m_world.getBlockIdByWorldPos(next_block);
-  if (block_type != block_id::AIR && block_type != block_id::NONE) {
+  if (m_world.isBlockPresentByWorldPos(next_block)) {
+    LOG_F(INFO, "HIT at (%d, %d, %d)", (int)next_block.x / CHUNK_SIZE,
+          (int)next_block.y / CHUNK_SIZE, (int)next_block.z / CHUNK_SIZE);
     hit_callback(current_block, next_block);
     return true;
   }
@@ -86,6 +93,7 @@ bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback,
   m_current_pos += pos_change;
   m_world_block_pos = next_block;
   m_distance_travelled += distance;
+	
 
   return false;
 }
