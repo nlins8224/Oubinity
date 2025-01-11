@@ -394,9 +394,9 @@ bool Chunk::isBlockPresent(glm::ivec3 block_pos) const {
 
 bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-  int chunk_size = m_lod.block_amount;
-  return x < 0 || y < 0 || z < 0 || x >= chunk_size || y >= chunk_size ||
-         z >= chunk_size;
+  int chunk_size_padding = m_lod.block_amount + 2;
+  return x < 0 || y < 0 || z < 0 || x >= chunk_size_padding ||
+         y >= chunk_size_padding || z >= chunk_size_padding;
 }
 
 bool Chunk::wasChunkEdited() const { return m_was_edited; }

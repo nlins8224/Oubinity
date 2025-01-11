@@ -359,9 +359,9 @@ bool ChunkRenderer::createChunksInRenderDistance() {
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
   Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  //if (chunk && chunk->getPos() == chunk_pos) {
-  //  return false;
-  //}
+  if (chunk && chunk->getPos() == chunk_pos) {
+    return false;
+  }
 
   createChunk(chunk_pos);
   return true;

@@ -107,11 +107,11 @@ class Chunk {
   void setBlock(glm::ivec3 block_pos, Block::block_id type);
   void setNeighbors(ChunkNeighbors neighbors);
   void setState(ChunkState state);
-  ChunkState getState();
   void setIsVisible(bool is_visible);
   void setBlockArray();
   void setWasChunkEdited(bool was_edited);
 
+  ChunkState getState();
   glm::ivec3 getPos() const;
   glm::ivec2 getPosXZ() const;
   const glm::vec3 getWorldPos() const;
@@ -122,7 +122,6 @@ class Chunk {
   std::vector<Face>& getFaces();
   Block::BlockStorage& getBlockArray();
   unsigned int getAddedFacesAmount();
-
   bool isTransparent(glm::ivec3 block_pos) const;
   bool isVisible() const;
   bool isBlockPresent(glm::ivec3 block_pos) const;
