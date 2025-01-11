@@ -11,7 +11,6 @@
 #include "../shader/ChunkShader.h"
 #include "../terrain_generation/TerrainGenerator.h"
 #include "ChunkBorder.h"
-#include "ChunkRendererSettings.h"
 #include "ChunkSlidingWindow.h"
 #include "Renderer.h"
 

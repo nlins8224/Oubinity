@@ -2,7 +2,6 @@
 #include <vector>
 #include "../../Settings.h"
 #include "../../chunk/Chunk.h"
-#include "../../renderer/ChunkRendererSettings.h"
 #include "../TerrainGenerationTypes.h"
 #include "../procedural_generation/DecorationGenerator.h"
 #include "FileMapParser.h"

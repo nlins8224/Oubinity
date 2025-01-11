@@ -2,9 +2,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>
-
 #include "ChunkBorder.h"
-#include "ChunkRendererSettings.h"
 
 class Chunk;
 

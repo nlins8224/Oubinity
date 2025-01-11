@@ -279,7 +279,7 @@ void ZoneVertexPool::initZones(Vertex* buffer) {
 
 size_t ZoneVertexPool::calculateBucketAmountInZones() {
   size_t buckets_added = 0;
-  using ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  using Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   using LevelOfDetail::Lods;
 
   auto zones_it = zones.begin();

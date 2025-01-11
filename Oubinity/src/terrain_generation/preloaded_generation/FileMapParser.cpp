@@ -2,7 +2,6 @@
 #include "../../block/Block.h"
 #include "../../chunk/Chunk.h"
 #include "../../loguru.hpp"
-#include "../../renderer/ChunkRendererSettings.h"
 #include "../TerrainGenerationTypes.h"
 
 namespace PreloadedGeneration {

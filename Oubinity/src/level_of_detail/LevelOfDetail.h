@@ -2,7 +2,6 @@
 #include <unordered_map>
 #include <vector>
 #include "../Camera.h"
-#include "../renderer/ChunkRendererSettings.h"
 #include "../Settings.h"
 
 namespace LevelOfDetail {
@@ -78,7 +77,7 @@ static LevelOfDetail chooseLevelOfDetail(glm::ivec3 camera_pos,
 }
 
 static uint8_t getMaxLodLevel() {
-  uint8_t chunks_amount = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  uint8_t chunks_amount = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   if (chunks_amount <= One.draw_distance) return 0;
   if (chunks_amount <= Two.draw_distance) return 1;
   if (chunks_amount <= Three.draw_distance) return 2;

@@ -2,17 +2,17 @@
 #include "../Util.h"
 
 ChunkSlidingWindow::ChunkSlidingWindow() : m_chunk_border{} {
-  int chunks = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
-               ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS *
-               ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  int chunks = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
+               Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS *
+               Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   m_chunks_window.resize(chunks);
 }
 
 ChunkSlidingWindow::ChunkSlidingWindow(ChunkBorder chunk_border)
     : m_chunk_border{chunk_border} {
-  int chunks = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
-               ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS *
-               ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  int chunks = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
+               Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS *
+               Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   m_chunks_window.resize(chunks);
 }
 
@@ -45,8 +45,8 @@ void ChunkSlidingWindow::setBorder(ChunkBorder chunk_border) {
 ChunkBorder ChunkSlidingWindow::getBorder() { return m_chunk_border; }
 
 int ChunkSlidingWindow::calculateIndex(glm::ivec3 chunk_pos) {
-  int C_XZ{ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS};
-  int C_Y{ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS};
+  int C_XZ{Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS};
+  int C_Y{Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS};
   int x{chunk_pos.x}, y{chunk_pos.y}, z{chunk_pos.z};
 
   glm::ivec3 mod_index{Util::getMod(x, C_XZ), Util::getMod(y, C_Y),

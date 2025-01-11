@@ -105,7 +105,7 @@ void ChunkRenderer::initChunks() {
   int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
 
   int border_dist =
-      ((ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
+      ((Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
   int min_x = camera_chunk_pos_x - border_dist;
   int max_x = camera_chunk_pos_x + border_dist;
 
@@ -124,7 +124,7 @@ void ChunkRenderer::initChunks() {
         chunk_border.max_z);
   for (int cx = min_x; cx < max_x; cx++) {
     for (int cz = min_z; cz < max_z; cz++) {
-      for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+      for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
         m_chunks_to_create.push({cx, cy, cz});
       }
@@ -190,7 +190,7 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   //	iterateOverChunkBorderAndUpdateLod(chunk_border);
   // }
 
-  int border_dist = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
+  int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
   chunk_border.min_x = camera_chunk_pos_x - border_dist;
   chunk_border.max_x = camera_chunk_pos_x + border_dist;
   chunk_border.min_z = camera_chunk_pos_z - border_dist;
@@ -220,7 +220,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
 
   // x-/x+ iterate over z
   for (int cz = min_z; cz < max_z; cz++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
         m_chunks_to_create.push({min_x, cy, cz});
@@ -234,7 +234,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
 
   // z-/z+ iterate over x
   for (int cx = min_x; cx < max_x; cx++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
         m_chunks_to_create.push({cx, cy, min_z});
@@ -257,7 +257,7 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
 
   // x-/x+ iterate over z
   for (int cz = min_z; cz < max_z; cz++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
         m_chunks_to_delete.push({max_x, cy, cz});
@@ -271,7 +271,7 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
 
   // z-/z+ iterate over x
   for (int cx = min_x; cx < max_x; cx++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
         m_chunks_to_delete.push({cx, cy, max_z});
@@ -293,7 +293,7 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
 
   // x-/x+ iterate over z
   for (int cz = min_z; cz < max_z; cz++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (checkIfChunkLodNeedsUpdate({max_x, cy, cz})) {
         m_chunks_to_delete.push({max_x, cy, cz});
@@ -309,7 +309,7 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
 
   // z-/z+ iterate over x
   for (int cx = min_x; cx < max_x; cx++) {
-    for (int cy = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (checkIfChunkLodNeedsUpdate({cx, cy, max_z})) {
         m_chunks_to_delete.push({cx, cy, max_z});

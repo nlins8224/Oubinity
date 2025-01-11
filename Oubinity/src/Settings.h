@@ -31,4 +31,7 @@ static constexpr int CHUNK_SIZE = 32;
 static constexpr int CHUNK_SIZE_PADDING = CHUNK_SIZE + 2;
 
 static constexpr double SETTING_CAMERA_SPEED = 5.0;
+
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 32;
+static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 8;
 }  // namespace Settings
