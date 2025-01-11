@@ -10,13 +10,12 @@
 #include "../dynamic_bitset.hpp"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
+#include "../Settings.h"
 #include "../shader/Shader.h"
 #include "../third_party/timer.h"
-#include "ChunkSize.h"
 #include "ChunksMap.h"
 #include "Face.h"
 #include "Vertex.h"
-
 // clang-format off
 /*
 Convention:
@@ -53,9 +52,11 @@ Z
 // clang-format on
 
 struct MeshData {
-  uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
-  uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)]{0};
-  uint64_t merged_right[(CHUNK_SIZE + 2)]{0};
+  uint64_t col_face_masks[(Settings::CHUNK_SIZE + 2) *
+                          (Settings::CHUNK_SIZE + 2) * 6]{0};
+  uint64_t merged_forward[(Settings::CHUNK_SIZE + 2) *
+                          (Settings::CHUNK_SIZE + 2)]{0};
+  uint64_t merged_right[(Settings::CHUNK_SIZE + 2)]{0};
 };
 
 struct FaceCornersAo {

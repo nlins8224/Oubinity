@@ -2,10 +2,11 @@
 #include <array>
 #include <vector>
 #include "../block/Block.h"
-#include "../chunk/ChunkSize.h"
+#include "../Settings.h"
 
 using Block::block_id;
 using Block::Pixel_RGBA;
+using Settings::CHUNK_SIZE;
 
 // 2D surface maps
 using HeightMap = std::array<std::array<double, CHUNK_SIZE>, CHUNK_SIZE>;

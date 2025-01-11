@@ -75,7 +75,7 @@ struct Branch {
   }
 };
 
-struct Settings {
+struct TreeBranchSettings {
   unsigned int kill_distance;  // choosing multiples of branch_length is
                                // recommended in the paper
   unsigned int branch_length;
@@ -85,7 +85,7 @@ struct Settings {
   unsigned int bounding_box_size;
 };
 
-static const Settings DefaultSettings{.kill_distance{4},
+static const TreeBranchSettings DefaultSettings{.kill_distance{4},
                                       .branch_length{2},
                                       .attraction_point_range{8},
                                       .max_attraction_points{3200},
@@ -94,7 +94,7 @@ static const Settings DefaultSettings{.kill_distance{4},
 
 class BranchGenerator {
  public:
-  BranchGenerator(Settings settings = DefaultSettings);
+  BranchGenerator(TreeBranchSettings settings = DefaultSettings);
   virtual ~BranchGenerator();
   std::vector<Branch> generateBranches(glm::ivec3 tree_pos);
   std::vector<Branch> getLastGeneratedBranches();
@@ -120,7 +120,7 @@ class BranchGenerator {
   std::vector<Branch> m_branches;
 
   std::queue<Node*> m_pending_new_nodes;
-  Settings m_settings;
+  TreeBranchSettings m_settings;
   std::unordered_set<glm::ivec3> m_grid;
 };
 }  // namespace ProceduralTree

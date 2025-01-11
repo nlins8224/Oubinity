@@ -7,19 +7,17 @@
 #include <vector>
 #include "../Settings.h"
 #include "../chunk/Chunk.h"
-#include "../chunk/ChunkSize.h"
 #include "../chunk/Vertex.h"
 #include "../loguru.hpp"
 #include "../renderer/ChunkRendererSettings.h"
 #include "Zone.h"
 
 namespace VertexPool {
+using Settings::CHUNK_SIZE;
 constexpr size_t MAX_BLOCKS_IN_CHUNK = CHUNK_SIZE * CHUNK_SIZE;
 constexpr size_t FACES_IN_BLOCK = 6;
 
 using namespace ChunkRendererSettings;
-// Only surface chunk should be rendered. There is possibility that
-// some cunk underneath could be needed, hence multiplication by 4
 constexpr size_t TOTAL_CHUNKS =
     MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;

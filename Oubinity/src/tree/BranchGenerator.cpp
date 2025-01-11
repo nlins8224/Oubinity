@@ -1,6 +1,7 @@
 #include "BranchGenerator.h"
+#include "../Settings.h"
 
-ProceduralTree::BranchGenerator::BranchGenerator(Settings settings)
+ProceduralTree::BranchGenerator::BranchGenerator(TreeBranchSettings settings)
     : m_settings{settings}, m_grid{false} {}
 
 ProceduralTree::BranchGenerator::~BranchGenerator() {
@@ -24,9 +25,9 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
 
   std::uniform_real_distribution<double> dist(-range, range);
   std::uniform_real_distribution<double> dist_unsigned(0, range);
-  for (size_t x = 0; x < CHUNK_SIZE; x += 8) {
-    for (size_t y = 0; y < CHUNK_SIZE; y += 8) {
-      for (size_t z = 0; z < CHUNK_SIZE; z += 8) {
+  for (size_t x = 0; x < Settings::CHUNK_SIZE; x += 8) {
+    for (size_t y = 0; y < Settings::CHUNK_SIZE; y += 8) {
+      for (size_t z = 0; z < Settings::CHUNK_SIZE; z += 8) {
         glm::vec3 ap_pos =
             tree_pos + glm::ivec3(dist(generator_x),
                                   dist_unsigned(generator_y) + range,

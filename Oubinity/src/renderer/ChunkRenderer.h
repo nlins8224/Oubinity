@@ -5,7 +5,6 @@
 #include <vector>
 #include "../Camera.h"
 #include "../chunk/Chunk.h"
-#include "../chunk/ChunkSize.h"
 #include "../chunk/ChunksMap.h"
 #include "../frustum/AABox.h"
 #include "../gpu_loader/ZoneVertexPool.h"

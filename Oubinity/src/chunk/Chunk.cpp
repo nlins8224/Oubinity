@@ -5,8 +5,9 @@ using Block::block_mesh;
 Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
     : m_chunk_pos{chunk_pos},
       m_lod{lod},
-      m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE,
-                            chunk_pos.z * CHUNK_SIZE}},
+      m_world_pos{glm::vec3{chunk_pos.x * Settings::CHUNK_SIZE,
+                            chunk_pos.y * Settings::CHUNK_SIZE,
+                            chunk_pos.z * Settings::CHUNK_SIZE}},
       m_state{ChunkState::NEW},
       m_is_visible{true},
       m_was_edited{false} {}
