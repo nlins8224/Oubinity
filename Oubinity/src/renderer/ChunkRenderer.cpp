@@ -11,9 +11,9 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
 
 {
   m_vertexpool = new VertexPool::ZoneVertexPool{};
+  m_init_stage = true;
   initChunks();
   m_buffer_needs_update = false;
-  m_init_stage = true;
   m_camera_last_chunk_pos = {
       m_camera.getCameraPos().x / CHUNK_SIZE,
       m_camera.getCameraPos().y / CHUNK_SIZE,

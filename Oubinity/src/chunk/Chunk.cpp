@@ -108,44 +108,7 @@ void Chunk::addFaces() {
 
   bool neighbor_visible = false;
 
-  // 1. Prepare neighbors padding
-  // Optimization: blocks in padding will not be visible and all needed
-  // to know is if block is opaque or not.
-  // hence |neighbor_visible ? Block::STONE : Block::AIR| is sufficient check.
-  for (int y = 0; y < CS_P; y++) {
-    for (int x : {min_x, max_x}) {
-      for (int z : {min_z, max_z}) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  for (int y : {min_y, max_y}) {
-    for (int x = 0; x < CS_P; x++) {
-      for (int z : {min_z, max_z}) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  for (int y : {min_y, max_y}) {
-    for (int x : {min_x, max_x}) {
-      for (int z = 0; z < CS_P; z++) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  // 2.
+  // 1.
   /*
     axis 0:
     axis_cols[0, CS_P2) - iterating over xz plane in y direction, top and bottom
@@ -170,7 +133,7 @@ void Chunk::addFaces() {
     }
   }
 
-  // 3.
+  // 2.
   /*
   axis 0: Top and Bottom faces
     col[0, CS_P2)
@@ -195,7 +158,7 @@ col_face_masks[2CS_P2, 3CS_P2)
     }
   }
 
-  // 4. Greedy meshing
+  // 3. Greedy meshing
   bit_pos = 0;
   for (uint8_t face = 0; face < 6; face++) {
     int axis = face / 2;
