@@ -72,12 +72,6 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
     return;
   }
 
-  DAIC daic{
-      added_vertices,  // vertices in face * added_faces
-      1,
-      first_free_bucket->_start_offset,  // offset in m_mesh_persistent_buffer
-      0};
-
   LevelOfDetail::LevelOfDetail lod = alloc_data._lod;
   size_t id = first_free_bucket->_id;
   LOG_F(1,
@@ -92,7 +86,18 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
         "Vertex offset: %d, face offset: %d, vertex offset / face offset: %d",
         vertex_offset, face_offset, vertex_offset / face_offset);
 
-  m_chunk_metadata.active_daics.push_back(daic);
+  if (m_chunk_metadata.active_daics.size() > MAX_DAIC_AMOUNT) {
+    LOG_F(ERROR,
+          "m_chunk_metadata.active_daics.size()=%d, but MAX_DAIC_AMOUNT=%d",
+          m_chunk_metadata.active_daics.size(), MAX_DAIC_AMOUNT);
+    return;
+  }
+
+  m_chunk_metadata.active_daics.emplace_back(
+      added_vertices,  // vertices in face * added_faces
+      1u, 
+      first_free_bucket->_start_offset, // offset in m_mesh_persistent_buffer
+      0u);
   first_free_bucket->_is_free = false;
 
   size_t daic_id = m_chunk_metadata.active_daics.size() - 1;

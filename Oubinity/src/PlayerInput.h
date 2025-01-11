@@ -8,17 +8,23 @@
 #include "Camera.h"
 #include "io/Keyboard.h"
 #include "io/Mouse.h"
+#include "renderer/ChunkRenderer.h"
 
 class PlayerInput {
  public:
-  PlayerInput(GLFWwindow* window, Camera& default_camera);
+  PlayerInput(GLFWwindow* window, Camera& default_camera, ChunkRenderer& chunk_renderer);
   void processInput(float delta_time);
   Camera& getCamera();
 
  private:
   Camera& m_default_camera;
+  ChunkRenderer& m_world;
   GLFWwindow* m_window;
-  bool m_is_wireframe_enabled;
+  bool m_is_wireframe_enabled{false};
+  bool m_is_left_mouse_pressed{false};
+  bool m_is_right_mouse_pressed{false};
+  void onMouseLeftPress();
+  void onMouseRightPress();
   void setWindowCallbacks();
   void toggleWireframeMode();
   void enableWireframeMode();

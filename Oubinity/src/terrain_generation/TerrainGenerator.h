@@ -35,6 +35,11 @@ class TerrainGenerator {
   bool generatePreloadedLayers(Chunk& chunk, HeightMap height_map);
 #endif
 
+#if defined(SETTING_USE_HEIGHTMAP_BLENDING) == 1
+  PreloadedHeightMap generateBlendedHeightMap(glm::ivec3 chunk_pos,
+                                              LevelOfDetail::LevelOfDetail lod);
+#endif
+
  private:
   ProceduralGenerator m_procedural_generator;
 #if defined(SETTING_USE_PRELOADED_HEIGHTMAP) == 1 || \

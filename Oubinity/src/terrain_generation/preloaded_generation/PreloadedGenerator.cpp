@@ -4,10 +4,10 @@
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
     : m_water_height{water_height} {
   HeightMapBundle height_map_bundle =
-      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/gaea30.png",
+      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/canyon_heightmap.png",
                                                      scale);
   BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps(
-      "assets/gaea30_colormap.png", scale);
+      "assets/canyon_colormap.png", scale);
   HeightMapBundle tree_map_bundle =
       PreloadedGeneration::parsePNGToHeightMaps_8BIT(
           "assets/gaea31_treemap.png", scale);
@@ -197,10 +197,10 @@ glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos) {
 }
 
 void PreloadedGenerator::generateTrees(Chunk& chunk) {
-  // glm::ivec3 chunk_pos = chunk.getPos();
-  // HeightMap height_map = getHeightMap(chunk_pos);
-  // TreePresenceMap tree_presence_map =
-  // generateTreePresenceMap(getTreeMap(chunk_pos));
-  // m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
-  // m_water_height);
+   glm::ivec3 chunk_pos = chunk.getPos();
+   HeightMap height_map = getHeightMap(chunk_pos, chunk.getLevelOfDetail());
+   TreePresenceMap tree_presence_map =
+   generateTreePresenceMap(getTreeMap(chunk_pos));
+   m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
+   m_water_height);
 }

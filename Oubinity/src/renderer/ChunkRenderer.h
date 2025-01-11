@@ -27,17 +27,23 @@ class ChunkRenderer : public Renderer {
   void render(Camera& camera) override;
 
   void traverseScene();
+  void doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z);
   void updateBufferIfNeedsUpdate();
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
   void traverseSceneLoop();
+  Chunk* getChunkByWorldPos(glm::ivec3 world_block_pos);
+  block_id getBlockIdByWorldPos(glm::ivec3 world_block_pos);
+  bool isBlockPresentByWorldPos(glm::ivec3 world_block_pos);
+  void updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type);
 
  private:
   void initChunks();
-  bool
-  createChunksInRenderDistance();  // called when scene was already traversed
+  bool createChunksInRenderDistance();  // called when scene was already traversed
   bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
   void createChunk(glm::ivec3 chunk_pos);
+  HeightMap generateHeightmap(glm::ivec3 chunk_pos,
+                              LevelOfDetail::LevelOfDetail lod);
   bool populateChunksNeighbors();
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
   bool generateChunksTerrain();
@@ -46,8 +52,7 @@ class ChunkRenderer : public Renderer {
   bool decorateChunks();
   bool meshChunks();
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool
-  deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
+  bool deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
   bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
   void deleteChunk(glm::ivec3 chunk_pos);
   bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
@@ -56,10 +61,14 @@ class ChunkRenderer : public Renderer {
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
+  void refreshChunk(glm::ivec3 chunk_pos);
+
   void allocateChunks();
-  void allocateChunk();
+  void allocateChunk(glm::ivec3 chunk_pos);
   void freeChunks();
-  void freeChunk();
+  void freeChunk(glm::ivec3 chunk_pos);
+
+  void updateChunkPipeline();
 
   bool checkCameraPosChanged();
 
@@ -70,6 +79,7 @@ class ChunkRenderer : public Renderer {
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
   GLuint m_texture_array;
+  bool m_init_stage;
 
   // Meshing is done on render thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
@@ -94,6 +104,8 @@ class ChunkRenderer : public Renderer {
       m_chunks_to_allocate;  // render thread writes, main thread reads
   std::queue<glm::ivec3>
       m_chunks_to_free;  // render thread writes, main thread reads
+
+  std::queue<std::function<void()>> m_tasks;
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
   TerrainGenerator& m_terrain_generator;     // called only on render thread
