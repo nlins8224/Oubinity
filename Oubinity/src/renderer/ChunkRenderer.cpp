@@ -13,6 +13,7 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
   m_vertexpool = new VertexPool::ZoneVertexPool{};
   initChunks();
   m_buffer_needs_update = false;
+  m_init_stage = true;
   m_camera_last_chunk_pos = {
       m_camera.getCameraPos().x / CHUNK_SIZE,
       m_camera.getCameraPos().y / CHUNK_SIZE,
@@ -137,6 +138,7 @@ void ChunkRenderer::initChunks() {
   meshChunks();
   m_buffer_needs_update = true;
   updateBufferIfNeedsUpdate();
+  m_init_stage = false;
 }
 
 // render thread
@@ -364,8 +366,9 @@ bool ChunkRenderer::createChunksInRenderDistance() {
 
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
-   if (m_chunks_by_coord.get(chunk_pos))
-  	return false;
+  if (!isChunkOutOfBorder(chunk_pos, m_chunks_by_coord.getBorder()) && !m_init_stage) {
+    return false;
+  }
 
   createChunk(chunk_pos);
   return true;

@@ -79,6 +79,7 @@ class ChunkRenderer : public Renderer {
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
   GLuint m_texture_array;
+  bool m_init_stage;
 
   // Meshing is done on render thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
