@@ -31,12 +31,6 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk,
 
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
 
-bool TerrainGenerator::generatePreloadedUndergroundLayer(
-    Chunk& chunk, HeightMap& height_map) {
-  return m_preloaded_generator.generatePreloadedChunkUndergroundLayer(
-      chunk, height_map);
-}
-
 PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(
     glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod) {
   return m_preloaded_generator.getHeightMap(chunk_pos, lod);

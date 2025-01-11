@@ -25,7 +25,6 @@ class TerrainGenerator {
   uint8_t getWaterHeight();
 #if defined(SETTING_USE_PRELOADED_HEIGHTMAP) == 1 || \
     defined(SETTING_USE_PRELOADED_COLORMAP) == 1
-  bool generatePreloadedUndergroundLayer(Chunk& chunk, HeightMap& height_map);
   PreloadedHeightMap generatePreloadedHeightMap(
       glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
 #endif

@@ -59,8 +59,6 @@ class ChunkRenderer : public Renderer {
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
-  void refreshChunk(glm::ivec3 chunk_pos);
-
   void allocateChunks();
   void allocateChunk(glm::ivec3 chunk_pos);
   void freeChunks();
@@ -69,10 +67,6 @@ class ChunkRenderer : public Renderer {
   void updateChunkPipeline();
 
   bool checkCameraPosChanged();
-
-#if SETTING_USE_PRELOADED_HEIGHTMAP
-  bool generatePreloadedChunkUndergroundLayer(glm::ivec3 chunk_pos);
-#endif
 
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;

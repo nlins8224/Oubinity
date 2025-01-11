@@ -442,11 +442,6 @@ bool ChunkRenderer::generateChunksTerrain() {
     m_chunks_to_generate_terrain.pop();
     chunks_to_generate_underground_layer.push(chunk_pos);
   }
-  while (!chunks_to_generate_underground_layer.empty()) {
-    glm::ivec3 chunk_pos = chunks_to_generate_underground_layer.front();
-    //generatePreloadedChunkUndergroundLayer(chunk_pos);
-    chunks_to_generate_underground_layer.pop();
-  }
 #else
   while (!m_chunks_to_generate_terrain.empty()) {
     glm::ivec3 chunk_pos = m_chunks_to_generate_terrain.front();
@@ -493,20 +488,6 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
 #endif
   return true;
 }
-
-#if SETTING_USE_PRELOADED_HEIGHTMAP
-// render thread
-bool ChunkRenderer::generatePreloadedChunkUndergroundLayer(
-    glm::ivec3 chunk_pos) {
-  // glm::ivec3 camera_pos = m_camera.getCameraPos() /
-  // static_cast<float>(CHUNK_SIZE); HeightMap height_map =
-  // m_terrain_generator.generatePreloadedHeightMap(chunk_pos, lod);
-
-  // m_terrain_generator.generatePreloadedUndergroundLayer(*m_chunks_by_coord.get(chunk_pos),
-  // height_map);
-  return true;
-}
-#endif
 
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {

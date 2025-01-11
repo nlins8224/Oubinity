@@ -35,7 +35,7 @@ HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width,
                                    glm::ivec3 chunk_pos_xz, glm::vec3 scale) {
   auto lod = LevelOfDetail::chooseLevelOfDetail({0, 0, 0}, chunk_pos_xz);
   int block_size = 1;
-  int block_amount = CHUNK_SIZE;
+  int block_amount = CHUNK_SIZE + 2;
   HeightMap height_map{};
   for (int x = 0; x < block_amount; x++) {
     for (int z = 0; z < block_amount; z++) {
@@ -80,7 +80,7 @@ BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width,
                             int channels) {
   auto lod = LevelOfDetail::chooseLevelOfDetail({0, 0, 0}, chunk_pos_xz);
   int block_size = 1;
-  int block_amount = CHUNK_SIZE;
+  int block_amount = CHUNK_SIZE + 2;
 
   BlockMap block_map{};
   for (int x = 0; x < block_amount; x++) {

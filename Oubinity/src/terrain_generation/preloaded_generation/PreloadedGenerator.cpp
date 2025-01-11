@@ -98,7 +98,7 @@ TreePresenceMap PreloadedGenerator::generateTreePresenceMap(
 bool PreloadedGenerator::generateLayers(Chunk& chunk,
                                         const HeightMap& height_map,
                                         const BlockMap& block_map) {
-  int block_amount = chunk.getLevelOfDetail().block_amount;
+  int block_amount = chunk.getLevelOfDetail().block_amount + 2;
   int block_size = chunk.getLevelOfDetail().block_size;
   bool anything_added = false;
   glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
@@ -116,40 +116,6 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk,
           anything_added = true;
         } else if (surface_height >= block_world_pos.y + block_size) {
           chunk.setBlock(block_pos, Block::STONE);
-        }
-      }
-    }
-  }
-  return anything_added;
-}
-
-bool PreloadedGenerator::generatePreloadedChunkUndergroundLayer(
-    Chunk& chunk, const HeightMap& height_map) {
-  int block_amount = chunk.getLevelOfDetail().block_amount;
-  int block_size = chunk.getLevelOfDetail().block_size;
-  bool anything_added = false;
-  for (int x = 0; x < block_amount; x++) {
-    for (int z = 0; z < block_amount; z++) {
-      int l_y = ((int)height_map[x][z] % block_amount);
-      for (int y = l_y;
-           y > l_y - Settings::SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH; y--) {
-        if (!isBlockInSurfaceHeightBounds({x, y, z}, chunk.getPos(),
-                                          height_map[x][z], block_size)) {
-          continue;
-        }
-        glm::ivec3 block_pos{x, y, z};
-        if (chunk.isBlockOutsideChunk(block_pos)) {
-          Chunk* neighbor = chunk.findNeighborChunk(block_pos);
-          if (neighbor &&
-              neighbor->getState() >= ChunkState::NEIGHBORS_POPULATED) {
-            glm::ivec3 neighbor_block_pos =
-                chunk.findNeighborBlockPos(block_pos);
-            neighbor->setBlock(neighbor_block_pos, block_id::STONE);
-            anything_added = true;
-          }
-        } else {
-          chunk.setBlock(block_pos, block_id::STONE);
-          anything_added = true;
         }
       }
     }
