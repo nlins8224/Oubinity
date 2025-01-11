@@ -44,8 +44,8 @@ PreloadedHeightMap TerrainGenerator::generateBlendedHeightMap(
       m_preloaded_generator.getHeightMap(chunk_pos, lod));
   auto procedural_height_map = std::make_unique<ProceduralHeightMap>(
       m_procedural_generator.generateHeightMap(chunk_pos, lod));
-  for (int x = 0; x < lod.block_amount; x++) {
-    for (int z = 0; z < lod.block_amount; z++) {
+  for (int x = 0; x < lod.block_amount + 2; x++) {
+    for (int z = 0; z < lod.block_amount + 2; z++) {
       double proc_height = procedural_height_map->data()[x][z];
       double from_texture_height = preloaded_height_map->data()[x][z];
       preloaded_height_map->data()[x][z] =
