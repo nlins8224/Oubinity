@@ -107,21 +107,13 @@ void ChunkRenderer::initChunks() {
   int border_dist =
       ((Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
   int min_x = camera_chunk_pos_x - border_dist;
-  int max_x = camera_chunk_pos_x + border_dist;
-
+  int max_x = camera_chunk_pos_x + border_dist - 1;
   int min_z = camera_chunk_pos_z - border_dist;
-  int max_z = camera_chunk_pos_z + border_dist;
+  int max_z = camera_chunk_pos_z + border_dist - 1;
 
-  ChunkBorder chunk_border;
-  chunk_border.min_x = min_x;
-  chunk_border.max_x = max_x;
-  chunk_border.min_z = min_z;
-  chunk_border.max_z = max_z;
-
-  m_chunks_by_coord.setBorder(chunk_border);
+  m_chunks_by_coord.setBorder({min_x, max_x, min_z, max_z});
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
-        chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
-        chunk_border.max_z);
+        min_x, max_x, min_z, max_z);
   for (int cx = min_x; cx < max_x; cx++) {
     for (int cz = min_z; cz < max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
@@ -192,9 +184,9 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
 
   int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
   chunk_border.min_x = camera_chunk_pos_x - border_dist;
-  chunk_border.max_x = camera_chunk_pos_x + border_dist;
+  chunk_border.max_x = camera_chunk_pos_x + border_dist - 1;
   chunk_border.min_z = camera_chunk_pos_z - border_dist;
-  chunk_border.max_z = camera_chunk_pos_z + border_dist;
+  chunk_border.max_z = camera_chunk_pos_z + border_dist - 1;
 
   WindowMovementDirection move_dir = m_chunks_by_coord.moveWindow(chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
@@ -366,9 +358,10 @@ bool ChunkRenderer::createChunksInRenderDistance() {
 
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
-  if (!isChunkOutOfBorder(chunk_pos, m_chunks_by_coord.getBorder()) && !m_init_stage) {
-    return false;
-  }
+  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+  //if (chunk && chunk->getPos() == chunk_pos) {
+  //  return false;
+  //}
 
   createChunk(chunk_pos);
   return true;

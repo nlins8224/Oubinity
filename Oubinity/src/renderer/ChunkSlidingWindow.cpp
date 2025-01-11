@@ -35,6 +35,9 @@ void ChunkSlidingWindow::set(glm::ivec3 chunk_pos, Chunk* chunk) {
 
 Chunk* ChunkSlidingWindow::get(glm::ivec3 chunk_pos) {
   int index = calculateIndex(chunk_pos);
+  if (index > m_chunks_window.size()) {
+    return nullptr;
+  }
   return m_chunks_window[index];
 }
 
