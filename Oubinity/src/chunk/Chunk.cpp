@@ -1,4 +1,5 @@
 #include "Chunk.h"
+#include "../Util.h"
 using Block::block_id;
 using Block::block_mesh;
 
@@ -45,32 +46,6 @@ void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
 glm::ivec3 Chunk::getPos() const { return m_chunk_pos; }
 
 glm::ivec2 Chunk::getPosXZ() const { return {m_chunk_pos.x, m_chunk_pos.z}; }
-
-// May overflow when near INT_MAX
-// b parameter has to be positive
-inline int roundDownDivide(int a, int b) {
-  if (a >= 0)
-    return a / b;
-  else
-    return (a - b + 1) / b;
-}
-
-// true modulo instead of C++ remainder modulo
-inline int getMod(int pos, int mod) { return ((pos % mod) + mod) % mod; }
-
-bool Chunk::isFaceVisible(glm::ivec3 block_pos) const {
-  int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-  if (y < 0 || y > m_lod.block_amount) {
-    return true;
-  }
-  if (isBlockOutsideChunk(block_pos)) {
-    return isNeighborBlockVisible(block_pos);
-  }
-
-  block_id block_type = m_blocks->getRaw(glm::ivec3(x, y, z));
-  return block_type != block_id::AIR;
-}
 
 bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
   Chunk* neighbor_chunk = findNeighborChunk(block_pos);
@@ -443,9 +418,9 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors) {
 Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-  int c_x = roundDownDivide(x, m_lod.block_amount);
-  int c_y = roundDownDivide(y, m_lod.block_amount);
-  int c_z = roundDownDivide(z, m_lod.block_amount);
+  int c_x = Util::roundDownDivide(x, m_lod.block_amount);
+  int c_y = Util::roundDownDivide(y, m_lod.block_amount);
+  int c_z = Util::roundDownDivide(z, m_lod.block_amount);
 
   glm::ivec3 neighbor_chunk_offset = glm::ivec3(c_x, c_y, c_z);
   glm::ivec3 neighbor_chunk_pos = m_chunk_pos + neighbor_chunk_offset;
@@ -461,9 +436,9 @@ Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
 glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-  int l_x = getMod(x, m_lod.block_amount);
-  int l_y = getMod(y, m_lod.block_amount);
-  int l_z = getMod(z, m_lod.block_amount);
+  int l_x = Util::getMod(x, m_lod.block_amount);
+  int l_y = Util::getMod(y, m_lod.block_amount);
+  int l_z = Util::getMod(z, m_lod.block_amount);
   return {l_x, l_y, l_z};
 }
 

@@ -145,7 +145,6 @@ class Chunk {
   unsigned int m_added_faces{0};
 
   void addFaces();
-  bool isFaceVisible(glm::ivec3 block_pos) const;
   bool isNeighborBlockVisible(glm::ivec3 block_pos) const;
   void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side,
                      Block::block_id type, FaceCornersAo ao);
