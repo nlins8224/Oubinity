@@ -15,9 +15,11 @@ HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath,
   int chunks_in_heightmap_xz = width / CHUNK_SIZE;
   std::vector<HeightMap> height_maps{};
   int LEFT_PADDING = 1;
-  for (int x = LEFT_PADDING; x < height + LEFT_PADDING; x += CHUNK_SIZE) {
-    for (int z = LEFT_PADDING; z < width + LEFT_PADDING; z += CHUNK_SIZE) {
-      int chunk_offset = (x - LEFT_PADDING) * width + (z - LEFT_PADDING);
+  for (int x = 0; x < height; x += CHUNK_SIZE) {
+    for (int z = 0; z < width; z += CHUNK_SIZE) {
+      int x_idx = std::max(0, x - LEFT_PADDING);
+      int z_idx = std::max(0, z - LEFT_PADDING);
+      int chunk_offset = x_idx * width + z_idx;
       glm::ivec3 chunk_pos_xz{x, 0, z};
       chunk_pos_xz /= CHUNK_SIZE;
       // map from height map coords to chunk pos coords
@@ -78,10 +80,12 @@ BlockMapBundle parsePNGToBlockMaps(std::string filepath, glm::vec3 scale) {
   int chunks_in_blockmap_xz = width / CHUNK_SIZE;
   int LEFT_PADDING = 1;
   int bytes_per_pixel = channels;
-  for (int x = LEFT_PADDING; x < height + LEFT_PADDING; x += CHUNK_SIZE) {
-    for (int z = LEFT_PADDING; z < width + LEFT_PADDING; z += CHUNK_SIZE) {
-      int chunk_offset =
-          ((x - LEFT_PADDING) * width + (z - LEFT_PADDING)) * bytes_per_pixel;
+  for (int x = 0; x < height; x += CHUNK_SIZE) {
+    for (int z = 0; z < width; z += CHUNK_SIZE) {
+      int x_idx = std::max(0, x - LEFT_PADDING);
+      int z_idx = std::max(0, z - LEFT_PADDING);
+      int chunk_offset = (x_idx * width + z_idx) * bytes_per_pixel;
+      if (chunk_offset < 0) chunk_offset = 0;
       glm::ivec3 chunk_pos_xz{x, 0, z};
       chunk_pos_xz /= CHUNK_SIZE;
       // map from height map coords to chunk pos coords
