@@ -29,7 +29,7 @@ HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos,
   HeightMap height_map =
       m_height_maps.at(chunk_pos_in_heightmap.x * m_chunks_in_heightmap_xz +
                        chunk_pos_in_heightmap.z);
-  return increaseHeightMapLodLevel(height_map, lod);
+  return PreloadedGeneration::increaseHeightMapLodLevel(height_map, lod);
 }
 
 BlockMap PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos,
@@ -37,45 +37,7 @@ BlockMap PreloadedGenerator::getBlockMap(glm::ivec3 chunk_pos,
   glm::ivec3 chunk_pos_in_map = mapChunkPosToHeightMapPos(chunk_pos);
   BlockMap color_map = m_block_maps.at(
       chunk_pos_in_map.x * m_chunks_in_blockmap_xz + chunk_pos_in_map.z);
-  return increaseBlockMapLodLevel(color_map, lod);
-}
-
-HeightMap PreloadedGenerator::increaseHeightMapLodLevel(
-    HeightMap base_height_map, LevelOfDetail::LevelOfDetail lod) {
-  if (lod.level == 0) {
-    return base_height_map;
-  }
-
-  int block_size = lod.block_size;
-  int block_amount = lod.block_amount;
-  ;
-
-  HeightMap height_map{};
-  for (int x = 0; x < block_amount; x += 1) {
-    for (int z = 0; z < block_amount; z += 1) {
-      height_map[x][z] = base_height_map[x * block_size][z * block_size];
-    }
-  }
-  return height_map;
-}
-
-BlockMap PreloadedGenerator::increaseBlockMapLodLevel(
-    BlockMap base_color_map, LevelOfDetail::LevelOfDetail lod) {
-  if (lod.level == 0) {
-    return base_color_map;
-  }
-
-  int block_size = lod.block_size;
-  int block_amount = lod.block_amount;
-  ;
-
-  BlockMap height_map{};
-  for (int x = 0; x < block_amount; x += 1) {
-    for (int z = 0; z < block_amount; z += 1) {
-      height_map[x][z] = base_color_map[x * block_size][z * block_size];
-    }
-  }
-  return height_map;
+  return PreloadedGeneration::increaseBlockMapLodLevel(color_map, lod);
 }
 
 HeightMap& PreloadedGenerator::getTreeMap(glm::ivec3 chunk_pos) {
@@ -98,17 +60,21 @@ TreePresenceMap PreloadedGenerator::generateTreePresenceMap(
 bool PreloadedGenerator::generateLayers(Chunk& chunk,
                                         const HeightMap& height_map,
                                         const BlockMap& block_map) {
-  int block_amount = chunk.getLevelOfDetail().block_amount + 2;
+  int block_amount_padding = chunk.getLevelOfDetail().block_amount + 2;
   int block_size = chunk.getLevelOfDetail().block_size;
   bool anything_added = false;
   glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
 
-  for (int x = 0; x < block_amount; x++) {
-    for (int z = 0; z < block_amount; z++) {
-      for (int y = 0; y < block_amount; y++) {
+  for (int x = 0; x < block_amount_padding; x++) {
+    for (int z = 0; z < block_amount_padding; z++) {
+      for (int y = 0; y < block_amount_padding; y++) {
         glm::ivec3 block_pos{x, y, z};
         float surface_height = height_map[x][z];
-        glm::ivec3 block_world_pos = chunk_world_pos + (block_pos * block_size);
+        glm::ivec3 block_padded_pos =
+            chunk_world_pos + (block_pos * block_size);
+        glm::ivec3 block_world_pos =
+            block_padded_pos - glm::ivec3(1, 1, 1) * block_size;
+
         if (surface_height > block_world_pos.y - block_size &&
             surface_height < block_world_pos.y + block_size) {
           block_id block = block_map[block_pos.x][block_pos.z];
@@ -116,6 +82,7 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk,
           anything_added = true;
         } else if (surface_height >= block_world_pos.y + block_size) {
           chunk.setBlock(block_pos, Block::STONE);
+          anything_added = true;
         }
       }
     }

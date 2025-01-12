@@ -40,16 +40,18 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
   fnScale->SetScale(lod.block_size);
 
   int block_amount_padding = lod.block_amount + 2;
+  int LEFT_PADDING = 1;
   std::vector<float> data_out(Settings::CHUNK_SIZE_PADDING * Settings::CHUNK_SIZE_PADDING);
-  fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount,
-                            chunk_pos.z * lod.block_amount,
+  fnScale->GenUniformGrid2D(
+      data_out.data(), chunk_pos.x * lod.block_amount - LEFT_PADDING,
+      chunk_pos.z * lod.block_amount - LEFT_PADDING,
                             block_amount_padding, block_amount_padding,
                             settings.frequency, seed);
   HeightMap height_map{};
 
   for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
     for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
-      float height = data_out[z * CHUNK_SIZE_PADDING + x];
+      float height = data_out[z * block_amount_padding + x];
       height_map[x][z] = std::sqrt(height * height) * 220.0f;
     }
   }
@@ -68,6 +70,7 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
     for (int y = 0; y < block_amount_padding; y++) {
       for (int z = 0; z < block_amount_padding; z++) {
         glm::ivec3 block_pos = {x, y, z};
+
         float surface_height = height_map[x][z];
         glm::ivec3 block_padded_pos = chunk_world_pos + (block_pos * block_size);
         glm::ivec3 block_world_pos = block_padded_pos - glm::ivec3(1, 1, 1) * block_size;
