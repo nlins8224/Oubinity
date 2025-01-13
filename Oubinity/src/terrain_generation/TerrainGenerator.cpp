@@ -107,11 +107,11 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
     glm::ivec3 chunk_pos, const HeightMap& height_map,
     LevelOfDetail::LevelOfDetail lod) {
   // TODO: Calculate it once in HeightMapParser
-  int block_amount_padding = lod.block_amount;
+  int block_amount_padding = lod.block_amount + 2;
   double min_height = std::numeric_limits<double>::max();
   double max_height = std::numeric_limits<double>::min();
-  for (int x = 1; x < block_amount_padding; x++) {
-    for (int z = 1; z < block_amount_padding; z++) {
+  for (int x = 1; x < block_amount_padding - 1; x++) {
+    for (int z = 1; z < block_amount_padding - 1; z++) {
       min_height = std::min(min_height, height_map[x][z]);
       max_height = std::max(max_height, height_map[x][z]);
     }

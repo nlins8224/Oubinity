@@ -67,13 +67,16 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk,
 
   for (int x = 0; x < block_amount_padding; x++) {
     for (int z = 0; z < block_amount_padding; z++) {
-      for (int y = 0; y < block_amount_padding; y++) {
+      // TODO: y for loop should not be needed at all.
+      for (int y = 1; y < block_amount_padding - 1; y++) {
         glm::ivec3 block_pos{x, y, z};
         float surface_height = height_map[x][z];
         glm::ivec3 block_padded_pos =
             chunk_world_pos + (block_pos * block_size);
+        // Y axis cuts through Y Chunk column. There is one surface and one
+        // chunk that it should cut. Do not adjust Y block coord here.
         glm::ivec3 block_world_pos =
-            block_padded_pos - glm::ivec3(1, 1, 1) * block_size;
+            block_padded_pos - glm::ivec3(1, 0, 1) * block_size;
 
         if (surface_height > block_world_pos.y - block_size &&
             surface_height < block_world_pos.y + block_size) {
