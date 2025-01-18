@@ -369,6 +369,9 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
 
 // render thread
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
+  if (Chunk* current_chunk = m_chunks_by_coord.get(chunk_pos)) {
+    delete current_chunk;
+  }
   glm::ivec3 camera_pos =
       m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
   LevelOfDetail::LevelOfDetail lod =
