@@ -11,7 +11,9 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
                             chunk_pos.z * Settings::CHUNK_SIZE}},
       m_state{ChunkState::NEW},
       m_is_visible{true},
-      m_was_edited{false} {}
+      m_was_edited{false},
+      m_blocks{nullptr},
+      m_mesh{nullptr} {}
 
 Chunk::Chunk(const Chunk& chunk)
     : m_mesh{chunk.m_mesh},
@@ -19,7 +21,10 @@ Chunk::Chunk(const Chunk& chunk)
       m_chunk_neighbors{chunk.m_chunk_neighbors},
       m_blocks{chunk.m_blocks},
       m_world_pos{chunk.m_world_pos},
-      m_is_visible{chunk.m_is_visible} {}
+      m_is_visible{chunk.m_is_visible},
+      m_lod{chunk.m_lod},
+      m_state{chunk.m_state},
+      m_was_edited{chunk.m_was_edited} {}
 
 Chunk::~Chunk() {
   if (m_blocks != nullptr) {
@@ -48,18 +53,18 @@ glm::ivec3 Chunk::getPos() const { return m_chunk_pos; }
 glm::ivec2 Chunk::getPosXZ() const { return {m_chunk_pos.x, m_chunk_pos.z}; }
 
 bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
-  Chunk* neighbor_chunk = findNeighborChunk(block_pos);
+  std::weak_ptr<Chunk> neighbor_chunk = findNeighborChunk(block_pos);
 
   // If LOD don't match, return false to have seamless transitions between lod
   // levels This creates additional "wall" and it costs a bit of FPS, but not
   // much.
-  if (neighbor_chunk == nullptr ||
-      neighbor_chunk->getLevelOfDetail().block_amount != m_lod.block_amount ||
-      !neighbor_chunk->isVisible()) {
+  if (!neighbor_chunk.lock() ||
+      neighbor_chunk.lock()->getLevelOfDetail().block_amount != m_lod.block_amount ||
+      !neighbor_chunk.lock()->isVisible()) {
     return false;
   }
 
-  return neighbor_chunk->isBlockPresent(findNeighborBlockPos(block_pos));
+  return neighbor_chunk.lock()->isBlockPresent(findNeighborBlockPos(block_pos));
 }
 
 void Chunk::addFaces() {
@@ -322,7 +327,7 @@ const int Chunk::vertexAO(uint8_t side_first, uint8_t side_second,
 }
 
 const bool Chunk::compareAO(const std::vector<block_id>& voxels, int axis,
-                            int forward, int right, int c, int forward_offset,
+                            int forward, int right, int c, int forward_offset, 
                             int right_offset) {
   for (auto& ao_dir : ao_dirs) {
     bool block_first_present =
@@ -415,7 +420,7 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors) {
   m_chunk_neighbors = neighbors;
 }
 
-Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
+std::weak_ptr<Chunk> Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
   int c_x = Util::roundDownDivide(x, m_lod.block_amount);
@@ -430,7 +435,6 @@ Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
       return chunk;
     }
   }
-  return nullptr;
 }
 
 glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const {

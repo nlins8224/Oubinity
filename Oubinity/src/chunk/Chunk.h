@@ -77,7 +77,7 @@ struct GreedyQuad {
 };
 
 // unordered_map is not used here, because it takes too much memory space
-using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
+using ChunkNeighbors = std::vector<std::pair<glm::ivec3, std::weak_ptr<Chunk>>>;
 
 enum class ChunkState {
   NONE = 0,
@@ -128,7 +128,7 @@ class Chunk {
   bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
   bool wasChunkEdited() const;
 
-  Chunk* findNeighborChunk(glm::ivec3 block_pos) const;
+  std::weak_ptr<Chunk> findNeighborChunk(glm::ivec3 block_pos) const;
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:

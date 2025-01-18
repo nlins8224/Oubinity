@@ -47,32 +47,29 @@ void ChunkRenderer::traverseSceneLoop() {
   }
 }
 
-Chunk* ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
+std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
   glm::ivec3 chunk_pos = {world_block_pos.x / CHUNK_SIZE,
                           world_block_pos.y / CHUNK_SIZE,
                           world_block_pos.z / CHUNK_SIZE};
-  if (!m_chunks_by_coord.get(chunk_pos)) {
-    return nullptr;
-  }
   return m_chunks_by_coord.get(chunk_pos);
 }
 
 block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
-  Chunk* chunk = getChunkByWorldPos(world_block_pos);
-  if (!chunk) {
+  std::weak_ptr<Chunk> chunk = getChunkByWorldPos(world_block_pos);
+  if (!chunk.lock()) {
     return block_id::NONE;
   }
   glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
-  return chunk->getBlockId(local_pos);
+  return chunk.lock()->getBlockId(local_pos);
 }
 
 bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
-  Chunk* chunk = getChunkByWorldPos(world_block_pos);
-  if (!chunk) {
+  std::weak_ptr<Chunk> chunk = getChunkByWorldPos(world_block_pos);
+  if (chunk.lock()) {
     return block_id::NONE;
   }
   glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
-  return chunk->isBlockPresent(local_pos);
+  return chunk.lock()->isBlockPresent(local_pos);
 }
 
 // main thread
@@ -82,17 +79,17 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
                           world_block_pos.z / CHUNK_SIZE};
   LOG_F(INFO, "refreshChunk at chunk_pos=(%d,%d,%d)", chunk_pos.x, chunk_pos.y,
         chunk_pos.z);
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  if (!chunk) {
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  if (!chunk.lock()) {
     LOG_F(ERROR, "CHUNK DOES NOT EXIST (%d, %d, %d)", chunk_pos.x, chunk_pos.y,
           chunk_pos.z);
     return;
   }
-  if (!chunk->wasChunkEdited()) {
-    m_terrain_generator.generateChunkTerrain(*chunk);
+  if (!chunk.lock()->wasChunkEdited()) {
+    m_terrain_generator.generateChunkTerrain(*chunk.lock());
   }
-  chunk->setBlock(Util::chunkWorldPosToLocalPos(world_block_pos), type);
-  chunk->setWasChunkEdited(true);
+  chunk.lock()->setBlock(Util::chunkWorldPosToLocalPos(world_block_pos), type);
+  chunk.lock()->setWasChunkEdited(true);
   meshChunk(chunk_pos);
   freeChunk(chunk_pos);
   allocateChunk(chunk_pos);
@@ -358,8 +355,8 @@ bool ChunkRenderer::createChunksInRenderDistance() {
 
 // render thread
 bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  if (chunk && chunk->getPos() == chunk_pos) {
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  if (chunk.lock() && chunk.lock()->getPos() == chunk_pos) {
     return false;
   }
 
@@ -369,9 +366,6 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
 
 // render thread
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
-  if (Chunk* current_chunk = m_chunks_by_coord.get(chunk_pos)) {
-    delete current_chunk;
-  }
   glm::ivec3 camera_pos =
       m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
   LevelOfDetail::LevelOfDetail lod =
@@ -383,10 +377,9 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
     return;
   }
 
-  Chunk* chunk = new Chunk(chunk_pos, lod);
+  m_chunks_by_coord.set(chunk_pos, std::make_shared<Chunk>(chunk_pos, lod));
   m_chunks_to_populate_neighbors.push(chunk_pos);
-  chunk->setState(ChunkState::CREATED);
-  m_chunks_by_coord.set(chunk_pos, chunk);
+  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::CREATED);
 }
 
 HeightMap ChunkRenderer::generateHeightmap(glm::ivec3 chunk_pos,
@@ -426,8 +419,8 @@ bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos) {
       }
     }
   }
-  m_chunks_by_coord.get(chunk_pos)->setNeighbors(chunk_neighbors);
-  m_chunks_by_coord.get(chunk_pos)->setState(ChunkState::NEIGHBORS_POPULATED);
+  m_chunks_by_coord.get(chunk_pos).lock()->setNeighbors(chunk_neighbors);
+  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::NEIGHBORS_POPULATED);
   m_chunks_to_generate_terrain.push(chunk_pos);
 
   return true;
@@ -478,10 +471,10 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
   }
 
 #if SETTING_USE_PRELOADED_COLORMAP
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  m_terrain_generator.generatePreloadedLayers(*chunk, height_map);
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  m_terrain_generator.generatePreloadedLayers(*chunk.lock(), height_map);
   m_chunks_to_decorate.push(chunk_pos);
-  chunk->setState(ChunkState::TERRAIN_GENERATED);
+  chunk.lock()->setState(ChunkState::TERRAIN_GENERATED);
 #else
   m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos),
                                            height_map, is_chunk_visible);
@@ -494,12 +487,12 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
 
 // render thread
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
 #if SETTING_TREES_ENABLED
   m_terrain_generator.generateTrees(*chunk);
 #endif
   m_chunks_to_mesh.push(chunk_pos);
-  chunk->setState(ChunkState::DECORATED);
+  chunk.lock()->setState(ChunkState::DECORATED);
 
   return true;
 }
@@ -531,11 +524,11 @@ bool ChunkRenderer::meshChunks() {
 
 // render thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos) {
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  if (chunk->isVisible()) {
-    chunk->addChunkMesh();
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  if (chunk.lock()->isVisible()) {
+    chunk.lock()->addChunkMesh();
   }
-  chunk->setState(ChunkState::MESHED);
+  chunk.lock()->setState(ChunkState::MESHED);
 
   return true;
 }
@@ -554,7 +547,7 @@ bool ChunkRenderer::deleteOutOfRenderDistanceChunks() {
 
 // render thread
 bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos) {
-  if (!m_chunks_by_coord.get(chunk_pos)) return false;
+  if (!m_chunks_by_coord.get(chunk_pos).lock()) return false;
 
   deleteChunk(chunk_pos);
   return true;
@@ -571,8 +564,8 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
       m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
   LevelOfDetail::LevelOfDetail lod =
       LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
-  return chunk && chunk->getLevelOfDetail().level != lod.level;
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  return !chunk.lock() && chunk.lock()->getLevelOfDetail().level != lod.level;
 }
 
 // main thread
@@ -586,21 +579,22 @@ void ChunkRenderer::allocateChunks() {
 
 // main thread
 void ChunkRenderer::allocateChunk(glm::ivec3 chunk_pos) {
-  Chunk* chunk = m_chunks_by_coord.get(chunk_pos);
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
   VertexPool::ChunkAllocData alloc_data;
 
-  alloc_data._chunk_pos = chunk->getPos();
-  alloc_data._added_faces_amount = chunk->getAddedFacesAmount();
-  alloc_data._lod = chunk->getLevelOfDetail();
-  alloc_data._mesh =
-      std::move(chunk->getMesh());  // chunk mesh is about to be allocated,
+  alloc_data._chunk_pos = chunk.lock()->getPos();
+  alloc_data._added_faces_amount = chunk.lock()->getAddedFacesAmount();
+  alloc_data._lod = chunk.lock()->getLevelOfDetail();
+  alloc_data._mesh = std::move(
+      chunk.lock()->getMesh());  // chunk mesh is about to be allocated,
                                     // vertex pool takes ownership
-  alloc_data._mesh_faces = std::move(chunk->getFaces());
-  alloc_data._chunk_world_pos = chunk->getWorldPos();
+  alloc_data._mesh_faces = std::move(chunk.lock()->getFaces());
+  alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
   alloc_data._ready = true;
 
-  chunk->setState(ChunkState::ALLOCATED);
+  chunk.lock()->setState(ChunkState::ALLOCATED);
   m_vertexpool->allocate(std::move(alloc_data));
+
 }
 
 // main thread

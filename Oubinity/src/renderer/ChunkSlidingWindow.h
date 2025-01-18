@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>
+#include <memory>
 #include "ChunkBorder.h"
 
 class Chunk;
@@ -19,12 +20,12 @@ class ChunkSlidingWindow {
   ChunkSlidingWindow(ChunkBorder chunk_border);
   virtual ~ChunkSlidingWindow() = default;
   WindowMovementDirection moveWindow(ChunkBorder chunk_border);
-  void set(glm::ivec3 chunk_pos, Chunk* chunk);
-  Chunk* get(glm::ivec3 chunk_pos);
+  void set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk);
+  std::weak_ptr<Chunk> get(glm::ivec3 chunk_pos);
   void setBorder(ChunkBorder chunk_border);
   ChunkBorder getBorder();
  private:
   int calculateIndex(glm::ivec3 chunk_pos);
-  std::vector<Chunk*> m_chunks_window;
+  std::vector<std::shared_ptr<Chunk>> m_chunks_window;
   ChunkBorder m_chunk_border;
 };

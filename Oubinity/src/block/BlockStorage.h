@@ -17,7 +17,7 @@ class BlockStorage {
   block_id getRaw(glm::ivec3 block_padded_pos);
   void setRaw(glm::ivec3 block_padded_pos, block_id block_type);
   bool isBlockPresent(glm::ivec3 block_padded_pos);
-  void clear();  // Preserves m_*_occupancy_mask
+  void clear();
   void resizeIfNeeded();
   sul::dynamic_bitset<>& getOccupancyMask();
   sul::dynamic_bitset<>& getPaddedOccupancyMask();
