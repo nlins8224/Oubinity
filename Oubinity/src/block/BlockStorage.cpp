@@ -4,7 +4,6 @@ Block::BlockStorage::BlockStorage(uint8_t chunk_size,
                                   uint8_t initial_palettes_amount)
     : m_chunk_size{uint8_t(chunk_size)} {
   int chunk_size_cubed = m_chunk_size * m_chunk_size * m_chunk_size;
-  m_occupancy_mask.resize(chunk_size_cubed, 0);
   int padded_chunk_size_cubed =
       (m_chunk_size + 2) * (m_chunk_size + 2) * (m_chunk_size + 2);
   m_padded_occupancy_mask.resize(padded_chunk_size_cubed, 0);
@@ -35,14 +34,12 @@ void Block::BlockStorage::setRaw(glm::ivec3 block_padded_pos,
 
 bool Block::BlockStorage::isBlockPresent(glm::ivec3 block_padded_pos) {
   int block_index = getBlockIndex(block_padded_pos);
-  return m_padded_occupancy_mask[block_index];
+  return m_padded_occupancy_mask[block_index] != block_id::AIR;
 }
 
-void Block::BlockStorage::clear() {
+void Block::BlockStorage::clearBlockIdCache() {
   m_padded_block_id_cache.clear();
   m_padded_block_id_cache = std::move(std::vector<block_id>());
-  m_padded_occupancy_mask.clear();
-  m_occupancy_mask.clear();
 }
 
 void Block::BlockStorage::resizeIfNeeded() { 
@@ -50,10 +47,6 @@ void Block::BlockStorage::resizeIfNeeded() {
    if (m_padded_block_id_cache.size() < padded_chunk_size_cubed) {
      m_padded_block_id_cache.resize(padded_chunk_size_cubed, block_id::AIR);
    }
-}
-
-sul::dynamic_bitset<>& Block::BlockStorage::getOccupancyMask() {
-  return m_occupancy_mask;
 }
 
 sul::dynamic_bitset<>& Block::BlockStorage::getPaddedOccupancyMask() {

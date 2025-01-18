@@ -40,7 +40,7 @@ void Chunk::addChunkMesh() {
   // No need to store blocks if chunk was not edited by a player.
   // Blocks will be regenerated on a fly
   if (!m_was_edited) {
-    m_blocks->clear();
+    m_blocks->clearBlockIdCache();
   }
 }
 

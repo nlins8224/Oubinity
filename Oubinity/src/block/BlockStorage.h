@@ -17,16 +17,14 @@ class BlockStorage {
   block_id getRaw(glm::ivec3 block_padded_pos);
   void setRaw(glm::ivec3 block_padded_pos, block_id block_type);
   bool isBlockPresent(glm::ivec3 block_padded_pos);
-  void clear();
+  void clearBlockIdCache();
   void resizeIfNeeded();
-  sul::dynamic_bitset<>& getOccupancyMask();
   sul::dynamic_bitset<>& getPaddedOccupancyMask();
   std::vector<block_id>& getPaddedBlockIdCache();
 
  private:
   int getBlockIndex(glm::ivec3 block_padded_pos) const;
   uint8_t m_chunk_size;
-  sul::dynamic_bitset<> m_occupancy_mask;
   sul::dynamic_bitset<> m_padded_occupancy_mask;
   std::vector<block_id> m_padded_block_id_cache;
 };
