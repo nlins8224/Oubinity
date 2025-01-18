@@ -548,7 +548,8 @@ bool ChunkRenderer::deleteOutOfRenderDistanceChunks() {
 
 // render thread
 bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos) {
-  if (!m_chunks_by_coord.get(chunk_pos).lock()) return false;
+  auto current_chunk = m_chunks_by_coord.get(chunk_pos).lock();
+  if (!current_chunk || current_chunk.get()->getPos() != chunk_pos) return false;
 
   deleteChunk(chunk_pos);
   return true;
