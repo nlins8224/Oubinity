@@ -118,7 +118,9 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
   }
   // Real CHUNK_SIZE here is correct
   int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
-  bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
+  // |CHUNK_SIZE * 2| we take into consideration one chunk that is below surface as well
+  // to avoid empty voxel holes in surface that occur when surface height rises too quickly
+  bool below_surface = chunk_pos_y + CHUNK_SIZE * 2 < min_height;
   bool above_surface = chunk_pos_y > max_height;
   return below_surface || above_surface;
 }
