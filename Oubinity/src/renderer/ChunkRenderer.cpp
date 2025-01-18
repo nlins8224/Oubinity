@@ -65,7 +65,7 @@ block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
 
 bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
   std::weak_ptr<Chunk> chunk = getChunkByWorldPos(world_block_pos);
-  if (chunk.lock()) {
+  if (!chunk.lock()) {
     return block_id::NONE;
   }
   glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
@@ -85,6 +85,7 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
           chunk_pos.z);
     return;
   }
+  LOG_F(INFO, "was_chunk_edited=%d", chunk.lock()->wasChunkEdited());
   if (!chunk.lock()->wasChunkEdited()) {
     m_terrain_generator.generateChunkTerrain(*chunk.lock());
   }
