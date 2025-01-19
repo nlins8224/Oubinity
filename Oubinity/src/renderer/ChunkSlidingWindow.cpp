@@ -19,6 +19,9 @@ ChunkSlidingWindow::ChunkSlidingWindow(ChunkBorder chunk_border)
 
 void ChunkSlidingWindow::moveWindow(
     ChunkBorder chunk_border) {
+  LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
+        chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
+        chunk_border.max_z);
   m_chunk_border = chunk_border;
 }
 
@@ -34,13 +37,7 @@ WindowMovementDirection ChunkSlidingWindow::getWindowLatestMoveDir(
 
 void ChunkSlidingWindow::set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk) {
   int index = calculateIndex(chunk_pos);
-  std::weak_ptr<Chunk> current_chunk = get(chunk_pos);
   m_chunks_window[index] = chunk;
-  if (int current_use_count = current_chunk.use_count() > 0) {
-    LOG_F(ERROR, "chunk_pos=(%d, %d, %d), use_count=%d", chunk_pos.x,
-          chunk_pos.y, chunk_pos.z, current_use_count);
-  }
-
 }
 
 std::weak_ptr<Chunk> ChunkSlidingWindow::get(glm::ivec3 chunk_pos) {

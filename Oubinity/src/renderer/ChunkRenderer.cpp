@@ -189,11 +189,9 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
       m_chunks_by_coord.getWindowLatestMoveDir(chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
         move_dir.x_n, move_dir.z_p, move_dir.z_n);
-  LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
-        chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
-        chunk_border.max_z);
-  m_tasks.emplace(
-      [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
+  //m_tasks.emplace(
+  //    [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
+  //m_tasks.emplace([this] { updateChunkPipeline(); });
   //m_tasks.emplace([this] { deleteOutOfRenderDistanceChunks(); });
   m_tasks.emplace(
       [this, move_dir] { iterateOverChunkBorderAndCreate(move_dir); });
@@ -478,10 +476,10 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
   m_chunks_to_decorate.push(chunk_pos);
   chunk.lock()->setState(ChunkState::TERRAIN_GENERATED);
 #else
-  m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos),
+  m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos).lock(),
                                            height_map, is_chunk_visible);
   m_chunks_to_decorate.push(chunk_pos);
-  m_chunks_by_coord.get(chunk_pos)->setState(ChunkState::TERRAIN_GENERATED);
+  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::TERRAIN_GENERATED);
 
 #endif
   return true;
