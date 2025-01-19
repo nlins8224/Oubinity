@@ -17,15 +17,18 @@ ChunkSlidingWindow::ChunkSlidingWindow(ChunkBorder chunk_border)
   m_chunks_window.resize(chunks);
 }
 
-WindowMovementDirection ChunkSlidingWindow::moveWindow(
+void ChunkSlidingWindow::moveWindow(
+    ChunkBorder chunk_border) {
+  m_chunk_border = chunk_border;
+}
+
+WindowMovementDirection ChunkSlidingWindow::getWindowLatestMoveDir(
     ChunkBorder chunk_border) {
   WindowMovementDirection move;
   move.x_p = m_chunk_border.min_x < chunk_border.min_x;
   move.x_n = m_chunk_border.min_x > chunk_border.min_x;
   move.z_p = m_chunk_border.min_z < chunk_border.min_z;
   move.z_n = m_chunk_border.min_z > chunk_border.min_z;
-
-  m_chunk_border = chunk_border;
   return move;
 }
 

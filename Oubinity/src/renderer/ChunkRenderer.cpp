@@ -185,7 +185,8 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   chunk_border.min_z = camera_chunk_pos_z - border_dist;
   chunk_border.max_z = camera_chunk_pos_z + border_dist - 1;
 
-  WindowMovementDirection move_dir = m_chunks_by_coord.moveWindow(chunk_border);
+  WindowMovementDirection move_dir =
+      m_chunks_by_coord.getWindowLatestMoveDir(chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
         move_dir.x_n, move_dir.z_p, move_dir.z_n);
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
@@ -197,6 +198,7 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   m_tasks.emplace(
       [this, move_dir] { iterateOverChunkBorderAndCreate(move_dir); });
   m_tasks.emplace([this] { updateChunkPipeline(); });
+  m_tasks.emplace([this, chunk_border] { m_chunks_by_coord.moveWindow(chunk_border); });
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndCreate(

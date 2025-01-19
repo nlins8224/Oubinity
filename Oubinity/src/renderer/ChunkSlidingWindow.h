@@ -20,7 +20,8 @@ class ChunkSlidingWindow {
   ChunkSlidingWindow();
   ChunkSlidingWindow(ChunkBorder chunk_border);
   virtual ~ChunkSlidingWindow() = default;
-  WindowMovementDirection moveWindow(ChunkBorder chunk_border);
+  void moveWindow(ChunkBorder chunk_border);
+  WindowMovementDirection getWindowLatestMoveDir(ChunkBorder chunk_border);
   void set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk);
   std::weak_ptr<Chunk> get(glm::ivec3 chunk_pos);
   ChunkBorder getBorder();
