@@ -6,8 +6,7 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
     : m_terrain_generator{terrain_generator},
       Renderer(shader),
       m_texture_array{texture_array},
-      m_camera{camera},
-      m_chunks_by_coord{}
+      m_camera{camera}
 
 {
   m_vertexpool = new VertexPool::ZoneVertexPool{};
@@ -109,7 +108,7 @@ void ChunkRenderer::initChunks() {
   int min_z = camera_chunk_pos_z - border_dist;
   int max_z = camera_chunk_pos_z + border_dist - 1;
 
-  m_chunks_by_coord.setBorder({min_x, max_x, min_z, max_z});
+  m_chunks_by_coord = ChunkSlidingWindow({min_x, max_x, min_z, max_z});
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
         min_x, max_x, min_z, max_z);
   for (int cx = min_x; cx < max_x; cx++) {
@@ -158,14 +157,14 @@ void ChunkRenderer::traverseScene() {
   for (int i = 0; i < dx; i++) {
     camera_chunk_pos_x = last_camera_chunk_pos_x + i;
     doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
+    m_camera_last_chunk_pos.x = camera_chunk_pos_x;
   }
 
   for (int j = 0; j < dz; j++) {
     camera_chunk_pos_z = last_camera_chunk_pos_z + j;
     doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
+    m_camera_last_chunk_pos.z = camera_chunk_pos_z;
   }
-  m_camera_last_chunk_pos.x = camera_chunk_pos_x;
-  m_camera_last_chunk_pos.z = camera_chunk_pos_z;
 }
 
 void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {

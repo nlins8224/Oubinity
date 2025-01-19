@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <queue>
 #include "ChunkBorder.h"
 
 class Chunk;
@@ -22,10 +23,11 @@ class ChunkSlidingWindow {
   WindowMovementDirection moveWindow(ChunkBorder chunk_border);
   void set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk);
   std::weak_ptr<Chunk> get(glm::ivec3 chunk_pos);
-  void setBorder(ChunkBorder chunk_border);
   ChunkBorder getBorder();
  private:
   int calculateIndex(glm::ivec3 chunk_pos);
   std::vector<std::shared_ptr<Chunk>> m_chunks_window;
+  std::queue<WindowMovementDirection> m_pending_movement_actions;
+
   ChunkBorder m_chunk_border;
 };

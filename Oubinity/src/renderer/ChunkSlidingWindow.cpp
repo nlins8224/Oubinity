@@ -45,10 +45,6 @@ std::weak_ptr<Chunk> ChunkSlidingWindow::get(glm::ivec3 chunk_pos) {
   return m_chunks_window[index];
 }
 
-void ChunkSlidingWindow::setBorder(ChunkBorder chunk_border) {
-  m_chunk_border = chunk_border;
-}
-
 ChunkBorder ChunkSlidingWindow::getBorder() { return m_chunk_border; }
 
 int ChunkSlidingWindow::calculateIndex(glm::ivec3 chunk_pos) {
