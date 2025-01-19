@@ -615,10 +615,14 @@ void ChunkRenderer::freeChunk(glm::ivec3 chunk_pos) {
 
 void ChunkRenderer::updateChunkPipeline() {
   if (m_chunks_to_create.size() > 0 || m_chunks_to_delete.size() > 0) {
-    m_buffer_needs_update.store(m_buffer_needs_update |
-                                deleteOutOfRenderDistanceChunks() |                     
-        createChunksInRenderDistance() | populateChunksNeighbors() |
-        generateChunksTerrain() | decorateChunks() | meshChunks());
+    bool result = deleteOutOfRenderDistanceChunks();
+    result |= createChunksInRenderDistance();
+    result |= populateChunksNeighbors();
+    result |= generateChunksTerrain();
+    result |= decorateChunks();
+    result |= meshChunks();
+    result |= m_buffer_needs_update;
+    m_buffer_needs_update.store(result);
   }
 }
 
