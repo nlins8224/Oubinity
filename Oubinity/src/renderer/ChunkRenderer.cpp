@@ -13,11 +13,7 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
   m_init_stage = true;
   initChunks();
   m_buffer_needs_update = false;
-  m_camera_last_chunk_pos = {
-      m_camera.getCameraPos().x / CHUNK_SIZE,
-      m_camera.getCameraPos().y / CHUNK_SIZE,
-      m_camera.getCameraPos().z / CHUNK_SIZE,
-  };
+  m_camera_last_chunk_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
 }
 
 void ChunkRenderer::render(Camera& camera) {}
@@ -47,9 +43,7 @@ void ChunkRenderer::traverseSceneLoop() {
 }
 
 std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
-  glm::ivec3 chunk_pos = {world_block_pos.x / CHUNK_SIZE,
-                          world_block_pos.y / CHUNK_SIZE,
-                          world_block_pos.z / CHUNK_SIZE};
+  glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
   return m_chunks_by_coord.get(chunk_pos);
 }
 
@@ -73,9 +67,7 @@ bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
 
 // main thread
 void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type) {
-  glm::ivec3 chunk_pos = {world_block_pos.x / CHUNK_SIZE,
-                          world_block_pos.y / CHUNK_SIZE,
-                          world_block_pos.z / CHUNK_SIZE};
+  glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
   LOG_F(INFO, "refreshChunk at chunk_pos=(%d,%d,%d)", chunk_pos.x, chunk_pos.y,
         chunk_pos.z);
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
@@ -98,8 +90,10 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
 }
 
 void ChunkRenderer::initChunks() {
-  int camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
-  int camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
+  glm::ivec3 camera_chunk_pos =
+      Util::worldPosToChunkPos(m_camera.getCameraPos());
+  int camera_chunk_pos_x = camera_chunk_pos.x;
+  int camera_chunk_pos_z = camera_chunk_pos.z;
 
   int border_dist =
       ((Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS) / 2);
@@ -219,7 +213,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
       }
 
       if (move_dir.x_p) {
-        m_chunks_to_create.push({max_x, cy, cz});
+        m_chunks_to_create.push({max_x + 1, cy, cz});
       }
     }
   }
@@ -252,11 +246,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        m_chunks_to_delete.push({max_x + 1, cy, cz});
+        m_chunks_to_delete.push({max_x, cy, cz});
       }
 
       if (move_dir.x_p) {
-        m_chunks_to_delete.push({min_x - 1, cy, cz});
+        m_chunks_to_delete.push({min_x, cy, cz});
       }
     }
   }
@@ -266,11 +260,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        m_chunks_to_delete.push({cx, cy, max_z + 1});
+        m_chunks_to_delete.push({cx, cy, max_z});
       }
 
       if (move_dir.z_p) {
-        m_chunks_to_delete.push({cx, cy, min_z - 1});
+        m_chunks_to_delete.push({cx, cy, min_z});
       }
     }
   }
@@ -369,8 +363,7 @@ bool ChunkRenderer::createChunkIfNotPresent(glm::ivec3 chunk_pos) {
 
 // render thread
 void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
-  glm::ivec3 camera_pos =
-      m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+  glm::ivec3 camera_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
   LevelOfDetail::LevelOfDetail lod =
       LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
   HeightMap height_map = generateHeightmap(chunk_pos, lod);
@@ -454,8 +447,7 @@ bool ChunkRenderer::generateChunksTerrain() {
 }
 
 bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
-  glm::ivec3 camera_pos =
-      m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+  glm::ivec3 camera_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
   LevelOfDetail::LevelOfDetail lod =
       LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
 
@@ -566,8 +558,7 @@ void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos) {
 
 // render thread
 bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
-  glm::ivec3 camera_pos =
-      m_camera.getCameraPos() / static_cast<float>(CHUNK_SIZE);
+  glm::ivec3 camera_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
   LevelOfDetail::LevelOfDetail lod =
       LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
@@ -630,16 +621,3 @@ void ChunkRenderer::updateChunkPipeline() {
     m_buffer_needs_update.store(result);
   }
 }
-
-bool ChunkRenderer::checkCameraPosChanged() {
-  int x, y, z;
-  x = m_camera.getCameraPos().x / CHUNK_SIZE;
-  y = m_camera.getCameraPos().y / CHUNK_SIZE;
-  z = m_camera.getCameraPos().z / CHUNK_SIZE;
-
-  glm::ivec3 camera_chunk_pos{x, y, z};
-  bool pos_changed = camera_chunk_pos == m_camera_last_chunk_pos;
-  m_camera_last_chunk_pos = camera_chunk_pos;
-  return pos_changed;
-}
-

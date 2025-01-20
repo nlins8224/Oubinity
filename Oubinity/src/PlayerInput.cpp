@@ -22,8 +22,6 @@ void PlayerInput::onMouseLeftPress() {
     auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
         this->m_world.updateBlockByWorldPos(next_block, Block::AIR);
     };
-    LOG_F(INFO, "camera_pos=(%d, %d, %d)", (int)m_default_camera.getCameraPos().x / CHUNK_SIZE,
-          (int)m_default_camera.getCameraPos().y / CHUNK_SIZE, (int)m_default_camera.getCameraPos().z / CHUNK_SIZE);
     Ray hit_ray{ this->m_world, m_default_camera.getCameraPos(),
                 m_default_camera.getCameraFront()};
     while (hit_ray.getDistance() < 10.0) {

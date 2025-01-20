@@ -26,4 +26,12 @@ static inline glm::ivec3 worldPosToChunkPos(glm::vec3 world_pos) {
   int z = std::floor((world_pos.z / (float)Settings::CHUNK_SIZE));
   return {x, y, z};
 }
+
+static inline glm::vec3 chunkPosToWorldPos(glm::ivec3 chunk_pos) {
+  float x, y, z;
+  x = chunk_pos.x * Settings::CHUNK_SIZE;
+  y = chunk_pos.y * Settings::CHUNK_SIZE;
+  z = chunk_pos.z * Settings::CHUNK_SIZE;
+  return {x, y, z};
+}
 }  // namespace Util

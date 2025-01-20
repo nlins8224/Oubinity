@@ -67,8 +67,6 @@ class ChunkRenderer : public Renderer {
 
   void updateChunkPipeline();
 
-  bool checkCameraPosChanged();
-
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
   GLuint m_texture_array;
