@@ -111,8 +111,8 @@ void ChunkRenderer::initChunks() {
   m_chunks_by_coord = ChunkSlidingWindow({min_x, max_x, min_z, max_z});
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
         min_x, max_x, min_z, max_z);
-  for (int cx = min_x; cx < max_x; cx++) {
-    for (int cz = min_z; cz < max_z; cz++) {
+  for (int cx = min_x; cx <= max_x; cx++) {
+    for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
         m_chunks_to_create.push({cx, cy, cz});
@@ -189,8 +189,8 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
       m_chunks_by_coord.getWindowLatestMoveDir(chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
         move_dir.x_n, move_dir.z_p, move_dir.z_n);
-  //m_tasks.emplace(
-  //    [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
+  m_tasks.emplace(
+      [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
   //m_tasks.emplace([this] { updateChunkPipeline(); });
   //m_tasks.emplace([this] { deleteOutOfRenderDistanceChunks(); });
   m_tasks.emplace(
@@ -208,7 +208,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
   int max_z = chunk_border.max_z;
 
   // x-/x+ iterate over z
-  for (int cz = min_z; cz < max_z; cz++) {
+  for (int cz = min_z; cz <= max_z; cz++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
@@ -216,13 +216,13 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
       }
 
       if (move_dir.x_p) {
-        m_chunks_to_create.push({max_x - 1, cy, cz});
+        m_chunks_to_create.push({max_x, cy, cz});
       }
     }
   }
 
   // z-/z+ iterate over x
-  for (int cx = min_x; cx < max_x; cx++) {
+  for (int cx = min_x; cx <= max_x; cx++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
@@ -230,7 +230,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
       }
 
       if (move_dir.z_p) {
-        m_chunks_to_create.push({cx, cy, max_z - 1});
+        m_chunks_to_create.push({cx, cy, max_z});
       }
     }
   }
@@ -245,11 +245,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
   int max_z = chunk_border.max_z;
 
   // x-/x+ iterate over z
-  for (int cz = min_z; cz < max_z; cz++) {
+  for (int cz = min_z; cz <= max_z; cz++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        m_chunks_to_delete.push({max_x, cy, cz});
+        m_chunks_to_delete.push({max_x + 1, cy, cz});
       }
 
       if (move_dir.x_p) {
@@ -259,11 +259,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
   }
 
   // z-/z+ iterate over x
-  for (int cx = min_x; cx < max_x; cx++) {
+  for (int cx = min_x; cx <= max_x; cx++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        m_chunks_to_delete.push({cx, cy, max_z});
+        m_chunks_to_delete.push({cx, cy, max_z + 1});
       }
 
       if (move_dir.z_p) {
@@ -374,6 +374,8 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
   bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
       chunk_pos, height_map, lod);
   if (!is_chunk_visible) {
+    LOG_F(WARNING, "chunk not visible at (%d, %d, %d)", chunk_pos.x,
+          chunk_pos.y, chunk_pos.z);
     return;
   }
 
