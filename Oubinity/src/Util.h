@@ -1,4 +1,5 @@
 #pragma once
+#include "math.h"
 #include "Settings.h"
 
 namespace Util {
@@ -17,5 +18,12 @@ static inline int roundDownDivide(int a, int b) {
     return a / b;
   else
     return (a - b + 1) / b;
+}
+
+static inline glm::ivec3 worldPosToChunkPos(glm::vec3 world_pos) {
+  int x = std::floor((world_pos.x / (float)Settings::CHUNK_SIZE));
+  int y = std::floor((world_pos.y / (float)Settings::CHUNK_SIZE));
+  int z = std::floor((world_pos.z / (float)Settings::CHUNK_SIZE));
+  return {x, y, z};
 }
 }  // namespace Util

@@ -24,6 +24,7 @@
 #include "shader/SceneShader.h"
 #include "shader/Shader.h"
 #include "terrain_generation/TerrainGenerator.h"
+#include "Util.h"
 
 int main() {
   Window window{"Oubinity Engine"};
@@ -101,10 +102,14 @@ int main() {
     int block_amount = 1;
     if (current_frame - seconds_elapsed >= 1.0f) {
       glm::vec3 player_pos = player_input.getCamera().getCameraPos();
+      glm::ivec3 player_chunk_pos = Util::worldPosToChunkPos(player_pos);
 
       LOG_F(INFO, "FPS: %d", frames_per_second);
-      LOG_F(INFO, "Player Pos XYZ: (%d, %d, %d)", (int)player_pos.x / CHUNK_SIZE, (int)player_pos.y / CHUNK_SIZE,
-            (int)player_pos.z / CHUNK_SIZE);
+      LOG_F(INFO,
+            "Player Chunk Pos XYZ: (%d, %d, %d), Player Pos: (%f, %f, %f)",
+            player_chunk_pos.x, player_chunk_pos.y, player_chunk_pos.z,
+            player_pos.x,
+            player_pos.y, player_pos.z);
 
       seconds_elapsed += 1.0f;
       frames_per_second = 0;

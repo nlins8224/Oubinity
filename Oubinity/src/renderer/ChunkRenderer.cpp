@@ -136,8 +136,10 @@ void ChunkRenderer::initChunks() {
 // some updates to be lost. All actions should be queued or traverseScene should
 // be faster
 void ChunkRenderer::traverseScene() {
-  int last_camera_chunk_pos_x = m_camera.getCameraPos().x / CHUNK_SIZE;
-  int last_camera_chunk_pos_z = m_camera.getCameraPos().z / CHUNK_SIZE;
+  glm::ivec3 last_camera_chunk_pos =
+      Util::worldPosToChunkPos(m_camera.getCameraPos());
+  int last_camera_chunk_pos_x = last_camera_chunk_pos.x;
+  int last_camera_chunk_pos_z = last_camera_chunk_pos.z;
 
   int dx = std::abs(last_camera_chunk_pos_x - m_camera_last_chunk_pos.x);
   int dz = std::abs(last_camera_chunk_pos_z - m_camera_last_chunk_pos.z);
@@ -150,6 +152,7 @@ void ChunkRenderer::traverseScene() {
           "should be <= 1",
           dx, dz);
   }
+  LOG_F(INFO, "dx=%d, dz=%d", dx, dz);
 
   int camera_chunk_pos_x = last_camera_chunk_pos_x;
   int camera_chunk_pos_z = last_camera_chunk_pos_z;
