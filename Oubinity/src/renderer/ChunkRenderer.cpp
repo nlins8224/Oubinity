@@ -209,7 +209,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        m_chunks_to_create.push({min_x, cy, cz});
+        m_chunks_to_create.push({min_x - 1 , cy, cz});
       }
 
       if (move_dir.x_p) {
@@ -223,11 +223,11 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        m_chunks_to_create.push({cx, cy, min_z});
+        m_chunks_to_create.push({cx, cy, min_z - 1});
       }
 
       if (move_dir.z_p) {
-        m_chunks_to_create.push({cx, cy, max_z});
+        m_chunks_to_create.push({cx, cy, max_z + 1});
       }
     }
   }
@@ -369,11 +369,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
   HeightMap height_map = generateHeightmap(chunk_pos, lod);
   bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
       chunk_pos, height_map, lod);
-  if (!is_chunk_visible) {
-    LOG_F(WARNING, "chunk not visible at (%d, %d, %d)", chunk_pos.x,
-          chunk_pos.y, chunk_pos.z);
-    return;
-  }
 
   m_chunks_by_coord.set(chunk_pos, std::make_shared<Chunk>(chunk_pos, lod));
   m_chunks_to_populate_neighbors.push(chunk_pos);
