@@ -25,8 +25,13 @@ static constexpr glm::vec3 SETTING_SCALE = {1.0, 1.0, 1.0};
 // Used to determine thickness of a surface layer, when using
 // PRELOADED_COLORMAP.
 static constexpr int SETTING_BLOCK_MARGIN = SETTING_SCALE.y;
-
 static constexpr int SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH = 6;
 
+static constexpr int CHUNK_SIZE = 32;
+static constexpr int CHUNK_SIZE_PADDING = CHUNK_SIZE + 2;
+
 static constexpr double SETTING_CAMERA_SPEED = 5.0;
+
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 2;
+static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 8;
 }  // namespace Settings

@@ -2,8 +2,7 @@
 #include <unordered_map>
 #include <vector>
 #include "../Camera.h"
-#include "../chunk/ChunkSize.h"
-#include "../renderer/ChunkRendererSettings.h"
+#include "../Settings.h"
 
 namespace LevelOfDetail {
 
@@ -17,39 +16,39 @@ struct LevelOfDetail {
 };
 
 static const LevelOfDetail Zero{.level{0},
-                                .block_amount{CHUNK_SIZE},
+                                .block_amount{Settings::CHUNK_SIZE},
                                 .block_size{1.0f},
                                 .draw_distance{0},
                                 .divide_factor{1}};
 
 static const LevelOfDetail One{.level{1},
-                               .block_amount{CHUNK_SIZE / 2},
+                               .block_amount{Settings::CHUNK_SIZE / 2},
                                .block_size{2.0f},
-                               .draw_distance{64},
+                               .draw_distance{16},
                                .divide_factor{2}};
 
 static const LevelOfDetail Two{.level{2},
-                               .block_amount{CHUNK_SIZE / 4},
+                               .block_amount{Settings::CHUNK_SIZE / 4},
                                .block_size{4.0f},
-                               .draw_distance{128},
+                               .draw_distance{64},
                                .divide_factor{4}};
 
 static const LevelOfDetail Three{.level{3},
-                                 .block_amount{CHUNK_SIZE / 8},
+                                 .block_amount{Settings::CHUNK_SIZE / 8},
                                  .block_size{8.0f},
-                                 .draw_distance{256},
+                                 .draw_distance{128},
                                  .divide_factor{8}};
 
 static const LevelOfDetail Four{.level{4},
-                                .block_amount{CHUNK_SIZE / 16},
+                                .block_amount{Settings::CHUNK_SIZE / 16},
                                 .block_size{16.0f},
-                                .draw_distance{512},
+                                .draw_distance{256},
                                 .divide_factor{16}};
 
 static const LevelOfDetail Five{.level{5},
-                                .block_amount{CHUNK_SIZE / 32},
+                                .block_amount{Settings::CHUNK_SIZE / 32},
                                 .block_size{32.0f},
-                                .draw_distance{1024},
+                                .draw_distance{512},
                                 .divide_factor{32}};
 
 static const std::vector<LevelOfDetail> Lods{{Zero},  {One},  {Two},
@@ -78,7 +77,7 @@ static LevelOfDetail chooseLevelOfDetail(glm::ivec3 camera_pos,
 }
 
 static uint8_t getMaxLodLevel() {
-  uint8_t chunks_amount = ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  uint8_t chunks_amount = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   if (chunks_amount <= One.draw_distance) return 0;
   if (chunks_amount <= Two.draw_distance) return 1;
   if (chunks_amount <= Three.draw_distance) return 2;

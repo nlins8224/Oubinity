@@ -10,13 +10,12 @@
 #include "../dynamic_bitset.hpp"
 #include "../level_of_detail/LevelOfDetail.h"
 #include "../loguru.hpp"
+#include "../Settings.h"
 #include "../shader/Shader.h"
 #include "../third_party/timer.h"
-#include "ChunkSize.h"
 #include "ChunksMap.h"
 #include "Face.h"
 #include "Vertex.h"
-
 // clang-format off
 /*
 Convention:
@@ -53,9 +52,11 @@ Z
 // clang-format on
 
 struct MeshData {
-  uint64_t col_face_masks[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2) * 6]{0};
-  uint64_t merged_forward[(CHUNK_SIZE + 2) * (CHUNK_SIZE + 2)]{0};
-  uint64_t merged_right[(CHUNK_SIZE + 2)]{0};
+  uint64_t col_face_masks[(Settings::CHUNK_SIZE + 2) *
+                          (Settings::CHUNK_SIZE + 2) * 6]{0};
+  uint64_t merged_forward[(Settings::CHUNK_SIZE + 2) *
+                          (Settings::CHUNK_SIZE + 2)]{0};
+  uint64_t merged_right[(Settings::CHUNK_SIZE + 2)]{0};
 };
 
 struct FaceCornersAo {
@@ -76,7 +77,7 @@ struct GreedyQuad {
 };
 
 // unordered_map is not used here, because it takes too much memory space
-using ChunkNeighbors = std::vector<std::pair<glm::ivec3, Chunk*>>;
+using ChunkNeighbors = std::vector<std::pair<glm::ivec3, std::weak_ptr<Chunk>>>;
 
 enum class ChunkState {
   NONE = 0,
@@ -106,11 +107,11 @@ class Chunk {
   void setBlock(glm::ivec3 block_pos, Block::block_id type);
   void setNeighbors(ChunkNeighbors neighbors);
   void setState(ChunkState state);
-  ChunkState getState();
   void setIsVisible(bool is_visible);
   void setBlockArray();
   void setWasChunkEdited(bool was_edited);
 
+  ChunkState getState();
   glm::ivec3 getPos() const;
   glm::ivec2 getPosXZ() const;
   const glm::vec3 getWorldPos() const;
@@ -121,14 +122,13 @@ class Chunk {
   std::vector<Face>& getFaces();
   Block::BlockStorage& getBlockArray();
   unsigned int getAddedFacesAmount();
-
   bool isTransparent(glm::ivec3 block_pos) const;
   bool isVisible() const;
   bool isBlockPresent(glm::ivec3 block_pos) const;
   bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
   bool wasChunkEdited() const;
 
-  Chunk* findNeighborChunk(glm::ivec3 block_pos) const;
+  std::weak_ptr<Chunk> findNeighborChunk(glm::ivec3 block_pos) const;
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
@@ -144,7 +144,6 @@ class Chunk {
   unsigned int m_added_faces{0};
 
   void addFaces();
-  bool isFaceVisible(glm::ivec3 block_pos) const;
   bool isNeighborBlockVisible(glm::ivec3 block_pos) const;
   void addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side,
                      Block::block_id type, FaceCornersAo ao);

@@ -82,8 +82,6 @@ bool Ray::step(std::function<void(glm::vec3, glm::vec3)> hit_callback) {
 bool Ray::check(std::function<void(glm::vec3, glm::vec3)> hit_callback,
                 double distance, glm::vec3 current_block, glm::vec3 next_block) {
   if (m_world.isBlockPresentByWorldPos(next_block)) {
-    LOG_F(INFO, "HIT at (%d, %d, %d)", (int)next_block.x / CHUNK_SIZE,
-          (int)next_block.y / CHUNK_SIZE, (int)next_block.z / CHUNK_SIZE);
     hit_callback(current_block, next_block);
     return true;
   }

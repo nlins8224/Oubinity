@@ -132,14 +132,13 @@ inline int roundDownDivide(int a, int b) {
 // true modulo instead of C++ remainder modulo
 inline int getMod(int pos, int mod) { return ((pos % mod) + mod) % mod; }
 
-inline Chunk* findNeighborAt(glm::ivec3 target_chunk_pos,
+inline std::weak_ptr<Chunk> findNeighborAt(glm::ivec3 target_chunk_pos,
                              const ChunkNeighbors& chunk_neighbors) {
   for (const auto& [chunk_pos, chunk] : chunk_neighbors) {
     if (target_chunk_pos == chunk_pos) {
       return chunk;
     }
   }
-  return nullptr;
 }
 
 void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
@@ -165,10 +164,10 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
     chunk_pos.z += z_offset;
 
     ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
-    Chunk* chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
-    if (chunk_neighbor != nullptr) {
+    std::weak_ptr<Chunk> chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
+    if (!chunk_neighbor.lock()) {
       // Do not set trees across lod
-      if (chunk_neighbor->getLevelOfDetail().level !=
+      if (chunk_neighbor.lock()->getLevelOfDetail().level !=
           chunk.getLevelOfDetail().level) {
         return;
       }
@@ -177,19 +176,20 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
       y = getMod(y, lod.block_amount);
       z = getMod(z, lod.block_amount);
 
-      chunk_neighbor->setBlock({x, y, z}, block_type);
+      chunk_neighbor.lock()->setBlock({x, y, z}, block_type);
     }
   }
 }
 
 int Tree::determineChunkOffset(int block_pos) {
-  if (block_pos < 0) return (block_pos / CHUNK_SIZE) - 1;
-  return block_pos / CHUNK_SIZE;
+  if (block_pos < 0) return (block_pos / Settings::CHUNK_SIZE) - 1;
+  return block_pos / Settings::CHUNK_SIZE;
 }
 
 int Tree::determineBlockOffset(int block_pos) {
-  if (block_pos < 0) return CHUNK_SIZE + ((block_pos) % CHUNK_SIZE);
-  return block_pos % CHUNK_SIZE;
+  if (block_pos < 0)
+    return Settings::CHUNK_SIZE + ((block_pos) % Settings::CHUNK_SIZE);
+  return block_pos % Settings::CHUNK_SIZE;
 }
 
 // Some programmer art to make trees look better

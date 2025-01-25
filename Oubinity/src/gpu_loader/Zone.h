@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
-#include "../chunk/ChunkSize.h"
 #include "../chunk/Vertex.h"
-#include "../renderer/ChunkRendererSettings.h"
 
 namespace VertexPool {
 

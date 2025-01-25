@@ -39,17 +39,20 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
   fnScale->SetSource(fnFractal);
   fnScale->SetScale(lod.block_size);
 
-  std::vector<float> data_out(CHUNK_SIZE * CHUNK_SIZE);
-  glm::ivec3 world_pos = chunk_pos * CHUNK_SIZE;
-  fnScale->GenUniformGrid2D(data_out.data(), chunk_pos.x * lod.block_amount,
-                            chunk_pos.z * lod.block_amount, lod.block_amount,
-                            lod.block_amount, settings.frequency, seed);
+  int block_amount_padding = lod.block_amount + 2;
+  int LEFT_PADDING = 1;
+  std::vector<float> data_out(Settings::CHUNK_SIZE_PADDING * Settings::CHUNK_SIZE_PADDING);
+  fnScale->GenUniformGrid2D(
+      data_out.data(), chunk_pos.x * lod.block_amount - LEFT_PADDING,
+      chunk_pos.z * lod.block_amount - LEFT_PADDING,
+                            block_amount_padding, block_amount_padding,
+                            settings.frequency, seed);
   HeightMap height_map{};
 
-  for (int x = 0; x < lod.block_amount; x++) {
-    for (int z = 0; z < lod.block_amount; z++) {
-      height_map[x][z] = data_out[z * lod.block_amount + x];
-      height_map[x][z] = std::sqrt(height_map[x][z] * height_map[x][z]) * 220.0f;
+  for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
+    for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
+      float height = data_out[z * block_amount_padding + x];
+      height_map[x][z] = std::sqrt(height * height) * 220.0f;
     }
   }
 
@@ -58,24 +61,28 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
 
 bool ProceduralGenerator::generateLayers(Chunk& chunk,
                                          ProceduralHeightMap height_map) {
-  int block_amount = chunk.getLevelOfDetail().block_amount;
   int block_size = chunk.getLevelOfDetail().block_size;
+  int block_amount_padding = chunk.getLevelOfDetail().block_amount + 2;
   glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
 
   bool anything_added = false;
-  for (int x = 0; x < block_amount; x++) {
-    for (int y = 0; y < block_amount; y++) {
-      for (int z = 0; z < block_amount; z++) {
+  for (int x = 0; x < block_amount_padding; x++) {
+    // TODO: y for loop should not be needed at all.
+    for (int y = 1; y < block_amount_padding - 1; y++) {
+      for (int z = 0; z < block_amount_padding; z++) {
         glm::ivec3 block_pos = {x, y, z};
+
         float surface_height = height_map[x][z];
-        glm::ivec3 block_world_pos = chunk_world_pos + (block_pos * block_size);
+        glm::ivec3 block_padded_pos = chunk_world_pos + (block_pos * block_size);
+        // Y axis cuts through Y Chunk column. There is one surface and one chunk that it should cut. Do not adjust Y block coord here.
+        glm::ivec3 block_world_pos = block_padded_pos - glm::ivec3(1, 0, 1) * block_size;
 
         if (surface_height > block_world_pos.y - block_size &&
             surface_height < block_world_pos.y + block_size) {
           chunk.setBlock(block_pos, Block::GRASS);
           anything_added = true;
         }
-      }
+      } 
     }
   }
 

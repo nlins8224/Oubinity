@@ -2,7 +2,6 @@
 #include <vector>
 #include "../../Settings.h"
 #include "../../chunk/Chunk.h"
-#include "../../renderer/ChunkRendererSettings.h"
 #include "../TerrainGenerationTypes.h"
 #include "../procedural_generation/DecorationGenerator.h"
 #include "FileMapParser.h"
@@ -14,19 +13,12 @@ class PreloadedGenerator {
   virtual ~PreloadedGenerator() = default;
   bool generateLayers(Chunk& chunk, const HeightMap& height_map,
                       const BlockMap& block_map);
-  bool generatePreloadedChunkUndergroundLayer(Chunk& chunk,
-                                              const HeightMap& height_map);
-
   HeightMap getHeightMap(glm::ivec3 chunk_pos,
                          LevelOfDetail::LevelOfDetail lod);
   BlockMap getBlockMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
   void generateTrees(Chunk& chunk);
 
  private:
-  HeightMap increaseHeightMapLodLevel(HeightMap base_height_map,
-                                      LevelOfDetail::LevelOfDetail lod);
-  BlockMap increaseBlockMapLodLevel(BlockMap base_block_map,
-                                    LevelOfDetail::LevelOfDetail lod);
   HeightMap& getTreeMap(glm::ivec3 chunk_pos);
   TreePresenceMap generateTreePresenceMap(HeightMap& tree_map);
   bool isBlockInSurfaceHeightBounds(glm::ivec3 block_pos, glm::ivec3 chunk_pos,

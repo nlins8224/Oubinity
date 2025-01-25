@@ -127,7 +127,7 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 void ZoneVertexPool::free(glm::ivec3 chunk_pos) {
   if (m_chunk_pos_to_bucket_id.find(chunk_pos) ==
       m_chunk_pos_to_bucket_id.end()) {
-    LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
+    LOG_F(WARNING, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
           chunk_pos.z);
     return;
   }
@@ -279,16 +279,14 @@ void ZoneVertexPool::initZones(Vertex* buffer) {
 
 size_t ZoneVertexPool::calculateBucketAmountInZones() {
   size_t buckets_added = 0;
-  using ChunkRendererSettings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
+  using Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
   using LevelOfDetail::Lods;
 
   auto zones_it = zones.begin();
   auto lods_it = Lods.begin();
   for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end();
        zones_it++, lods_it++) {
-    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) *
-                                      2 * Settings::SETTING_BLOCK_MARGIN -
-                                  buckets_added;
+    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 4 * Settings::SETTING_BLOCK_MARGIN + ZONE_INITIAL_BUCKET_AMOUNT_MARGIN;
     buckets_added += (*zones_it)->buckets_amount;
     if (lods_it != Lods.end() && lods_it + 1 != Lods.end() &&
         (lods_it + 1)->draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS + 1) {

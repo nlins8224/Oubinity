@@ -2,7 +2,6 @@
 #include "../../block/Block.h"
 #include "../../chunk/Chunk.h"
 #include "../../loguru.hpp"
-#include "../../renderer/ChunkRendererSettings.h"
 #include "../TerrainGenerationTypes.h"
 
 namespace PreloadedGeneration {
@@ -14,11 +13,13 @@ HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath,
   std::unique_ptr<unsigned char[]> png_image{std::move(img_bundle.image)};
 
   int chunks_in_heightmap_xz = width / CHUNK_SIZE;
-
   std::vector<HeightMap> height_maps{};
+  int LEFT_PADDING = 1;
   for (int x = 0; x < height; x += CHUNK_SIZE) {
     for (int z = 0; z < width; z += CHUNK_SIZE) {
-      int chunk_offset = x * width + z;
+      int x_idx = std::max(0, x - LEFT_PADDING);
+      int z_idx = std::max(0, z - LEFT_PADDING);
+      int chunk_offset = x_idx * width + z_idx;
       glm::ivec3 chunk_pos_xz{x, 0, z};
       chunk_pos_xz /= CHUNK_SIZE;
       // map from height map coords to chunk pos coords
@@ -35,17 +36,37 @@ HeightMapBundle parsePNGToHeightMaps_8BIT(std::string filepath,
 HeightMap parsePNGToHeightMap_8BIT(unsigned char* chunk_image, int width,
                                    glm::ivec3 chunk_pos_xz, glm::vec3 scale) {
   auto lod = LevelOfDetail::chooseLevelOfDetail({0, 0, 0}, chunk_pos_xz);
-  int block_size = 1;
-  int block_amount = CHUNK_SIZE;
   HeightMap height_map{};
-  for (int x = 0; x < block_amount; x++) {
-    for (int z = 0; z < block_amount; z++) {
+  for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
+    for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
       int surface_height =
-          chunk_image[(x * block_size * width) + (z * block_size)] * scale.y;
+          chunk_image[(x * width) + z] * scale.y;
       height_map[x][z] = surface_height;
     }
   }
 
+  return height_map;
+}
+
+HeightMap increaseHeightMapLodLevel(HeightMap base_height_map,
+                                    LevelOfDetail::LevelOfDetail lod) {
+  if (lod.level == 0) {
+    return base_height_map;
+  }
+
+  int block_size = lod.block_size;
+  int block_amount_padding = lod.block_amount + 2;
+
+  HeightMap height_map{};
+  for (int x = 0; x < block_amount_padding; x += 1) {
+    for (int z = 0; z < block_amount_padding; z += 1) {
+      int x_idx = x * block_size;
+      int z_idx = z * block_size;
+      if (x_idx < CHUNK_SIZE_PADDING && z_idx < CHUNK_SIZE_PADDING) {
+        height_map[x][z] = base_height_map[x_idx][z_idx];
+      }
+    }
+  }
   return height_map;
 }
 
@@ -57,11 +78,14 @@ BlockMapBundle parsePNGToBlockMaps(std::string filepath, glm::vec3 scale) {
   std::vector<BlockMap> block_maps{};
 
   int chunks_in_blockmap_xz = width / CHUNK_SIZE;
-
+  int LEFT_PADDING = 1;
   int bytes_per_pixel = channels;
   for (int x = 0; x < height; x += CHUNK_SIZE) {
     for (int z = 0; z < width; z += CHUNK_SIZE) {
-      int chunk_offset = (x * width + z) * bytes_per_pixel;
+      int x_idx = std::max(0, x - LEFT_PADDING);
+      int z_idx = std::max(0, z - LEFT_PADDING);
+      int chunk_offset = (x_idx * width + z_idx) * bytes_per_pixel;
+      if (chunk_offset < 0) chunk_offset = 0;
       glm::ivec3 chunk_pos_xz{x, 0, z};
       chunk_pos_xz /= CHUNK_SIZE;
       // map from height map coords to chunk pos coords
@@ -80,14 +104,11 @@ BlockMap parsePNGToBlockMap(unsigned char* chunk_image, int image_width,
                             int image_height, glm::ivec3 chunk_pos_xz,
                             int channels) {
   auto lod = LevelOfDetail::chooseLevelOfDetail({0, 0, 0}, chunk_pos_xz);
-  int block_size = 1;
-  int block_amount = CHUNK_SIZE;
-
   BlockMap block_map{};
-  for (int x = 0; x < block_amount; x++) {
-    for (int z = 0; z < block_amount; z++) {
+  for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
+    for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
       Block::Pixel_RGBA pixel = getPixelRGBA(
-          chunk_image, image_width, image_height, x, z, block_size, channels);
+          chunk_image, image_width, image_height, x, z, 1, channels);
       block_map[x][z] = pixelToBlock(pixel);
     }
   }
@@ -204,5 +225,27 @@ static ImageBundle read_png_image(std::string filepath) {
           width_mod, width);
   }
   return {width, height, channels, std::unique_ptr<unsigned char[]>(png_image)};
+}
+
+BlockMap increaseBlockMapLodLevel(
+    BlockMap base_color_map, LevelOfDetail::LevelOfDetail lod) {
+  if (lod.level == 0) {
+    return base_color_map;
+  }
+
+  int block_size = lod.block_size;
+  int block_amount_padding = lod.block_amount + 2;
+
+  BlockMap height_map{};
+  for (int x = 0; x < block_amount_padding; x += 1) {
+    for (int z = 0; z < block_amount_padding; z += 1) {
+      int x_idx = x * block_size;
+      int z_idx = z * block_size;
+      if (x_idx < CHUNK_SIZE_PADDING && z_idx < CHUNK_SIZE_PADDING) {
+        height_map[x][z] = base_color_map[x_idx][z_idx];
+      }
+    }
+  }
+  return height_map;
 }
 }  // namespace PreloadedGeneration

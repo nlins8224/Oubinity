@@ -1,15 +1,17 @@
 #include "Chunk.h"
+#include "../Util.h"
 using Block::block_id;
 using Block::block_mesh;
 
 Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
     : m_chunk_pos{chunk_pos},
       m_lod{lod},
-      m_world_pos{glm::vec3{chunk_pos.x * CHUNK_SIZE, chunk_pos.y * CHUNK_SIZE,
-                            chunk_pos.z * CHUNK_SIZE}},
+      m_world_pos{Util::chunkPosToWorldPos(chunk_pos)},
       m_state{ChunkState::NEW},
       m_is_visible{true},
-      m_was_edited{false} {}
+      m_was_edited{false},
+      m_blocks{nullptr},
+      m_mesh{nullptr} {}
 
 Chunk::Chunk(const Chunk& chunk)
     : m_mesh{chunk.m_mesh},
@@ -17,7 +19,10 @@ Chunk::Chunk(const Chunk& chunk)
       m_chunk_neighbors{chunk.m_chunk_neighbors},
       m_blocks{chunk.m_blocks},
       m_world_pos{chunk.m_world_pos},
-      m_is_visible{chunk.m_is_visible} {}
+      m_is_visible{chunk.m_is_visible},
+      m_lod{chunk.m_lod},
+      m_state{chunk.m_state},
+      m_was_edited{chunk.m_was_edited} {}
 
 Chunk::~Chunk() {
   if (m_blocks != nullptr) {
@@ -33,7 +38,7 @@ void Chunk::addChunkMesh() {
   // No need to store blocks if chunk was not edited by a player.
   // Blocks will be regenerated on a fly
   if (!m_was_edited) {
-    m_blocks->clear();
+    m_blocks->clearBlockIdCache();
   }
 }
 
@@ -45,45 +50,19 @@ glm::ivec3 Chunk::getPos() const { return m_chunk_pos; }
 
 glm::ivec2 Chunk::getPosXZ() const { return {m_chunk_pos.x, m_chunk_pos.z}; }
 
-// May overflow when near INT_MAX
-// b parameter has to be positive
-inline int roundDownDivide(int a, int b) {
-  if (a >= 0)
-    return a / b;
-  else
-    return (a - b + 1) / b;
-}
-
-// true modulo instead of C++ remainder modulo
-inline int getMod(int pos, int mod) { return ((pos % mod) + mod) % mod; }
-
-bool Chunk::isFaceVisible(glm::ivec3 block_pos) const {
-  int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-
-  if (y < 0 || y > m_lod.block_amount) {
-    return true;
-  }
-  if (isBlockOutsideChunk(block_pos)) {
-    return isNeighborBlockVisible(block_pos);
-  }
-
-  block_id block_type = m_blocks->getRaw(glm::ivec3(x, y, z));
-  return block_type != block_id::AIR;
-}
-
 bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
-  Chunk* neighbor_chunk = findNeighborChunk(block_pos);
+  std::weak_ptr<Chunk> neighbor_chunk = findNeighborChunk(block_pos);
 
   // If LOD don't match, return false to have seamless transitions between lod
   // levels This creates additional "wall" and it costs a bit of FPS, but not
   // much.
-  if (neighbor_chunk == nullptr ||
-      neighbor_chunk->getLevelOfDetail().block_amount != m_lod.block_amount ||
-      !neighbor_chunk->isVisible()) {
+  if (!neighbor_chunk.lock() ||
+      neighbor_chunk.lock()->getLevelOfDetail().block_amount != m_lod.block_amount ||
+      !neighbor_chunk.lock()->isVisible()) {
     return false;
   }
 
-  return neighbor_chunk->isBlockPresent(findNeighborBlockPos(block_pos));
+  return neighbor_chunk.lock()->isBlockPresent(findNeighborBlockPos(block_pos));
 }
 
 void Chunk::addFaces() {
@@ -107,44 +86,7 @@ void Chunk::addFaces() {
 
   bool neighbor_visible = false;
 
-  // 1. Prepare neighbors padding
-  // Optimization: blocks in padding will not be visible and all needed
-  // to know is if block is opaque or not.
-  // hence |neighbor_visible ? Block::STONE : Block::AIR| is sufficient check.
-  for (int y = 0; y < CS_P; y++) {
-    for (int x : {min_x, max_x}) {
-      for (int z : {min_z, max_z}) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  for (int y : {min_y, max_y}) {
-    for (int x = 0; x < CS_P; x++) {
-      for (int z : {min_z, max_z}) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  for (int y : {min_y, max_y}) {
-    for (int x : {min_x, max_x}) {
-      for (int z = 0; z < CS_P; z++) {
-        neighbor_visible = isNeighborBlockVisible({x, y, z});
-        padded_blocks_presence_cache.push_back(neighbor_visible);
-        padded_blocks_id_cache.push_back(neighbor_visible ? Block::STONE
-                                                          : Block::AIR);
-      }
-    }
-  }
-
-  // 2.
+  // 1.
   /*
     axis 0:
     axis_cols[0, CS_P2) - iterating over xz plane in y direction, top and bottom
@@ -169,7 +111,7 @@ void Chunk::addFaces() {
     }
   }
 
-  // 3.
+  // 2.
   /*
   axis 0: Top and Bottom faces
     col[0, CS_P2)
@@ -194,7 +136,7 @@ col_face_masks[2CS_P2, 3CS_P2)
     }
   }
 
-  // 4. Greedy meshing
+  // 3. Greedy meshing
   bit_pos = 0;
   for (uint8_t face = 0; face < 6; face++) {
     int axis = face / 2;
@@ -383,7 +325,7 @@ const int Chunk::vertexAO(uint8_t side_first, uint8_t side_second,
 }
 
 const bool Chunk::compareAO(const std::vector<block_id>& voxels, int axis,
-                            int forward, int right, int c, int forward_offset,
+                            int forward, int right, int c, int forward_offset, 
                             int right_offset) {
   for (auto& ao_dir : ao_dirs) {
     bool block_first_present =
@@ -455,9 +397,9 @@ bool Chunk::isBlockPresent(glm::ivec3 block_pos) const {
 
 bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
-  int chunk_size = m_lod.block_amount;
-  return x < 0 || y < 0 || z < 0 || x >= chunk_size || y >= chunk_size ||
-         z >= chunk_size;
+  int chunk_size_padding = m_lod.block_amount + 2;
+  return x < 0 || y < 0 || z < 0 || x >= chunk_size_padding ||
+         y >= chunk_size_padding || z >= chunk_size_padding;
 }
 
 bool Chunk::wasChunkEdited() const { return m_was_edited; }
@@ -476,12 +418,12 @@ void Chunk::setNeighbors(ChunkNeighbors neighbors) {
   m_chunk_neighbors = neighbors;
 }
 
-Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
+std::weak_ptr<Chunk> Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-  int c_x = roundDownDivide(x, m_lod.block_amount);
-  int c_y = roundDownDivide(y, m_lod.block_amount);
-  int c_z = roundDownDivide(z, m_lod.block_amount);
+  int c_x = Util::roundDownDivide(x, m_lod.block_amount);
+  int c_y = Util::roundDownDivide(y, m_lod.block_amount);
+  int c_z = Util::roundDownDivide(z, m_lod.block_amount);
 
   glm::ivec3 neighbor_chunk_offset = glm::ivec3(c_x, c_y, c_z);
   glm::ivec3 neighbor_chunk_pos = m_chunk_pos + neighbor_chunk_offset;
@@ -491,15 +433,14 @@ Chunk* Chunk::findNeighborChunk(glm::ivec3 block_pos) const {
       return chunk;
     }
   }
-  return nullptr;
 }
 
 glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;
 
-  int l_x = getMod(x, m_lod.block_amount);
-  int l_y = getMod(y, m_lod.block_amount);
-  int l_z = getMod(z, m_lod.block_amount);
+  int l_x = Util::getMod(x, m_lod.block_amount);
+  int l_y = Util::getMod(y, m_lod.block_amount);
+  int l_z = Util::getMod(z, m_lod.block_amount);
   return {l_x, l_y, l_z};
 }
 

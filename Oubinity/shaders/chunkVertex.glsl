@@ -152,7 +152,10 @@ void main()
 	This means that larger blocks will not align with smaller blocks. Larger block bottom face
 	will be neighbour of smaller block top face.
 	*/
-	vertex_pos.y -= lod.block_size[gl_DrawID] - 1;
+	uint block_size = lod.block_size[gl_DrawID];
+	if (block_size > 1) {
+	  vertex_pos.y -= block_size * 2 + 1;
+	}
 
 	vertex_pos.x += chunkInfo.chunk_pos[gl_DrawID].x;
 	vertex_pos.y += chunkInfo.chunk_pos[gl_DrawID].y;

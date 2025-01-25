@@ -31,12 +31,6 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk,
 
 #if SETTING_USE_PRELOADED_HEIGHTMAP || SETTING_USE_PRELOADED_COLORMAP
 
-bool TerrainGenerator::generatePreloadedUndergroundLayer(
-    Chunk& chunk, HeightMap& height_map) {
-  return m_preloaded_generator.generatePreloadedChunkUndergroundLayer(
-      chunk, height_map);
-}
-
 PreloadedHeightMap TerrainGenerator::generatePreloadedHeightMap(
     glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod) {
   return m_preloaded_generator.getHeightMap(chunk_pos, lod);
@@ -50,8 +44,8 @@ PreloadedHeightMap TerrainGenerator::generateBlendedHeightMap(
       m_preloaded_generator.getHeightMap(chunk_pos, lod));
   auto procedural_height_map = std::make_unique<ProceduralHeightMap>(
       m_procedural_generator.generateHeightMap(chunk_pos, lod));
-  for (int x = 0; x < lod.block_amount; x++) {
-    for (int z = 0; z < lod.block_amount; z++) {
+  for (int x = 0; x < lod.block_amount + 2; x++) {
+    for (int z = 0; z < lod.block_amount + 2; z++) {
       double proc_height = procedural_height_map->data()[x][z];
       double from_texture_height = preloaded_height_map->data()[x][z];
       preloaded_height_map->data()[x][z] =
@@ -113,18 +107,20 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
     glm::ivec3 chunk_pos, const HeightMap& height_map,
     LevelOfDetail::LevelOfDetail lod) {
   // TODO: Calculate it once in HeightMapParser
-  int block_amount = lod.block_amount;
+  int block_amount_padding = lod.block_amount + 2;
   double min_height = std::numeric_limits<double>::max();
   double max_height = std::numeric_limits<double>::min();
-  for (int x = 0; x < block_amount; x++) {
-    for (int z = 0; z < block_amount; z++) {
+  for (int x = 1; x < block_amount_padding - 1; x++) {
+    for (int z = 1; z < block_amount_padding - 1; z++) {
       min_height = std::min(min_height, height_map[x][z]);
       max_height = std::max(max_height, height_map[x][z]);
     }
   }
   // Real CHUNK_SIZE here is correct
   int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
-  bool below_surface = chunk_pos_y + CHUNK_SIZE < min_height;
+  // |CHUNK_SIZE * 2| we take into consideration one chunk that is below surface as well
+  // to avoid empty voxel holes in surface that occur when surface height rises too quickly
+  bool below_surface = chunk_pos_y + CHUNK_SIZE * 2 < min_height;
   bool above_surface = chunk_pos_y > max_height;
   return below_surface || above_surface;
 }
