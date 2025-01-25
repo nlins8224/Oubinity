@@ -24,6 +24,7 @@ set(Header_Files
     "src/block/BlockMesh.h"
     "src/block/BlockStorage.h"
     "src/Camera.h"
+    "src/concurrentqueue.h"
     "src/chunk/Chunk.h"
     "src/chunk/ChunksMap.h"
     "src/chunk/Face.h"
