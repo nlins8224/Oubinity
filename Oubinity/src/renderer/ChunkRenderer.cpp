@@ -323,18 +323,17 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
   LOG_F(INFO, "pushing (%d, %d, %d) to allocate", chunk_pos.x, chunk_pos.y,
         chunk_pos.z);
 
-  m_chunks_to_allocate.push(getAllocData(chunk_pos));
+  m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
 }
 
+// generation thread
 VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
   VertexPool::ChunkAllocData alloc_data;
   alloc_data._chunk_pos = chunk.lock()->getPos();
   alloc_data._added_faces_amount = chunk.lock()->getAddedFacesAmount();
   alloc_data._lod = chunk.lock()->getLevelOfDetail();
-  alloc_data._mesh = 
-      chunk.lock()->getMesh();  // chunk mesh is about to be allocated,
-                                 // vertex pool takes ownership
+  alloc_data._mesh = chunk.lock()->getMesh();                            
   alloc_data._mesh_faces = chunk.lock()->getFaces();
   alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
   alloc_data._ready = true;
@@ -344,12 +343,15 @@ VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
 
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
-  if (m_buffer_needs_update.load() || m_chunks_to_allocate.size() > 0 || m_chunks_to_free.size() > 0) {
-    LOG_F(INFO, "updateBufferIfNeedsUpdate");
-    m_buffer_needs_update.store(false);
-    // free should go first, before allocate
-    freeChunks();
-    allocateChunks();
+  glm::ivec3 chunk_pos;
+  while (m_chunks_to_free.try_dequeue(chunk_pos)) {
+    freeChunk(chunk_pos);
+    m_vertexpool->createChunkInfoBuffer();
+    m_vertexpool->createChunkLodBuffer();
+  }
+  VertexPool::ChunkAllocData alloc_data;
+  while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
+    allocateChunk(alloc_data);
     m_vertexpool->createChunkInfoBuffer();
     m_vertexpool->createChunkLodBuffer();
   }
@@ -487,7 +489,7 @@ bool ChunkRenderer::deleteChunkIfPresent(glm::ivec3 chunk_pos) {
 
 // generation thread
 void ChunkRenderer::deleteChunk(glm::ivec3 chunk_pos) {
-  m_chunks_to_free.push(chunk_pos);
+  m_chunks_to_free.enqueue(chunk_pos);
 }
 
 // generation thread
@@ -500,27 +502,8 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
 }
 
 // main thread
-void ChunkRenderer::allocateChunks() {
-  LOG_F(INFO, "allocateChunks");
-  while (!m_chunks_to_allocate.empty()) {
-    allocateChunk(m_chunks_to_allocate.front());
-    m_chunks_to_allocate.pop();
-  }
-}
-
-// main thread
 void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data) {
   m_vertexpool->allocate(std::move(alloc_data));
-}
-
-// main thread
-void ChunkRenderer::freeChunks() {
-  LOG_F(INFO, "freeChunks");
-  while (!m_chunks_to_free.empty()) {
-    glm::ivec3 chunk_pos = m_chunks_to_free.front();
-    freeChunk(chunk_pos);
-    m_chunks_to_free.pop();
-  }
 }
 
 // main thread
