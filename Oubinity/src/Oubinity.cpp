@@ -86,7 +86,7 @@ int main() {
   glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &max_ssbo_size);
   LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
 
-  master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
+  //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
   // PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap.png");
 
   double xpos, ypos;

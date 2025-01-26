@@ -33,13 +33,13 @@ void ChunkRenderer::drawChunksSceneMesh() {
 
 // render thread
 void ChunkRenderer::traverseSceneLoop() {
-  while (true) {
+  //while (true) {
     traverseScene();
     while (!m_tasks.empty()) {
       m_tasks.front()();
       m_tasks.pop();
     }
-  }
+ // }
 }
 
 std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
@@ -109,16 +109,10 @@ void ChunkRenderer::initChunks() {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
-        m_chunks_to_create.push({cx, cy, cz});
+        generateChunk({cx, cy, cz});
       }
     }
   }
-
-  createChunksInRenderDistance();
-  populateChunksNeighbors();
-  generateChunksTerrain();
-  decorateChunks();
-  meshChunks();
   m_buffer_needs_update = true;
   updateBufferIfNeedsUpdate();
   m_init_stage = false;
@@ -209,11 +203,11 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        m_chunks_to_create.push({min_x - 1 , cy, cz});
+        generateChunk({min_x - 1, cy, cz});
       }
 
       if (move_dir.x_p) {
-        m_chunks_to_create.push({max_x + 1, cy, cz});
+        generateChunk({max_x + 1, cy, cz});
       }
     }
   }
@@ -223,11 +217,11 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        m_chunks_to_create.push({cx, cy, min_z - 1});
+        generateChunk({cx, cy, min_z - 1});
       }
 
       if (move_dir.z_p) {
-        m_chunks_to_create.push({cx, cy, max_z + 1});
+        generateChunk({cx, cy, max_z + 1});
       }
     }
   }
@@ -246,11 +240,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        m_chunks_to_delete.push({max_x, cy, cz});
+        deleteChunkIfPresent({max_x, cy, cz});
       }
 
       if (move_dir.x_p) {
-        m_chunks_to_delete.push({min_x, cy, cz});
+        deleteChunkIfPresent({min_x, cy, cz});
       }
     }
   }
@@ -260,11 +254,11 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        m_chunks_to_delete.push({cx, cy, max_z});
+        deleteChunkIfPresent({cx, cy, max_z});
       }
 
       if (move_dir.z_p) {
-        m_chunks_to_delete.push({cx, cy, min_z});
+        deleteChunkIfPresent({cx, cy, min_z});
       }
     }
   }
@@ -320,9 +314,27 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos,
          cz < chunk_border.min_z || cz > chunk_border.max_z;
 }
 
+void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
+  bool chunk_created = createChunkIfNotPresent(chunk_pos);
+  if (!chunk_created) {
+    return;
+  }
+  bool terrain_generated = generateChunkTerrain(chunk_pos);
+  if (!terrain_generated) {
+    return;
+  }
+  bool mesh_chunk = meshChunk(chunk_pos);
+  if (!mesh_chunk) {
+    return;
+  }
+  LOG_F(INFO, "pushing (%d, %d, %d) to allocate", chunk_pos.x, chunk_pos.y,
+        chunk_pos.z);
+  m_chunks_to_allocate.push(chunk_pos);
+}
+
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
-  if (m_buffer_needs_update.load()) {
+  if (m_buffer_needs_update.load() || m_chunks_to_allocate.size() > 0 || m_chunks_to_free.size() > 0) {
     LOG_F(INFO, "updateBufferIfNeedsUpdate");
     m_buffer_needs_update.store(false);
     // free should go first, before allocate
@@ -371,7 +383,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
       chunk_pos, height_map, lod);
 
   m_chunks_by_coord.set(chunk_pos, std::make_shared<Chunk>(chunk_pos, lod));
-  m_chunks_to_populate_neighbors.push(chunk_pos);
   m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::CREATED);
 }
 
@@ -424,12 +435,10 @@ bool ChunkRenderer::generateChunksTerrain() {
         m_chunks_to_generate_terrain.size());
   bool anything_generated = false;
 #if SETTING_USE_PRELOADED_HEIGHTMAP
-  std::queue<glm::ivec3> chunks_to_generate_underground_layer;
   while (!m_chunks_to_generate_terrain.empty()) {
     glm::ivec3 chunk_pos = m_chunks_to_generate_terrain.front();
     anything_generated |= generateChunkTerrain(chunk_pos);
     m_chunks_to_generate_terrain.pop();
-    chunks_to_generate_underground_layer.push(chunk_pos);
   }
 #else
   while (!m_chunks_to_generate_terrain.empty()) {
@@ -517,6 +526,11 @@ bool ChunkRenderer::meshChunks() {
 // render thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  if (chunk.lock()->getState() == ChunkState::MESHED) {
+    LOG_F(ERROR, "Chunk at (%d, %d, %d) already meshed", chunk_pos.x,
+          chunk_pos.y, chunk_pos.z);
+    return false;
+  }
   if (chunk.lock()->isVisible()) {
     chunk.lock()->addChunkMesh();
   }

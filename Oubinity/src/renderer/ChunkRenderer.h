@@ -36,7 +36,7 @@ class ChunkRenderer : public Renderer {
 
  private:
   void initChunks();
-  bool createChunksInRenderDistance();  // called when scene was already traversed
+  bool createChunksInRenderDistance();
   bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
   void createChunk(glm::ivec3 chunk_pos);
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
@@ -49,7 +49,7 @@ class ChunkRenderer : public Renderer {
   bool decorateChunks();
   bool meshChunks();
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
+  bool deleteOutOfRenderDistanceChunks();
   bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
   void deleteChunk(glm::ivec3 chunk_pos);
   bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
@@ -57,6 +57,8 @@ class ChunkRenderer : public Renderer {
   void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
+
+  void generateChunk(glm::ivec3 chunk_pos);
 
   std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
 
