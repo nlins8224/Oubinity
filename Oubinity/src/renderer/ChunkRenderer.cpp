@@ -122,11 +122,8 @@ void ChunkRenderer::initChunks() {
 void ChunkRenderer::traverseScene() {
   glm::ivec3 last_camera_chunk_pos =
       Util::worldPosToChunkPos(m_camera.getCameraPos());
-  int last_camera_chunk_pos_x = last_camera_chunk_pos.x;
-  int last_camera_chunk_pos_z = last_camera_chunk_pos.z;
-
-  int dx = std::abs(last_camera_chunk_pos_x - m_camera_last_chunk_pos.x);
-  int dz = std::abs(last_camera_chunk_pos_z - m_camera_last_chunk_pos.z);
+  int dx = std::abs(last_camera_chunk_pos.x - m_camera_last_chunk_pos.x);
+  int dz = std::abs(last_camera_chunk_pos.z - m_camera_last_chunk_pos.z);
   if (dx < 1 && dz < 1) {
     return;
   }
@@ -138,20 +135,24 @@ void ChunkRenderer::traverseScene() {
   }
   LOG_F(INFO, "dx=%d, dz=%d", dx, dz);
 
-  int camera_chunk_pos_x = last_camera_chunk_pos_x;
-  int camera_chunk_pos_z = last_camera_chunk_pos_z;
+  int camera_chunk_pos_x = last_camera_chunk_pos.x;
+  int camera_chunk_pos_z = last_camera_chunk_pos.z;
+
+  if (dx == 1 && dz == 1) {
+    LOG_F(ERROR, "TODO: Fix dx==1, dz==1 traverse case");
+  }
 
   for (int i = 0; i < dx; i++) {
-    camera_chunk_pos_x = last_camera_chunk_pos_x + i;
+    camera_chunk_pos_x = last_camera_chunk_pos.x + i;
     doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
-    m_camera_last_chunk_pos.x = camera_chunk_pos_x;
   }
+  m_camera_last_chunk_pos.x = camera_chunk_pos_x;
 
   for (int j = 0; j < dz; j++) {
-    camera_chunk_pos_z = last_camera_chunk_pos_z + j;
+    camera_chunk_pos_z = last_camera_chunk_pos.z + j;
     doIterate(camera_chunk_pos_x, camera_chunk_pos_z);
-    m_camera_last_chunk_pos.z = camera_chunk_pos_z;
   }
+  m_camera_last_chunk_pos.z = camera_chunk_pos_z;
 }
 
 void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
