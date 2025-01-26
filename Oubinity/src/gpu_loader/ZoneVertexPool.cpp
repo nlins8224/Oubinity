@@ -127,7 +127,7 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 void ZoneVertexPool::free(glm::ivec3 chunk_pos) {
   if (m_chunk_pos_to_bucket_id.find(chunk_pos) ==
       m_chunk_pos_to_bucket_id.end()) {
-    LOG_F(WARNING, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
+    LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
           chunk_pos.z);
     return;
   }

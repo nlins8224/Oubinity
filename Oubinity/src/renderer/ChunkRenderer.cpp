@@ -33,13 +33,13 @@ void ChunkRenderer::drawChunksSceneMesh() {
 
 // generation thread
 void ChunkRenderer::traverseSceneLoop() {
-  //while (true) {
+  while (true) {
     traverseScene();
     while (!m_tasks.empty()) {
       m_tasks.front()();
       m_tasks.pop();
     }
- // }
+  }
 }
 
 std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
@@ -219,6 +219,7 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
       }
     }
   }
+  m_buffer_needs_update = true;
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndDelete(
@@ -320,7 +321,7 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
   if (!mesh_chunk) {
     return;
   }
-  LOG_F(INFO, "pushing (%d, %d, %d) to allocate", chunk_pos.x, chunk_pos.y,
+  LOG_F(3, "pushing (%d, %d, %d) to allocate", chunk_pos.x, chunk_pos.y,
         chunk_pos.z);
 
   m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
@@ -344,16 +345,22 @@ VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
 // main thread
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
   glm::ivec3 chunk_pos;
-  while (m_chunks_to_free.try_dequeue(chunk_pos)) {
-    freeChunk(chunk_pos);
-    m_vertexpool->createChunkInfoBuffer();
-    m_vertexpool->createChunkLodBuffer();
-  }
-  VertexPool::ChunkAllocData alloc_data;
-  while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
-    allocateChunk(alloc_data);
-    m_vertexpool->createChunkInfoBuffer();
-    m_vertexpool->createChunkLodBuffer();
+  if (m_buffer_needs_update) {
+    bool updated = false;
+    while (m_chunks_to_free.try_dequeue(chunk_pos)) {
+      freeChunk(chunk_pos);
+      updated = true;
+    }
+    VertexPool::ChunkAllocData alloc_data;
+    while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
+      allocateChunk(alloc_data);
+      updated = true;
+    }
+    if (updated) {
+      m_vertexpool->createChunkInfoBuffer();
+      m_vertexpool->createChunkLodBuffer();
+    }
+    m_buffer_needs_update = false;
   }
 }
 
