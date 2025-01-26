@@ -36,20 +36,14 @@ class ChunkRenderer : public Renderer {
 
  private:
   void initChunks();
-  bool createChunksInRenderDistance();
   bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
   void createChunk(glm::ivec3 chunk_pos);
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
                               LevelOfDetail::LevelOfDetail lod);
-  bool populateChunksNeighbors();
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
-  bool generateChunksTerrain();
   bool generateChunkTerrain(glm::ivec3 chunk_pos);
   bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
-  bool decorateChunks();
-  bool meshChunks();
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool deleteOutOfRenderDistanceChunks();
   bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
   void deleteChunk(glm::ivec3 chunk_pos);
   bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
@@ -67,39 +61,25 @@ class ChunkRenderer : public Renderer {
   void freeChunks();
   void freeChunk(glm::ivec3 chunk_pos);
 
-  void updateChunkPipeline();
-
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
   GLuint m_texture_array;
   bool m_init_stage;
 
-  // Meshing is done on render thread, but allocate and free are
+  // Meshing is done on generation thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
   std::atomic<bool> m_buffer_needs_update;
 
   ChunkSlidingWindow
-      m_chunks_by_coord;  // shared between render and main threads
-  std::vector<glm::ivec3> m_border_chunks;    // used only on render thread
-  std::queue<glm::ivec3> m_chunks_to_create;  // used only on render thread
+      m_chunks_by_coord;  // shared between generation and main threads
 
   std::queue<glm::ivec3>
-      m_chunks_to_populate_neighbors;  // used only on render thread
+      m_chunks_to_allocate;  // generation thread writes, main thread reads
   std::queue<glm::ivec3>
-      m_chunks_to_generate_terrain;  // used only on render thread
-
-  std::queue<glm::ivec3> m_chunks_to_decorate;  // used only on render thread
-
-  std::queue<glm::ivec3> m_chunks_to_mesh;
-  std::queue<glm::ivec3> m_chunks_to_delete;  // used only on render thread
-
-  std::queue<glm::ivec3>
-      m_chunks_to_allocate;  // render thread writes, main thread reads
-  std::queue<glm::ivec3>
-      m_chunks_to_free;  // render thread writes, main thread reads
+      m_chunks_to_free;  // generation thread writes, main thread reads
 
   std::queue<std::function<void()>> m_tasks;
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
-  TerrainGenerator& m_terrain_generator;     // called only on render thread
+  TerrainGenerator& m_terrain_generator;     // called only on generation thread
 };
