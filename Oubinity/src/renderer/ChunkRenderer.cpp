@@ -84,7 +84,7 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
   chunk.lock()->setWasChunkEdited(true);
   meshChunk(chunk_pos);
   freeChunk(chunk_pos);
-  allocateChunk(chunk_pos);
+  allocateChunk(getAllocData(chunk_pos));
   m_vertexpool->createChunkInfoBuffer();
   m_vertexpool->createChunkLodBuffer();
 }
@@ -321,7 +321,24 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
   }
   LOG_F(INFO, "pushing (%d, %d, %d) to allocate", chunk_pos.x, chunk_pos.y,
         chunk_pos.z);
-  m_chunks_to_allocate.push(chunk_pos);
+
+  m_chunks_to_allocate.push(getAllocData(chunk_pos));
+}
+
+VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+  VertexPool::ChunkAllocData alloc_data;
+  alloc_data._chunk_pos = chunk.lock()->getPos();
+  alloc_data._added_faces_amount = chunk.lock()->getAddedFacesAmount();
+  alloc_data._lod = chunk.lock()->getLevelOfDetail();
+  alloc_data._mesh = 
+      chunk.lock()->getMesh();  // chunk mesh is about to be allocated,
+                                 // vertex pool takes ownership
+  alloc_data._mesh_faces = chunk.lock()->getFaces();
+  alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
+  alloc_data._ready = true;
+  chunk.lock()->setState(ChunkState::ALLOCATED);
+  return alloc_data;
 }
 
 // main thread
@@ -491,23 +508,8 @@ void ChunkRenderer::allocateChunks() {
 }
 
 // main thread
-void ChunkRenderer::allocateChunk(glm::ivec3 chunk_pos) {
-  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
-  VertexPool::ChunkAllocData alloc_data;
-
-  alloc_data._chunk_pos = chunk.lock()->getPos();
-  alloc_data._added_faces_amount = chunk.lock()->getAddedFacesAmount();
-  alloc_data._lod = chunk.lock()->getLevelOfDetail();
-  alloc_data._mesh = std::move(
-      chunk.lock()->getMesh());  // chunk mesh is about to be allocated,
-                                    // vertex pool takes ownership
-  alloc_data._mesh_faces = std::move(chunk.lock()->getFaces());
-  alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
-  alloc_data._ready = true;
-
-  chunk.lock()->setState(ChunkState::ALLOCATED);
+void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data) {
   m_vertexpool->allocate(std::move(alloc_data));
-
 }
 
 // main thread

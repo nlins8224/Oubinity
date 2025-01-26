@@ -13,9 +13,9 @@
 #include "ChunkBorder.h"
 #include "ChunkSlidingWindow.h"
 #include "Renderer.h"
-
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
+#include "../third_party/concurrentqueue.h"
 
 class ChunkRenderer : public Renderer {
  public:
@@ -53,11 +53,12 @@ class ChunkRenderer : public Renderer {
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
   void generateChunk(glm::ivec3 chunk_pos);
+  VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
 
   std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
 
   void allocateChunks();
-  void allocateChunk(glm::ivec3 chunk_pos);
+  void allocateChunk(VertexPool::ChunkAllocData alloc_data);
   void freeChunks();
   void freeChunk(glm::ivec3 chunk_pos);
 
@@ -73,7 +74,7 @@ class ChunkRenderer : public Renderer {
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
-  std::queue<glm::ivec3>
+  std::queue<VertexPool::ChunkAllocData>
       m_chunks_to_allocate;  // generation thread writes, main thread reads
   std::queue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
