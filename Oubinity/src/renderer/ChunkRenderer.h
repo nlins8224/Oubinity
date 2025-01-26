@@ -77,6 +77,8 @@ class ChunkRenderer : public Renderer {
   moodycamel::ConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
 
+  BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};
+
   std::queue<std::function<void()>> m_tasks;
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread

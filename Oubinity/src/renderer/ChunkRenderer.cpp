@@ -14,6 +14,8 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
   initChunks();
   m_buffer_needs_update = false;
   m_camera_last_chunk_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
+  LOG_F(INFO, "Generation threads amount=%d",
+        m_generation_task_pool.get_thread_count());
 }
 
 void ChunkRenderer::render(Camera& camera) {}
@@ -35,10 +37,6 @@ void ChunkRenderer::drawChunksSceneMesh() {
 void ChunkRenderer::traverseSceneLoop() {
   while (true) {
     traverseScene();
-    while (!m_tasks.empty()) {
-      m_tasks.front()();
-      m_tasks.pop();
-    }
   }
 }
 
@@ -177,11 +175,9 @@ void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
       m_chunks_by_coord.getWindowLatestMoveDir(chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
         move_dir.x_n, move_dir.z_p, move_dir.z_n);
-  m_tasks.emplace(
-      [this, move_dir] { iterateOverChunkBorderAndDelete(move_dir); });
-  m_tasks.emplace(
-      [this, move_dir] { iterateOverChunkBorderAndCreate(move_dir); });
-  m_tasks.emplace([this, chunk_border] { m_chunks_by_coord.moveWindow(chunk_border); });
+  iterateOverChunkBorderAndDelete(move_dir);
+  iterateOverChunkBorderAndCreate(move_dir);
+  m_chunks_by_coord.moveWindow(chunk_border);
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndCreate(
@@ -191,17 +187,20 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
   int max_x = chunk_border.max_x;
   int min_z = chunk_border.min_z;
   int max_z = chunk_border.max_z;
-
+  glm::ivec3 pos;
   // x-/x+ iterate over z
   for (int cz = min_z; cz <= max_z; cz++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        generateChunk({min_x - 1, cy, cz});
+        pos = {min_x - 1, cy, cz};
+        m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
+      
       }
 
       if (move_dir.x_p) {
-        generateChunk({max_x + 1, cy, cz});
+        pos = {max_x + 1, cy, cz};
+        m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
       }
     }
   }
@@ -211,11 +210,13 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        generateChunk({cx, cy, min_z - 1});
+        pos = {cx, cy, min_z - 1};
+        m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
       }
 
       if (move_dir.z_p) {
-        generateChunk({cx, cy, max_z + 1});
+        pos = {cx, cy, max_z + 1};
+        m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
       }
     }
   }
@@ -229,17 +230,21 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
   int max_x = chunk_border.max_x;
   int min_z = chunk_border.min_z;
   int max_z = chunk_border.max_z;
-
+  glm::ivec3 pos;
   // x-/x+ iterate over z
   for (int cz = min_z; cz <= max_z; cz++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.x_n) {
-        deleteChunkIfPresent({max_x, cy, cz});
+        pos = {max_x, cy, cz};
+        m_generation_task_pool.push_task(
+            [this, pos] { deleteChunkIfPresent(pos); });
       }
 
       if (move_dir.x_p) {
-        deleteChunkIfPresent({min_x, cy, cz});
+        pos = {min_x, cy, cz};
+        m_generation_task_pool.push_task(
+            [this, pos] { deleteChunkIfPresent(pos); });
       }
     }
   }
@@ -249,11 +254,15 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       if (move_dir.z_n) {
-        deleteChunkIfPresent({cx, cy, max_z});
+        pos = {cx, cy, max_z};
+        m_generation_task_pool.push_task(
+            [this, pos] { deleteChunkIfPresent(pos); });
       }
 
       if (move_dir.z_p) {
-        deleteChunkIfPresent({cx, cy, min_z});
+        pos = {cx, cy, min_z};
+        m_generation_task_pool.push_task(
+            [this, pos] { deleteChunkIfPresent(pos); });
       }
     }
   }
