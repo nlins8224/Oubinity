@@ -519,7 +519,7 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
 
 // main thread
 void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data) {
-  m_vertexpool->allocate(std::move(alloc_data));
+  m_vertexpool->push_allocate(std::move(alloc_data), false);
 }
 
 // main thread

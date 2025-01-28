@@ -31,20 +31,12 @@ ZoneVertexPool::ZoneVertexPool()
         m_persistent_buffer_vertices_amount);
   LOG_F(INFO, "Total faces amount: %zu", m_mesh_faces_amount);
 
-  for (int i = 0; i < zones.size(); i++) {
-    m_stats.min_vertices_occurred[i] = 50000;
-    m_stats.max_vertices_occurred[i] = 0;
-    m_stats.chunks_in_buckets[i] = 0;
-  }
   m_stats.added_faces = 0;
 }
 
 void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
   unsigned int added_faces = alloc_data._added_faces_amount;
   glm::ivec3 chunk_pos = alloc_data._chunk_pos;
-  // needs to be incremented every time when allocate is called
-  m_buffer_needs_update_count++;
-
   if (added_faces == 0) {
     LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x,
           chunk_pos.y, chunk_pos.z);
@@ -113,15 +105,9 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 #if SETTING_USE_VERTEX_MESH
   updateMeshBuffer(alloc_data._mesh, first_free_bucket->_start_offset);
 #endif
-  updateMeshBufferDAIC();
   updateFaceStreamBuffer(
       alloc_data._mesh_faces,
       first_free_bucket->_start_offset / Block::VERTICES_PER_FACE);
-
-  m_stats.max_vertices_occurred[zone.level] = std::max(
-      m_stats.max_vertices_occurred[zone.level], (size_t)added_vertices);
-  m_stats.min_vertices_occurred[zone.level] = std::min(
-      m_stats.min_vertices_occurred[zone.level], (size_t)added_vertices);
 }
 
 void ZoneVertexPool::free(glm::ivec3 chunk_pos) {
@@ -217,6 +203,22 @@ void ZoneVertexPool::lockBuffer(GLsync& sync) {
 }
 
 ZoneVertexPool::~ZoneVertexPool() { delete m_mesh_persistent_buffer; }
+
+void ZoneVertexPool::push_allocate(ChunkAllocData&& alloc_data, bool fast_path) {
+  if (fast_path) {
+    allocate(std::move(alloc_data));
+    updateMeshBufferDAIC();
+    return;
+  }
+  m_pending_allocations.push(alloc_data);
+  if (m_pending_allocations.size() == BUFFER_NEEDS_UPDATE) {
+    while (!m_pending_allocations.empty()) {
+      allocate(std::move(m_pending_allocations.front()));
+      m_pending_allocations.pop();
+    }
+    updateMeshBufferDAIC();
+  }
+}
 
 void ZoneVertexPool::initBuckets() {
   for (VertexPool::Zone* zone : zones) {
@@ -326,10 +328,13 @@ void ZoneVertexPool::draw() {
   glBindVertexArray(m_vao);
   glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_face_stream_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
 
   glMultiDrawArraysIndirect(
       GL_TRIANGLES,
-      (GLvoid*)0,                            // start with first draw command
+      (GLvoid*)0, // start with first draw command
       m_chunk_metadata.active_daics.size(),  // DAIC amount
       0                                      // tightly packed
   );
@@ -352,7 +357,7 @@ void ZoneVertexPool::createDAICBuffer() {
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
   glBufferData(GL_DRAW_INDIRECT_BUFFER,
                m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL,
-               GL_STATIC_DRAW);
+               GL_STREAM_DRAW);
 }
 
 void ZoneVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh,
@@ -363,17 +368,19 @@ void ZoneVertexPool::updateMeshBuffer(std::vector<Vertex>& mesh,
 }
 
 void ZoneVertexPool::updateMeshBufferDAIC() {
-  if (m_buffer_needs_update_count >= BUFFER_NEEDS_UPDATE) {
-    LOG_F(1, "updateMeshBufferDAIC");
+  if (m_chunk_metadata.active_daics.size() == 0) {
+    return;  
+  }
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
+    //LOG_F(INFO, "updateMeshBufferDAIC, count=%d, size=%d",
+    //      m_buffer_needs_update_count, m_chunk_metadata.active_daics.size());
+    // Orphan a buffer
     glBufferData(GL_DRAW_INDIRECT_BUFFER,
                  m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL,
-                 GL_STATIC_DRAW);
+                 GL_STREAM_DRAW);
     glBufferData(GL_DRAW_INDIRECT_BUFFER,
                  m_chunk_metadata.active_daics.size() * sizeof(DAIC),
-                 m_chunk_metadata.active_daics.data(), GL_STATIC_DRAW);
-    m_buffer_needs_update_count = 0;
-  }
+                 m_chunk_metadata.active_daics.data(), GL_STREAM_DRAW);
 }
 
 void ZoneVertexPool::createFaceStreamBuffer() {
