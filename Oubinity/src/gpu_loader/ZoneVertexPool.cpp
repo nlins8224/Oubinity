@@ -371,16 +371,14 @@ void ZoneVertexPool::updateMeshBufferDAIC() {
   if (m_chunk_metadata.active_daics.size() == 0) {
     return;  
   }
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
-    //LOG_F(INFO, "updateMeshBufferDAIC, count=%d, size=%d",
-    //      m_buffer_needs_update_count, m_chunk_metadata.active_daics.size());
-    // Orphan a buffer
-    glBufferData(GL_DRAW_INDIRECT_BUFFER,
-                 m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL,
-                 GL_STREAM_DRAW);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER,
-                 m_chunk_metadata.active_daics.size() * sizeof(DAIC),
-                 m_chunk_metadata.active_daics.data(), GL_STREAM_DRAW);
+  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_daicbo);
+  // Orphan a buffer
+  glBufferData(GL_DRAW_INDIRECT_BUFFER,
+               m_chunk_metadata.active_daics.size() * sizeof(DAIC), NULL,
+               GL_STREAM_DRAW);
+  glBufferData(GL_DRAW_INDIRECT_BUFFER,
+               m_chunk_metadata.active_daics.size() * sizeof(DAIC),
+               m_chunk_metadata.active_daics.data(), GL_STREAM_DRAW);
 }
 
 void ZoneVertexPool::createFaceStreamBuffer() {

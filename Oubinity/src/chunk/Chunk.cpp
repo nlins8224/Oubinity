@@ -7,9 +7,8 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
     : m_chunk_pos{chunk_pos},
       m_lod{lod},
       m_world_pos{Util::chunkPosToWorldPos(chunk_pos)},
-      m_state{ChunkState::NEW},
+      m_state{},
       m_is_visible{true},
-      m_was_edited{false},
       m_blocks{nullptr},
       m_mesh{nullptr} {}
 
@@ -21,8 +20,8 @@ Chunk::Chunk(const Chunk& chunk)
       m_world_pos{chunk.m_world_pos},
       m_is_visible{chunk.m_is_visible},
       m_lod{chunk.m_lod},
-      m_state{chunk.m_state},
-      m_was_edited{chunk.m_was_edited} {}
+      m_state{chunk.m_state}
+ {}
 
 Chunk::~Chunk() {
   if (m_blocks != nullptr) {
@@ -37,8 +36,9 @@ void Chunk::addChunkMesh() {
   delete m_mesh;
   // No need to store blocks if chunk was not edited by a player.
   // Blocks will be regenerated on a fly
-  if (!m_was_edited) {
+  if (!m_state.was_edited) {
     m_blocks->clearBlockIdCache();
+    m_state.has_blocks = false;
   }
 }
 
@@ -66,6 +66,7 @@ bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
 }
 
 void Chunk::addFaces() {
+  clearFaces();
   const uint64_t CS = m_lod.block_amount;
   const uint64_t CS_2 = CS * CS;
 
@@ -402,8 +403,6 @@ bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const {
          y >= chunk_size_padding || z >= chunk_size_padding;
 }
 
-bool Chunk::wasChunkEdited() const { return m_was_edited; }
-
 void Chunk::setIsVisible(bool is_visible) { m_is_visible = is_visible; }
 
 std::vector<Vertex>& Chunk::getMesh() { return m_vertices; }
@@ -448,7 +447,15 @@ Block::BlockStorage& Chunk::getBlockArray() { return *m_blocks; }
 
 void Chunk::setBlockArray() { m_blocks = new Block::BlockStorage(m_lod); }
 
-void Chunk::setWasChunkEdited(bool was_edited) { m_was_edited = was_edited; }
+void Chunk::setChunkHasBlocksState(bool has_blocks) {
+  m_state.has_blocks = has_blocks;
+}
+
+void Chunk::setChunkEditedState(bool was_edited) {
+  m_state.was_edited = was_edited;
+}
+
+void Chunk::clearFaces() { m_faces.clear(); }
 
 const glm::vec3 Chunk::getWorldPos() const { return m_world_pos; }
 

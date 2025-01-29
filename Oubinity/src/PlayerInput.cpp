@@ -18,7 +18,6 @@ void PlayerInput::setWindowCallbacks() {
 void PlayerInput::onMouseLeftPress() {
   if (!m_is_left_mouse_pressed) {
     m_is_left_mouse_pressed = true;
-    LOG_F(INFO, "onMouseLeftPress");
     auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
         this->m_world.updateBlockByWorldPos(next_block, Block::AIR);
     };

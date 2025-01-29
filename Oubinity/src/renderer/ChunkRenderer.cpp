@@ -60,6 +60,13 @@ bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
     return block_id::NONE;
   }
   glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  if (!chunk.lock()->getState().has_blocks) {
+    glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
+    bool result = generateChunkTerrain(chunk_pos);
+    if (!result) {
+      return false;
+    }
+  }
   return chunk.lock()->isBlockPresent(local_pos);
 }
 
@@ -74,15 +81,18 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
           chunk_pos.z);
     return;
   }
-  LOG_F(INFO, "was_chunk_edited=%d", chunk.lock()->wasChunkEdited());
-  if (!chunk.lock()->wasChunkEdited()) {
-    m_terrain_generator.generateChunkTerrain(*chunk.lock());
+  if (!chunk.lock()->getState().has_blocks) {
+    glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
+    bool result = generateChunkTerrain(chunk_pos);
+    if (!result) {
+      return;
+    }
   }
   chunk.lock()->setBlock(Util::chunkWorldPosToLocalPos(world_block_pos), type);
-  chunk.lock()->setWasChunkEdited(true);
-  meshChunk(chunk_pos);
+  chunk.lock()->setChunkEditedState(true);
   freeChunk(chunk_pos);
-  allocateChunk(getAllocData(chunk_pos));
+  meshChunk(chunk_pos);
+  allocateChunk(getAllocData(chunk_pos), true);
   m_vertexpool->createChunkInfoBuffer();
   m_vertexpool->createChunkLodBuffer();
 }
@@ -347,7 +357,6 @@ VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
   alloc_data._mesh_faces = chunk.lock()->getFaces();
   alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
   alloc_data._ready = true;
-  chunk.lock()->setState(ChunkState::ALLOCATED);
   return alloc_data;
 }
 
@@ -362,7 +371,7 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
     }
     VertexPool::ChunkAllocData alloc_data;
     while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
-      allocateChunk(alloc_data);
+      allocateChunk(alloc_data, false);
       updated = true;
     }
     if (updated) {
@@ -399,7 +408,6 @@ void ChunkRenderer::createChunk(glm::ivec3 chunk_pos) {
       chunk_pos, height_map, lod);
 
   m_chunks_by_coord.set(chunk_pos, std::make_shared<Chunk>(chunk_pos, lod));
-  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::CREATED);
 }
 
 HeightMap ChunkRenderer::generateHeightmap(glm::ivec3 chunk_pos,
@@ -428,7 +436,6 @@ bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos) {
     }
   }
   m_chunks_by_coord.get(chunk_pos).lock()->setNeighbors(chunk_neighbors);
-  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::NEIGHBORS_POPULATED);
   return true;
 }
 
@@ -453,17 +460,14 @@ bool ChunkRenderer::generateChunkTerrain(glm::ivec3 chunk_pos) {
     return false;
   }
 
+std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
 #if SETTING_USE_PRELOADED_COLORMAP
-  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
   m_terrain_generator.generatePreloadedLayers(*chunk.lock(), height_map);
-  chunk.lock()->setState(ChunkState::TERRAIN_GENERATED);
 #else
-  m_terrain_generator.generateChunkTerrain(*m_chunks_by_coord.get(chunk_pos).lock(),
+  m_terrain_generator.generateChunkTerrain(*chunk.lock(),
                                            height_map, is_chunk_visible);
-  m_chunks_to_decorate.push(chunk_pos);
-  m_chunks_by_coord.get(chunk_pos).lock()->setState(ChunkState::TERRAIN_GENERATED);
-
 #endif
+  chunk.lock()->setChunkHasBlocksState(true);
   return true;
 }
 
@@ -473,7 +477,6 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
 #if SETTING_TREES_ENABLED
   m_terrain_generator.generateTrees(*chunk);
 #endif
-  chunk.lock()->setState(ChunkState::DECORATED);
 
   return true;
 }
@@ -481,16 +484,9 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
 // generation thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
-  if (chunk.lock()->getState() == ChunkState::MESHED) {
-    LOG_F(ERROR, "Chunk at (%d, %d, %d) already meshed", chunk_pos.x,
-          chunk_pos.y, chunk_pos.z);
-    return false;
-  }
   if (chunk.lock()->isVisible()) {
     chunk.lock()->addChunkMesh();
   }
-  chunk.lock()->setState(ChunkState::MESHED);
-
   return true;
 }
 
@@ -518,8 +514,8 @@ bool ChunkRenderer::checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
 }
 
 // main thread
-void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data) {
-  m_vertexpool->push_allocate(std::move(alloc_data), false);
+void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path) {
+  m_vertexpool->push_allocate(std::move(alloc_data), fast_path);
 }
 
 // main thread

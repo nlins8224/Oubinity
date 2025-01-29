@@ -57,7 +57,7 @@ class ChunkRenderer : public Renderer {
 
   std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
 
-  void allocateChunk(VertexPool::ChunkAllocData alloc_data);
+  void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos);
 
   Camera& m_camera;
