@@ -80,7 +80,7 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
 
         if (surface_height > block_world_pos.y - block_size &&
             surface_height < block_world_pos.y + block_size) {
-          chunk.setBlock(block_pos, Block::GRASS);
+            chunk.setBlock(block_pos, Block::GRASS);
           anything_added = true;
         }
       } 

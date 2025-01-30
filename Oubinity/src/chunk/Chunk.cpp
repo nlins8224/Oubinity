@@ -244,8 +244,6 @@ const uint64_t Chunk::get_axis_i(const int axis, const int x, const int y,
   const uint64_t CS = m_lod.block_amount;
   const uint64_t CS_P = m_lod.block_amount + 2;
   const uint64_t CS_P2 = CS_P * CS_P;
-  const uint64_t CS_P3 = CS_P * CS_P * CS_P;
-  const uint64_t CS_LAST_BIT = CS_P - 1;
 
   if (axis == 0)
     return y + (x * CS_P) + (z * CS_P2);
@@ -392,9 +390,10 @@ bool Chunk::isVisible() const { return m_is_visible; }
 bool Chunk::isBlockPresent(glm::ivec3 block_pos) const {
   if (isBlockOutsideChunk(block_pos)) {
     return isNeighborBlockVisible(block_pos);
-  }
+  };
   return m_blocks->isBlockPresent(block_pos);
 }
+  
 
 bool Chunk::isBlockOutsideChunk(glm::ivec3 block_pos) const {
   int x = block_pos.x, y = block_pos.y, z = block_pos.z;

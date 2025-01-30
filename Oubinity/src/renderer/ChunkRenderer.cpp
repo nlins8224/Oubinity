@@ -50,7 +50,7 @@ block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
   if (!chunk.lock()) {
     return block_id::NONE;
   }
-  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  glm::ivec3 local_pos = Util::chunkWorldPosToPaddedLocalPos(world_block_pos);
   return chunk.lock()->getBlockId(local_pos);
 }
 
@@ -59,7 +59,7 @@ bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
   if (!chunk.lock()) {
     return block_id::NONE;
   }
-  glm::ivec3 local_pos = Util::chunkWorldPosToLocalPos(world_block_pos);
+  glm::ivec3 local_pos = Util::chunkWorldPosToPaddedLocalPos(world_block_pos);
   if (!chunk.lock()->getState().has_blocks) {
     glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
     bool result = generateChunkTerrain(chunk_pos);
@@ -88,7 +88,8 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
       return;
     }
   }
-  chunk.lock()->setBlock(Util::chunkWorldPosToLocalPos(world_block_pos), type);
+  chunk.lock()->setBlock(Util::chunkWorldPosToPaddedLocalPos(world_block_pos),
+                         type);
   chunk.lock()->setChunkEditedState(true);
   freeChunk(chunk_pos);
   meshChunk(chunk_pos);
