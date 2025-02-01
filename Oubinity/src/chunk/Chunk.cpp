@@ -12,17 +12,6 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
       m_blocks{nullptr},
       m_mesh{nullptr} {}
 
-Chunk::Chunk(const Chunk& chunk)
-    : m_mesh{chunk.m_mesh},
-      m_chunk_pos{chunk.m_chunk_pos},
-      m_chunk_neighbors{chunk.m_chunk_neighbors},
-      m_blocks{chunk.m_blocks},
-      m_world_pos{chunk.m_world_pos},
-      m_is_visible{chunk.m_is_visible},
-      m_lod{chunk.m_lod},
-      m_state{chunk.m_state}
- {}
-
 Chunk::~Chunk() {
   if (m_blocks != nullptr) {
     delete m_blocks;
@@ -30,10 +19,7 @@ Chunk::~Chunk() {
 }
 
 void Chunk::addChunkMesh() {
-  //m_blocks->resizeIfNeeded();
-  m_mesh = new MeshData();
   addFaces();
-  delete m_mesh;
   // No need to store blocks if chunk was not edited by a player.
   // Blocks will be regenerated on a fly
   if (!m_state.was_edited) {
@@ -67,6 +53,7 @@ bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
 
 void Chunk::addFaces() {
   clearFaces();
+  m_mesh = std::make_unique<MeshData>();
   const uint64_t CS = m_lod.block_amount;
   const uint64_t CS_2 = CS * CS;
 

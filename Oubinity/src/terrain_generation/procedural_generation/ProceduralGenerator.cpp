@@ -52,8 +52,7 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
   for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
     for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
       float height = data_out[z * block_amount_padding + x];
-      height_map[x][z] = 200.0f;
-      //std::sqrt(height * height) * 220.0f;
+      height_map[x][z] = std::sqrt(height * height) * 220.0f;
     }
   }
 
@@ -65,6 +64,8 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
   int block_size = chunk.getLevelOfDetail().block_size;
   int block_amount_padding = chunk.getLevelOfDetail().block_amount + 2;
   glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
+  chunk.getBlockArray().clearBlockIdCache();
+  chunk.getBlockArray().resizeIfNeeded();
 
   bool anything_added = false;
   for (int x = 0; x < block_amount_padding; x++) {
@@ -77,11 +78,15 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
         glm::ivec3 block_padded_pos = chunk_world_pos + (block_pos * block_size);
         // Y axis cuts through Y Chunk column. There is one surface and one chunk that it should cut. Do not adjust Y block coord here.
         glm::ivec3 block_world_pos = block_padded_pos - glm::ivec3(1, 0, 1) * block_size;
-
         if (surface_height > block_world_pos.y - block_size &&
             surface_height < block_world_pos.y + block_size) {
-            chunk.setBlock(block_pos, Block::GRASS);
+          chunk.setBlock(block_pos, Block::GRASS);
           anything_added = true;
+        } else if (surface_height > block_world_pos.y + block_size) {
+          chunk.setBlock(block_pos, Block::STONE);
+          anything_added = true;
+        } else {
+          chunk.setBlock(block_pos, Block::AIR);
         }
       } 
     }

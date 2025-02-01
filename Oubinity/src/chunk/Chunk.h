@@ -96,8 +96,7 @@ static const glm::ivec2 ao_dirs[8] = {
 class Chunk {
  public:
   Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
-  Chunk(const Chunk& chunk);
-  Chunk() = default;
+  Chunk() = delete;
   virtual ~Chunk();
 
   void addChunkMesh();
@@ -132,7 +131,7 @@ class Chunk {
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
-  MeshData* m_mesh;
+  std::unique_ptr<MeshData> m_mesh;
   Block::BlockStorage* m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;

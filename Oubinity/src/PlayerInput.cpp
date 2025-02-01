@@ -28,9 +28,8 @@ void PlayerInput::onMouseLeftPress() {
         LOG_F(INFO, "HIT");
         break;
       }
-            
+      m_is_left_mouse_pressed = false;
     }
-    m_is_left_mouse_pressed = false;
   }
 }
 
@@ -46,9 +45,11 @@ void PlayerInput::onMouseRightPress() {
     Ray hit_ray{m_world, m_default_camera.getCameraPos(),
                 m_default_camera.getCameraFront()};
     while (hit_ray.getDistance() < 10.0) {
-      if (hit_ray.step(hit_callback)) break;
+      if (hit_ray.step(hit_callback)) {
+        break;
+      }
+      m_is_right_mouse_pressed = false;
     }
-    m_is_right_mouse_pressed = false;
   }
 }
 
@@ -90,6 +91,6 @@ void PlayerInput::processInput(float delta_time) {
     m_default_camera.updateCameraPos(CameraDirection::DOWN, speed);
   if (Keyboard::keyWentUp(GLFW_KEY_F1)) toggleWireframeMode();
 
-  if (Mouse::button(GLFW_MOUSE_BUTTON_LEFT)) onMouseLeftPress();
-  if (Mouse::button(GLFW_MOUSE_BUTTON_RIGHT)) onMouseRightPress();
+  if (Mouse::buttonWentDown(GLFW_MOUSE_BUTTON_LEFT)) onMouseLeftPress();
+  if (Mouse::buttonWentDown(GLFW_MOUSE_BUTTON_RIGHT)) onMouseRightPress();
 }

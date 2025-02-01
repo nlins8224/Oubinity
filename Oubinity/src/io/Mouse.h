@@ -23,9 +23,9 @@ class Mouse {
   double getScrollDY();
 
   static bool button(int button);
-  bool buttonChanged(int button);
-  bool buttonWentUp(int button);
-  bool buttonWentDown(int button);
+  static bool buttonChanged(int button);
+  static bool buttonWentUp(int button);
+  static bool buttonWentDown(int button);
 
  private:
   static double m_x;
