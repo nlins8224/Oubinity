@@ -441,7 +441,10 @@ void Chunk::setChunkEditedState(bool was_edited) {
   m_state.was_edited = was_edited;
 }
 
-void Chunk::clearFaces() { m_faces.clear(); }
+void Chunk::clearFaces() {
+  m_faces.clear();
+  m_added_faces = 0;
+}
 
 const glm::vec3 Chunk::getWorldPos() const { return m_world_pos; }
 
