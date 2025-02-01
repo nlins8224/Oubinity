@@ -13,9 +13,9 @@
 #include "ChunkBorder.h"
 #include "ChunkSlidingWindow.h"
 #include "Renderer.h"
-
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
+#include "../third_party/concurrentqueue.h"
 
 class ChunkRenderer : public Renderer {
  public:
@@ -36,20 +36,14 @@ class ChunkRenderer : public Renderer {
 
  private:
   void initChunks();
-  bool createChunksInRenderDistance();  // called when scene was already traversed
   bool createChunkIfNotPresent(glm::ivec3 chunk_pos);
   void createChunk(glm::ivec3 chunk_pos);
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
                               LevelOfDetail::LevelOfDetail lod);
-  bool populateChunksNeighbors();
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
-  bool generateChunksTerrain();
   bool generateChunkTerrain(glm::ivec3 chunk_pos);
   bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
-  bool decorateChunks();
-  bool meshChunks();
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool deleteOutOfRenderDistanceChunks();  // called when scene was already traversed
   bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
   void deleteChunk(glm::ivec3 chunk_pos);
   bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
@@ -58,46 +52,35 @@ class ChunkRenderer : public Renderer {
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
+  void generateChunk(glm::ivec3 chunk_pos);
+  VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
+
   std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
 
-  void allocateChunks();
-  void allocateChunk(glm::ivec3 chunk_pos);
-  void freeChunks();
+  void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos);
-
-  void updateChunkPipeline();
 
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
   GLuint m_texture_array;
   bool m_init_stage;
 
-  // Meshing is done on render thread, but allocate and free are
+  // Meshing is done on generation thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
   std::atomic<bool> m_buffer_needs_update;
 
   ChunkSlidingWindow
-      m_chunks_by_coord;  // shared between render and main threads
-  std::vector<glm::ivec3> m_border_chunks;    // used only on render thread
-  std::queue<glm::ivec3> m_chunks_to_create;  // used only on render thread
+      m_chunks_by_coord;  // shared between generation and main threads
 
-  std::queue<glm::ivec3>
-      m_chunks_to_populate_neighbors;  // used only on render thread
-  std::queue<glm::ivec3>
-      m_chunks_to_generate_terrain;  // used only on render thread
+  moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
+      m_chunks_to_allocate;  // generation thread writes, main thread reads
+  moodycamel::ConcurrentQueue<glm::ivec3>
+      m_chunks_to_free;  // generation thread writes, main thread reads
 
-  std::queue<glm::ivec3> m_chunks_to_decorate;  // used only on render thread
-
-  std::queue<glm::ivec3> m_chunks_to_mesh;
-  std::queue<glm::ivec3> m_chunks_to_delete;  // used only on render thread
-
-  std::queue<glm::ivec3>
-      m_chunks_to_allocate;  // render thread writes, main thread reads
-  std::queue<glm::ivec3>
-      m_chunks_to_free;  // render thread writes, main thread reads
+  BS::thread_pool m_generation_task_pool{std::min(1u, std::thread::hardware_concurrency())};
 
   std::queue<std::function<void()>> m_tasks;
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
-  TerrainGenerator& m_terrain_generator;     // called only on render thread
+  TerrainGenerator& m_terrain_generator;     // called only on generation thread
 };

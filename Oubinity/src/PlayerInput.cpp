@@ -18,7 +18,6 @@ void PlayerInput::setWindowCallbacks() {
 void PlayerInput::onMouseLeftPress() {
   if (!m_is_left_mouse_pressed) {
     m_is_left_mouse_pressed = true;
-    LOG_F(INFO, "onMouseLeftPress");
     auto hit_callback = [this](glm::vec3 current_block, glm::vec3 next_block) {
         this->m_world.updateBlockByWorldPos(next_block, Block::AIR);
     };
@@ -29,10 +28,9 @@ void PlayerInput::onMouseLeftPress() {
         LOG_F(INFO, "HIT");
         break;
       }
-            
     }
-    m_is_left_mouse_pressed = false;
   }
+  m_is_left_mouse_pressed = false;
 }
 
 void PlayerInput::onMouseRightPress() {
@@ -47,10 +45,12 @@ void PlayerInput::onMouseRightPress() {
     Ray hit_ray{m_world, m_default_camera.getCameraPos(),
                 m_default_camera.getCameraFront()};
     while (hit_ray.getDistance() < 10.0) {
-      if (hit_ray.step(hit_callback)) break;
+      if (hit_ray.step(hit_callback)) {
+        break;
+      }
     }
-    m_is_right_mouse_pressed = false;
   }
+  m_is_right_mouse_pressed = false;
 }
 
 void PlayerInput::toggleWireframeMode() {

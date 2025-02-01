@@ -24,6 +24,7 @@ void TerrainGenerator::generateChunkTerrain(Chunk& chunk,
                                             bool is_chunk_visible) {
   if (is_chunk_visible) {
     chunk.setBlockArray();
+    chunk.setChunkHasBlocksState(true);
     generateProceduralLayers(chunk, height_map);
   }
   chunk.setIsVisible(is_chunk_visible);

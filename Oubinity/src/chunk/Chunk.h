@@ -33,15 +33,15 @@ Voxel:
 * 6 - (0, 1, 0)
 * 7 - (1, 1, 0)
 
-          ^ Y
-          |
-          |
+     ^ Y
+     |
+     |
      6--------7
-    /         / |
-   /         /  |
-   2--------3   |
-   |        |   |
-   |  4-----|---5  --> X
+    /         /|
+   /         / |
+   2--------3  |
+   |        |  |
+   |  4-----|--5  --> X
    | /      |  /
    |/       | /
    0--------1
@@ -76,19 +76,17 @@ struct GreedyQuad {
   uint8_t height;
 };
 
+struct ChunkState {
+  bool has_blocks;
+  bool was_edited;
+
+  ChunkState()
+      : has_blocks{false},
+        was_edited{false} {}
+};
+
 // unordered_map is not used here, because it takes too much memory space
 using ChunkNeighbors = std::vector<std::pair<glm::ivec3, std::weak_ptr<Chunk>>>;
-
-enum class ChunkState {
-  NONE = 0,
-  NEW,
-  CREATED,
-  NEIGHBORS_POPULATED,
-  TERRAIN_GENERATED,
-  DECORATED,
-  MESHED,
-  ALLOCATED
-};
 
 static const glm::ivec2 ao_dirs[8] = {
     glm::ivec2(-1, 0),  glm::ivec2(0, -1), glm::ivec2(0, 1),  glm::ivec2(1, 0),
@@ -98,8 +96,7 @@ static const glm::ivec2 ao_dirs[8] = {
 class Chunk {
  public:
   Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
-  Chunk(const Chunk& chunk);
-  Chunk() = default;
+  Chunk() = delete;
   virtual ~Chunk();
 
   void addChunkMesh();
@@ -109,7 +106,10 @@ class Chunk {
   void setState(ChunkState state);
   void setIsVisible(bool is_visible);
   void setBlockArray();
-  void setWasChunkEdited(bool was_edited);
+  void setChunkHasBlocksState(bool has_blocks);
+  void setChunkEditedState(bool was_edited);
+
+  void clearFaces();
 
   ChunkState getState();
   glm::ivec3 getPos() const;
@@ -126,20 +126,18 @@ class Chunk {
   bool isVisible() const;
   bool isBlockPresent(glm::ivec3 block_pos) const;
   bool isBlockOutsideChunk(glm::ivec3 block_pos) const;
-  bool wasChunkEdited() const;
 
   std::weak_ptr<Chunk> findNeighborChunk(glm::ivec3 block_pos) const;
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
-  MeshData* m_mesh;
+  std::unique_ptr<MeshData> m_mesh;
   Block::BlockStorage* m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;
   glm::ivec3 m_chunk_pos;
   glm::vec3 m_world_pos;
   bool m_is_visible;
-  bool m_was_edited;
   LevelOfDetail::LevelOfDetail m_lod;
   unsigned int m_added_faces{0};
 

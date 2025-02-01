@@ -11,6 +11,11 @@ static inline glm::ivec3 chunkWorldPosToLocalPos(glm::ivec3 world_pos) {
           getMod(world_pos.z, Settings::CHUNK_SIZE)};
 }
 
+static inline glm::ivec3 chunkWorldPosToPaddedLocalPos(glm::ivec3 world_pos) {
+  glm::ivec3 block_pos = chunkWorldPosToLocalPos(world_pos);
+  return {block_pos.x + 1, block_pos.y, block_pos.z + 1};
+}
+
 // May overflow when near INT_MAX
 // b parameter has to be positive
 static inline int roundDownDivide(int a, int b) {

@@ -77,6 +77,7 @@ set(Header_Files
     "src/terrain_generation/TerrainGenerator.h"
     "src/TextureManager.h"
     "src/third_party/BS_thread_pool.hpp"
+    "src/third_party/concurrentqueue.h"
     "src/third_party/parallel_hashmap/btree.h"
     "src/third_party/parallel_hashmap/meminfo.h"
     "src/third_party/parallel_hashmap/phmap.h"
