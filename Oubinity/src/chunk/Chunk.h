@@ -79,10 +79,12 @@ struct GreedyQuad {
 struct ChunkState {
   bool has_blocks;
   bool was_edited;
+  bool needs_lod_update;
 
   ChunkState()
       : has_blocks{false},
-        was_edited{false} {}
+        was_edited{false}, needs_lod_update{false}
+  {}
 };
 
 // unordered_map is not used here, because it takes too much memory space
@@ -108,6 +110,8 @@ class Chunk {
   void setBlockArray();
   void setChunkHasBlocksState(bool has_blocks);
   void setChunkEditedState(bool was_edited);
+  void setChunkNeedsLodUpdate(bool needs_lod_update);
+  void setLevelOfDetail(LevelOfDetail::LevelOfDetail lod);
 
   void clearFaces();
 

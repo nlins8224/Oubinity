@@ -440,6 +440,12 @@ void Chunk::setChunkEditedState(bool was_edited) {
   m_state.was_edited = was_edited;
 }
 
+void Chunk::setChunkNeedsLodUpdate(bool needs_lod_update) {
+  m_state.needs_lod_update = needs_lod_update;
+}
+
+void Chunk::setLevelOfDetail(LevelOfDetail::LevelOfDetail lod) { m_lod = lod; }
+
 void Chunk::clearFaces() {
   m_faces.clear();
 }

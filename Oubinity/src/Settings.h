@@ -5,7 +5,7 @@
 #define SETTING_USE_PRELOADED_COLORMAP 1
 // Using PRELOADED_HEIGHTMAP is prerequisite
 // Blends preloaded and procedural heightmap
-#define SETTING_USE_HEIGHTMAP_BLENDING 1
+#define SETTING_USE_HEIGHTMAP_BLENDING 0
 // Using PRELOADED_HEIGHTMAP is prerequisite
 #define SETTING_USE_PRELOADED_TREEMAP 0
 

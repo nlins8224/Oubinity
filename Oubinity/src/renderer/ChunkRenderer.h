@@ -41,12 +41,11 @@ class ChunkRenderer : public Renderer {
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
                               LevelOfDetail::LevelOfDetail lod);
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
-  bool generateChunkTerrain(glm::ivec3 chunk_pos);
+  bool generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos);
   bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
-  void deleteChunk(glm::ivec3 chunk_pos);
-  bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
+  bool freeChunkIfPresent(glm::ivec3 chunk_pos);
+  bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
   void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir);
   void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
