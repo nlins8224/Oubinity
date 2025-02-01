@@ -300,7 +300,6 @@ void Chunk::addGreedyFace(GreedyQuad greedy_quad, Block::block_mesh face_side,
       packFaceTwo(face_side, type, ao_r.left_back, ao_r.right_back,
                   ao_r.right_front, ao_r.left_front);
   m_faces.push_back(greedy_face);
-  m_added_faces++;
 }
 
 const int Chunk::vertexAO(uint8_t side_first, uint8_t side_second,
@@ -443,11 +442,10 @@ void Chunk::setChunkEditedState(bool was_edited) {
 
 void Chunk::clearFaces() {
   m_faces.clear();
-  m_added_faces = 0;
 }
 
 const glm::vec3 Chunk::getWorldPos() const { return m_world_pos; }
 
 LevelOfDetail::LevelOfDetail Chunk::getLevelOfDetail() { return m_lod; }
 
-unsigned int Chunk::getAddedFacesAmount() { return m_added_faces; }
+unsigned int Chunk::getAddedFacesAmount() { return m_faces.size(); }

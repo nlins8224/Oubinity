@@ -139,7 +139,6 @@ class Chunk {
   glm::vec3 m_world_pos;
   bool m_is_visible;
   LevelOfDetail::LevelOfDetail m_lod;
-  unsigned int m_added_faces{0};
 
   void addFaces();
   bool isNeighborBlockVisible(glm::ivec3 block_pos) const;

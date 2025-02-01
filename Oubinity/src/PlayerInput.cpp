@@ -36,7 +36,6 @@ void PlayerInput::onMouseLeftPress() {
 void PlayerInput::onMouseRightPress() {
   if (!m_is_right_mouse_pressed) {
     m_is_right_mouse_pressed = true;
-    LOG_F(INFO, "onMouseRightPress");
     auto hit_callback = [&](glm::vec3 current_block,
                             glm::vec3 next_block) mutable {
       m_world.updateBlockByWorldPos(current_block, Block::PLANKS);

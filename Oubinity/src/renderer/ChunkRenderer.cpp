@@ -167,14 +167,14 @@ void ChunkRenderer::traverseScene() {
 void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   ChunkBorder chunk_border;
   uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
-  // for (int i = 1; i < max_lod_level; i++) {
-  //	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-  //	chunk_border.min_x = camera_chunk_pos_x - border_dist;
-  //	chunk_border.max_x = camera_chunk_pos_x + border_dist;
-  //	chunk_border.min_z = camera_chunk_pos_z - border_dist;
-  //	chunk_border.max_z = camera_chunk_pos_z + border_dist;
-  //	iterateOverChunkBorderAndUpdateLod(chunk_border);
-  // }
+   for (int i = 1; i < max_lod_level; i++) {
+  	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+  	chunk_border.min_x = camera_chunk_pos_x - border_dist;
+  	chunk_border.max_x = camera_chunk_pos_x + border_dist;
+  	chunk_border.min_z = camera_chunk_pos_z - border_dist;
+  	chunk_border.max_z = camera_chunk_pos_z + border_dist;
+  	iterateOverChunkBorderAndUpdateLod(chunk_border);
+   }
 
   int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
   chunk_border.min_x = camera_chunk_pos_x - border_dist;
