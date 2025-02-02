@@ -220,17 +220,21 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
     }
   }
 
+  std::unordered_set<glm::ivec2> already_traversed = {
+     {min_x, min_z}, {min_x, max_z}, {max_x, min_z}, {max_x, max_z}};
+
   // z-/z+ iterate over x
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
-      if (move_dir.z_n) {
-        pos = {cx, cy, min_z - 1};
+
+      pos = {cx, cy, min_z - 1};
+      if (move_dir.z_n && !already_traversed.contains({pos.x, pos.z})) {
         m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
       }
 
-      if (move_dir.z_p) {
-        pos = {cx, cy, max_z + 1};
+      pos = {cx, cy, max_z + 1};
+      if (move_dir.z_p && !already_traversed.contains({pos.x, pos.z})) {
         m_generation_task_pool.push_task([this, pos] { generateChunk(pos); });
       }
     }
