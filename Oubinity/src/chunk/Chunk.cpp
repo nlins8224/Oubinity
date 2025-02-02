@@ -4,7 +4,8 @@ using Block::block_id;
 using Block::block_mesh;
 
 Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
-    : m_chunk_pos{chunk_pos},
+    : m_is_generation_running{false}, 
+      m_chunk_pos{chunk_pos},
       m_lod{lod},
       m_world_pos{Util::chunkPosToWorldPos(chunk_pos)},
       m_state{},
@@ -26,6 +27,10 @@ void Chunk::addChunkMesh() {
     m_blocks->clearBlockIdCache();
     m_state.has_blocks = false;
   }
+}
+
+void Chunk::setIsGenerationRunning(bool is_running) {
+  m_is_generation_running = is_running;
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
@@ -395,6 +400,8 @@ std::vector<Vertex>& Chunk::getMesh() { return m_vertices; }
 std::vector<Face>& Chunk::getFaces() { return m_faces; }
 
 void Chunk::setState(ChunkState state) { m_state = state; }
+
+bool Chunk::isGenerationRunning() { return m_is_generation_running; }
 
 ChunkState Chunk::getState() { return m_state; }
 

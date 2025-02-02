@@ -24,7 +24,7 @@ constexpr size_t TOTAL_CHUNKS =
 constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
 constexpr uint16_t BUFFER_NEEDS_UPDATE = 4;
 //Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
-constexpr size_t ZONE_INITIAL_BUCKET_AMOUNT_MARGIN = 200;
+constexpr size_t ZONE_INITIAL_BUCKET_AMOUNT_MARGIN = 2000;
 
 static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 

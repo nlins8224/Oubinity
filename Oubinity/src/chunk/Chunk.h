@@ -103,6 +103,7 @@ class Chunk {
 
   void addChunkMesh();
 
+  void setIsGenerationRunning(bool is_running);
   void setBlock(glm::ivec3 block_pos, Block::block_id type);
   void setNeighbors(ChunkNeighbors neighbors);
   void setState(ChunkState state);
@@ -115,6 +116,7 @@ class Chunk {
 
   void clearFaces();
 
+  bool isGenerationRunning();
   ChunkState getState();
   glm::ivec3 getPos() const;
   glm::ivec2 getPosXZ() const;
@@ -135,6 +137,7 @@ class Chunk {
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
+  std::atomic<bool> m_is_generation_running;
   std::unique_ptr<MeshData> m_mesh;
   Block::BlockStorage* m_blocks;
   std::vector<Face> m_faces;

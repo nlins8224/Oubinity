@@ -127,7 +127,6 @@ void ChunkRenderer::initChunks() {
   m_init_stage = false;
 }
 
-// generation thread
 void ChunkRenderer::traverseScene() {
   glm::ivec3 last_camera_chunk_pos =
       Util::worldPosToChunkPos(m_camera.getCameraPos());
@@ -167,12 +166,17 @@ void ChunkRenderer::traverseScene() {
 void ChunkRenderer::doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z) {
   ChunkBorder chunk_border;
   uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
-   for (int i = 0; i < max_lod_level; i++) {
+   for (int i = 1; i <= max_lod_level; i++) {
   	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
   	chunk_border.min_x = camera_chunk_pos_x - border_dist;
   	chunk_border.max_x = camera_chunk_pos_x + border_dist - 1;
   	chunk_border.min_z = camera_chunk_pos_z - border_dist;
   	chunk_border.max_z = camera_chunk_pos_z + border_dist - 1;
+        LOG_F(1,
+              "LOD update border: min_x=%d, max_x=%d, min_z=%d, max_z=%d, "
+              "border_dist=%d",
+              chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
+              chunk_border.max_z, border_dist);
   	iterateOverChunkBorderAndUpdateLod(chunk_border);
    }
 
@@ -311,12 +315,15 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
     }
   }
 
+  std::unordered_set<glm::ivec2> already_traversed = {
+      {min_x, min_z}, {min_x, max_z}, {max_x, min_z}, {max_x, max_z}};
+
   // z-/z+ iterate over x
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
          cy >= 0; cy--) {
       pos = {cx, cy, max_z};
-      if (markIfChunkLodNeedsUpdate(pos)) {
+      if (!already_traversed.contains({pos.x, pos.z}) && markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
           freeChunkIfPresent(pos);
           generateChunk(pos);
@@ -324,7 +331,7 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
       }
 
       pos = {cx, cy, min_z};
-      if (markIfChunkLodNeedsUpdate(pos)) {
+      if (!already_traversed.contains({pos.x, pos.z}) && markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
           freeChunkIfPresent(pos);
           generateChunk(pos);
@@ -349,6 +356,10 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
     return;
   }   
   auto chunk = m_chunks_by_coord.get(chunk_pos).lock();
+  CHECK_F(!chunk->isGenerationRunning(),
+          "Generation for (%d, %d, %d) is already running on another thread",
+          chunk_pos.x, chunk_pos.y, chunk_pos.z);
+  chunk->setIsGenerationRunning(true);
   ChunkState chunk_state = m_chunks_by_coord.get(chunk_pos).lock()->getState();
   if (chunk_state.needs_lod_update) {
     chunk->setChunkHasBlocksState(false);
@@ -356,14 +367,17 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
 
   bool terrain_generated = generateChunkTerrainIfNeeded(chunk_pos);
   if (!terrain_generated) {
+    chunk->setIsGenerationRunning(false);
     return;
   }
   bool mesh_chunk = meshChunk(chunk_pos);
   if (!mesh_chunk) {
+    chunk->setIsGenerationRunning(false);
     return;
   }
   m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
   m_chunks_by_coord.get(chunk_pos).lock()->setChunkNeedsLodUpdate(false);
+  chunk->setIsGenerationRunning(false);
 }
 
 // generation thread

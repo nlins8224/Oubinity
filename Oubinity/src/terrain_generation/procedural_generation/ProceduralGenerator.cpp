@@ -64,8 +64,6 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
   int block_size = chunk.getLevelOfDetail().block_size;
   int block_amount_padding = chunk.getLevelOfDetail().block_amount + 2;
   glm::ivec3 chunk_world_pos = chunk.getPos() * CHUNK_SIZE;
-  chunk.getBlockArray().clearBlockIdCache();
-  chunk.getBlockArray().resizeIfNeeded();
 
   bool anything_added = false;
   for (int x = 0; x < block_amount_padding; x++) {
