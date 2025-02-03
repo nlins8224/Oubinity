@@ -15,7 +15,7 @@
 #include "Renderer.h"
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
-#include "../third_party/concurrentqueue.h"
+#include "../third_party/blockingconcurrentqueue.h"
 
 class ChunkRenderer : public Renderer {
  public:
@@ -25,7 +25,7 @@ class ChunkRenderer : public Renderer {
   void render(Camera& camera) override;
 
   void traverseScene();
-  void doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z);
+  void doIterate(int dst_camera_chunk_pos_x, int dst_camera_chunk_pos_z);
   void updateBufferIfNeedsUpdate();
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
@@ -46,8 +46,10 @@ class ChunkRenderer : public Renderer {
   bool meshChunk(glm::ivec3 chunk_pos);
   bool freeChunkIfPresent(glm::ivec3 chunk_pos);
   bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-  void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir);
-  void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir);
+  void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir,
+                                       ChunkBorder dst_chunk_border);
+  void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir,
+                                       ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
@@ -71,12 +73,12 @@ class ChunkRenderer : public Renderer {
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
-  moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
+  moodycamel::BlockingConcurrentQueue<VertexPool::ChunkAllocData>
       m_chunks_to_allocate;  // generation thread writes, main thread reads
-  moodycamel::ConcurrentQueue<glm::ivec3>
+  moodycamel::BlockingConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
 
-  BS::thread_pool m_generation_task_pool{std::min(2u, std::thread::hardware_concurrency())};
+  BS::thread_pool m_generation_task_pool{std::min(1u, std::thread::hardware_concurrency())};
 
   std::queue<std::function<void()>> m_tasks;
 

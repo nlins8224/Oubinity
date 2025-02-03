@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#define SETTING_USE_PRELOADED_HEIGHTMAP 1
-#define SETTING_USE_PRELOADED_COLORMAP 1
+#define SETTING_USE_PRELOADED_HEIGHTMAP 0
+#define SETTING_USE_PRELOADED_COLORMAP 0
 // Using PRELOADED_HEIGHTMAP is prerequisite
 // Blends preloaded and procedural heightmap
 #define SETTING_USE_HEIGHTMAP_BLENDING 0
@@ -30,9 +30,9 @@ static constexpr int SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH = 6;
 static constexpr int CHUNK_SIZE = 32;
 static constexpr int CHUNK_SIZE_PADDING = CHUNK_SIZE + 2;
 
-static constexpr double SETTING_CAMERA_SPEED = 20.0;
+static constexpr double SETTING_CAMERA_SPEED = 80.0;
 
-static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 64;
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 8;
 static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 8;
 }  // namespace Settings
  
