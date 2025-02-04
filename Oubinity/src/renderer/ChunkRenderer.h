@@ -25,7 +25,9 @@ class ChunkRenderer : public Renderer {
   void render(Camera& camera) override;
 
   void traverseScene();
-  void doIterate(int dst_camera_chunk_pos_x, int dst_camera_chunk_pos_z);
+  void doIterate(int src_camera_chunk_pos_x,
+                 int src_camera_chunk_pos_z, int dst_camera_chunk_pos_x,
+                 int dst_camera_chunk_pos_z);
   void updateBufferIfNeedsUpdate();
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
@@ -69,7 +71,8 @@ class ChunkRenderer : public Renderer {
   // Meshing is done on generation thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
   std::atomic<bool> m_buffer_needs_update;
-
+  std::atomic<int> m_generation_tasks;
+  std::atomic<int> m_free_tasks;
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
@@ -78,7 +81,7 @@ class ChunkRenderer : public Renderer {
   moodycamel::BlockingConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
 
-  BS::thread_pool m_generation_task_pool{std::min(1u, std::thread::hardware_concurrency())};
+  BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};
 
   std::queue<std::function<void()>> m_tasks;
 

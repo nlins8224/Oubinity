@@ -35,6 +35,16 @@ WindowMovementDirection ChunkSlidingWindow::getWindowLatestMoveDir(
   return move;
 }
 
+WindowMovementDirection ChunkSlidingWindow::getWindowMoveDir(
+    ChunkBorder src_border, ChunkBorder dst_border) {
+  WindowMovementDirection move;
+  move.x_p = src_border.min_x < dst_border.min_x;
+  move.x_n = src_border.min_x > dst_border.min_x;
+  move.z_p = src_border.min_z < dst_border.min_z;
+  move.z_n = src_border.min_z > dst_border.min_z;
+  return move;
+}
+
 void ChunkSlidingWindow::set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk) {
   int index = calculateIndex(chunk_pos);
   m_chunks_window[index] = chunk;
