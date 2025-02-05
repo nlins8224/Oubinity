@@ -35,15 +35,14 @@ void ChunkRenderer::drawChunksSceneMesh() {
 
 // generation thread
 void ChunkRenderer::traverseSceneLoop() {
-  while (true) {
-    LOG_F(INFO, "gen_tasks=%d, free_tasks=%d", m_generation_tasks.load(),
-          m_free_tasks.load());
-    if (m_generation_tasks.load(std::memory_order_acquire) != 0 || m_free_tasks.load(std::memory_order_acquire) != 0) {
-      m_buffer_needs_update.store(true, std::memory_order_release);
-      continue;
+ // while (true) {
+    if (m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
+      m_buffer_needs_update.store(true);
+      //continue;
+      return;
     }
     traverseScene();
-  }
+  //}
 }
 
 std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
@@ -128,7 +127,7 @@ void ChunkRenderer::initChunks() {
       }
     }
   }
-  m_buffer_needs_update.store(true, std::memory_order_release);
+  m_buffer_needs_update.store(true);
   updateBufferIfNeedsUpdate();
   m_init_stage = false;
 }
@@ -152,17 +151,19 @@ void ChunkRenderer::traverseScene() {
 
   if (dx != 0 && dz != 0) {
     LOG_F(ERROR, "TODO: Fix dx==%d, dz==%d traverse case", dx, dz);
-    doIterate(m_camera_last_chunk_pos.x,
-              m_camera_last_chunk_pos.z, m_camera_last_chunk_pos.x, dst_camera_chunk_pos.z);
-    doIterate(m_camera_last_chunk_pos.x,
-              m_camera_last_chunk_pos.z, dst_camera_chunk_pos.x, m_camera_last_chunk_pos.z);
+    doIterate(m_camera_last_chunk_pos.x, m_camera_last_chunk_pos.z,
+              m_camera_last_chunk_pos.x, dst_camera_chunk_pos.z);
+    m_camera_last_chunk_pos.z = dst_camera_chunk_pos.z;
+    doIterate(m_camera_last_chunk_pos.x, m_camera_last_chunk_pos.z,
+              dst_camera_chunk_pos.x, dst_camera_chunk_pos.z);
+    m_camera_last_chunk_pos.x = dst_camera_chunk_pos.x;
   } else {
     doIterate(m_camera_last_chunk_pos.x,
               m_camera_last_chunk_pos.z, dst_camera_chunk_pos.x,
               dst_camera_chunk_pos.z);
+    m_camera_last_chunk_pos.x = dst_camera_chunk_pos.x;
+    m_camera_last_chunk_pos.z = dst_camera_chunk_pos.z;
   }
-  m_camera_last_chunk_pos.x = dst_camera_chunk_pos.x;
-  m_camera_last_chunk_pos.z = dst_camera_chunk_pos.z;
 }
 
 void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_pos_z, int dst_camera_chunk_pos_x, int dst_camera_chunk_pos_z) {
@@ -218,18 +219,18 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
          cy >= 0; cy--) {
       if (move_dir.x_n) {
         pos = {min_x, cy, cz};
-       m_generation_task_pool.push_task([this, pos] {
-         generateChunk({pos.x, pos.y, pos.z}); 
-           });
-       // generateChunk({pos.x, pos.y, pos.z});
+       //m_generation_task_pool.push_task([this, pos] {
+       //  generateChunk({pos.x, pos.y, pos.z}); 
+       //    });
+        generateChunk({pos.x, pos.y, pos.z});
        }
 
       if (move_dir.x_p) {
         pos = {max_x, cy, cz};
-        m_generation_task_pool.push_task([this, pos] {
-          generateChunk({pos.x, pos.y, pos.z});
-        });
-       // generateChunk({pos.x, pos.y, pos.z});
+        // m_generation_task_pool.push_task([this, pos] {
+        //   generateChunk({pos.x, pos.y, pos.z});
+        //     });
+        generateChunk({pos.x, pos.y, pos.z});
       }
     }
   }
@@ -241,18 +242,18 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
 
       pos = {cx, cy, min_z};
       if (move_dir.z_n) {
-       m_generation_task_pool.push_task([this, pos] {
-         generateChunk({pos.x, pos.y, pos.z});
-       });
-       // generateChunk({pos.x, pos.y, pos.z});
+        // m_generation_task_pool.push_task([this, pos] {
+        //   generateChunk({pos.x, pos.y, pos.z});
+        //     });
+        generateChunk({pos.x, pos.y, pos.z});
       }
 
       pos = {cx, cy, max_z};
       if (move_dir.z_p) {
-        m_generation_task_pool.push_task([this, pos] {
-          generateChunk({pos.x, pos.y, pos.z});
-        });
-        //generateChunk({pos.x, pos.y, pos.z});
+        // m_generation_task_pool.push_task([this, pos] {
+        //   generateChunk({pos.x, pos.y, pos.z});
+        //     });
+        generateChunk({pos.x, pos.y, pos.z});
       }
     }
   }
@@ -271,16 +272,16 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
          cy >= 0; cy--) {
       if (move_dir.x_n) {
         pos = {max_x + 1, cy, cz};
-        m_generation_task_pool.push_task(
-            [this, pos] { freeChunkIfPresent(pos); });
-        //freeChunkIfPresent(pos); 
+        //m_generation_task_pool.push_task(
+        //    [this, pos] { freeChunkIfPresent(pos); });
+        freeChunkIfPresent(pos); 
       }
 
       if (move_dir.x_p) {
         pos = {min_x - 1, cy, cz};
-        m_generation_task_pool.push_task(
-            [this, pos] { freeChunkIfPresent(pos); });
-        //freeChunkIfPresent(pos);
+        // m_generation_task_pool.push_task(
+        //     [this, pos] { freeChunkIfPresent(pos); });
+        freeChunkIfPresent(pos); 
       }
     }
   }
@@ -291,16 +292,16 @@ void ChunkRenderer::iterateOverChunkBorderAndDelete(
          cy >= 0; cy--) {
       if (move_dir.z_n) {
         pos = {cx, cy, max_z + 1};
-        m_generation_task_pool.push_task(
-            [this, pos] { freeChunkIfPresent(pos); });
-        //freeChunkIfPresent(pos);
+        // m_generation_task_pool.push_task(
+        //     [this, pos] { freeChunkIfPresent(pos); });
+        freeChunkIfPresent(pos); 
       }
 
       if (move_dir.z_p) {
         pos = {cx, cy, min_z - 1};
-        m_generation_task_pool.push_task(
-            [this, pos] { freeChunkIfPresent(pos); });
-        //freeChunkIfPresent(pos);
+        // m_generation_task_pool.push_task(
+        //     [this, pos] { freeChunkIfPresent(pos); });
+        freeChunkIfPresent(pos); 
       }
     }
   }
@@ -398,7 +399,7 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
     chunk->setIsGenerationRunning(false);
     return;
   }
-  m_generation_tasks.fetch_add(1, std::memory_order_release);
+  m_generation_tasks.fetch_add(1);
   m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
   m_chunks_by_coord.get(chunk_pos).lock()->setChunkNeedsLodUpdate(false);
   chunk->setIsGenerationRunning(false);
@@ -426,22 +427,22 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
     bool updated = false;
     bool free_items_left;
     do {
-      free_items_left = m_free_tasks.load(std::memory_order_acquire) != 0;
+      free_items_left = m_free_tasks.load() != 0;
       while (m_chunks_to_free.try_dequeue(chunk_pos)) {
         updated = true;
         freeChunk(chunk_pos);
-        m_free_tasks.fetch_add(-1, std::memory_order_release);
+        m_free_tasks.fetch_add(-1);
       }
     } while (free_items_left);
 
     VertexPool::ChunkAllocData alloc_data;
     bool gen_items_left;
     do {
-      gen_items_left = m_generation_tasks.load(std::memory_order_acquire) != 0;
+      gen_items_left = m_generation_tasks.load() != 0;
       while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
         updated = true;
         allocateChunk(alloc_data, false);
-        m_generation_tasks.fetch_add(-1, std::memory_order_release);
+        m_generation_tasks.fetch_add(-1);
       }
     } while (gen_items_left);
 
@@ -449,7 +450,7 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
       m_vertexpool->createChunkInfoBuffer();
       m_vertexpool->createChunkLodBuffer();
     }
-    m_buffer_needs_update.store(false, std::memory_order_release);
+    m_buffer_needs_update.store(false);
   }
 }
 
@@ -569,10 +570,10 @@ bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos) {
 // generation thread
 bool ChunkRenderer::freeChunkIfPresent(glm::ivec3 chunk_pos) {
   auto current_chunk = m_chunks_by_coord.get(chunk_pos).lock();
-  if (!current_chunk || current_chunk.get()->getPos() != chunk_pos) return false;
+  //if (!current_chunk || current_chunk.get()->getPos() != chunk_pos) return false;
 
   m_chunks_to_free.enqueue(chunk_pos);
-  m_free_tasks.fetch_add(1, std::memory_order_release);
+  m_free_tasks.fetch_add(1);
   return true;
 }
 
