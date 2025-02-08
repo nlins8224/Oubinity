@@ -15,7 +15,7 @@
 #include "Renderer.h"
 #include "../loguru.hpp"
 #include "../third_party/BS_thread_pool.hpp"
-#include "../third_party/blockingconcurrentqueue.h"
+#include "../third_party/concurrentqueue.h"
 
 class ChunkRenderer : public Renderer {
  public:
@@ -61,7 +61,7 @@ class ChunkRenderer : public Renderer {
   std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
 
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
-  void freeChunk(glm::ivec3 chunk_pos);
+  void freeChunk(glm::ivec3 chunk_pos, bool fast_path);
 
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
@@ -76,9 +76,9 @@ class ChunkRenderer : public Renderer {
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
-  moodycamel::BlockingConcurrentQueue<VertexPool::ChunkAllocData>
+  moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
       m_chunks_to_allocate;  // generation thread writes, main thread reads
-  moodycamel::BlockingConcurrentQueue<glm::ivec3>
+  moodycamel::ConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
 
   BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};

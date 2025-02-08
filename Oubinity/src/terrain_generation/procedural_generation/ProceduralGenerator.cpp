@@ -52,7 +52,7 @@ ProceduralHeightMap ProceduralGenerator::generateHeightMap(
   for (int x = 0; x < CHUNK_SIZE_PADDING; x++) {
     for (int z = 0; z < CHUNK_SIZE_PADDING; z++) {
       float height = data_out[z * block_amount_padding + x];
-      height_map[x][z] = 200.0f;  // std::sqrt(height * height) * 220.0f;
+      height_map[x][z] = std::sqrt(height * height) * 220.0f;
     }
   }
 

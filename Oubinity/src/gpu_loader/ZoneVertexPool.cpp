@@ -211,12 +211,29 @@ void ZoneVertexPool::push_allocate(ChunkAllocData&& alloc_data, bool fast_path) 
     return;
   }
   m_pending_allocations.push(alloc_data);
-  if (m_pending_allocations.size() == BUFFER_NEEDS_UPDATE) {
+}
+
+void ZoneVertexPool::push_free(glm::ivec3 chunk_pos, bool fast_path) {
+  if (fast_path) {
+    free(chunk_pos);
+    return;
+  } 
+  m_pending_frees.push(chunk_pos);
+}
+
+void ZoneVertexPool::commitUpdate() {
+  if (m_pending_allocations.size() >= BUFFER_NEEDS_UPDATE) {
     while (!m_pending_allocations.empty()) {
       allocate(std::move(m_pending_allocations.front()));
       m_pending_allocations.pop();
     }
     updateMeshBufferDAIC();
+  }
+  if (m_pending_frees.size() >= BUFFER_NEEDS_UPDATE) {
+    while (!m_pending_frees.empty()) {
+      free(m_pending_frees.front());
+      m_pending_frees.pop();
+    }
   }
 }
 

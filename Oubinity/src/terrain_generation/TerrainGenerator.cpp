@@ -117,6 +117,7 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
       max_height = std::max(max_height, height_map[x][z]);
     }
   }
+
   // Real CHUNK_SIZE here is correct
   int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
   // |CHUNK_SIZE * 2| we take into consideration one chunk that is below surface as well
