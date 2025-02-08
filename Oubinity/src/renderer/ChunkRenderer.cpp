@@ -39,7 +39,6 @@ void ChunkRenderer::traverseSceneLoop() {
     if (m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
       m_buffer_needs_update.store(true);
       continue;
-      //return;
     }
     traverseScene();
   }
@@ -199,20 +198,16 @@ void ChunkRenderer::traverseScene() {
 
 void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_pos_z, int dst_camera_chunk_pos_x, int dst_camera_chunk_pos_z) {
   ChunkBorder dst_chunk_border;
+  ChunkBorder src_chunk_border;
   uint8_t max_lod_level = LevelOfDetail::getMaxLodLevel();
-   //for (int i = 1; i <= max_lod_level; i++) {
-  	//int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
-  	//chunk_border.min_x = src_camera_chunk_pos_x - border_dist + dx;
-  	//chunk_border.max_x = src_camera_chunk_pos_x + border_dist + dx - 1;
-  	//chunk_border.min_z = src_camera_chunk_pos_z - border_dist + dz;
-  	//chunk_border.max_z = src_camera_chunk_pos_z + border_dist + dz - 1;
-   //     LOG_F(1,
-   //           "LOD update border: min_x=%d, max_x=%d, min_z=%d, max_z=%d, "
-   //           "border_dist=%d",
-   //           chunk_border.min_x, chunk_border.max_x, chunk_border.min_z,
-   //           chunk_border.max_z, border_dist);
-  	//iterateOverChunkBorderAndUpdateLod(chunk_border);
-   //}
+   for (int i = 1; i <= max_lod_level; i++) {
+  	int border_dist = LevelOfDetail::Lods[i].draw_distance / 2;
+     src_chunk_border.min_x = src_camera_chunk_pos_x - border_dist;
+     src_chunk_border.max_x = src_camera_chunk_pos_x + border_dist - 1;
+     src_chunk_border.min_z = src_camera_chunk_pos_z - border_dist;
+     src_chunk_border.max_z = src_camera_chunk_pos_z + border_dist - 1;
+     iterateOverChunkBorderAndUpdateLod(src_chunk_border);
+   }
 
   int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
   dst_chunk_border.min_x = dst_camera_chunk_pos_x - border_dist;
@@ -220,7 +215,6 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   dst_chunk_border.min_z = dst_camera_chunk_pos_z - border_dist;
   dst_chunk_border.max_z = dst_camera_chunk_pos_z + border_dist - 1;
 
-  ChunkBorder src_chunk_border;
   src_chunk_border.min_x = src_camera_chunk_pos_x - border_dist;
   src_chunk_border.max_x = src_camera_chunk_pos_x + border_dist - 1;
   src_chunk_border.min_z = src_camera_chunk_pos_z - border_dist;

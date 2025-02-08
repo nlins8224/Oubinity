@@ -11,7 +11,11 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
       m_state{},
       m_is_visible{true},
       m_blocks{nullptr},
-      m_mesh{nullptr} {}
+      m_mesh{nullptr} {
+  m_state.was_edited = false;
+  m_state.has_blocks = false;
+  m_state.was_edited = false;
+}
 
 Chunk::~Chunk() {
   if (m_blocks != nullptr) {
