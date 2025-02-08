@@ -48,7 +48,7 @@ class ChunkRenderer : public Renderer {
   bool meshChunk(glm::ivec3 chunk_pos);
   bool freeChunkIfPresent(glm::ivec3 chunk_pos);
   bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-  void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir,
+  void UpdateWorldChunkBorder(WindowMovementDirection move_dir,
                                        ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir,
                                        ChunkBorder dst_chunk_border);

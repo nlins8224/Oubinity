@@ -110,7 +110,6 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
 void ChunkRenderer::updateBufferIfNeedsUpdate() {
   glm::ivec3 chunk_pos;
   if (m_buffer_needs_update) {
-    LOG_F(INFO, "Updating buffer");
     bool updated = false;
 
     while (m_chunks_to_free.try_dequeue(chunk_pos)) {
@@ -131,8 +130,6 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
     if (updated) {
       m_vertexpool->commitUpdate();
     }
-    // LOG_F(INFO, "Free items left=%d, Gen items left=%d", free_items_left,
-    //       gen_items_left);
     m_buffer_needs_update.store(false);
   }
 }
@@ -233,14 +230,13 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
       m_chunks_by_coord.getWindowMoveDir(src_chunk_border, dst_chunk_border);
   LOG_F(INFO, "Move Dir x_p=%d, x_n=%d, z_p=%d, z_n=%d", move_dir.x_p,
         move_dir.x_n, move_dir.z_p, move_dir.z_n);
-  //iterateOverChunkBorderAndDelete(move_dir, dst_chunk_border);
-  iterateOverChunkBorderAndCreate(move_dir, dst_chunk_border);
+  UpdateWorldChunkBorder(move_dir, dst_chunk_border);
 
   LOG_F(INFO, "camera_last_chunk_pos updated (%d, %d)",
         m_camera_last_chunk_pos.x, m_camera_last_chunk_pos.z);
 }
 
-void ChunkRenderer::iterateOverChunkBorderAndCreate(
+void ChunkRenderer::UpdateWorldChunkBorder(
     WindowMovementDirection move_dir, ChunkBorder dst_chunk_border) {
   int min_x = dst_chunk_border.min_x;
   int max_x = dst_chunk_border.max_x;
@@ -255,21 +251,19 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
       if (move_dir.x_n) {
         pos_gen = {min_x, cy, cz};
         pos_free = {max_x + 1, cy, cz};
-       //m_generation_task_pool.push_task([this, pos] {
-       //  generateChunk({pos.x, pos.y, pos.z}); 
-       //    });
-        freeChunkIfPresent(pos_free);
-        generateChunk(pos_gen);
+       m_generation_task_pool.push_task([this, pos_gen, pos_free] {
+          freeChunkIfPresent(pos_free);
+          generateChunk(pos_gen);
+        });
        }
 
       if (move_dir.x_p) {
          pos_gen = {max_x, cy, cz};
          pos_free = {min_x - 1, cy, cz};
-        // m_generation_task_pool.push_task([this, pos] {
-        //   generateChunk({pos.x, pos.y, pos.z});
-        //     });
-         freeChunkIfPresent(pos_free);
-         generateChunk(pos_gen);
+         m_generation_task_pool.push_task([this, pos_gen, pos_free] {
+           freeChunkIfPresent(pos_free);
+           generateChunk(pos_gen);
+         });
       }
     }
   }
@@ -280,71 +274,21 @@ void ChunkRenderer::iterateOverChunkBorderAndCreate(
          cy >= 0; cy--) {
 
       if (move_dir.z_n) {
-        // m_generation_task_pool.push_task([this, pos] {
-        //   generateChunk({pos.x, pos.y, pos.z});
-        //     });
         pos_gen = {cx, cy, min_z};
         pos_free = {cx, cy, max_z + 1};
-        freeChunkIfPresent(pos_free);
-        generateChunk(pos_gen);
+        m_generation_task_pool.push_task([this, pos_gen, pos_free] {
+          freeChunkIfPresent(pos_free);
+          generateChunk(pos_gen);
+        });
       }
-
       if (move_dir.z_p) {
-        // m_generation_task_pool.push_task([this, pos] {
-        //   generateChunk({pos.x, pos.y, pos.z});
-        //     });
         pos_gen = {cx, cy, max_z};
         pos_free = {cx, cy, min_z - 1};
-        freeChunkIfPresent(pos_free);
-        generateChunk(pos_gen);
-      }
-    }
-  }
-}
+        m_generation_task_pool.push_task([this, pos_gen, pos_free] {
+          freeChunkIfPresent(pos_free);
+          generateChunk(pos_gen);
+        });
 
-void ChunkRenderer::iterateOverChunkBorderAndDelete(
-    WindowMovementDirection move_dir, ChunkBorder dst_chunk_border) {
-  int min_x = dst_chunk_border.min_x;
-  int max_x = dst_chunk_border.max_x;
-  int min_z = dst_chunk_border.min_z;
-  int max_z = dst_chunk_border.max_z;
-  glm::ivec3 pos;
-  // x-/x+ iterate over z
-  for (int cz = min_z; cz <= max_z; cz++) {
-    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
-         cy >= 0; cy--) {
-      if (move_dir.x_n) {
-        pos = {max_x + 1, cy, cz};
-        //m_generation_task_pool.push_task(
-        //    [this, pos] { freeChunkIfPresent(pos); });
-        freeChunkIfPresent(pos); 
-      }
-
-      if (move_dir.x_p) {
-        pos = {min_x - 1, cy, cz};
-        // m_generation_task_pool.push_task(
-        //     [this, pos] { freeChunkIfPresent(pos); });
-        freeChunkIfPresent(pos); 
-      }
-    }
-  }
-
-  // z-/z+ iterate over x
-  for (int cx = min_x; cx <= max_x; cx++) {
-    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
-         cy >= 0; cy--) {
-      if (move_dir.z_n) {
-        pos = {cx, cy, max_z + 1};
-        // m_generation_task_pool.push_task(
-        //     [this, pos] { freeChunkIfPresent(pos); });
-        freeChunkIfPresent(pos); 
-      }
-
-      if (move_dir.z_p) {
-        pos = {cx, cy, min_z - 1};
-        // m_generation_task_pool.push_task(
-        //     [this, pos] { freeChunkIfPresent(pos); });
-        freeChunkIfPresent(pos); 
       }
     }
   }

@@ -30,9 +30,9 @@ static constexpr int SETTING_PRELOADED_UNDEGROUND_LAYER_DEPTH = 6;
 static constexpr int CHUNK_SIZE = 32;
 static constexpr int CHUNK_SIZE_PADDING = CHUNK_SIZE + 2;
 
-static constexpr double SETTING_CAMERA_SPEED = 30.0;
+static constexpr double SETTING_CAMERA_SPEED = 80.0;
 
-static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 8;
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 128;
 static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 8;
 }  // namespace Settings
  
