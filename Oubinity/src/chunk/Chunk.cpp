@@ -4,7 +4,7 @@ using Block::block_id;
 using Block::block_mesh;
 
 Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
-    : m_is_generation_running{false}, 
+    : m_is_generation_task_running{false}, 
       m_chunk_pos{chunk_pos},
       m_lod{lod},
       m_world_pos{Util::chunkPosToWorldPos(chunk_pos)},
@@ -30,11 +30,18 @@ void Chunk::addChunkMesh() {
   if (!m_state.was_edited) {
     m_blocks->clearBlockIdCache();
     m_state.has_blocks = false;
+  } else {
+    LOG_F(WARNING, "chunk at pos (%d, %d, %d) was edited", m_chunk_pos.x,
+          m_chunk_pos.y, m_chunk_pos.z);
   }
 }
 
-void Chunk::setIsGenerationRunning(bool is_running) {
-  m_is_generation_running = is_running;
+void Chunk::setIsGenerationTaskRunning(bool is_running) {
+  m_is_generation_task_running = is_running;
+}
+
+void Chunk::setIsFreeingTaskRunning(bool is_running) {
+  m_is_freeing_task_running = is_running;
 }
 
 void Chunk::setBlock(glm::ivec3 block_pos, block_id type) {
@@ -405,7 +412,9 @@ std::vector<Face>& Chunk::getFaces() { return m_faces; }
 
 void Chunk::setState(ChunkState state) { m_state = state; }
 
-bool Chunk::isGenerationRunning() { return m_is_generation_running; }
+bool Chunk::isGenerationTaskRunning() { return m_is_generation_task_running; }
+
+bool Chunk::isFreeingTaskRunning() { return m_is_freeing_task_running; }
 
 ChunkState Chunk::getState() { return m_state; }
 
@@ -458,7 +467,23 @@ void Chunk::setChunkNeedsLodUpdate(bool needs_lod_update) {
 void Chunk::setLevelOfDetail(LevelOfDetail::LevelOfDetail lod) { m_lod = lod; }
 
 void Chunk::clearFaces() {
-  m_faces.clear();
+  if (!m_faces.empty()) {
+    LOG_F(INFO, "clearFaces");
+    m_faces.clear();
+  }
+}
+
+void Chunk::clearBlocks() { 
+  if (m_blocks) {
+    m_blocks->clearBlockIdCache();
+    m_state.has_blocks = false;
+  }
+}
+
+void Chunk::clearBlockOccupancyCache() {
+  if (m_blocks) {
+    m_blocks->clearOccupancyMask();
+  }
 }
 
 const glm::vec3 Chunk::getWorldPos() const { return m_world_pos; }

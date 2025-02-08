@@ -206,7 +206,7 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
      src_chunk_border.max_x = src_camera_chunk_pos_x + border_dist - 1;
      src_chunk_border.min_z = src_camera_chunk_pos_z - border_dist;
      src_chunk_border.max_z = src_camera_chunk_pos_z + border_dist - 1;
-     iterateOverChunkBorderAndUpdateLod(src_chunk_border);
+     //iterateOverChunkBorderAndUpdateLod(src_chunk_border);
    }
 
   int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;
@@ -261,6 +261,9 @@ void ChunkRenderer::UpdateWorldChunkBorder(
       }
     }
   }
+
+  std::unordered_set<glm::ivec2> already_traversed = {
+      {min_x, min_z}, {min_x, max_z}, {max_x, min_z}, {max_x, max_z}};
 
   // z-/z+ iterate over x
   for (int cx = min_x; cx <= max_x; cx++) {
@@ -361,10 +364,10 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
     return;
   }   
   auto chunk = m_chunks_by_coord.get(chunk_pos).lock();
-  CHECK_F(!chunk->isGenerationRunning(),
+  CHECK_F(!chunk->isGenerationTaskRunning(),
           "Generation for (%d, %d, %d) is already running on another thread",
           chunk_pos.x, chunk_pos.y, chunk_pos.z);
-  chunk->setIsGenerationRunning(true);
+  chunk->setIsGenerationTaskRunning(true);
   ChunkState chunk_state = m_chunks_by_coord.get(chunk_pos).lock()->getState();
   if (chunk_state.needs_lod_update) {
     chunk->setChunkHasBlocksState(false);
@@ -372,18 +375,18 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
 
   bool terrain_generated = generateChunkTerrainIfNeeded(chunk_pos);
   if (!terrain_generated) {
-    chunk->setIsGenerationRunning(false);
+    chunk->setIsGenerationTaskRunning(false);
     return;
   }
   bool mesh_chunk = meshChunk(chunk_pos);
   if (!mesh_chunk) {
-    chunk->setIsGenerationRunning(false);
+    chunk->setIsGenerationTaskRunning(false);
     return;
   }
   m_generation_tasks.fetch_add(1);
   m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
-  m_chunks_by_coord.get(chunk_pos).lock()->setChunkNeedsLodUpdate(false);
-  chunk->setIsGenerationRunning(false);
+  chunk->setChunkNeedsLodUpdate(false);
+  chunk->setIsGenerationTaskRunning(false);
 }
 
 // generation thread
@@ -504,9 +507,10 @@ bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
 // generation thread
 bool ChunkRenderer::meshChunk(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
-  if (chunk.lock()->isVisible()) {
-    chunk.lock()->addChunkMesh();
+  if (!chunk.lock()->isVisible()) {
+    return false;
   }
+  chunk.lock()->addChunkMesh();
   return true;
 }
 
@@ -541,5 +545,21 @@ void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fa
 
 // main thread
 void ChunkRenderer::freeChunk(glm::ivec3 chunk_pos, bool fast_path) {
+  std::shared_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos).lock();
+  if (!chunk) {
+    return;
+  }
+  CHECK_F(!chunk->isFreeingTaskRunning(),
+          "Freeing for (%d, %d, %d) is already running on another thread",
+          chunk_pos.x, chunk_pos.y, chunk_pos.z);
+  chunk->setIsFreeingTaskRunning(true);
+    chunk->clearBlocks();
+    chunk->clearBlockOccupancyCache();
+    chunk->clearFaces();
+    chunk->setState({.has_blocks = false,
+                     .was_edited = false,
+                     .needs_lod_update = false});
+  chunk->setIsFreeingTaskRunning(false);
   m_vertexpool->push_free(chunk_pos, fast_path);
+  chunk.reset();
 }

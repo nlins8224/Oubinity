@@ -38,9 +38,15 @@ bool Block::BlockStorage::isBlockPresent(glm::ivec3 block_padded_pos) {
 }
 
 void Block::BlockStorage::clearBlockIdCache() {
+  LOG_F(INFO, "clearBlockIdCache");
   m_padded_block_id_cache.clear();
   m_padded_block_id_cache = std::move(std::vector<block_id>());
   m_padded_occupancy_mask.reset();
+}
+
+void Block::BlockStorage::clearOccupancyMask() {
+  LOG_F(INFO, "clearBlockOccupancyCache");
+  m_padded_occupancy_mask.clear();
 }
 
 void Block::BlockStorage::resizeIfNeeded() { 

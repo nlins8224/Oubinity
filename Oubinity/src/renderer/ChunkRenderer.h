@@ -50,8 +50,6 @@ class ChunkRenderer : public Renderer {
   bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
   void UpdateWorldChunkBorder(WindowMovementDirection move_dir,
                                        ChunkBorder dst_chunk_border);
-  void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir,
-                                       ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
@@ -81,7 +79,7 @@ class ChunkRenderer : public Renderer {
   moodycamel::ConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
 
-  BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};
+  BS::thread_pool m_generation_task_pool{std::min(1u, std::thread::hardware_concurrency())};
 
   std::queue<std::function<void()>> m_tasks;
 
