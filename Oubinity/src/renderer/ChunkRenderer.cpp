@@ -89,9 +89,12 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
   if (!chunk.lock()->getState().has_blocks) {
     glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
     bool result = generateChunkTerrainIfNeeded(chunk_pos);
+    LOG_F(INFO, "generateChunkTerrainIfNeeded");
     if (!result) {
       return;
     }
+  } else {
+    LOG_F(WARNING, "CHUNK HAS BLOCKS");
   }
   chunk.lock()->setBlock(Util::chunkWorldPosToPaddedLocalPos(world_block_pos),
                          type);
@@ -600,5 +603,5 @@ void ChunkRenderer::allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fa
 
 // main thread
 void ChunkRenderer::freeChunk(glm::ivec3 chunk_pos, bool fast_path) {
-  m_vertexpool->push_free(chunk_pos, false);
+  m_vertexpool->push_free(chunk_pos, fast_path);
 }
