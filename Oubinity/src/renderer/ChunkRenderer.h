@@ -32,7 +32,6 @@ class ChunkRenderer : public Renderer {
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
   void traverseSceneLoop();
-  block_id getBlockIdByWorldPos(glm::ivec3 world_block_pos);
   bool isBlockPresentByWorldPos(glm::ivec3 world_block_pos);
   void updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type);
 
@@ -55,9 +54,6 @@ class ChunkRenderer : public Renderer {
 
   void generateChunk(glm::ivec3 chunk_pos);
   VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
-
-  std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
-
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos, bool fast_path);
 

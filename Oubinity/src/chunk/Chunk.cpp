@@ -27,9 +27,6 @@ void Chunk::addChunkMesh() {
   if (!m_state.was_edited) {
     m_blocks->clearBlockIdCache();
     m_state.has_blocks = false;
-  } else {
-    LOG_F(WARNING, "chunk at pos (%d, %d, %d) was edited", m_chunk_pos.x,
-          m_chunk_pos.y, m_chunk_pos.z);
   }
 }
 

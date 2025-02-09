@@ -44,22 +44,9 @@ void ChunkRenderer::traverseSceneLoop() {
   }
 }
 
-std::weak_ptr<Chunk> ChunkRenderer::getChunkByWorldPos(glm::ivec3 world_block_pos) {
-  glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
-  return m_chunks_by_coord.get(chunk_pos);
-}
-
-block_id ChunkRenderer::getBlockIdByWorldPos(glm::ivec3 world_block_pos) {
-  std::weak_ptr<Chunk> chunk = getChunkByWorldPos(world_block_pos);
-  if (!chunk.lock()) {
-    return block_id::NONE;
-  }
-  glm::ivec3 local_pos = Util::chunkWorldPosToPaddedLocalPos(world_block_pos);
-  return chunk.lock()->getBlockId(local_pos);
-}
-
 bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
-  std::weak_ptr<Chunk> chunk = getChunkByWorldPos(world_block_pos);
+  glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
+  std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
   if (!chunk.lock()) {
     return block_id::NONE;
   }
@@ -88,12 +75,9 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
   if (!chunk.lock()->getState().has_blocks) {
     glm::ivec3 chunk_pos = Util::worldPosToChunkPos(world_block_pos);
     bool result = generateChunkTerrainIfNeeded(chunk_pos);
-    LOG_F(INFO, "generateChunkTerrainIfNeeded");
     if (!result) {
       return;
     }
-  } else {
-    LOG_F(WARNING, "CHUNK HAS BLOCKS");
   }
   chunk.lock()->setBlock(Util::chunkWorldPosToPaddedLocalPos(world_block_pos),
                          type);
@@ -118,8 +102,6 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
     }
 
     VertexPool::ChunkAllocData alloc_data;
-    bool gen_items_left;
-
     while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
       updated = true;
       allocateChunk(alloc_data, false);
