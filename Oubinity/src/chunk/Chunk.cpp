@@ -468,7 +468,6 @@ void Chunk::setLevelOfDetail(LevelOfDetail::LevelOfDetail lod) { m_lod = lod; }
 
 void Chunk::clearFaces() {
   if (!m_faces.empty()) {
-    LOG_F(INFO, "clearFaces");
     m_faces.clear();
   }
 }

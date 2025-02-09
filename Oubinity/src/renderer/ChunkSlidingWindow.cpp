@@ -1,6 +1,7 @@
 #include "ChunkSlidingWindow.h"
 #include "../Util.h"
 #include "../loguru.hpp"
+#include "../chunk/Chunk.h"
 
 ChunkSlidingWindow::ChunkSlidingWindow() : m_chunk_border{} {
   int chunks = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS *
@@ -46,6 +47,14 @@ WindowMovementDirection ChunkSlidingWindow::getWindowMoveDir(
 }
 
 void ChunkSlidingWindow::set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk) {
+  std::shared_ptr<Chunk> prev_chunk = get(chunk_pos).lock();
+  if (prev_chunk) {
+    prev_chunk->clearBlocks();
+    prev_chunk->clearBlockOccupancyCache();
+    prev_chunk->clearFaces();
+    prev_chunk->setState(
+        {.has_blocks = false, .was_edited = false, .needs_lod_update = false});
+  }
   int index = calculateIndex(chunk_pos);
   m_chunks_window[index] = chunk;
 }

@@ -30,7 +30,5 @@ class ChunkSlidingWindow {
  private:
   int calculateIndex(glm::ivec3 chunk_pos);
   std::vector<std::shared_ptr<Chunk>> m_chunks_window;
-  std::queue<WindowMovementDirection> m_pending_movement_actions;
-
   ChunkBorder m_chunk_border;
 };
