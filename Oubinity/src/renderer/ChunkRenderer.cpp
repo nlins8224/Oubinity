@@ -189,6 +189,7 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
      src_chunk_border.min_z = src_camera_chunk_pos_z - border_dist;
      src_chunk_border.max_z = src_camera_chunk_pos_z + border_dist - 1;
      iterateOverChunkBorderAndUpdateLod(src_chunk_border);
+     m_buffer_needs_update.store(true);
    }
 
   int border_dist = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 2;

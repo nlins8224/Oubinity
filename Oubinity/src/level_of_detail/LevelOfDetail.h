@@ -24,7 +24,7 @@ static const LevelOfDetail Zero{.level{0},
 static const LevelOfDetail One{.level{1},
                                .block_amount{Settings::CHUNK_SIZE / 2},
                                .block_size{2.0f},
-                               .draw_distance{32},
+                               .draw_distance{16},
                                .divide_factor{2}};
 
 static const LevelOfDetail Two{.level{2},
