@@ -17,9 +17,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
 }
 
 Chunk::~Chunk() {
-  if (m_blocks != nullptr) {
-    delete m_blocks;
-  }
+
 }
 
 void Chunk::addChunkMesh() {
@@ -449,7 +447,7 @@ glm::ivec3 Chunk::findNeighborBlockPos(glm::ivec3 block_pos) const {
 
 Block::BlockStorage& Chunk::getBlockArray() { return *m_blocks; }
 
-void Chunk::setBlockArray() { m_blocks = new Block::BlockStorage(m_lod); }
+void Chunk::setBlockArray() { m_blocks = std::make_unique<Block::BlockStorage>(Block::BlockStorage(m_lod)); }
 
 void Chunk::setChunkHasBlocksState(bool has_blocks) {
   m_state.has_blocks = has_blocks;

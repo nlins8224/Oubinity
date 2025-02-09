@@ -138,7 +138,7 @@ class Chunk {
  private:
   std::atomic<bool> m_is_generation_task_running;
   std::atomic<bool> m_is_freeing_task_running;
-  Block::BlockStorage* m_blocks;
+  std::unique_ptr<Block::BlockStorage> m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;
   glm::ivec3 m_chunk_pos;
