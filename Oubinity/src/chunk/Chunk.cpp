@@ -10,8 +10,7 @@ Chunk::Chunk(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod)
       m_world_pos{Util::chunkPosToWorldPos(chunk_pos)},
       m_state{},
       m_is_visible{true},
-      m_blocks{nullptr},
-      m_mesh{nullptr} {
+      m_blocks{nullptr} {
   m_state.was_edited = false;
   m_state.has_blocks = false;
   m_state.was_edited = false;
@@ -69,7 +68,7 @@ bool Chunk::isNeighborBlockVisible(glm::ivec3 block_pos) const {
 
 void Chunk::addFaces() {
   clearFaces();
-  m_mesh = std::make_unique<MeshData>();
+  std::unique_ptr<MeshData> mesh = std::make_unique<MeshData>();
   const uint64_t CS = m_lod.block_amount;
   const uint64_t CS_2 = CS * CS;
 
@@ -133,9 +132,9 @@ col_face_masks[2CS_P2, 3CS_P2)
   for (int axis = 0; axis <= 2; axis++) {
     for (int i = 0; i < CS_P2; i++) {
       uint64_t col = axis_cols[(CS_P2 * axis) + i];
-      m_mesh->col_face_masks[(CS_P2 * (axis * 2)) + i] =
+      mesh->col_face_masks[(CS_P2 * (axis * 2)) + i] =
           col & ~((col >> 1) | (1ULL << CS_LAST_BIT));
-      m_mesh->col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] =
+      mesh->col_face_masks[(CS_P2 * (axis * 2 + 1)) + i] =
           col & ~((col << 1) | 1ULL);
     }
   }
@@ -146,23 +145,23 @@ col_face_masks[2CS_P2, 3CS_P2)
     int axis = face / 2;
     int air_dir = face % 2 == 0 ? 1 : -1;
 
-    memset(m_mesh->merged_forward, 0, CS_P2 * 8);
+    memset(mesh->merged_forward, 0, CS_P2 * 8);
 
     for (int forward = 1; forward < CS_P - 1; forward++) {
       uint64_t bits_walking_right = 0;
 
       int forwardIndex = (forward * CS_P) + (face * CS_P2);
 
-      memset(m_mesh->merged_right, 0, CS_P * 8);
+      memset(mesh->merged_right, 0, CS_P * 8);
 
       for (int right = 1; right < CS_P - 1; right++) {
         uint64_t bits_here =
-            m_mesh->col_face_masks[forwardIndex + right] & ~BORDER_MASK;
+            mesh->col_face_masks[forwardIndex + right] & ~BORDER_MASK;
         uint64_t bits_right =
-            right >= CS ? 0 : m_mesh->col_face_masks[forwardIndex + right + 1];
+            right >= CS ? 0 : mesh->col_face_masks[forwardIndex + right + 1];
         uint64_t bits_forward =
             forward >= CS ? 0
-                          : m_mesh->col_face_masks[forwardIndex + right + CS_P];
+                          : mesh->col_face_masks[forwardIndex + right + CS_P];
 
         uint64_t bits_merging_forward =
             bits_here & bits_forward & ~bits_walking_right;
@@ -183,7 +182,7 @@ col_face_masks[2CS_P2, 3CS_P2)
           if (padded_blocks_id_cache[column] == padded_blocks_id_cache[column_forward] &&
               compareAO(padded_blocks_id_cache, axis, forward, right,
                         bit_pos + air_dir, 1, 0)) {
-            m_mesh->merged_forward[(right * CS_P) + bit_pos]++;
+            mesh->merged_forward[(right * CS_P) + bit_pos]++;
           } else {
             bits_merging_forward &= ~(1ULL << bit_pos);
           }
@@ -202,15 +201,15 @@ col_face_masks[2CS_P2, 3CS_P2)
               padded_blocks_id_cache[get_axis_i(axis, right, forward, bit_pos)];
 
           if ((bits_merging_right & (1ULL << bit_pos)) != 0 &&
-              (m_mesh->merged_forward[(right * CS_P) + bit_pos] ==
-               m_mesh->merged_forward[(right + 1) * CS_P + bit_pos]) &&
+              (mesh->merged_forward[(right * CS_P) + bit_pos] ==
+               mesh->merged_forward[(right + 1) * CS_P + bit_pos]) &&
               (type == padded_blocks_id_cache[get_axis_i(axis, right + 1,
                                                          forward, bit_pos)] &&
                compareAO(padded_blocks_id_cache, axis, forward, right,
                          bit_pos + air_dir, 0, 1))) {
             bits_walking_right |= 1ULL << bit_pos;
-            m_mesh->merged_right[bit_pos]++;
-            m_mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
+            mesh->merged_right[bit_pos]++;
+            mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
             continue;
           }
 
@@ -218,22 +217,22 @@ col_face_masks[2CS_P2, 3CS_P2)
 
           GreedyQuad greedy_quad;
           greedy_quad.front =
-              forward - m_mesh->merged_forward[(right * CS_P) + bit_pos];
-          greedy_quad.left = right - m_mesh->merged_right[bit_pos];
+              forward - mesh->merged_forward[(right * CS_P) + bit_pos];
+          greedy_quad.left = right - mesh->merged_right[bit_pos];
           greedy_quad.up = bit_pos + (face % 2 == 0 ? 1 : 0);
 
           greedy_quad.right = right + 1;
           greedy_quad.back = forward + 1;
 
-          greedy_quad.width = m_mesh->merged_right[bit_pos] + 1;
+          greedy_quad.width = mesh->merged_right[bit_pos] + 1;
           greedy_quad.height =
-              m_mesh->merged_forward[(right * CS_P) + bit_pos] + 1;
+              mesh->merged_forward[(right * CS_P) + bit_pos] + 1;
 
           FaceCornersAo ao = bakeAO(padded_blocks_id_cache, bit_pos, air_dir,
                                     axis, right, forward);
 
-          m_mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
-          m_mesh->merged_right[bit_pos] = 0;
+          mesh->merged_forward[(right * CS_P) + bit_pos] = 0;
+          mesh->merged_right[bit_pos] = 0;
 
           addGreedyFace(greedy_quad, static_cast<block_mesh>(face), type, ao);
         }

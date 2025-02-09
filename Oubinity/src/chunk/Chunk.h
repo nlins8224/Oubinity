@@ -138,7 +138,6 @@ class Chunk {
  private:
   std::atomic<bool> m_is_generation_task_running;
   std::atomic<bool> m_is_freeing_task_running;
-  std::unique_ptr<MeshData> m_mesh;
   Block::BlockStorage* m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;
