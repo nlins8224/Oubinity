@@ -394,7 +394,7 @@ VertexPool::ChunkAllocData ChunkRenderer::getAllocData(glm::ivec3 chunk_pos) {
   alloc_data._added_faces_amount = chunk.lock()->getAddedFacesAmount();
   alloc_data._lod = chunk.lock()->getLevelOfDetail();
   alloc_data._mesh = chunk.lock()->getMesh();                            
-  alloc_data._mesh_faces = chunk.lock()->getFaces();
+  alloc_data._mesh_faces = std::move(chunk.lock()->getFaces());
   alloc_data._chunk_world_pos = chunk.lock()->getWorldPos();
   alloc_data._ready = true;
   return alloc_data;
