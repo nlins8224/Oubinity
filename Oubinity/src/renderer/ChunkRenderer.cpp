@@ -85,8 +85,7 @@ void ChunkRenderer::updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id t
   freeChunk(chunk_pos, true);
   meshChunk(chunk_pos);
   allocateChunk(getAllocData(chunk_pos), true);
-  m_vertexpool->createChunkInfoBuffer();
-  m_vertexpool->createChunkLodBuffer();
+  m_vertexpool->commitUpdate();
 }
 
 // main thread

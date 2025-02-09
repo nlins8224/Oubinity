@@ -105,8 +105,6 @@ class ZoneVertexPool {
   void push_allocate(ChunkAllocData&& alloc_data, bool fast_path);
   void push_free(glm::ivec3 chunk_pos, bool fast_path);
   void draw();
-  void createChunkInfoBuffer();
-  void createChunkLodBuffer();
   void commitUpdate();
 
  private:
@@ -118,6 +116,10 @@ class ZoneVertexPool {
   void updateMeshBufferDAIC();
   void createFaceStreamBuffer();
   void updateFaceStreamBuffer(std::vector<Face>& mesh, int face_offset);
+  void createChunkInfoBuffer();
+  void createChunkLodBuffer();
+  void updateChunkInfoBuffer();
+  void updateChunkLodBuffer();
   void formatVBO();
   void waitBuffer(GLsync& sync);
   void lockBuffer(GLsync& sync);

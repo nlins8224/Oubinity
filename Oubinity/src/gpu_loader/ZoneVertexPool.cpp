@@ -238,8 +238,8 @@ void ZoneVertexPool::commitUpdate() {
       allocate(std::move(m_pending_allocations.front()));
       m_pending_allocations.pop();
     }
-    createChunkInfoBuffer();
-    createChunkLodBuffer();
+    updateChunkInfoBuffer();
+    updateChunkLodBuffer();
     updateMeshBufferDAIC();
 }
 
@@ -444,25 +444,52 @@ void ZoneVertexPool::updateFaceStreamBuffer(std::vector<Face>& mesh,
 }
 
 void ZoneVertexPool::createChunkInfoBuffer() {
-  m_chunk_info_ssbo = 0;
+  glDeleteBuffers(1, &m_chunk_info_ssbo); // delete previous buffer
   glGenBuffers(1, &m_chunk_info_ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
   glBufferData(GL_SHADER_STORAGE_BUFFER,
                sizeof(m_chunk_metadata.active_chunk_info),
-               &m_chunk_metadata.active_chunk_info, GL_STATIC_COPY);
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+               &m_chunk_metadata.active_chunk_info, GL_DYNAMIC_DRAW);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  glDeleteBuffers(1, &m_chunk_info_ssbo);
 }
 
 void ZoneVertexPool::createChunkLodBuffer() {
-  m_chunks_lod_ssbo = 1;
+  glDeleteBuffers(1, &m_chunks_lod_ssbo); // delete previous buffer
   glGenBuffers(1, &m_chunks_lod_ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
   glBufferData(GL_SHADER_STORAGE_BUFFER,
                sizeof(m_chunk_metadata.active_chunks_lod),
-               &m_chunk_metadata.active_chunks_lod, GL_STATIC_COPY);
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 1);
+               &m_chunk_metadata.active_chunks_lod, GL_DYNAMIC_DRAW);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+// TODO: Add proper update function
+void ZoneVertexPool::updateChunkInfoBuffer() {
+  glDeleteBuffers(1, &m_chunk_info_ssbo); // delete previous buffer
+  glGenBuffers(1, &m_chunk_info_ssbo);
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
+  glBufferData(GL_SHADER_STORAGE_BUFFER,
+               sizeof(m_chunk_metadata.active_chunk_info),
+               &m_chunk_metadata.active_chunk_info, GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+// TODO: Add proper update function
+void ZoneVertexPool::updateChunkLodBuffer() {
+  glDeleteBuffers(1, &m_chunks_lod_ssbo); // delete previous buffer
+  glGenBuffers(1, &m_chunks_lod_ssbo);
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
+  glBufferData(GL_SHADER_STORAGE_BUFFER,
+               sizeof(m_chunk_metadata.active_chunks_lod),
+               &m_chunk_metadata.active_chunks_lod, GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 }  // namespace VertexPool
