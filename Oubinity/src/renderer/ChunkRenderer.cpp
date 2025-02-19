@@ -35,13 +35,14 @@ void ChunkRenderer::drawChunksSceneMesh() {
 
 // generation thread
 void ChunkRenderer::traverseSceneLoop() {
-  while (true) {
+  //while (true) {
     if (m_lod_update_tasks.load() != 0 || m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
       m_buffer_needs_update.store(true);
-      continue;
+      return;
+      //continue;
     }
     traverseScene();
-  }
+  //}
 }
 
 bool ChunkRenderer::isBlockPresentByWorldPos(glm::ivec3 world_block_pos) {
