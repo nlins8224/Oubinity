@@ -36,7 +36,7 @@ void ChunkRenderer::drawChunksSceneMesh() {
 // generation thread
 void ChunkRenderer::traverseSceneLoop() {
   while (true) {
-    if (m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
+    if (m_lod_update_tasks.load() != 0 || m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
       m_buffer_needs_update.store(true);
       continue;
     }
@@ -94,13 +94,19 @@ void ChunkRenderer::updateBufferIfNeedsUpdate() {
   if (m_buffer_needs_update) {
     bool updated = false;
 
+    VertexPool::ChunkAllocData alloc_data;
+    while (m_chunks_to_update_lod.try_dequeue(alloc_data)) {
+      updated = true;
+      m_vertexpool->push_update_lod(std::move(alloc_data));
+      m_lod_update_tasks.fetch_add(-1);
+    }
+
     while (m_chunks_to_free.try_dequeue(chunk_pos)) {
       updated = true;
       freeChunk(chunk_pos, false);
       m_free_tasks.fetch_add(-1);
     }
 
-    VertexPool::ChunkAllocData alloc_data;
     while (m_chunks_to_allocate.try_dequeue(alloc_data)) {
       updated = true;
       allocateChunk(alloc_data, false);
@@ -134,7 +140,7 @@ void ChunkRenderer::initChunks() {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
-        generateChunk({cx, cy, cz});
+        generateChunk({cx, cy, cz}, false);
       }
     }
   }
@@ -229,7 +235,7 @@ void ChunkRenderer::UpdateWorldChunkBorder(
         pos_free = {max_x + 1, cy, cz};
        m_generation_task_pool.push_task([this, pos_gen, pos_free] {
           freeChunkIfPresent(pos_free);
-          generateChunk(pos_gen);
+          generateChunk(pos_gen, false);
         });
        }
 
@@ -238,7 +244,7 @@ void ChunkRenderer::UpdateWorldChunkBorder(
          pos_free = {min_x - 1, cy, cz};
          m_generation_task_pool.push_task([this, pos_gen, pos_free] {
            freeChunkIfPresent(pos_free);
-           generateChunk(pos_gen);
+           generateChunk(pos_gen, false);
          });
       }
     }
@@ -254,7 +260,7 @@ void ChunkRenderer::UpdateWorldChunkBorder(
         pos_free = {cx, cy, max_z + 1};
         m_generation_task_pool.push_task([this, pos_gen, pos_free] {
           freeChunkIfPresent(pos_free);
-          generateChunk(pos_gen);
+          generateChunk(pos_gen, false);
         });
       }
       if (move_dir.z_p) {
@@ -262,7 +268,7 @@ void ChunkRenderer::UpdateWorldChunkBorder(
         pos_free = {cx, cy, min_z - 1};
         m_generation_task_pool.push_task([this, pos_gen, pos_free] {
           freeChunkIfPresent(pos_free);
-          generateChunk(pos_gen);
+          generateChunk(pos_gen, false);
         });
 
       }
@@ -287,16 +293,14 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
       pos = {max_x, cy, cz};
       if (markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
-          freeChunkIfPresent(pos);
-          generateChunk(pos);
+          updateChunkLod(pos);
         });
       }
 
       pos = {min_x, cy, cz};
       if (markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
-          freeChunkIfPresent(pos);
-          generateChunk(pos);
+          updateChunkLod(pos);
         });
       }
     }
@@ -312,16 +316,14 @@ void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
       pos = {cx, cy, max_z};
       if (!already_traversed.contains({pos.x, pos.z}) && markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
-          freeChunkIfPresent(pos);
-          generateChunk(pos);
+          updateChunkLod(pos);
         });
       }
 
       pos = {cx, cy, min_z};
       if (!already_traversed.contains({pos.x, pos.z}) && markIfChunkLodNeedsUpdate(pos)) {
         m_generation_task_pool.push_task([this, pos] {
-          freeChunkIfPresent(pos);
-          generateChunk(pos);
+          updateChunkLod(pos);
         });
       }
     }
@@ -337,7 +339,7 @@ bool ChunkRenderer::isChunkOutOfBorder(glm::ivec3 chunk_pos,
          cz < chunk_border.min_z || cz > chunk_border.max_z;
 }
 
-void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
+void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
   bool chunk_created = createChunkIfNotPresent(chunk_pos);
   if (!chunk_created && !m_chunks_by_coord.get(chunk_pos).lock()->getState().needs_lod_update) {
     return;
@@ -362,8 +364,14 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos) {
     chunk->setIsGenerationTaskRunning(false);
     return;
   }
-  m_generation_tasks.fetch_add(1);
-  m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+
+  if (update_lod) {
+    m_lod_update_tasks.fetch_add(1);
+    m_chunks_to_update_lod.enqueue(getAllocData(chunk_pos));
+  } else {
+    m_generation_tasks.fetch_add(1);
+    m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+  }
   chunk->setChunkNeedsLodUpdate(false);
   chunk->setIsGenerationTaskRunning(false);
 }
@@ -515,6 +523,12 @@ bool ChunkRenderer::markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos) {
   bool needs_update = chunk.lock()->getLevelOfDetail().level != lod.level;
   chunk.lock()->setChunkNeedsLodUpdate(needs_update);
   return needs_update;
+}
+
+void ChunkRenderer::updateChunkLod(glm::ivec3 chunk_pos) {
+  auto current_chunk = m_chunks_by_coord.get(chunk_pos).lock();
+  if (!current_chunk || current_chunk.get()->getPos() != chunk_pos) return;
+  generateChunk(chunk_pos, true);
 }
 
 // main thread

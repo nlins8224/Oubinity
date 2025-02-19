@@ -47,12 +47,13 @@ class ChunkRenderer : public Renderer {
   bool meshChunk(glm::ivec3 chunk_pos);
   bool freeChunkIfPresent(glm::ivec3 chunk_pos);
   bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
+  void updateChunkLod(glm::ivec3 chunk_pos);
   void UpdateWorldChunkBorder(WindowMovementDirection move_dir,
                                        ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
-  void generateChunk(glm::ivec3 chunk_pos);
+  void generateChunk(glm::ivec3 chunk_pos, bool update_lod);
   VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos, bool fast_path);
@@ -67,6 +68,7 @@ class ChunkRenderer : public Renderer {
   std::atomic<bool> m_buffer_needs_update;
   std::atomic<int> m_generation_tasks;
   std::atomic<int> m_free_tasks;
+  std::atomic<int> m_lod_update_tasks;
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
@@ -74,6 +76,8 @@ class ChunkRenderer : public Renderer {
       m_chunks_to_allocate;  // generation thread writes, main thread reads
   moodycamel::ConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
+  moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
+      m_chunks_to_update_lod;  // generation thread writes, main thread reads
 
   BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};
 

@@ -212,7 +212,7 @@ void ZoneVertexPool::push_allocate(ChunkAllocData&& alloc_data, bool fast_path) 
     m_pending_allocations.push(alloc_data);
   }
 
-  if (m_pending_allocations.size() >= BUFFER_NEEDS_UPDATE) {
+  if (m_pending_allocations.size() == BUFFER_NEEDS_UPDATE) {
     commitUpdate();
   }
 }
@@ -224,12 +224,25 @@ void ZoneVertexPool::push_free(glm::ivec3 chunk_pos, bool fast_path) {
     m_pending_frees.push(chunk_pos);
   }
 
-  if (m_pending_frees.size() >= BUFFER_NEEDS_UPDATE) {
+  if (m_pending_frees.size() == BUFFER_NEEDS_UPDATE) {
+    commitUpdate();
+  }
+}
+
+void ZoneVertexPool::push_update_lod(ChunkAllocData&& alloc_data) {
+  m_pending_lod_updates.push(alloc_data);
+  if (m_pending_lod_updates.size() == BUFFER_NEEDS_UPDATE) {
     commitUpdate();
   }
 }
 
 void ZoneVertexPool::commitUpdate() {
+    while (!m_pending_lod_updates.empty()) {
+      ChunkAllocData alloc_data = m_pending_lod_updates.front();
+      free(alloc_data._chunk_pos);
+      allocate(std::move(alloc_data));
+      m_pending_lod_updates.pop();
+    }
     while (!m_pending_frees.empty()) {
       free(m_pending_frees.front());
       m_pending_frees.pop();

@@ -22,7 +22,7 @@ using Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 constexpr size_t TOTAL_CHUNKS =
     MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
-constexpr uint16_t BUFFER_NEEDS_UPDATE = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 4;
+constexpr uint16_t BUFFER_NEEDS_UPDATE = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 8;
 constexpr size_t ZONE_INITIAL_BUCKET_AMOUNT_MARGIN = 2000;
 
 static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
@@ -104,8 +104,10 @@ class ZoneVertexPool {
   virtual ~ZoneVertexPool();
   void push_allocate(ChunkAllocData&& alloc_data, bool fast_path);
   void push_free(glm::ivec3 chunk_pos, bool fast_path);
+  void push_update_lod(ChunkAllocData&& alloc_data);
   void draw();
   void commitUpdate();
+  void commitLodUpdate();
 
  private:
   void initBuckets();
@@ -161,6 +163,7 @@ class ZoneVertexPool {
 
   std::queue<ChunkAllocData> m_pending_allocations;
   std::queue<glm::ivec3> m_pending_frees;
+  std::queue<ChunkAllocData> m_pending_lod_updates;
 };
 
 }  // namespace VertexPool
