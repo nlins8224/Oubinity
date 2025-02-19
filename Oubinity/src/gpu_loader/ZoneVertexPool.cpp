@@ -311,7 +311,7 @@ size_t ZoneVertexPool::calculateBucketAmountInZones() {
   auto lods_it = Lods.begin();
   for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end();
        zones_it++, lods_it++) {
-    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 4 * Settings::SETTING_BLOCK_MARGIN + ZONE_INITIAL_BUCKET_AMOUNT_MARGIN;
+    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 4 + ZONE_INITIAL_BUCKET_AMOUNT_MARGIN;
     buckets_added += (*zones_it)->buckets_amount;
     if (lods_it != Lods.end() && lods_it + 1 != Lods.end() &&
         (lods_it + 1)->draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS + 1) {
