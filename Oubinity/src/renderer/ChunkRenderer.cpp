@@ -360,6 +360,9 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
     chunk->setIsGenerationTaskRunning(false);
     return;
   }
+
+  decorateChunkIfPresent(chunk_pos);
+
   bool mesh_chunk = meshChunk(chunk_pos);
   if (!mesh_chunk) {
     chunk->setIsGenerationTaskRunning(false);
@@ -486,7 +489,7 @@ bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
 bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
 #if SETTING_TREES_ENABLED
-  m_terrain_generator.generateTrees(*chunk);
+  m_terrain_generator.generateTrees(*chunk.lock());
 #endif
 
   return true;

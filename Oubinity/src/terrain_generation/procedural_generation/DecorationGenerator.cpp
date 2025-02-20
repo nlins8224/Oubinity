@@ -26,7 +26,7 @@ void DecorationGenerator::generateTrees(Chunk& chunk, HeightMap& surface_map,
         uint8_t tree_plant_height =
             static_cast<uint8_t>(surface_map[x][z]) % lod.block_amount;
         if (chunk.getBlockId({x, tree_plant_height, z}) == Block::GRASS &&
-            tree_plant_height > water_height && (z + x) % 5 == 0) {
+            tree_plant_height > water_height && (z + x) % 2 == 0) {
           tree.addTree(chunk, {x, tree_plant_height, z});
         }
       }

@@ -139,6 +139,7 @@ inline std::weak_ptr<Chunk> findNeighborAt(glm::ivec3 target_chunk_pos,
       return chunk;
     }
   }
+  return {};
 }
 
 void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
@@ -158,27 +159,29 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
 
   if (x_offset == 0 && y_offset == 0 && z_offset == 0) {
     chunk.setBlock({x, y, z}, block_type);
-  } else {
-    chunk_pos.x += x_offset;
-    chunk_pos.y += y_offset;
-    chunk_pos.z += z_offset;
+    return;
+  } 
+  chunk_pos.x += x_offset;
+  chunk_pos.y += y_offset;
+  chunk_pos.z += z_offset;
 
-    ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
-    std::weak_ptr<Chunk> chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
-    if (!chunk_neighbor.lock()) {
-      // Do not set trees across lod
-      if (chunk_neighbor.lock()->getLevelOfDetail().level !=
-          chunk.getLevelOfDetail().level) {
-        return;
-      }
-
-      x = getMod(x, lod.block_amount);
-      y = getMod(y, lod.block_amount);
-      z = getMod(z, lod.block_amount);
-
-      chunk_neighbor.lock()->setBlock({x, y, z}, block_type);
-    }
+  ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
+  std::weak_ptr<Chunk> chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
+  if (!chunk_neighbor.lock()) {
+    return;
   }
+
+  // Do not set trees across lod
+  if (chunk_neighbor.lock()->getLevelOfDetail().level !=
+      chunk.getLevelOfDetail().level) {
+    return;
+  }
+
+  x = getMod(x, lod.block_amount);
+  y = getMod(y, lod.block_amount);
+  z = getMod(z, lod.block_amount);
+
+  chunk_neighbor.lock()->setBlock({x, y, z}, block_type);
 }
 
 int Tree::determineChunkOffset(int block_pos) {

@@ -10,7 +10,7 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
       "assets/canyon_colormap.png", scale);
   HeightMapBundle tree_map_bundle =
       PreloadedGeneration::parsePNGToHeightMaps_8BIT(
-          "assets/gaea31_treemap.png", scale);
+          "assets/treemap.png", scale);
 
   m_height_maps =
       std::vector(height_map_bundle.maps.begin(), height_map_bundle.maps.end());
@@ -51,7 +51,7 @@ TreePresenceMap PreloadedGenerator::generateTreePresenceMap(
   TreePresenceMap tree_presence_map{};
   for (int x = 0; x < CHUNK_SIZE; x++) {
     for (int z = 0; z < CHUNK_SIZE; z++) {
-      tree_presence_map[x][z] = tree_map[x][z] > 0.5;
+      tree_presence_map[x][z] = tree_map[x][z] > 0.0;
     }
   }
   return tree_presence_map;
