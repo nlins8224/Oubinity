@@ -27,7 +27,6 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
                      .crown_width = 5,
                      .tree_pos = glm::ivec3(0, 0, 0)};
   m_trees = initTrees();
-
 }
 
 HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos,
@@ -168,12 +167,10 @@ PreloadedGenerator::initTrees() {
   for (int i = 0; i < m_tree_settings.trees_amount; i++) {
     trees.emplace_back(generateTree(m_tree_settings));
   }
-
   return trees;
 }
 
 std::vector<ProceduralTree::Branch> PreloadedGenerator::generateTree(TreeSettings tree_settings) {
-  LOG_F(INFO, "PreloadedGenerator::generateTree()");
   return m_branch_generator.generateBranches(tree_settings.tree_pos);
 }
 

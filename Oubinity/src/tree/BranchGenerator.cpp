@@ -41,7 +41,13 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
 
 std::vector<ProceduralTree::Branch>
 ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
+  // TODO: Make this stateless instead of clearing each time
   m_branches.clear();
+  m_nodes.clear();
+  m_attraction_points.clear();
+  std::queue<Node*> empty;
+  std::swap(m_pending_new_nodes, empty);
+  // ---- 
   generateAttractionPoints(tree_pos);
   createRootNode(tree_pos);
   size_t iter_count = 0;
@@ -51,7 +57,7 @@ ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
        i++) {
     doIteration();
   }
-  //printBranches();
+  printBranches();
   return m_branches;
 }
 
@@ -153,6 +159,7 @@ bool ProceduralTree::BranchGenerator::nodesAreInAttractionPointsRange() {
 }
 
 void ProceduralTree::BranchGenerator::printBranches() {
+  LOG_F(INFO, "-----------PRINT BRANCHES------------");
   for (auto& branch : m_branches) {
     glm::vec3 v = branch.v->pos;
     glm::vec3 u = branch.u->pos;
@@ -170,4 +177,5 @@ void ProceduralTree::BranchGenerator::printBranches() {
     }
     LOG_F(INFO, "branch v_childs=%d, u_childs=%d", v_childs.size(), u_childs.size());
   }
+  LOG_F(INFO, "----------------------------");
 }
