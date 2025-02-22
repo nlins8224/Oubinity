@@ -6,8 +6,16 @@
 #include "../procedural_generation/DecorationGenerator.h"
 #include "FileMapParser.h"
 
+
+
 class PreloadedGenerator {
  public:
+  struct TreeSettings {
+    int trees_amount;
+    int crown_height;
+    int crown_width;
+    glm::ivec3 tree_pos;
+  };
   PreloadedGenerator(uint8_t water_height,
                      glm::vec3 scale = Settings::SETTING_SCALE);
   virtual ~PreloadedGenerator() = default;
@@ -17,6 +25,7 @@ class PreloadedGenerator {
                          LevelOfDetail::LevelOfDetail lod);
   BlockMap getBlockMap(glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
   void generateTrees(Chunk& chunk);
+  std::vector<std::vector<ProceduralTree::Branch>> initTrees();
 
  private:
   HeightMap& getTreeMap(glm::ivec3 chunk_pos);
@@ -27,6 +36,13 @@ class PreloadedGenerator {
                                 int surface_height, int block_size);
   glm::ivec3 mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos);
 
+  void placeTrees(Chunk& chunk, HeightMap& surface_map,
+                  TreePresenceMap& tree_presence_map, uint8_t water_height,
+                  TreeSettings tree_settings);
+
+  std::vector<ProceduralTree::Branch> generateTree(TreeSettings tree_settings);
+
+  std::vector<ProceduralTree::Branch>& chooseTree();
   std::vector<HeightMap> m_height_maps;
   std::vector<BlockMap> m_block_maps;
   std::vector<HeightMap> m_tree_maps;
@@ -36,4 +52,7 @@ class PreloadedGenerator {
 
   uint8_t m_water_height;
   DecorationGenerator m_decoration_generator;
+  std::vector<std::vector<ProceduralTree::Branch>> m_trees;
+  ProceduralTree::BranchGenerator m_branch_generator;
+  TreeSettings m_tree_settings;
 };

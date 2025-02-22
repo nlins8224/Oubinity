@@ -41,6 +41,7 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
 
 std::vector<ProceduralTree::Branch>
 ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
+  m_branches.clear();
   generateAttractionPoints(tree_pos);
   createRootNode(tree_pos);
   size_t iter_count = 0;
@@ -50,6 +51,7 @@ ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
        i++) {
     doIteration();
   }
+  //printBranches();
   return m_branches;
 }
 
@@ -156,6 +158,16 @@ void ProceduralTree::BranchGenerator::printBranches() {
     glm::vec3 u = branch.u->pos;
     LOG_F(INFO, "branch  pos: (%f, %f, %f) -> (%f, %f, %f)", v.x, v.y, v.z, u.x,
           u.y, u.z);
-    ;
+    auto v_childs = branch.v->childs;
+    for (auto v_child : v_childs) {
+      LOG_F(INFO, "v_child pos (%f, %f, %f)", v_child->pos.x,
+            v_child->pos.y, v_child->pos.z);
+    }
+    auto u_childs = branch.u->childs;
+    for (auto u_child : u_childs) {
+      LOG_F(INFO, "u_child pos (%f, %f, %f)", u_child->pos.x, u_child->pos.y,
+            u_child->pos.z);
+    }
+    LOG_F(INFO, "branch v_childs=%d, u_childs=%d", v_childs.size(), u_childs.size());
   }
 }

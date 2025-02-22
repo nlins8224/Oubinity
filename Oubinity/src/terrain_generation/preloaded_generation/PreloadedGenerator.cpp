@@ -1,5 +1,6 @@
 #include "PreloadedGenerator.h"
 #include "../../Util.h"
+#include "../procedural_generation/ProceduralGenerator.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
     : m_water_height{water_height} {
@@ -21,6 +22,12 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 
   m_chunks_in_heightmap_xz = height_map_bundle.world_width / CHUNK_SIZE;
   m_chunks_in_blockmap_xz = block_map_bundle.world_width / CHUNK_SIZE;
+  m_tree_settings = {.trees_amount = 1,
+                     .crown_height = 3,
+                     .crown_width = 5,
+                     .tree_pos = glm::ivec3(0, 0, 0)};
+  m_trees = initTrees();
+
 }
 
 HeightMap PreloadedGenerator::getHeightMap(glm::ivec3 chunk_pos,
@@ -118,18 +125,70 @@ bool PreloadedGenerator::isBlockUnderneathSurface(glm::ivec3 block_pos,
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos) {
   glm::ivec3 translated_chunk_pos =
       chunk_pos + (((int)m_chunks_in_heightmap_xz - 1) / 2);
-  // LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y,
-  // chunk_pos.z); LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)",
-  // translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
-
   int x{translated_chunk_pos.x}, y{translated_chunk_pos.y},
       z{translated_chunk_pos.z};
   glm::ivec3 target_chunk_pos = {Util::getMod(x, m_chunks_in_heightmap_xz),
                                  chunk_pos.y,
                                  Util::getMod(z, m_chunks_in_heightmap_xz)};
-  // LOG_F(WARNING, "target_chunk_pos: (%d, %d, %d)", target_chunk_pos.x,
-  // target_chunk_pos.y, target_chunk_pos.z);
   return target_chunk_pos;
+}
+
+void PreloadedGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
+                                    TreePresenceMap& tree_presence_map,
+                                    uint8_t water_height, TreeSettings tree_settings) {
+
+  glm::ivec3 chunk_pos = chunk.getPos();
+  LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+  int chunk_world_y = chunk_pos.y * lod.block_amount;
+
+  for (uint8_t x = 0; x < lod.block_amount; x++) {
+    for (uint8_t z = 0; z < lod.block_amount; z++) {
+      if (tree_presence_map[x][z]) {
+        uint8_t crown_height = tree_settings.crown_height;
+        uint8_t crown_width = tree_settings.crown_width;
+        crown_height += crown_height % 2 == 0;  // round to odd
+        crown_width += crown_width % 2 == 0;    // round to odd
+
+        Tree tree{crown_height, crown_width};
+        uint8_t tree_plant_height =
+            static_cast<uint8_t>(surface_map[x][z]) % lod.block_amount;
+        if (chunk.getBlockId({x, tree_plant_height, z}) == Block::GRASS &&
+            tree_plant_height > water_height && z % 10 == 0 && x % 10 == 0) {
+          tree.spawnTree(chunk, chooseTree(), glm::ivec3(x, tree_plant_height, z));
+        }
+      }
+    }
+  }
+
+}
+
+std::vector<std::vector<ProceduralTree::Branch>>
+PreloadedGenerator::initTrees() {
+  std::vector<std::vector<ProceduralTree::Branch>> trees;
+  for (int i = 0; i < m_tree_settings.trees_amount; i++) {
+    auto branches = generateTree(m_tree_settings);
+    for (auto branch : branches) {
+      LOG_F(INFO, "index=%d, v=(%f, %f, %f) -> u=(%f, %f, %f), u_childs=%d, v_childs=%d",
+            i, branch.v->pos.x, branch.v->pos.y, branch.v->pos.z, branch.u->pos.x,
+            branch.u->pos.y, branch.u->pos.z, branch.u->childs.size(),
+            branch.v->childs.size());
+    }
+    LOG_F(INFO, "---------");
+    trees.emplace_back(branches);
+  }
+
+  return trees;
+}
+
+std::vector<ProceduralTree::Branch> PreloadedGenerator::generateTree(TreeSettings tree_settings) {
+  LOG_F(INFO, "PreloadedGenerator::generateTree()");
+  return m_branch_generator.generateBranches(tree_settings.tree_pos);
+}
+
+std::vector<ProceduralTree::Branch>& PreloadedGenerator::chooseTree() {
+  CHECK_GT_F(m_trees.size(), 0, "Tree array was not inited correctly");
+  // TODO: pick tree uniformly
+  return m_trees.at(0);
 }
 
 void PreloadedGenerator::generateTrees(Chunk& chunk) {
@@ -137,6 +196,6 @@ void PreloadedGenerator::generateTrees(Chunk& chunk) {
    HeightMap height_map = getHeightMap(chunk_pos, chunk.getLevelOfDetail());
    TreePresenceMap tree_presence_map =
    generateTreePresenceMap(getTreeMap(chunk_pos));
-   m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
-   m_water_height);
+   placeTrees(chunk, height_map, tree_presence_map,
+   m_water_height, m_tree_settings);
 }

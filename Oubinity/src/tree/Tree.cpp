@@ -1,62 +1,66 @@
 #include "Tree.h"
 
 Tree::Tree(uint8_t crown_height, uint8_t crown_width)
-    : CROWN_HEIGHT{crown_height},
-      CROWN_WIDTH{crown_width},
-      m_branch_generator{} {}
+    : CROWN_HEIGHT{crown_height}, CROWN_WIDTH{crown_width} {}
 
-bool Tree::addTree(Chunk& chunk, glm::ivec3 block_pos) {
-  std::vector<ProceduralTree::Branch> branches =
-      m_branch_generator.generateBranches(block_pos);
-  voxelizeBranches(chunk, branches);
-  addCrowns(chunk, branches);
+bool Tree::spawnTree(Chunk& chunk, const std::vector<ProceduralTree::Branch>& branches,
+                     glm::vec3 spawn_block_pos) {
+  voxelizeBranches(chunk, branches, spawn_block_pos);
+  spawnCrowns(chunk, branches, spawn_block_pos);
   return true;
 }
 
-void Tree::addCrown(Chunk& chunk, glm::ivec3 block_pos) {
+void Tree::spawnCrown(Chunk& chunk, glm::ivec3 block_pos, glm::vec3 spawn_block_pos) {
   int crown_width_halved = CROWN_WIDTH / 2;
   int odd_remainder = CROWN_WIDTH % 2;
-  for (uint8_t y = block_pos.y; y < block_pos.y + CROWN_HEIGHT; y++) {
+  for (uint8_t y = block_pos.y;
+       y < block_pos.y + CROWN_HEIGHT; y++) {
     for (int x = -crown_width_halved; x < crown_width_halved + odd_remainder;
          x++) {
       for (int z = -crown_width_halved; z < crown_width_halved + odd_remainder;
            z++) {
         if (shouldCutBlock(x, y, z)) continue;
 
-        placeBlock(chunk, {block_pos.x + x, y, block_pos.z + z},
+        placeBlock(chunk, {block_pos.x + x + spawn_block_pos.x, y + spawn_block_pos.y, block_pos.z + z + spawn_block_pos.z},
                    Block::OAK_LEAVES);
       }
     }
   }
 }
 
-void Tree::addCrowns(Chunk& chunk,
-                     std::vector<ProceduralTree::Branch> branches) {
-  for (ProceduralTree::Branch& branch : branches) {
+void Tree::spawnCrowns(Chunk& chunk, const std::vector<ProceduralTree::Branch>& branches,
+                       glm::vec3 spawn_block_pos) {
+  for (ProceduralTree::Branch branch : branches) {
+    //LOG_F(INFO, "v=(%f, %f, %f) -> u=(%f, %f, %f), u_childs=%d, v_childs=%d",
+    //      branch.v->pos.x, branch.v->pos.y, branch.v->pos.z, branch.u->pos.x,
+    //      branch.u->pos.y, branch.u->pos.z, branch.u->childs.size(),
+    //      branch.v->childs.size());
     if (branch.u->childs.size() == 0) {
-      addCrown(chunk, branch.u->pos);
+      spawnCrown(chunk, branch.u->pos, spawn_block_pos);
     }
     if (branch.v->childs.size() == 0) {
-      addCrown(chunk, branch.v->pos);
+      spawnCrown(chunk, branch.v->pos, spawn_block_pos);
     }
   }
 }
 
 void Tree::voxelizeBranches(Chunk& chunk,
-                            std::vector<ProceduralTree::Branch> branches) {
-  for (ProceduralTree::Branch& branch : branches) {
-    voxelizeBranch(chunk, branch);
+                            const std::vector<ProceduralTree::Branch>& branches,
+                            glm::vec3 spawn_block_pos) {
+  for (ProceduralTree::Branch branch : branches) {
+    voxelizeBranch(chunk, branch, spawn_block_pos);
   }
 }
 
-void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch) {
+void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
+                          glm::vec3 spawn_block_pos) {
   /*
    * A Fast Voxel Traversal Algorithm for Ray Tracing method is used in adapted
    * version to voxelize branch. http://www.cs.yorku.ca/~amana/research/grid.pdf
    */
   using ProceduralTree::Branch, ProceduralTree::Node;
-  glm::vec3 v_pos = glm::floor(branch.v->pos);
-  glm::vec3 u_pos = glm::floor(branch.u->pos);
+  glm::vec3 v_pos = glm::floor(branch.v->pos + spawn_block_pos);
+  glm::vec3 u_pos = glm::floor(branch.u->pos + spawn_block_pos);
   uint16_t dx = std::abs(u_pos.x - v_pos.x);
   uint16_t dy = std::abs(u_pos.y - v_pos.y);
   uint16_t dz = std::abs(u_pos.z - v_pos.z);

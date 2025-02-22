@@ -127,7 +127,7 @@ void ProceduralGenerator::generateTrees(Chunk& chunk) {
     }
   }
 
-  m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
+  m_decoration_generator.placeTrees(chunk, height_map, tree_presence_map,
                                        m_water_height);
 }
 
@@ -147,7 +147,7 @@ void ProceduralGenerator::generateTrees(Chunk& chunk,
           0;
     }
   }
-  m_decoration_generator.generateTrees(chunk, height_map_2D, tree_presence_map,
+  m_decoration_generator.placeTrees(chunk, height_map_2D, tree_presence_map,
                                        m_water_height);
 }
 

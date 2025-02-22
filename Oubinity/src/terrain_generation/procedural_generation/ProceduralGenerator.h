@@ -68,7 +68,6 @@ class ProceduralGenerator {
                                           LevelOfDetail::LevelOfDetail lod,
                                           NoiseSettings::Settings settings,
                                           int seed);
-
   int m_world_seed;
   uint8_t m_water_height;
   DecorationGenerator m_decoration_generator;

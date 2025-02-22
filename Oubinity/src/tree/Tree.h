@@ -9,14 +9,20 @@ class Tree {
  public:
   Tree(uint8_t crown_height, uint8_t crown_width);
   virtual ~Tree() = default;
-  bool addTree(Chunk& chunk, glm::ivec3 block_pos);
+  bool spawnTree(Chunk& chunk,
+                 const std::vector<ProceduralTree::Branch>& branches,
+                 glm::vec3 spawn_block_pos);
 
  private:
-  void addCrown(Chunk& chunk, glm::ivec3 block_pos);
-  void addCrowns(Chunk& chunk, std::vector<ProceduralTree::Branch> branches);
+  void spawnCrown(Chunk& chunk, glm::ivec3 block_pos,
+                  glm::vec3 spawn_block_pos);
+  void spawnCrowns(Chunk& chunk, const std::vector<ProceduralTree::Branch>& branches,
+                   glm::vec3 spawn_block_pos);
   void voxelizeBranches(Chunk& chunk,
-                        std::vector<ProceduralTree::Branch> branches);
-  void voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch);
+                        const std::vector<ProceduralTree::Branch>& branches,
+                        glm::vec3 spawn_block_pos);
+  void voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
+                      glm::vec3 spawn_block_pos);
   void placeBlock(Chunk& chunk, glm::ivec3 block_pos,
                   Block::block_id block_type);
   int determineChunkOffset(int block_pos);
@@ -24,6 +30,4 @@ class Tree {
   bool shouldCutBlock(int x, int y, int z);
   uint8_t CROWN_HEIGHT;
   uint8_t CROWN_WIDTH;
-
-  ProceduralTree::BranchGenerator m_branch_generator;
 };
