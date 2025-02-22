@@ -22,7 +22,7 @@ PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
 
   m_chunks_in_heightmap_xz = height_map_bundle.world_width / CHUNK_SIZE;
   m_chunks_in_blockmap_xz = block_map_bundle.world_width / CHUNK_SIZE;
-  m_tree_settings = {.trees_amount = 1,
+  m_tree_settings = {.trees_amount = 10,
                      .crown_height = 3,
                      .crown_width = 5,
                      .tree_pos = glm::ivec3(0, 0, 0)};
@@ -166,15 +166,7 @@ std::vector<std::vector<ProceduralTree::Branch>>
 PreloadedGenerator::initTrees() {
   std::vector<std::vector<ProceduralTree::Branch>> trees;
   for (int i = 0; i < m_tree_settings.trees_amount; i++) {
-    auto branches = generateTree(m_tree_settings);
-    for (auto branch : branches) {
-      LOG_F(INFO, "index=%d, v=(%f, %f, %f) -> u=(%f, %f, %f), u_childs=%d, v_childs=%d",
-            i, branch.v->pos.x, branch.v->pos.y, branch.v->pos.z, branch.u->pos.x,
-            branch.u->pos.y, branch.u->pos.z, branch.u->childs.size(),
-            branch.v->childs.size());
-    }
-    LOG_F(INFO, "---------");
-    trees.emplace_back(branches);
+    trees.emplace_back(generateTree(m_tree_settings));
   }
 
   return trees;
@@ -187,8 +179,10 @@ std::vector<ProceduralTree::Branch> PreloadedGenerator::generateTree(TreeSetting
 
 std::vector<ProceduralTree::Branch>& PreloadedGenerator::chooseTree() {
   CHECK_GT_F(m_trees.size(), 0, "Tree array was not inited correctly");
-  // TODO: pick tree uniformly
-  return m_trees.at(0);
+  std::random_device rand_dev;
+  std::mt19937 generator(rand_dev());
+  std::uniform_int_distribution<int> distr(0, m_trees.size() - 1);
+  return m_trees.at(distr(generator));
 }
 
 void PreloadedGenerator::generateTrees(Chunk& chunk) {
