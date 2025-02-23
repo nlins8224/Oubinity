@@ -152,7 +152,7 @@ void PreloadedGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
         uint8_t tree_plant_height =
             static_cast<uint8_t>(surface_map[x][z]) % lod.block_amount;
         if (chunk.getBlockId({x, tree_plant_height, z}) == Block::GRASS &&
-            tree_plant_height > water_height && z % 10 == 0 && x % 10 == 0) {
+            tree_plant_height > water_height && z % 4 == 0 && x % 4 == 0) {
           tree.spawnTree(chunk, chooseTree(), glm::ivec3(x, tree_plant_height, z));
         }
       }

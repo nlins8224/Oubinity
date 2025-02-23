@@ -21,13 +21,13 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
   std::mt19937 generator_y(tree_pos.y);
   std::mt19937 generator_z(tree_pos.z);
 
-  double range = 5.0;
+  double range = 3.0;
 
   std::uniform_real_distribution<double> dist(-range, range);
   std::uniform_real_distribution<double> dist_unsigned(0, range);
-  for (size_t x = 0; x < Settings::CHUNK_SIZE; x += 8) {
-    for (size_t y = 0; y < Settings::CHUNK_SIZE; y += 8) {
-      for (size_t z = 0; z < Settings::CHUNK_SIZE; z += 8) {
+  for (size_t x = 0; x < Settings::CHUNK_SIZE; x += 4) {
+    for (size_t y = 0; y < Settings::CHUNK_SIZE; y += 4) {
+      for (size_t z = 0; z < Settings::CHUNK_SIZE; z += 4) {
         glm::vec3 ap_pos =
             tree_pos + glm::ivec3(dist(generator_x),
                                   dist_unsigned(generator_y) + range,
