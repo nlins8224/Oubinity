@@ -5,10 +5,10 @@
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
     : m_water_height{water_height} {
   HeightMapBundle height_map_bundle =
-      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/canyon_heightmap.png",
+      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/mountain_lake_heightmap.png",
                                                      scale);
   BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps(
-      "assets/canyon_colormap.png", scale);
+      "assets/mountain_lake_colormap.png", scale);
   HeightMapBundle tree_map_bundle =
       PreloadedGeneration::parsePNGToHeightMaps_8BIT(
           "assets/treemap.png", scale);

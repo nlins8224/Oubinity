@@ -59,8 +59,8 @@ void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
    * version to voxelize branch. http://www.cs.yorku.ca/~amana/research/grid.pdf
    */
   using ProceduralTree::Branch, ProceduralTree::Node;
-  glm::vec3 v_pos = glm::floor(branch.v->pos + spawn_block_pos);
-  glm::vec3 u_pos = glm::floor(branch.u->pos + spawn_block_pos);
+  glm::vec3 v_pos = glm::floor(branch.v->pos);
+  glm::vec3 u_pos = glm::floor(branch.u->pos);
   uint16_t dx = std::abs(u_pos.x - v_pos.x);
   uint16_t dy = std::abs(u_pos.y - v_pos.y);
   uint16_t dz = std::abs(u_pos.z - v_pos.z);
@@ -120,7 +120,7 @@ void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
         t_max_Z += t_delta_Z;
       }
     }
-    placeBlock(chunk, v_pos, Block::OAK_LOG);
+    placeBlock(chunk, v_pos + spawn_block_pos, Block::OAK_LOG);
   }
 }
 

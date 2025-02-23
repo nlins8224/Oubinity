@@ -361,8 +361,6 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
     return;
   }
 
-  decorateChunkIfPresent(chunk_pos);
-
   bool mesh_chunk = meshChunk(chunk_pos);
   if (!mesh_chunk) {
     chunk->setIsGenerationTaskRunning(false);
@@ -480,6 +478,9 @@ bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
 #else
   m_terrain_generator.generateChunkTerrain(*chunk.lock(),
                                            height_map, is_chunk_visible);
+#endif
+#if SETTING_TREES_ENABLED
+  m_terrain_generator.generateTrees(*chunk.lock());
 #endif
   chunk.lock()->setChunkHasBlocksState(true);
   return true;
