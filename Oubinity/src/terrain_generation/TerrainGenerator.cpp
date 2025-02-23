@@ -6,16 +6,27 @@ TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
     : m_water_height{water_height},
       m_procedural_generator{ProceduralGenerator(world_seed, water_height)},
       m_preloaded_generator{PreloadedGenerator(water_height)} {
+
+#if SETTING_TREES_ENABLED
   m_tree_settings = {.trees_amount = 10,
                      .crown_height = 3,
                      .crown_width = 5,
                      .tree_pos = glm::ivec3(0, 0, 0)};
   m_trees = initTrees();
+#endif
 }
 #else
 TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
     : m_water_height{water_height},
-      m_procedural_generator{ProceduralGenerator(world_seed, water_height)} {}
+      m_procedural_generator{ProceduralGenerator(world_seed, water_height)} {
+#if SETTING_TREES_ENABLED
+  m_tree_settings = {.trees_amount = 10,
+                     .crown_height = 3,
+                     .crown_width = 5,
+                     .tree_pos = glm::ivec3(0, 0, 0)};
+  m_trees = initTrees();
+#endif
+      }
 #endif
 
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk) {
