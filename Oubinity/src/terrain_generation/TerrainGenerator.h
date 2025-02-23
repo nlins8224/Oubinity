@@ -6,6 +6,12 @@
 
 class TerrainGenerator {
  public:
+  struct TreeSettings {
+    int trees_amount;
+    int crown_height;
+    int crown_width;
+    glm::ivec3 tree_pos;
+  };
   TerrainGenerator() = delete;
   TerrainGenerator(int world_seed, uint8_t water_height);
   ~TerrainGenerator() = default;
@@ -18,6 +24,7 @@ class TerrainGenerator {
   bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos,
                                   const HeightMap& height_map,
                                   LevelOfDetail::LevelOfDetail lod);
+
   ProceduralHeightMap generateProceduralHeightMap(Chunk& chunk);
   ProceduralHeightMap generateProceduralHeightMap(
       glm::ivec3 chunk_pos, LevelOfDetail::LevelOfDetail lod);
@@ -39,10 +46,20 @@ class TerrainGenerator {
 #endif
 
  private:
+  std::vector<std::vector<ProceduralTree::Branch>> initTrees();
+  std::vector<ProceduralTree::Branch> generateTree(TreeSettings tree_settings);
+  std::vector<ProceduralTree::Branch>& chooseTree();
+  void placeTrees(Chunk& chunk, HeightMap& surface_map,
+                  TreePresenceMap& tree_presence_map, uint8_t water_height,
+                  TreeSettings tree_settings);
+
   ProceduralGenerator m_procedural_generator;
 #if defined(SETTING_USE_PRELOADED_HEIGHTMAP) == 1 || \
     defined(SETTING_USE_PRELOADED_COLORMAP) == 1
   PreloadedGenerator m_preloaded_generator;
 #endif
   uint8_t m_water_height;
+  TreeSettings m_tree_settings;
+  std::vector<std::vector<ProceduralTree::Branch>> m_trees;
+  ProceduralTree::BranchGenerator m_branch_generator;
 };
