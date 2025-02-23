@@ -111,44 +111,11 @@ TreePresenceMap ProceduralGenerator::generateTreePresenceMap(
 }
 
 void ProceduralGenerator::generateTrees(Chunk& chunk) {
-  glm::ivec3 chunk_pos = chunk.getPos();
-  LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
-  TreePresenceMap tree_presence_map = generateTreePresenceMap(
-      chunk_pos, lod, NoiseSettings::TreeSettings, m_world_seed);
-  ProceduralHeightMap base_map = generateHeightMap(chunk);
-  HeightMap height_map;
-  for (int x = 0; x < lod.block_amount; x++) {
-    for (int z = 0; z < lod.block_amount; z++) {
-      float height_normalized = (base_map[x][z] / 2.0) + 0.5;
-      height_map[x][z] = base_map[x][z];
-      tree_presence_map[x][z] =
-          (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) ==
-          0;
-    }
-  }
 
-  m_decoration_generator.placeTrees(chunk, height_map, tree_presence_map,
-                                       m_water_height);
 }
 
 void ProceduralGenerator::generateTrees(Chunk& chunk,
                                         ProceduralHeightMap& height_map) {
-  glm::ivec3 chunk_pos = chunk.getPos();
-  LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
-  TreePresenceMap tree_presence_map = generateTreePresenceMap(
-      chunk_pos, lod, NoiseSettings::TreeSettings, m_world_seed);
-  HeightMap height_map_2D;
-  for (int x = 0; x < lod.block_amount; x++) {
-    for (int z = 0; z < lod.block_amount; z++) {
-      float height_normalized = (height_map[x][z] / 2.0) + 0.5;
-      height_map_2D[x][z] = height_map[x][z];
-      tree_presence_map[x][z] =
-          (int)(height_normalized * 1000) % (250 / (lod.divide_factor * 2)) ==
-          0;
-    }
-  }
-  m_decoration_generator.placeTrees(chunk, height_map_2D, tree_presence_map,
-                                       m_water_height);
 }
 
 uint8_t ProceduralGenerator::getWaterHeight() { return m_water_height; }

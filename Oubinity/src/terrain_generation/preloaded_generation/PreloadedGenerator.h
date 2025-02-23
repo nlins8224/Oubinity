@@ -3,7 +3,6 @@
 #include "../../Settings.h"
 #include "../../chunk/Chunk.h"
 #include "../TerrainGenerationTypes.h"
-#include "../procedural_generation/DecorationGenerator.h"
 #include "FileMapParser.h"
 
 
@@ -36,5 +35,4 @@ class PreloadedGenerator {
   uint32_t m_chunks_in_blockmap_xz;
 
   uint8_t m_water_height;
-  DecorationGenerator m_decoration_generator;
 };
