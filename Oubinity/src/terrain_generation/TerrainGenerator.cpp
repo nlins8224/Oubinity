@@ -135,7 +135,7 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
 void TerrainGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
                                     TreePresenceMap& tree_presence_map,
                                     uint8_t water_height,
-                                    TreeSettings tree_settings) {
+                                    TreeSettings tree_settings, ChunkSlidingWindow& chunk_sliding_window) {
   glm::ivec3 chunk_pos = chunk.getPos();
   LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
   int chunk_world_y = chunk_pos.y * lod.block_amount;
@@ -154,7 +154,8 @@ void TerrainGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
         if (chunk.getBlockId({x, tree_plant_height, z}) == Block::GRASS &&
             surface_map[x][z] >= water_height) {
           tree.spawnTree(chunk, chooseTree(),
-                         glm::ivec3(x, tree_plant_height, z));
+                         glm::ivec3(x, tree_plant_height, z),
+                         chunk_sliding_window);
         }
       }
     }
@@ -182,7 +183,8 @@ std::vector<ProceduralTree::Branch>& TerrainGenerator::chooseTree() {
   return m_trees.at(distr(generator));
 }
 
-void TerrainGenerator::generateTrees(Chunk& chunk) {
+void TerrainGenerator::generateTrees(Chunk& chunk,
+                                     ChunkSlidingWindow& chunk_sliding_window) {
   glm::ivec3 chunk_pos = chunk.getPos();
   HeightMap height_map =
       m_preloaded_generator.getHeightMap(chunk_pos, chunk.getLevelOfDetail());
@@ -190,5 +192,5 @@ void TerrainGenerator::generateTrees(Chunk& chunk) {
       m_preloaded_generator.generateTreePresenceMap(
           m_preloaded_generator.getTreeMap(chunk_pos));
   placeTrees(chunk, height_map, tree_presence_map, m_water_height,
-             m_tree_settings);
+             m_tree_settings, chunk_sliding_window);
 }

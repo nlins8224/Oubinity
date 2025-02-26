@@ -53,7 +53,7 @@ void ChunkSlidingWindow::set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk)
     prev_chunk->clearBlockOccupancyCache();
     prev_chunk->clearFaces();
     prev_chunk->setState(
-        {.has_blocks = false, .was_edited = false, .needs_lod_update = false});
+       {.has_blocks = false, .was_edited = false, .needs_lod_update = false});
   }
   int index = calculateIndex(chunk_pos);
   m_chunks_window[index] = chunk;
@@ -65,6 +65,15 @@ std::weak_ptr<Chunk> ChunkSlidingWindow::get(glm::ivec3 chunk_pos) {
 }
 
 ChunkBorder ChunkSlidingWindow::getBorder() { return m_chunk_border; }
+
+size_t ChunkSlidingWindow::closestDistanceToBorder(glm::ivec3 chunk_pos) const {
+  size_t distance_x = std::numeric_limits<size_t>::max();
+  size_t distance_z = std::numeric_limits<size_t>::max();
+  int x = chunk_pos.x, z = chunk_pos.z;
+  distance_x = std::min(std::abs(x - m_chunk_border.min_x), std::abs(x - m_chunk_border.max_x));
+  distance_z = std::min(std::abs(z - m_chunk_border.min_z), std::abs(z - m_chunk_border.max_z));
+  return std::min(distance_x, distance_z);
+}
 
 int ChunkSlidingWindow::calculateIndex(glm::ivec3 chunk_pos) {
   int C_XZ{Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS};

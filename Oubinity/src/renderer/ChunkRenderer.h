@@ -42,8 +42,9 @@ class ChunkRenderer : public Renderer {
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
                               LevelOfDetail::LevelOfDetail lod);
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
+  bool remeshChunkNeighbors(glm::ivec3 chunk_pos);
+  bool reallocateChunkNeighbors(glm::ivec3 chunk_pos);
   bool generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos);
-  bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
   bool meshChunk(glm::ivec3 chunk_pos);
   bool freeChunkIfPresent(glm::ivec3 chunk_pos);
   bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
@@ -54,6 +55,7 @@ class ChunkRenderer : public Renderer {
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
   void generateChunk(glm::ivec3 chunk_pos, bool update_lod);
+  bool generateChunkDecoration(glm::ivec3 chunk_pos);
   VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos, bool fast_path);

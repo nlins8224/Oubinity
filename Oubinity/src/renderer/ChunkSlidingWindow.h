@@ -27,6 +27,7 @@ class ChunkSlidingWindow {
   void set(glm::ivec3 chunk_pos, std::shared_ptr<Chunk> chunk);
   std::weak_ptr<Chunk> get(glm::ivec3 chunk_pos);
   ChunkBorder getBorder();
+  size_t closestDistanceToBorder(glm::ivec3 chunk_pos) const;
  private:
   int calculateIndex(glm::ivec3 chunk_pos);
   std::vector<std::shared_ptr<Chunk>> m_chunks_window;

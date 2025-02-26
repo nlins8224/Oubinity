@@ -145,6 +145,46 @@ void ChunkRenderer::initChunks() {
       }
     }
   }
+  for (int cx = min_x; cx <= max_x; cx++) {
+    for (int cz = min_z; cz <= max_z; cz++) {
+      for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
+           cy--) {
+        glm::ivec3 chunk_pos = {cx, cy, cz};
+        if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 1) {
+          generateChunkDecoration(chunk_pos);
+        }
+      }
+    }
+  }
+  for (int cx = min_x; cx <= max_x; cx++) {
+    for (int cz = min_z; cz <= max_z; cz++) {
+      for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
+           cy--) {
+        glm::ivec3 chunk_pos = {cx, cy, cz};
+        if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 1) {
+          std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+          if (chunk.lock()->getState().has_blocks) {
+            meshChunk(chunk_pos);
+          }
+        }
+      }
+    }
+  }
+  for (int cx = min_x; cx <= max_x; cx++) {
+    for (int cz = min_z; cz <= max_z; cz++) {
+      for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
+           cy--) {
+        glm::ivec3 chunk_pos = {cx, cy, cz};
+        if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 1) {
+          std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+          if (chunk.lock()->getState().has_blocks) {
+            m_lod_update_tasks.fetch_add(1);
+            m_chunks_to_update_lod.enqueue(getAllocData(chunk_pos));
+          }
+        }
+      }
+    }
+  }
   m_buffer_needs_update.store(true);
   updateBufferIfNeedsUpdate();
   m_init_stage = false;
@@ -361,18 +401,18 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
     return;
   }
 
-  bool mesh_chunk = meshChunk(chunk_pos);
-  if (!mesh_chunk) {
-    chunk->setIsGenerationTaskRunning(false);
-    return;
-  }
+  //bool mesh_chunk = meshChunk(chunk_pos);
+  //if (!mesh_chunk) {
+  //  chunk->setIsGenerationTaskRunning(false);
+  //  return;
+  //}
 
   if (update_lod) {
     m_lod_update_tasks.fetch_add(1);
     m_chunks_to_update_lod.enqueue(getAllocData(chunk_pos));
   } else {
-    m_generation_tasks.fetch_add(1);
-    m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+    //m_generation_tasks.fetch_add(1);
+    //m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
   }
   chunk->setChunkNeedsLodUpdate(false);
   chunk->setIsGenerationTaskRunning(false);
@@ -446,6 +486,39 @@ bool ChunkRenderer::populateChunkNeighbor(glm::ivec3 chunk_pos) {
   return true;
 }
 
+bool ChunkRenderer::remeshChunkNeighbors(glm::ivec3 chunk_pos) {
+  ChunkNeighbors chunk_neighbors;
+  int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+
+  for (int x_offset : {-1, 0, 1}) {
+    for (int y_offset : {-1, 0, 1}) {
+      for (int z_offset : {-1, 0, 1}) {
+        glm::ivec3 target_chunk_pos = {x + x_offset, y + y_offset,
+                                       z + z_offset};
+        meshChunk(chunk_pos);
+      }
+    }
+  }
+  return true;
+}
+
+bool ChunkRenderer::reallocateChunkNeighbors(glm::ivec3 chunk_pos) {
+  ChunkNeighbors chunk_neighbors;
+  int x = chunk_pos.x, y = chunk_pos.y, z = chunk_pos.z;
+
+  for (int x_offset : {-1, 0, 1}) {
+    for (int y_offset : {-1, 0, 1}) {
+      for (int z_offset : {-1, 0, 1}) {
+        glm::ivec3 target_chunk_pos = {x + x_offset, y + y_offset,
+                                       z + z_offset};
+        m_generation_tasks.fetch_add(1);
+        m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+      }
+    }
+  }
+  return true;
+}
+
 bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
   glm::ivec3 camera_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
   LevelOfDetail::LevelOfDetail lod =
@@ -470,6 +543,7 @@ bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
   bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
       chunk_pos, height_map, lod);
   if (!is_chunk_visible) {
+    chunk.lock()->setChunkHasBlocksState(false);
     return false;
   }
 
@@ -479,20 +553,19 @@ bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
   m_terrain_generator.generateChunkTerrain(*chunk.lock(),
                                            height_map, is_chunk_visible);
 #endif
-#if SETTING_TREES_ENABLED
-  m_terrain_generator.generateTrees(*chunk.lock());
-#endif
   chunk.lock()->setChunkHasBlocksState(true);
   return true;
 }
 
 // generation thread
-bool ChunkRenderer::decorateChunkIfPresent(glm::ivec3 chunk_pos) {
+bool ChunkRenderer::generateChunkDecoration(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
-#if SETTING_TREES_ENABLED
-  m_terrain_generator.generateTrees(*chunk.lock());
-#endif
 
+#if SETTING_TREES_ENABLED
+  if (chunk.lock()->getState().has_blocks) {
+    m_terrain_generator.generateTrees(*chunk.lock(), m_chunks_by_coord);
+  }
+#endif
   return true;
 }
 

@@ -1,16 +1,20 @@
 #include "Tree.h"
+#include "../Util.h"
 
 Tree::Tree(uint8_t crown_height, uint8_t crown_width)
     : CROWN_HEIGHT{crown_height}, CROWN_WIDTH{crown_width} {}
 
 bool Tree::spawnTree(Chunk& chunk, const std::vector<ProceduralTree::Branch>& branches,
-                     glm::vec3 spawn_block_pos) {
-  voxelizeBranches(chunk, branches, spawn_block_pos);
-  spawnCrowns(chunk, branches, spawn_block_pos);
+                     glm::vec3 spawn_block_pos,
+                     ChunkSlidingWindow& chunk_sliding_widnow) {
+  voxelizeBranches(chunk, branches, spawn_block_pos, chunk_sliding_widnow);
+  spawnCrowns(chunk, branches, spawn_block_pos, chunk_sliding_widnow);
   return true;
 }
 
-void Tree::spawnCrown(Chunk& chunk, glm::ivec3 block_pos, glm::vec3 spawn_block_pos) {
+void Tree::spawnCrown(Chunk& chunk, glm::ivec3 block_pos,
+                      glm::vec3 spawn_block_pos,
+                      ChunkSlidingWindow& chunk_sliding_widnow) {
   int crown_width_halved = CROWN_WIDTH / 2;
   int odd_remainder = CROWN_WIDTH % 2;
   for (uint8_t y = block_pos.y;
@@ -22,38 +26,37 @@ void Tree::spawnCrown(Chunk& chunk, glm::ivec3 block_pos, glm::vec3 spawn_block_
         if (shouldCutBlock(x, y, z)) continue;
 
         placeBlock(chunk, {block_pos.x + x + spawn_block_pos.x, y + spawn_block_pos.y, block_pos.z + z + spawn_block_pos.z},
-                   Block::OAK_LEAVES);
+                   Block::OAK_LEAVES, chunk_sliding_widnow);
       }
     }
   }
 }
 
 void Tree::spawnCrowns(Chunk& chunk, const std::vector<ProceduralTree::Branch>& branches,
-                       glm::vec3 spawn_block_pos) {
+                       glm::vec3 spawn_block_pos,
+                       ChunkSlidingWindow& chunk_sliding_widnow) {
   for (ProceduralTree::Branch branch : branches) {
-    //LOG_F(INFO, "v=(%f, %f, %f) -> u=(%f, %f, %f), u_childs=%d, v_childs=%d",
-    //      branch.v->pos.x, branch.v->pos.y, branch.v->pos.z, branch.u->pos.x,
-    //      branch.u->pos.y, branch.u->pos.z, branch.u->childs.size(),
-    //      branch.v->childs.size());
     if (branch.u->childs.size() == 0) {
-      spawnCrown(chunk, branch.u->pos, spawn_block_pos);
+      spawnCrown(chunk, branch.u->pos, spawn_block_pos, chunk_sliding_widnow);
     }
     if (branch.v->childs.size() == 0) {
-      spawnCrown(chunk, branch.v->pos, spawn_block_pos);
+      spawnCrown(chunk, branch.v->pos, spawn_block_pos, chunk_sliding_widnow);
     }
   }
 }
 
 void Tree::voxelizeBranches(Chunk& chunk,
                             const std::vector<ProceduralTree::Branch>& branches,
-                            glm::vec3 spawn_block_pos) {
+                            glm::vec3 spawn_block_pos,
+                            ChunkSlidingWindow& chunk_sliding_widnow) {
   for (ProceduralTree::Branch branch : branches) {
-    voxelizeBranch(chunk, branch, spawn_block_pos);
+    voxelizeBranch(chunk, branch, spawn_block_pos, chunk_sliding_widnow);
   }
 }
 
 void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
-                          glm::vec3 spawn_block_pos) {
+                          glm::vec3 spawn_block_pos,
+                          ChunkSlidingWindow& chunk_sliding_widnow) {
   /*
    * A Fast Voxel Traversal Algorithm for Ray Tracing method is used in adapted
    * version to voxelize branch. http://www.cs.yorku.ca/~amana/research/grid.pdf
@@ -120,7 +123,8 @@ void Tree::voxelizeBranch(Chunk& chunk, ProceduralTree::Branch branch,
         t_max_Z += t_delta_Z;
       }
     }
-    placeBlock(chunk, v_pos + spawn_block_pos, Block::OAK_LOG);
+    placeBlock(chunk, v_pos + spawn_block_pos, Block::OAK_LOG,
+               chunk_sliding_widnow);
   }
 }
 
@@ -147,7 +151,8 @@ inline std::weak_ptr<Chunk> findNeighborAt(glm::ivec3 target_chunk_pos,
 }
 
 void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
-                      Block::block_id block_type) {
+                      Block::block_id block_type,
+                      ChunkSlidingWindow& chunk_sliding_widnow) {
   int x, y, z;
 
   x = block_pos.x;
@@ -157,20 +162,19 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
   glm::ivec3 chunk_pos = chunk.getPos();
   LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
 
-  int x_offset = roundDownDivide(x, lod.block_amount);
-  int y_offset = roundDownDivide(y, lod.block_amount);
-  int z_offset = roundDownDivide(z, lod.block_amount);
+  int x_offset = Util::roundDownDivide(x, lod.block_amount);
+  int y_offset = Util::roundDownDivide(y, lod.block_amount);
+  int z_offset = Util::roundDownDivide(z, lod.block_amount);
 
   if (x_offset == 0 && y_offset == 0 && z_offset == 0) {
-    chunk.setBlock({x, y, z}, block_type);
+    chunk.setBlock({x + 1, y + 1, z + 1}, block_type);
     return;
   } 
   chunk_pos.x += x_offset;
   chunk_pos.y += y_offset;
   chunk_pos.z += z_offset;
 
-  ChunkNeighbors& chunk_neighbors = chunk.getNeighbors();
-  std::weak_ptr<Chunk> chunk_neighbor = findNeighborAt(chunk_pos, chunk_neighbors);
+  std::weak_ptr<Chunk> chunk_neighbor = chunk_sliding_widnow.get(chunk_pos);
   if (!chunk_neighbor.lock()) {
     return;
   }
@@ -181,11 +185,22 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
     return;
   }
 
-  x = getMod(x, lod.block_amount);
-  y = getMod(y, lod.block_amount);
-  z = getMod(z, lod.block_amount);
+  ChunkState chunk_state = chunk_neighbor.lock()->getState();
 
-  chunk_neighbor.lock()->setBlock({x, y, z}, block_type);
+  x = Util::getMod(x, lod.block_amount);
+  y = Util::getMod(y, lod.block_amount);
+  z = Util::getMod(z, lod.block_amount);
+
+ if (!chunk_state.has_blocks) {
+    if (chunk_pos.y == 1) {
+        LOG_F(ERROR, "Chunk at pos (%d, %d, %d) has no blocks at (%d, %d, %d)",
+          chunk_pos.x, chunk_pos.y, chunk_pos.z, x, y, z);
+    }
+
+    return;
+  }
+
+  chunk_neighbor.lock()->setBlock({x + 1, y + 1, z + 1}, Block::OAK_LEAVES);
 }
 
 int Tree::determineChunkOffset(int block_pos) {

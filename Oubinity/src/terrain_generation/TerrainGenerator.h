@@ -21,7 +21,7 @@ class TerrainGenerator {
   bool generateChunkTerrain(Chunk& chunk);
   void generateChunkTerrain(Chunk& chunk, ProceduralHeightMap& height_map,
                             bool is_chunk_visible);
-  void generateTrees(Chunk& chunk);
+  void generateTrees(Chunk& chunk, ChunkSlidingWindow& chunk_sliding_window);
   bool isChunkBelowOrAboveSurface(Chunk& chunk, const HeightMap& height_map);
   bool isChunkBelowOrAboveSurface(glm::ivec3 chunk_pos,
                                   const HeightMap& height_map,
@@ -53,7 +53,8 @@ class TerrainGenerator {
   std::vector<ProceduralTree::Branch>& chooseTree();
   void placeTrees(Chunk& chunk, HeightMap& surface_map,
                   TreePresenceMap& tree_presence_map, uint8_t water_height,
-                  TreeSettings tree_settings);
+                  TreeSettings tree_settings,
+                  ChunkSlidingWindow& chunk_sliding_window);
 
   ProceduralGenerator m_procedural_generator;
 #if defined(SETTING_USE_PRELOADED_HEIGHTMAP) == 1 || \
