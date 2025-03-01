@@ -45,9 +45,16 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 
   m_stats.added_faces += added_faces;
   unsigned int added_vertices = Block::VERTICES_PER_FACE * added_faces;
+
+  MeshBucket* first_free_bucket;
   size_t lod_level = alloc_data._lod.level;
   Zone zone = chooseZone(lod_level);
-  MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
+  if (wasChunkAllocated(chunk_pos)) {
+    // reallocate chunk by freeing and allocating again
+    free(chunk_pos);
+  }
+  first_free_bucket = getFirstFreeBucket(zone.level);
+  
   m_stats.chunks_in_buckets[zone.level]++;
 
   if (first_free_bucket == nullptr) {
@@ -111,13 +118,17 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 }
 
 void ZoneVertexPool::free(glm::ivec3 chunk_pos) {
-  if (m_chunk_pos_to_bucket_id.find(chunk_pos) ==
-      m_chunk_pos_to_bucket_id.end()) {
+  if (!wasChunkAllocated(chunk_pos)) {
     LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
           chunk_pos.z);
     return;
   }
   fastErase(chunk_pos);
+}
+
+bool ZoneVertexPool::wasChunkAllocated(glm::ivec3 chunk_pos) { 
+    return m_chunk_pos_to_bucket_id.find(chunk_pos) !=
+         m_chunk_pos_to_bucket_id.end();
 }
 
 void ZoneVertexPool::fastErase(glm::ivec3 chunk_pos) {
@@ -162,6 +173,11 @@ MeshBucket* ZoneVertexPool::getFirstFreeBucket(int zone_id) {
   }
   return nullptr;
 }
+
+MeshBucket* ZoneVertexPool::getBucketHoldingChunk(glm::ivec3 chunk_pos) {
+  return nullptr;
+}
+
 
 Zone ZoneVertexPool::chooseZone(unsigned int lod_level) {
   return *zones[lod_level];

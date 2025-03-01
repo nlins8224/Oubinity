@@ -178,8 +178,8 @@ void ChunkRenderer::initChunks() {
         if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 0) {
           std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
           if (chunk.lock()->getState().has_blocks) {
-            m_lod_update_tasks.fetch_add(1);
-            m_chunks_to_update_lod.enqueue(getAllocData(chunk_pos));
+            m_generation_tasks.fetch_add(1);
+            m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
           }
         }
       }

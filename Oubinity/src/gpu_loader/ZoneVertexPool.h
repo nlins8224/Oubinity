@@ -107,7 +107,6 @@ class ZoneVertexPool {
   void push_update_lod(ChunkAllocData&& alloc_data);
   void draw();
   void commitUpdate();
-  void commitLodUpdate();
 
  private:
   void initBuckets();
@@ -128,8 +127,10 @@ class ZoneVertexPool {
   void fastErase(glm::ivec3 chunk_pos);
   void allocate(ChunkAllocData&& alloc_data);
   void free(glm::ivec3 chunk_pos);
+  bool wasChunkAllocated(glm::ivec3 chunk_pos);
 
   MeshBucket* getFirstFreeBucket(int zone_id);
+  MeshBucket* getBucketHoldingChunk(glm::ivec3 chunk_pos);
   Zone chooseZone(unsigned int lod_level);
   std::pair<size_t, size_t> getBucketIdFromDAIC(DAIC daic);
   size_t calculateBucketAmountInZones();
