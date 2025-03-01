@@ -192,11 +192,6 @@ void Tree::placeBlock(Chunk& chunk, glm::ivec3 block_pos,
   z = Util::getMod(z, lod.block_amount);
 
  if (!chunk_state.has_blocks) {
-    if (chunk_pos.y == 1) {
-        LOG_F(ERROR, "Chunk at pos (%d, %d, %d) has no blocks at (%d, %d, %d)",
-          chunk_pos.x, chunk_pos.y, chunk_pos.z, x, y, z);
-    }
-
     return;
   }
 
