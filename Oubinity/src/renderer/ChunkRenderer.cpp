@@ -295,7 +295,6 @@ BS::multi_future<void> ChunkRenderer::UpdateWorldChunkBorder(
          }));
       }
     }
-    return gen_tasks;
   }
 
   // z-/z+ iterate over x
