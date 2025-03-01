@@ -261,6 +261,7 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   LOG_F(INFO, "Waiting for tasks to finish");
   gen_tasks.wait();
   LOG_F(INFO, "Tasks finished");
+  updateTreeChunkBorder(move_dir, dst_chunk_border);
 }
 
 BS::multi_future<void> ChunkRenderer::UpdateWorldChunkBorder(
@@ -323,6 +324,62 @@ BS::multi_future<void> ChunkRenderer::UpdateWorldChunkBorder(
     }
   }
   return gen_tasks;
+}
+
+void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
+                                          ChunkBorder dst_chunk_border) {
+  BS::multi_future<void> gen_tasks;
+  int min_x = dst_chunk_border.min_x;
+  int max_x = dst_chunk_border.max_x;
+  int min_z = dst_chunk_border.min_z;
+  int max_z = dst_chunk_border.max_z;
+  glm::ivec3 pos_gen;
+  auto updateTree = [this](glm::ivec3 chunk_pos) -> void {
+         m_generation_task_pool.submit([this, chunk_pos] {
+      bool gen_res = generateChunkDecoration(chunk_pos);
+      if (!gen_res) {
+        return;
+      }
+      bool mesh_res = meshChunk(chunk_pos);
+      if (!mesh_res) {
+        return;
+      }
+      m_generation_tasks.fetch_add(1);
+      m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+      });
+  };
+  // x-/x+ iterate over z
+  for (int cz = min_z; cz <= max_z; cz++) {
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--) {
+      pos_gen = {min_x + 1, cy, cz};
+      if (move_dir.x_n &&
+          m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
+        gen_tasks.push_back(
+            m_generation_task_pool.submit(updateTree, pos_gen));
+      }
+      pos_gen = {max_x - 1, cy, cz};
+      if (move_dir.x_p &&
+          m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
+        gen_tasks.push_back(m_generation_task_pool.submit(updateTree, pos_gen));
+      }
+    }
+  }
+
+  // z-/z+ iterate over x
+  for (int cx = min_x; cx <= max_x; cx++) {
+    for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0; cy--) {
+      pos_gen = {cx, cy, min_z + 1};
+      if (move_dir.z_n &&
+          m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
+        gen_tasks.push_back(m_generation_task_pool.submit(updateTree, pos_gen));
+      }
+      pos_gen = {cx, cy, max_z - 1};
+      if (move_dir.z_p &&
+          m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
+        gen_tasks.push_back(m_generation_task_pool.submit(updateTree, pos_gen));
+      }
+    }
+  }
 }
 
 void ChunkRenderer::iterateOverChunkBorderAndUpdateLod(
@@ -535,19 +592,8 @@ bool ChunkRenderer::generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos) {
   if (chunk.lock()->getState().has_blocks) {
     return false;
   }
-
   chunk.lock()->setLevelOfDetail(lod);
-
-#if SETTING_USE_HEIGHTMAP_BLENDING
-  HeightMap height_map =
-      m_terrain_generator.generateBlendedHeightMap(chunk_pos, lod);
-#elif SETTING_USE_PRELOADED_HEIGHTMAP
-  HeightMap height_map =
-      m_terrain_generator.generatePreloadedHeightMap(chunk_pos, lod);
-#else
-  ProceduralHeightMap height_map =
-      m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
-#endif
+  HeightMap height_map = getChunkHeightmap(chunk_pos);
   bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
       chunk_pos, height_map, lod);
   if (!is_chunk_visible) {
@@ -570,11 +616,37 @@ bool ChunkRenderer::generateChunkDecoration(glm::ivec3 chunk_pos) {
   std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
 
 #if SETTING_TREES_ENABLED
-  if (chunk.lock()->getState().has_blocks) {
-    m_terrain_generator.generateTrees(*chunk.lock(), m_chunks_by_coord);
+  HeightMap height_map = getChunkHeightmap(chunk_pos);
+  glm::ivec3 camera_pos =
+      Util::worldPosToChunkPos(m_camera.getCameraPos());
+  LevelOfDetail::LevelOfDetail lod =
+      LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+  bool is_chunk_visible = !m_terrain_generator.isChunkBelowOrAboveSurface(
+      chunk_pos, height_map, lod);
+  if (!chunk.lock()->getState().has_blocks || !is_chunk_visible) {
+    return false;
   }
+  m_terrain_generator.generateTrees(*chunk.lock(), m_chunks_by_coord);
 #endif
   return true;
+}
+
+HeightMap ChunkRenderer::getChunkHeightmap(glm::ivec3 chunk_pos) {
+  HeightMap height_map;
+  glm::ivec3 camera_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
+  LevelOfDetail::LevelOfDetail lod =
+      LevelOfDetail::chooseLevelOfDetail(camera_pos, chunk_pos);
+#if SETTING_USE_HEIGHTMAP_BLENDING
+ height_map =
+      m_terrain_generator.generateBlendedHeightMap(chunk_pos, lod);
+#elif SETTING_USE_PRELOADED_HEIGHTMAP
+  height_map =
+      m_terrain_generator.generatePreloadedHeightMap(chunk_pos, lod);
+#else
+  height_map =
+      m_terrain_generator.generateProceduralHeightMap(chunk_pos, lod);
+#endif
+  return height_map;
 }
 
 // generation thread

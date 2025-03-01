@@ -51,11 +51,14 @@ class ChunkRenderer : public Renderer {
   void updateChunkLod(glm::ivec3 chunk_pos);
   BS::multi_future<void> UpdateWorldChunkBorder(WindowMovementDirection move_dir,
                                        ChunkBorder dst_chunk_border);
+  void updateTreeChunkBorder(WindowMovementDirection move_dir,
+                             ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
   void generateChunk(glm::ivec3 chunk_pos, bool update_lod);
   bool generateChunkDecoration(glm::ivec3 chunk_pos);
+  HeightMap getChunkHeightmap(glm::ivec3 chunk_pos);
   VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
   void freeChunk(glm::ivec3 chunk_pos, bool fast_path);

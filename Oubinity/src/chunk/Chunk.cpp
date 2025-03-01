@@ -73,10 +73,27 @@ void Chunk::addFaces() {
   const uint64_t CS_LAST_BIT = CS_P - 1;
   const uint64_t BORDER_MASK = (1ULL | (1ULL << (CS_P - 1)));
 
+  if (!m_blocks) {
+    LOG_F(ERROR, "Blocks do not exist for chunk at pos=(%d, %d, %d)",
+          m_chunk_pos.x, m_chunk_pos.y, m_chunk_pos.z);
+    return;
+  }
+
   sul::dynamic_bitset<> padded_blocks_presence_cache =
       m_blocks->getPaddedOccupancyMask();
   std::vector<block_id> padded_blocks_id_cache =
       m_blocks->getPaddedBlockIdCache();
+
+  if (padded_blocks_presence_cache.size() == 0) {
+    LOG_F(ERROR, "presence cache is empty for chunk at pos=(%d, %d, %d)",
+          m_chunk_pos.x, m_chunk_pos.y, m_chunk_pos.z);
+    return;
+  }
+  if (padded_blocks_id_cache.size() == 0) {
+    LOG_F(ERROR, "blocks id cache is empty for chunk at pos=(%d, %d, %d)",
+          m_chunk_pos.x, m_chunk_pos.y, m_chunk_pos);
+    return;
+  }
 
   int min_y = 0, max_y = CS_P;
   int min_x = 0, max_x = CS_P;
