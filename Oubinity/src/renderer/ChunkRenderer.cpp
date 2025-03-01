@@ -261,7 +261,13 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   LOG_F(INFO, "Waiting for tasks to finish");
   gen_tasks.wait();
   LOG_F(INFO, "Tasks finished");
-  updateTreeChunkBorder(move_dir, dst_chunk_border);
+  ChunkBorder first_lod_border;
+  int first_lod_border_dist = LevelOfDetail::Lods[1].draw_distance / 2;
+  first_lod_border.min_x = dst_camera_chunk_pos_x - first_lod_border_dist;
+  first_lod_border.max_x = dst_camera_chunk_pos_x + first_lod_border_dist - 1;
+  first_lod_border.min_z = dst_camera_chunk_pos_z - first_lod_border_dist;
+  first_lod_border.max_z = dst_camera_chunk_pos_z + first_lod_border_dist - 1;
+  updateTreeChunkBorder(move_dir, first_lod_border);
 }
 
 BS::multi_future<void> ChunkRenderer::UpdateWorldChunkBorder(
