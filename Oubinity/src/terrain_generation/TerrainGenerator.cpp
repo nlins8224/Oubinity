@@ -189,9 +189,11 @@ void TerrainGenerator::generateTrees(Chunk& chunk,
 #if SETTING_USE_HEIGHTMAP_BLENDING
   HeightMap height_map =
       generateBlendedHeightMap(chunk.getPos(), chunk.getLevelOfDetail());
-#else
+#elif SETTING_USE_PRELOADED_HEIGHTMAP
   HeightMap height_map =
       m_preloaded_generator.getHeightMap(chunk_pos, chunk.getLevelOfDetail());
+#else
+  HeightMap height_map = m_procedural_generator.generateHeightMap(chunk);
 #endif
   TreePresenceMap tree_presence_map =
       m_preloaded_generator.generateTreePresenceMap(
