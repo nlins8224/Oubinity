@@ -395,8 +395,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               glm::ivec3 pos_gen_prev(pos_gen.x + 1, pos_gen.y, pos_gen.z);
-              regenerateNeighboringChunk(pos_gen);
-              updateTree(pos_gen_prev);
+              regenerateNeighboringChunk(pos_gen_prev);
+              updateTree(pos_gen);
             }));
       }
       pos_gen = {max_x - 1, cy, cz};
@@ -405,8 +405,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               glm::ivec3 pos_gen_prev(pos_gen.x - 1, pos_gen.y, pos_gen.z);
-              regenerateNeighboringChunk(pos_gen);
-              updateTree(pos_gen_prev);
+              regenerateNeighboringChunk(pos_gen_prev);
+              updateTree(pos_gen);
             }));
       }
     }
@@ -421,8 +421,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z + 1);
-              regenerateNeighboringChunk(pos_gen);
-              updateTree(pos_gen_prev);
+              regenerateNeighboringChunk(pos_gen_prev);
+              updateTree(pos_gen);
             }));
       }
       pos_gen = {cx, cy, max_z - 1};
@@ -431,8 +431,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z - 1);
-              regenerateNeighboringChunk(pos_gen);
-              updateTree(pos_gen_prev);
+              regenerateNeighboringChunk(pos_gen_prev);
+              updateTree(pos_gen);
             }));
       }
     }
