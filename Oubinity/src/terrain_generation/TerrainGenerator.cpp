@@ -186,8 +186,13 @@ std::vector<ProceduralTree::Branch>& TerrainGenerator::chooseTree() {
 void TerrainGenerator::generateTrees(Chunk& chunk,
                                      ChunkSlidingWindow& chunk_sliding_window) {
   glm::ivec3 chunk_pos = chunk.getPos();
+#if SETTING_USE_HEIGHTMAP_BLENDING
+  HeightMap height_map =
+      generateBlendedHeightMap(chunk.getPos(), chunk.getLevelOfDetail());
+#else
   HeightMap height_map =
       m_preloaded_generator.getHeightMap(chunk_pos, chunk.getLevelOfDetail());
+#endif
   TreePresenceMap tree_presence_map =
       m_preloaded_generator.generateTreePresenceMap(
           m_preloaded_generator.getTreeMap(chunk_pos));
