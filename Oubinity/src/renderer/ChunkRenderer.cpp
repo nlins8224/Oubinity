@@ -145,6 +145,7 @@ void ChunkRenderer::initChunks() {
       }
     }
   }
+#if SETTING_TREES_ENABLED
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
@@ -185,6 +186,7 @@ void ChunkRenderer::initChunks() {
       }
     }
   }
+#endif 
   m_buffer_needs_update.store(true);
   updateBufferIfNeedsUpdate();
   m_init_stage = false;
@@ -261,6 +263,7 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   LOG_F(INFO, "Waiting for tasks to finish");
   gen_tasks.valid();
   LOG_F(INFO, "Tasks finished");
+#if SETTING_TREES_ENABLED
   ChunkBorder first_lod_border;
   int first_lod_border_dist = LevelOfDetail::Lods[1].draw_distance / 2;
   first_lod_border.min_x = dst_camera_chunk_pos_x - first_lod_border_dist;
@@ -268,6 +271,7 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   first_lod_border.min_z = dst_camera_chunk_pos_z - first_lod_border_dist;
   first_lod_border.max_z = dst_camera_chunk_pos_z + first_lod_border_dist - 1;
   updateTreeChunkBorder(move_dir, first_lod_border);
+#endif
 }
 
 BS::multi_future<void> ChunkRenderer::UpdateWorldChunkBorder(
