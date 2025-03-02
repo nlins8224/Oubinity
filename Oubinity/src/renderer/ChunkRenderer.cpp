@@ -397,7 +397,11 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
               glm::ivec3 pos_gen_prev(pos_gen.x + 1, pos_gen.y, pos_gen.z);
               regenerateNeighboringChunk(pos_gen_prev);
               updateTree(pos_gen);
-              m_chunks_by_coord.get(pos_gen_prev).lock()->clearBlocks();
+              auto chunk = m_chunks_by_coord.get(pos_gen_prev).lock();
+              ChunkState chunk_state = chunk->getState();
+              if (!chunk_state.was_edited) {
+                chunk->clearBlocks();
+              }
             }));
       }
       pos_gen = {max_x - 1, cy, cz};
@@ -408,7 +412,11 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
               glm::ivec3 pos_gen_prev(pos_gen.x - 1, pos_gen.y, pos_gen.z);
               regenerateNeighboringChunk(pos_gen_prev);
               updateTree(pos_gen);
-              m_chunks_by_coord.get(pos_gen_prev).lock()->clearBlocks();
+              auto chunk = m_chunks_by_coord.get(pos_gen_prev).lock();
+              ChunkState chunk_state = chunk->getState();
+              if (!chunk_state.was_edited) {
+                chunk->clearBlocks();
+              }
             }));
       }
     }
@@ -425,7 +433,11 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
               glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z + 1);
               regenerateNeighboringChunk(pos_gen_prev);
               updateTree(pos_gen);
-              m_chunks_by_coord.get(pos_gen_prev).lock()->clearBlocks();
+              auto chunk = m_chunks_by_coord.get(pos_gen_prev).lock();
+              ChunkState chunk_state = chunk->getState();
+              if (!chunk_state.was_edited) {
+                chunk->clearBlocks();
+              }
             }));
       }
       pos_gen = {cx, cy, max_z - 1};
@@ -436,7 +448,11 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
               glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z - 1);
               regenerateNeighboringChunk(pos_gen_prev);
               updateTree(pos_gen);
-              m_chunks_by_coord.get(pos_gen_prev).lock()->clearBlocks();
+              auto chunk = m_chunks_by_coord.get(pos_gen_prev).lock();
+              ChunkState chunk_state = chunk->getState();
+              if (!chunk_state.was_edited) {
+                chunk->clearBlocks();
+              }
             }));
       }
     }
