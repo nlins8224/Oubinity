@@ -264,9 +264,6 @@ void ChunkRenderer::doIterate(int src_camera_chunk_pos_x, int src_camera_chunk_p
   LOG_F(INFO, "camera_last_chunk_pos updated (%d, %d)",
         m_camera_last_chunk_pos.x, m_camera_last_chunk_pos.z);
 
-  LOG_F(INFO, "Waiting for tasks to finish");
-  gen_tasks.valid();
-  LOG_F(INFO, "Tasks finished");
 #if SETTING_TREES_ENABLED
   ChunkBorder first_lod_border;
   int first_lod_border_dist = LevelOfDetail::Lods[1].draw_distance / 2;
