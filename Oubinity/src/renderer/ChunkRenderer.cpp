@@ -181,6 +181,10 @@ void ChunkRenderer::initChunks() {
           if (chunk.lock()->getState().has_blocks) {
             m_generation_tasks.fetch_add(1);
             m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
+            if (!chunk.lock()->getState().was_edited) {
+              chunk.lock()->clearBlocks();
+              chunk.lock()->setChunkHasBlocksState(false);
+            }
           }
         }
       }
@@ -389,11 +393,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
       pos_gen = {min_x + 1, cy, cz};
       if (move_dir.x_n && m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
-            [this, pos_gen, regenerateNeighboringChunk] {
+            [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               regenerateNeighboringChunk(pos_gen);
-            }));
-        gen_tasks.push_back(
-            m_generation_task_pool.submit_task([this, pos_gen, updateTree] {
               updateTree(glm::ivec3(pos_gen.x + 1, pos_gen.y, pos_gen.z));
             }));
       }
@@ -401,11 +402,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
       if (move_dir.x_p &&
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
-            [this, pos_gen, regenerateNeighboringChunk] {
+            [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               regenerateNeighboringChunk(pos_gen);
-            }));
-        gen_tasks.push_back(
-            m_generation_task_pool.submit_task([this, pos_gen, updateTree] {
               updateTree(glm::ivec3(pos_gen.x - 1, pos_gen.y, pos_gen.z));
             }));
       }
@@ -419,11 +417,8 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
       if (move_dir.z_n &&
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
-            [this, pos_gen, regenerateNeighboringChunk] {
+            [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               regenerateNeighboringChunk(pos_gen);
-            }));
-        gen_tasks.push_back(
-            m_generation_task_pool.submit_task([this, pos_gen, updateTree] {
               updateTree(glm::ivec3(pos_gen.x, pos_gen.y, pos_gen.z + 1));
             }));
       }
@@ -431,13 +426,10 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
       if (move_dir.z_p &&
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
-            [this, pos_gen, regenerateNeighboringChunk] {
+            [this, pos_gen, regenerateNeighboringChunk, updateTree] {
               regenerateNeighboringChunk(pos_gen);
-            }));
-        gen_tasks.push_back(
-            m_generation_task_pool.submit_task([this, pos_gen, updateTree] {
               updateTree(glm::ivec3(pos_gen.x, pos_gen.y, pos_gen.z - 1));
-         }));
+            }));
       }
     }
   }
