@@ -394,8 +394,9 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
       if (move_dir.x_n && m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
+              glm::ivec3 pos_gen_prev(pos_gen.x + 1, pos_gen.y, pos_gen.z);
               regenerateNeighboringChunk(pos_gen);
-              updateTree(glm::ivec3(pos_gen.x + 1, pos_gen.y, pos_gen.z));
+              updateTree(pos_gen_prev);
             }));
       }
       pos_gen = {max_x - 1, cy, cz};
@@ -403,8 +404,9 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
+              glm::ivec3 pos_gen_prev(pos_gen.x - 1, pos_gen.y, pos_gen.z);
               regenerateNeighboringChunk(pos_gen);
-              updateTree(glm::ivec3(pos_gen.x - 1, pos_gen.y, pos_gen.z));
+              updateTree(pos_gen_prev);
             }));
       }
     }
@@ -418,8 +420,9 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
+              glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z + 1);
               regenerateNeighboringChunk(pos_gen);
-              updateTree(glm::ivec3(pos_gen.x, pos_gen.y, pos_gen.z + 1));
+              updateTree(pos_gen_prev);
             }));
       }
       pos_gen = {cx, cy, max_z - 1};
@@ -427,8 +430,9 @@ void ChunkRenderer::updateTreeChunkBorder(WindowMovementDirection move_dir,
           m_chunks_by_coord.closestDistanceToBorder(pos_gen) > 0) {
         gen_tasks.push_back(m_generation_task_pool.submit_task(
             [this, pos_gen, regenerateNeighboringChunk, updateTree] {
+              glm::ivec3 pos_gen_prev(pos_gen.x, pos_gen.y, pos_gen.z - 1);
               regenerateNeighboringChunk(pos_gen);
-              updateTree(glm::ivec3(pos_gen.x, pos_gen.y, pos_gen.z - 1));
+              updateTree(pos_gen_prev);
             }));
       }
     }
