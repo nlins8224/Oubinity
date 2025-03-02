@@ -84,7 +84,7 @@ void Chunk::addFaces() {
     return;
   }
   if (padded_blocks_id_cache.size() == 0) {
-    LOG_F(ERROR, "blocks id cache is empty for chunk at pos=(%d, %d, %d)",
+    LOG_F(1, "blocks id cache is empty for chunk at pos=(%d, %d, %d)",
           m_chunk_pos.x, m_chunk_pos.y, m_chunk_pos);
     return;
   }
