@@ -49,10 +49,10 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
   MeshBucket* first_free_bucket;
   size_t lod_level = alloc_data._lod.level;
   Zone zone = chooseZone(lod_level);
-  //if (wasChunkAllocated(chunk_pos)) {
-  //  // reallocate chunk by freeing and allocating again
-  //  free(chunk_pos);
-  //}
+  if (wasChunkAllocated(chunk_pos)) {
+    // reallocate chunk by freeing and allocating again
+    free(chunk_pos);
+  }
   first_free_bucket = getFirstFreeBucket(zone.level);
   
   m_stats.chunks_in_buckets[zone.level]++;

@@ -22,12 +22,6 @@ Chunk::~Chunk() {
 
 void Chunk::addChunkMesh() {
   addFaces();
-  // No need to store blocks if chunk was not edited by a player.
-  // Blocks will be regenerated on a fly
-  //if (!m_state.was_edited) {
-  //  m_blocks->clearBlockIdCache();
-  //  m_state.has_blocks = false;
-  //}
 }
 
 void Chunk::setIsGenerationTaskRunning(bool is_running) {

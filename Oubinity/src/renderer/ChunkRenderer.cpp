@@ -546,6 +546,16 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
   }
   chunk->setChunkNeedsLodUpdate(false);
   chunk->setIsGenerationTaskRunning(false);
+  
+#if !(SETTING_TREES_ENABLED)
+  // No need to store blocks if chunk was not edited by a player.
+  // Blocks are no longer needed
+  // Blocks will be regenerated on a fly
+  if (!chunk->getState().was_edited) {
+    chunk->clearBlocks();
+    chunk->setChunkHasBlocksState(false);
+  }
+#endif
 }
 
 // generation thread
