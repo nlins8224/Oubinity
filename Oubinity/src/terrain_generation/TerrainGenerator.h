@@ -8,7 +8,7 @@
 
 class TerrainGenerator {
  public:
-  struct TreeSettings {
+  struct TreeModelSettings {
     int trees_amount;
     int crown_height;
     int crown_width;
@@ -49,11 +49,11 @@ class TerrainGenerator {
 
  private:
   std::vector<std::vector<ProceduralTree::Branch>> initTrees();
-  std::vector<ProceduralTree::Branch> generateTree(TreeSettings tree_settings);
+  std::vector<ProceduralTree::Branch> generateTree(TreeModelSettings tree_settings);
   std::vector<ProceduralTree::Branch>& chooseTree();
   void placeTrees(Chunk& chunk, HeightMap& surface_map,
                   TreePresenceMap& tree_presence_map, uint8_t water_height,
-                  TreeSettings tree_settings,
+                  TreeModelSettings tree_settings,
                   ChunkSlidingWindow& chunk_sliding_window);
 
   ProceduralGenerator m_procedural_generator;
@@ -62,7 +62,7 @@ class TerrainGenerator {
   PreloadedGenerator m_preloaded_generator;
 #endif
   uint8_t m_water_height;
-  TreeSettings m_tree_settings;
+  TreeModelSettings m_tree_settings;
   std::vector<std::vector<ProceduralTree::Branch>> m_trees;
   ProceduralTree::BranchGenerator m_branch_generator;
 };

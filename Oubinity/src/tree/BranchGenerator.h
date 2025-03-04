@@ -96,7 +96,7 @@ class BranchGenerator {
  public:
   BranchGenerator(TreeBranchSettings settings = DefaultSettings);
   virtual ~BranchGenerator();
-  std::vector<Branch> generateBranches(glm::ivec3 tree_pos);
+  std::vector<Branch> generateBranches(glm::ivec3 tree_pos, TreeBranchSettings settings = DefaultSettings);
   std::vector<Branch> getLastGeneratedBranches();
   void printBranches();
 

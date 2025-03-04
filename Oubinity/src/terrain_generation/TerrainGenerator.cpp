@@ -135,7 +135,7 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
 void TerrainGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
                                     TreePresenceMap& tree_presence_map,
                                     uint8_t water_height,
-                                    TreeSettings tree_settings, ChunkSlidingWindow& chunk_sliding_window) {
+                                    TreeModelSettings tree_settings, ChunkSlidingWindow& chunk_sliding_window) {
   glm::ivec3 chunk_pos = chunk.getPos();
   LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
   int chunk_world_y = chunk_pos.y * lod.block_amount;
@@ -171,8 +171,24 @@ std::vector<std::vector<ProceduralTree::Branch>> TerrainGenerator::initTrees() {
 }
 
 std::vector<ProceduralTree::Branch> TerrainGenerator::generateTree(
-    TreeSettings tree_settings) {
-  return m_branch_generator.generateBranches(tree_settings.tree_pos);
+    TreeModelSettings tree_settings) {
+  std::random_device rand_dev;
+  std::mt19937 generator(rand_dev());
+  std::uniform_int_distribution<unsigned int> distr_kill_distance(2, 4);
+  std::uniform_int_distribution<unsigned int> distr_branch_length(1, 4);
+  std::uniform_int_distribution<unsigned int> distr_attraction_point_range(4, 10);
+  std::uniform_int_distribution<unsigned int> distr_max_attraction_points(1600, 4800);
+
+  ProceduralTree::TreeBranchSettings tree_branch_settings{
+      .kill_distance{distr_kill_distance(generator)},
+      .branch_length{distr_branch_length(generator)},
+      .attraction_point_range{distr_attraction_point_range(generator)},
+      .max_attraction_points{distr_max_attraction_points(generator)},
+      .max_iterations{320},
+      .bounding_box_size{16}};
+
+  return m_branch_generator.generateBranches(tree_settings.tree_pos,
+                                             tree_branch_settings);
 }
 
 std::vector<ProceduralTree::Branch>& TerrainGenerator::chooseTree() {
