@@ -42,12 +42,13 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
 std::vector<ProceduralTree::Branch>
 ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos, TreeBranchSettings settings) {
   // TODO: Make this stateless instead of clearing each time
-  m_branches.clear();
-  m_nodes.clear();
   m_attraction_points.clear();
+  m_nodes.clear();
+  m_branches.clear();
   std::queue<Node*> empty;
   std::swap(m_pending_new_nodes, empty);
   m_settings = settings;
+  m_grid.clear();
   // ---- 
   generateAttractionPoints(tree_pos);
   createRootNode(tree_pos);
