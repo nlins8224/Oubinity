@@ -69,7 +69,7 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk,
   for (int x = 0; x < block_amount_padding; x++) {
     for (int z = 0; z < block_amount_padding; z++) {
       // TODO: y for loop should not be needed at all.
-      for (int y = 1; y < block_amount_padding - 1; y++) {
+      for (int y = 0; y < block_amount_padding; y++) {
         glm::ivec3 block_pos{x, y, z};
         float surface_height = height_map[x][z];
         glm::ivec3 block_padded_pos =

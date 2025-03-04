@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#define SETTING_USE_PRELOADED_HEIGHTMAP 0
-#define SETTING_USE_PRELOADED_COLORMAP 0
+#define SETTING_USE_PRELOADED_HEIGHTMAP 1
+#define SETTING_USE_PRELOADED_COLORMAP 1
 // Using PRELOADED_HEIGHTMAP is prerequisite
 // Blends preloaded and procedural heightmap
 #define SETTING_USE_HEIGHTMAP_BLENDING 0
