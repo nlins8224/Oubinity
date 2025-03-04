@@ -68,7 +68,7 @@ bool ProceduralGenerator::generateLayers(Chunk& chunk,
   bool anything_added = false;
   for (int x = 0; x < block_amount_padding; x++) {
     // TODO: y for loop should not be needed at all.
-    for (int y = 1; y < block_amount_padding - 1; y++) {
+    for (int y = 0; y < block_amount_padding; y++) {
       for (int z = 0; z < block_amount_padding; z++) {
         glm::ivec3 block_pos = {x, y, z};
 
