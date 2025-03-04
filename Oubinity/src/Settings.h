@@ -5,12 +5,12 @@
 #define SETTING_USE_PRELOADED_COLORMAP 1
 // Using PRELOADED_HEIGHTMAP is prerequisite
 // Blends preloaded and procedural heightmap
-#define SETTING_USE_HEIGHTMAP_BLENDING 0
+#define SETTING_USE_HEIGHTMAP_BLENDING 1
 
 
-#define SETTING_TREES_ENABLED 0
+#define SETTING_TREES_ENABLED 1
 // Using PRELOADED_HEIGHTMAP is prerequisite
-#define SETTING_USE_PRELOADED_TREEMAP 0
+#define SETTING_USE_PRELOADED_TREEMAP 1
 
 // Produces mesh per each vertex on CPU and allocates a buffer
 #define SETTING_USE_VERTEX_MESH 0
@@ -32,7 +32,7 @@ static constexpr int CHUNK_SIZE_PADDING = CHUNK_SIZE + 2;
 
 static constexpr double SETTING_CAMERA_SPEED = 15.0;
 
-static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 32;
-static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 8;
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 128;
+static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 16;
 }  // namespace Settings
  
