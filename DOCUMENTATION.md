@@ -16,8 +16,8 @@ This document aims to provide an overview of the engine and to describe core alg
     * [Meshing Overview](#introduction)
     * [Binary greedy meshing](#binary-greedy-meshing)
 4. [Rendering](#rendering)
-    * [Vertexpool, gl Multi-Draw and persistent mapped buffers](#vertexpool-allocation-and-drawing-commands)
-    * [Passing mesh data to GPU pipeline](#passing-mesh-data-to-vertex-shader)
+    * [Vertexpool, gl Multi-Draw and persistent mapped buffers](#zonevertexpool)
+    * [Passing mesh data to GPU pipeline](#passing-mesh-data-to-gpu-pipeline)
 5. [Adding and destroying blocks](#adding-and-destroying-blocks)
 
 ### Overview
