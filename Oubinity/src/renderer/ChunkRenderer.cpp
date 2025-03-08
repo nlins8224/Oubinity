@@ -11,7 +11,6 @@ ChunkRenderer::ChunkRenderer(TerrainGenerator& terrain_generator, Shader shader,
 {
   m_vertexpool = new VertexPool::ZoneVertexPool{};
   m_init_stage = true;
-  initChunks();
   m_buffer_needs_update = false;
   m_camera_last_chunk_pos = Util::worldPosToChunkPos(m_camera.getCameraPos());
   LOG_F(INFO, "Generation threads amount=%d",
@@ -35,6 +34,9 @@ void ChunkRenderer::drawChunksSceneMesh() {
 
 // generation thread
 void ChunkRenderer::traverseSceneLoop() {
+  if (m_init_stage) {
+    initChunks();
+  }
   //while (true) {
     if (m_lod_update_tasks.load() != 0 || m_generation_tasks.load() != 0 || m_free_tasks.load() != 0) {
       m_buffer_needs_update.store(true);
@@ -135,16 +137,21 @@ void ChunkRenderer::initChunks() {
   int max_z = camera_chunk_pos_z + border_dist - 1;
 
   m_chunks_by_coord = ChunkSlidingWindow({min_x, max_x, min_z, max_z});
+  BS::multi_future<void> gen_tasks;
   LOG_F(INFO, "Chunk Border min_x=%d, max_x=%d, min_z=%d, max_z=%d",
         min_x, max_x, min_z, max_z);
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1;
            cy >= 0; cy--) {
-        generateChunk({cx, cy, cz}, false);
+        glm::ivec3 pos_gen = {cx, cy, cz};
+        gen_tasks.push_back(m_generation_task_pool.submit_task(
+            [this, pos_gen] { generateChunk(pos_gen, false); }));
+        //generateChunk(pos_gen, false);
       }
     }
   }
+  gen_tasks.wait();
 #if SETTING_TREES_ENABLED
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cz = min_z; cz <= max_z; cz++) {
@@ -152,11 +159,14 @@ void ChunkRenderer::initChunks() {
            cy--) {
         glm::ivec3 chunk_pos = {cx, cy, cz};
         if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 0) {
-          generateChunkDecoration(chunk_pos);
+          gen_tasks.push_back(m_generation_task_pool.submit_task([this, chunk_pos] {
+                generateChunkDecoration(chunk_pos);
+              }));
         }
       }
     }
   }
+gen_tasks.wait();
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
@@ -165,12 +175,15 @@ void ChunkRenderer::initChunks() {
         if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 0) {
           std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
           if (chunk.lock()->getState().has_blocks) {
-            meshChunk(chunk_pos);
+            gen_tasks.push_back(m_generation_task_pool.submit_task(
+                [this, chunk_pos] { meshChunk(chunk_pos); }));
           }
         }
       }
     }
   }
+  gen_tasks.wait();
+#endif 
   for (int cx = min_x; cx <= max_x; cx++) {
     for (int cz = min_z; cz <= max_z; cz++) {
       for (int cy = Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS - 1; cy >= 0;
@@ -178,9 +191,9 @@ void ChunkRenderer::initChunks() {
         glm::ivec3 chunk_pos = {cx, cy, cz};
         if (m_chunks_by_coord.closestDistanceToBorder(chunk_pos) > 0) {
           std::weak_ptr<Chunk> chunk = m_chunks_by_coord.get(chunk_pos);
+          m_generation_tasks.fetch_add(1);
+          m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
           if (chunk.lock()->getState().has_blocks) {
-            m_generation_tasks.fetch_add(1);
-            m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
             if (!chunk.lock()->getState().was_edited) {
               chunk.lock()->clearBlocks();
               chunk.lock()->setChunkHasBlocksState(false);
@@ -190,7 +203,6 @@ void ChunkRenderer::initChunks() {
       }
     }
   }
-#endif 
   m_buffer_needs_update.store(true);
   updateBufferIfNeedsUpdate();
   m_init_stage = false;
@@ -541,7 +553,7 @@ void ChunkRenderer::generateChunk(glm::ivec3 chunk_pos, bool update_lod) {
   if (update_lod) {
     m_lod_update_tasks.fetch_add(1);
     m_chunks_to_update_lod.enqueue(getAllocData(chunk_pos));
-  } else {
+  } else if (!m_init_stage) {
     m_generation_tasks.fetch_add(1);
     m_chunks_to_allocate.enqueue(getAllocData(chunk_pos));
   }

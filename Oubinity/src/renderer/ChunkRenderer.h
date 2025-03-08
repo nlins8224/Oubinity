@@ -84,7 +84,7 @@ class ChunkRenderer : public Renderer {
   moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
       m_chunks_to_update_lod;  // generation thread writes, main thread reads
 
-  BS::thread_pool m_generation_task_pool{std::min(4u, std::thread::hardware_concurrency())};
+  BS::thread_pool m_generation_task_pool{std::min(10u, std::thread::hardware_concurrency())};
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
   TerrainGenerator& m_terrain_generator;     // called only on generation thread
