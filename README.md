@@ -3,19 +3,13 @@
 ### Overview
 Oubinity is a voxel engine that focuses on a terrain rendering.
 
-<div>
-  <div style="display:flex">
-    <img src="./documentation_resources/scene-1.png"  style="width:50%"/>
-    <img src="./documentation_resources/canyon-1.png" style="width:50%"/>
-  </div>
-  <div style="display:flex">
-    <img src="./documentation_resources/canyon-2.png" style="width:50%"/>
-    <img src="./documentation_resources/hills-1.png"  style="width:50%"/>
-  </div>
+![](./documentation_resources/scene-1.png)  |  ![](./documentation_resources/canyon-1.png)
+:------------------------------------------:|:-------------------------------------------:
+![](./documentation_resources/canyon-2.png)  |  ![](./documentation_resources/hills-1.png)
+
   <div style="display:flex">
     <img src="./documentation_resources/scene-8.png"/>
   </div>
-</div>
 
 ### How to build
 Build on Linux or Windows using Cmake
@@ -28,4 +22,4 @@ Build on Linux or Windows using Cmake
 Visual studio
 
 ### Documentation
-A high level overview of architecture and core algorithms and techniques used is is available in [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/docs_update/DOCUMENTATION.md)
+An overview of the world generation pipeline, terrain generation, meshing, rendering and core algorithms used is available under [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/docs_update/DOCUMENTATION.md)
