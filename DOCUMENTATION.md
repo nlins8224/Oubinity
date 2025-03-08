@@ -23,12 +23,12 @@ This document aims to provide an overview of the engine and to describe core alg
 ### Overview
 
 #### Introduction - what is a Voxel Engine
-Oubinity is a voxel engine[^1]. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
+Oubinity is a voxel engine. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
 
 Voxels stack
 ![Voxels stack](https://i.ibb.co/LzDb0hLS/voxels-wikipedia.png)
 
-Voxels amount in the world scene scale up cubically and voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. One of the strategies is to identify what data does not need to be stored and which part of the world scene does not need to be rendered. To illustrate, voxels that were not edited by a player do not need to be stored. World fragments that cannot be seen by a player do not need to be rendered. To manage this, voxels are grouped into chunks[^2]. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
+Voxels amount in the world scene scale up cubically and voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. One of the strategies is to identify what data does not need to be stored and which part of the world scene does not need to be rendered. To illustrate, voxels that were not edited by a player do not need to be stored. World fragments that cannot be seen by a player do not need to be rendered. To manage this, voxels are grouped into chunks. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
 
 World generation can be divided conceptually into three phases:
 
@@ -40,11 +40,6 @@ Voxel is the smallest interactable unit from the player point of view, but it is
 3. Mesh rendering: a phase when mesh is passed to GPU via OpenGL API calls, to be rendered. Mesh is passed as an input to GPUs render pipeline. 
  
 These three phases are main building blocks of chunk gneration pipeline and they will be described in greater detail in next sections. Each phase has a great potential to be optimized.
-
-
-[^1]: To be more precise it is rasterization based engine. There are other approaches, based on raytracing or hybrid methods.
-
-[^2]: Using chunks is not the only to write a rasterized voxel engine. There are other methods, for example global lattice: https://www.youtube.com/watch?v=4xs66m1Of4A&t.
 
 ---
 #### World generation
@@ -144,7 +139,7 @@ Above, a fully preloaded example. The shape of the terrain is determined via a p
 
 In this example above shape of the terrain (heightmap) is calculated procedurally, while colormap is preloaded. The world is infinite and fog is enabled.
 
-Preloaded generation allows to create maps in third party tools[^3] and does not require any knowledge of the engine. It also offers fine-grained control over the terrain and to use more costly algorithms, like erosion[^4], because it will be baked into colormap. Texture map generation itself does not have to be fast because it will be calculated once, will not be done at runtime and will be saved into PNG file after. Reading from PNG file that is already loaded to RAM is fast and cheap. 
+Preloaded generation allows to create maps in third party tools and does not require any knowledge of the engine. It also offers fine-grained control over the terrain and to use more costly algorithms, like erosion, because it will be baked into colormap. Texture map generation itself does not have to be fast because it will be calculated once, will not be done at runtime and will be saved into PNG file after. Reading from PNG file that is already loaded to RAM is fast and cheap. 
 
 Determining height and voxel types distribution is not the only way to change appearence of the terrain. Different voxel palette can be chosen to change how the terrain looks. In the example below, the same heightmap and colormap are used, but with different voxel type palette.
 
@@ -188,8 +183,6 @@ This algorithm outputs an array of branches. A branch has two nodes and each nod
 Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
 
 ![scene-6](documentation_resources/scene-6.png)
-
-[^3]: Like Gaea, World Machine, World Painter, or even a drawing in MS Paint.
 
 #### Sky
 
@@ -278,7 +271,7 @@ Each column stores two types of faces (e.g. top and bottom faces):
 
 There are 32 slots for Top faces and 32 slots for Bottom faces in Y column (also - column has CHUNK_SIZE + 1 slots). 
 Top and bottom faces overlap with each other. First and last face does not overlap with faces inside a chunk, but they may overlap with faces that are present in chunk neighbors adjacent to them. We need to know those adjacent faces type to determine border slots visibility.
-We solve this by adding neighbor voxels padding to a chunk. In other words, instead of storing 32x32x32 chunks, we store 34x34x34 chunks, where additional voxels are taken from neighboring chunks.[^1]
+We solve this by adding neighbor voxels padding to a chunk. In other words, instead of storing 32x32x32 chunks, we store 34x34x34 chunks, where additional voxels are taken from neighboring chunks.
 
 ![Padding](documentation_resources/chunk-padding.png)
 
@@ -502,15 +495,12 @@ Those faces are merged in right direction
 
 When meshing phase will be finished, a batch of meshes will passed to next phase that will allocate data on the GPU and render it.  
 
-[^1]:We are gloriously solving a problem that has been introduced along with data stucture for this algorithm, but I don't mind. Original algorithm uses padding as well, but they use slightly smaller chunk size, which is generally smarter.
-
-
 ### Rendering
 Vertexpool follows AZDO approach and combines multi-draw (`glMultiDrawArraysIndirect`) with persistent mapped buffers. Source code can be found in `ZoneVertexPool` class. 
 
 When meshing phase is done, a batch of mesh data is passed to a lower level layer that handles communication with GPU. Mesh to be rendered is passed via OpenGL API calls. A popular strategy is to render each chunk mesh separately. In that strategy, there is one OpenGL draw call and one vertex buffer object per chunk. However, as the number of chunks increases, the number of draw calls increases as well. To the point that communication between engine and GPU that is handled by a GPU driver becomes a bottleneck. Hence a different strategy is needed.
 
-OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that allows to render many different meshes within a single API call[^1] and using only one mesh data buffer. Multi-draw takes a batch of draw commands (`DrawArraysIndirectCommand`) called DAIC for short. Each DAIC stores an offset to a particular mesh location and a size of a mesh.
+OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that allows to render many different meshes within a single API call and using only one mesh data buffer. Multi-draw takes a batch of draw commands (`DrawArraysIndirectCommand`) called DAIC for short. Each DAIC stores an offset to a particular mesh location and a size of a mesh.
 In other words one of multi-draw requirements is to handle GPU memory management on engine side. This involves writing a custom memory allocator. OpenGL has a concept of persistently mapped buffers. Persistently mapped buffer is a buffer that is allocated once, is immutable (cannot be enlarged/shrinked in runtime), is always mapped and allows to write to GPUs memory. A manual synchronisation on the engine side is also required - GPU should not read the buffer when engine writes. Persistently mapped buffer is used as a base of memory pool allocator.
 
 
@@ -520,7 +510,7 @@ Conceptually Vertexpool can be split into:
 1. Memory pool part
 2. GPU communication handler part
 
-Memory pool is divided into buckets. Bucket is a continuous segment of memory in a pool. Each bucket can store a mesh. Buckets can have different sizes and are divided into zones, that correspond to level of detail. This is because chunks with lower level of detail contain fewer mesh, therefore bucket for that mesh can be also smaller[^2]. Bucket can be empty, can store mesh that has it's DAIC or can store a mesh that no longer has it's DAIC. Buckets that are empty or do not have their DAIC counterpart are considered free and can be allocated. Buckets that have mesh that corresponds to DAIC are not free and cannot be allocated. 
+Memory pool is divided into buckets. Bucket is a continuous segment of memory in a pool. Each bucket can store a mesh. Buckets can have different sizes and are divided into zones, that correspond to level of detail. This is because chunks with lower level of detail contain fewer mesh, therefore bucket for that mesh can be also smaller. Bucket can be empty, can store mesh that has it's DAIC or can store a mesh that no longer has it's DAIC. Buckets that are empty or do not have their DAIC counterpart are considered free and can be allocated. Buckets that have mesh that corresponds to DAIC are not free and cannot be allocated. 
 DAIC list with active DAICs is passed via `glMultiDrawArraysIndirect` call.
 
 
@@ -748,7 +738,7 @@ SSBO is used to store faces data and per-chunk data. Per-chunk data like chunk p
 Moving non-unique data to a shared storage, e.g. moving non-unique vertex data to a face data or moving per-chunk data to per-chunk memory data storage is sometimes called vertex pulling https://voxel.wiki/wiki/vertex-pulling/
 
 
-Data is packed as follows and takes 8 bytes per face[^3]:
+Data is packed as follows and takes 8 bytes per face:
 ```cpp
 struct Face {
   GLuint packed_face_one;
@@ -801,13 +791,3 @@ Implementation can be found in a `Ray` class. `Ray` class is used in `PlayerInpu
 
 
 ---
-
-[^4]: Hydraulic Erosion (https://cgg.mff.cuni.cz/~jaroslav/papers/2008-sca-erosim/2008-sca-erosiom-fin.pdf) can be slow to generate at runtime, but there are fast pseudo-erosion algorithms as well: https://www.shadertoy.com/view/7ljcRW
-
-[^5]: File being finite does not mean that world is finite. It can be scrolled over and infinite, but it's the same terrain over and over.
-
-[^6]: This does not mean that procedural noise is slow. It's on the contrary, FastNoise2 is really fast, but there are other algorithms than noise that enhance terrain appearence, but may be expensive to calculate at runtime.
-
-[^7]: https://voxel.wiki/wiki/palette-compression/
-
-[^8]: This is something that is planned to be rewritten. One render thread  will be replaced by a threadpool or similar meachanism, communication between render threads and main thread will either be improved or rewritten to only handle IO operations on main thread, as current state causes small lags when world scene is too big.
