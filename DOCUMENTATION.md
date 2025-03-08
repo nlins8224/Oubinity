@@ -3,26 +3,26 @@
 This document aims to provide an overview of the engine and to describe core algorithms and techniques used. It's not supposed to be a tutorial, but it shouldn't have a high barrier of entry either. Assumption is that the reader has knowledge of any programming language, preferably C++ and a basic knowledge of OpenGL or similar graphics API. Engine is work in progress. There are known bugs and components that need to be redesigned. 
 
 ### Contents
-1. Overview
-    * Introduction
-    * World generation
-2. Terrain Generation
-    * Chunk Preloaded & Procedural generation
-    * Trees
-    * Sky
-    * Water
-3. Meshing
-    * Meshing Overview
-    * Binary greedy meshing
-4. Rendering
-    * Vertexpool, gl Multi-Draw and persistent mapped buffers
-    * Data packing
-    * Vertex pulling
-5. Adding and destroying blocks
+1. [Overview](#overview)
+    * [Introduction](#introduction---what-is-a-voxel-engine)
+    * [World generation](#world-generation)
+    * [Level of Detail](#level-of-detail)
+2. [Terrain Generation](#terraingeneration)
+    * [Chunk Preloaded & Procedural generation](#chunk-preloaded--procedural-generation)
+    * [Trees](#tree-generation)
+    * [Sky](#sky)
+    * [Water](#water)
+3. [Meshing](#meshing)
+    * [Meshing Overview](#introduction)
+    * [Binary greedy meshing](#binary-greedy-meshing)
+4. [Rendering](#rendering)
+    * [Vertexpool, gl Multi-Draw and persistent mapped buffers](#vertexpool-allocation-and-drawing-commands)
+    * [Passing mesh data to GPU pipeline](#passing-mesh-data-to-vertex-shader)
+5. [Adding and destroying blocks](#adding-and-destroying-blocks)
 
 ### Overview
 
-### Introduction - what is a Voxel Engine
+#### Introduction - what is a Voxel Engine
 Oubinity is a voxel engine[^1]. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
 
 Voxels stack
@@ -47,7 +47,7 @@ These three phases are main building blocks of chunk gneration pipeline and they
 [^2]: Using chunks is not the only to write a rasterized voxel engine. There are other methods, for example global lattice: https://www.youtube.com/watch?v=4xs66m1Of4A&t.
 
 ---
-### World generation
+#### World generation
 
 ##### Overview
 
@@ -96,7 +96,7 @@ Example image above - world update when trees are enabled. Notice that tree upda
 Next sections will cover chunk generation steps (terrain generation, meshing and rendering) in a more detail. Terrain generation is a hybrid between loading data from texture maps and procedural generation. Binary Greedy Meshing is a meshing algorithm of choice. OpenGL is used as a graphics backend. A custom memory allocator in a persistent mapped buffer is used to allocate chunks data on GPU, to reduce draw calls by utilizing OpenGL's multidraw API (`glMultiDrawArraysIndirectCount`).
 
 
-### Level of Detail
+#### Level of Detail
 
 Level of Detail (LoD for short) refers to the complexity of the generated models. Models that are further away from the camera occupy less pixels on the display screen. Those models do not need to be rendered in full detail, because with them being far away it would be hard to see those details and distinguish from less detailed replacements anyway. Rendering less detailed models mean that we will have smaller meshes and smaller polygons (triangles) count. 
 
@@ -121,6 +121,7 @@ One of the drawbacks of a current implementation is that each lod level is fully
 
 ### TerrainGeneration
 
+#### Chunk Preloaded & Procedural generation
 Terrain generation is a step done when chunk instance is already created and level of detail is chosen. `TerrainGenerator` is a main class. It has two major components: `ProceduralGenerator` and `PreloadedGenerator`. 
 In this step voxel types are to be determined for each visible voxel in each visible chunk. Terrain generation pipeline is a hybrid between procedural generation and preloaded generation.
 * Procedural generation is a method of calculating voxel types algorithmically, at runtime. Main building blocks are chosen from a family of  noise algorithms. [FastNoise2](https://github.com/Auburn/FastNoise2) library is used.
@@ -163,32 +164,18 @@ World scenes can be bigger. Here's an example of 768x8x768 chunks in the render 
 
 ![scene-5](documentation_resources/scene-5.png)
 
-# Oubinity water
-
-Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
-
-![scene-6](documentation_resources/scene-6.png)
-
-[^3]: Like Gaea, World Machine, World Painter, or even a drawing in MS Paint.
-
-# Oubinity sky
-
-Sky and clouds implementation is based on https://iquilezles.org/articles/dynclouds/. Sky rendering is handled by `SkyRenderer`. Sky is mapped onto a quad plane and the main part is handled in a fragment shader `skyFragment`
-
-![scene-7](documentation_resources/scene-7.png)
-
-# Oubinity Trees
+#### Tree generation
 
 Tree generation can be divided into:
 1. Determining tree locations
 2. Tree generation algorithms
 
-### Determining tree locations
+##### Determining tree locations
 Tree locations can be determined based on a preloaded tree map or from procedurally generated noise. There are some additional rules, for example tree has to be above water and has to be placed on grass block. 
 
 ![scene-8](documentation_resources/scene-8.png)
 
-### Tree generation
+##### Tree generation
 Trees are generated procedurally. Each generated tree can be unique. A batch of trees is generated during the initialization and is cached. During tree placement tree type is chosen from that cache with a uniform distribution.
 A technique from [Modeling Trees with a Space Colonization Algorithm](http://algorithmicbotany.org/papers/colonization.egwnp2007.large.pdf) paper was used to generate trees. This algorithm simulates tree growth by creating a set of 'attraction points' located in a 3D space. Tree skeleton is created iteratively. In each iteration, an attraction point may influence the tree node that is closest to it, making tree branches grow towards attraction points. Attraction points have their kill distance. Attraction point is removed (killed) when there is at least one tree node within kill distance threshold. There are additional settings and rules that allow for more variety. Source code can be found in `BranchGenerator` class.
 
@@ -196,7 +183,21 @@ This algorithm outputs an array of branches. A branch has two nodes and each nod
 
 ![tree](documentation_resources/tree.png)
 
-# Oubinity - Binary greedy meshing
+#### Water
+
+Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
+
+![scene-6](documentation_resources/scene-6.png)
+
+[^3]: Like Gaea, World Machine, World Painter, or even a drawing in MS Paint.
+
+#### Sky
+
+Sky and clouds implementation is based on https://iquilezles.org/articles/dynclouds/. Sky rendering is handled by `SkyRenderer`. Sky is mapped onto a quad plane and the main part is handled in a fragment shader `skyFragment`
+
+![scene-7](documentation_resources/scene-7.png)
+
+### Meshing
 
 #### Introduction
 Meshing is a phase that is done after chunk terrain is generated. It takes array of voxel types on input and produces visible faces (quads) as an output. Meshing is done per chunk. It is generally worth to reduce faces amount on a world scene, as it reduces memory footprint and allows GPU to render less data, which reduces render times. The idea is to reduce faces, without changing the scene from camera's perspective. This can be illustrated by looking at a single chunk:
@@ -504,7 +505,7 @@ When meshing phase will be finished, a batch of meshes will passed to next phase
 [^1]:We are gloriously solving a problem that has been introduced along with data stucture for this algorithm, but I don't mind. Original algorithm uses padding as well, but they use slightly smaller chunk size, which is generally smarter.
 
 
-### Vertexpool allocation and drawing commands
+### Rendering
 Vertexpool follows AZDO approach and combines multi-draw (`glMultiDrawArraysIndirect`) with persistent mapped buffers. Source code can be found in `ZoneVertexPool` class. 
 
 When meshing phase is done, a batch of mesh data is passed to a lower level layer that handles communication with GPU. Mesh to be rendered is passed via OpenGL API calls. A popular strategy is to render each chunk mesh separately. In that strategy, there is one OpenGL draw call and one vertex buffer object per chunk. However, as the number of chunks increases, the number of draw calls increases as well. To the point that communication between engine and GPU that is handled by a GPU driver becomes a bottleneck. Hence a different strategy is needed.
@@ -513,7 +514,7 @@ OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that 
 In other words one of multi-draw requirements is to handle GPU memory management on engine side. This involves writing a custom memory allocator. OpenGL has a concept of persistently mapped buffers. Persistently mapped buffer is a buffer that is allocated once, is immutable (cannot be enlarged/shrinked in runtime), is always mapped and allows to write to GPUs memory. A manual synchronisation on the engine side is also required - GPU should not read the buffer when engine writes. Persistently mapped buffer is used as a base of memory pool allocator.
 
 
-### ZoneVertexPool
+#### ZoneVertexPool
 
 Conceptually Vertexpool can be split into:
 1. Memory pool part
@@ -734,7 +735,7 @@ void ZoneVertexPool::lockBuffer(GLsync& sync) {
 }
 ```
 
-### Passing mesh data to Vertex Shader
+#### Passing mesh data to GPU pipeline
 
 Mesh data format is an array of faces. Each face consists of
 1. local (`[0, CHUNK_SIZE)`) `x, y, z` coordinates 
