@@ -79,10 +79,7 @@ struct GreedyQuad {
 struct ChunkState {
   bool has_blocks;
   bool was_edited;
-
-  ChunkState()
-      : has_blocks{false},
-        was_edited{false} {}
+  bool needs_lod_update;
 };
 
 // unordered_map is not used here, because it takes too much memory space
@@ -101,6 +98,8 @@ class Chunk {
 
   void addChunkMesh();
 
+  void setIsGenerationTaskRunning(bool is_running);
+  void setIsFreeingTaskRunning(bool is_running);
   void setBlock(glm::ivec3 block_pos, Block::block_id type);
   void setNeighbors(ChunkNeighbors neighbors);
   void setState(ChunkState state);
@@ -108,9 +107,15 @@ class Chunk {
   void setBlockArray();
   void setChunkHasBlocksState(bool has_blocks);
   void setChunkEditedState(bool was_edited);
+  void setChunkNeedsLodUpdate(bool needs_lod_update);
+  void setLevelOfDetail(LevelOfDetail::LevelOfDetail lod);
 
   void clearFaces();
+  void clearBlocks();
+  void clearBlockOccupancyCache();
 
+  bool isGenerationTaskRunning();
+  bool isFreeingTaskRunning();
   ChunkState getState();
   glm::ivec3 getPos() const;
   glm::ivec2 getPosXZ() const;
@@ -131,15 +136,15 @@ class Chunk {
   glm::ivec3 findNeighborBlockPos(glm::ivec3 block_pos) const;
 
  private:
-  std::unique_ptr<MeshData> m_mesh;
-  Block::BlockStorage* m_blocks;
+  std::atomic<bool> m_is_generation_task_running;
+  std::atomic<bool> m_is_freeing_task_running;
+  std::unique_ptr<Block::BlockStorage> m_blocks;
   std::vector<Face> m_faces;
   std::vector<Vertex> m_vertices;
   glm::ivec3 m_chunk_pos;
   glm::vec3 m_world_pos;
-  bool m_is_visible;
+  std::atomic<bool> m_is_visible;
   LevelOfDetail::LevelOfDetail m_lod;
-  unsigned int m_added_faces{0};
 
   void addFaces();
   bool isNeighborBlockVisible(glm::ivec3 block_pos) const;

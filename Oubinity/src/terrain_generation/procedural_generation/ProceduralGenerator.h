@@ -1,9 +1,9 @@
 #pragma once
 #include <FastNoise/FastNoise.h>
 #include "../../chunk/Chunk.h"
+#include "../TerrainGenerationTypes.h"
 
 #include <limits>
-#include "DecorationGenerator.h"
 
 namespace std {
 template <>
@@ -68,9 +68,7 @@ class ProceduralGenerator {
                                           LevelOfDetail::LevelOfDetail lod,
                                           NoiseSettings::Settings settings,
                                           int seed);
-
   int m_world_seed;
   uint8_t m_water_height;
-  DecorationGenerator m_decoration_generator;
   std::unordered_map<glm::ivec3, ProceduralHeightMap> m_heightmaps;
 };

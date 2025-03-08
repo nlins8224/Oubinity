@@ -5,11 +5,28 @@
 TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
     : m_water_height{water_height},
       m_procedural_generator{ProceduralGenerator(world_seed, water_height)},
-      m_preloaded_generator{PreloadedGenerator(water_height)} {}
+      m_preloaded_generator{PreloadedGenerator(water_height)} {
+
+#if SETTING_TREES_ENABLED
+  m_tree_settings = {.trees_amount = 10,
+                     .crown_height = 3,
+                     .crown_width = 5,
+                     .tree_pos = glm::ivec3(0, 0, 0)};
+  m_trees = initTrees();
+#endif
+}
 #else
 TerrainGenerator::TerrainGenerator(int world_seed, uint8_t water_height)
     : m_water_height{water_height},
-      m_procedural_generator{ProceduralGenerator(world_seed, water_height)} {}
+      m_procedural_generator{ProceduralGenerator(world_seed, water_height)} {
+#if SETTING_TREES_ENABLED
+  m_tree_settings = {.trees_amount = 10,
+                     .crown_height = 3,
+                     .crown_width = 5,
+                     .tree_pos = glm::ivec3(0, 0, 0)};
+  m_trees = initTrees();
+#endif
+      }
 #endif
 
 bool TerrainGenerator::generateChunkTerrain(Chunk& chunk) {
@@ -85,18 +102,6 @@ bool TerrainGenerator::generateProceduralLayers(
   return m_procedural_generator.generateLayers(chunk, height_map);
 }
 
-void TerrainGenerator::generateTrees(Chunk& chunk) {
-#if SETTING_USE_PRELOADED_HEIGHTMAP
-#if SETTING_USE_PRELOADED_TREEMAP
-  m_preloaded_generator.generateTrees(chunk);
-#else
-  m_preloaded_generator.generateTrees(chunk);
-#endif
-#else
-  m_procedural_generator.generateTrees(chunk);
-#endif
-}
-
 bool TerrainGenerator::isChunkBelowOrAboveSurface(Chunk& chunk,
                                                   const HeightMap& height_map) {
   glm::ivec3 chunk_pos = chunk.getPos();
@@ -117,6 +122,7 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
       max_height = std::max(max_height, height_map[x][z]);
     }
   }
+
   // Real CHUNK_SIZE here is correct
   int chunk_pos_y = chunk_pos.y * CHUNK_SIZE;
   // |CHUNK_SIZE * 2| we take into consideration one chunk that is below surface as well
@@ -124,4 +130,90 @@ bool TerrainGenerator::isChunkBelowOrAboveSurface(
   bool below_surface = chunk_pos_y + CHUNK_SIZE * 2 < min_height;
   bool above_surface = chunk_pos_y > max_height;
   return below_surface || above_surface;
+}
+
+void TerrainGenerator::placeTrees(Chunk& chunk, HeightMap& surface_map,
+                                    TreePresenceMap& tree_presence_map,
+                                    uint8_t water_height,
+                                    TreeModelSettings tree_settings, ChunkSlidingWindow& chunk_sliding_window) {
+  glm::ivec3 chunk_pos = chunk.getPos();
+  LevelOfDetail::LevelOfDetail lod = chunk.getLevelOfDetail();
+  int chunk_world_y = chunk_pos.y * lod.block_amount;
+
+  for (uint8_t x = 0; x < lod.block_amount; x++) {
+    for (uint8_t z = 0; z < lod.block_amount; z++) {
+      if (tree_presence_map[x][z]) {
+        uint8_t crown_height = tree_settings.crown_height;
+        uint8_t crown_width = tree_settings.crown_width;
+        crown_height += crown_height % 2 == 0;  // round to odd
+        crown_width += crown_width % 2 == 0;    // round to odd
+
+        Tree tree{crown_height, crown_width};
+        uint8_t tree_plant_height =
+            static_cast<uint8_t>(surface_map[x][z]) % lod.block_amount;
+        if (chunk.getBlockId({x, tree_plant_height, z}) == Block::GRASS &&
+            surface_map[x][z] >= water_height) {
+          tree.spawnTree(chunk, chooseTree(),
+                         glm::ivec3(x, tree_plant_height, z),
+                         chunk_sliding_window);
+        }
+      }
+    }
+  }
+}
+
+std::vector<std::vector<ProceduralTree::Branch>> TerrainGenerator::initTrees() {
+  std::vector<std::vector<ProceduralTree::Branch>> trees;
+  for (int i = 0; i < m_tree_settings.trees_amount; i++) {
+    trees.emplace_back(generateTree(m_tree_settings));
+  }
+  return trees;
+}
+
+std::vector<ProceduralTree::Branch> TerrainGenerator::generateTree(
+    TreeModelSettings tree_settings) {
+  std::random_device rand_dev;
+  std::mt19937 generator(rand_dev());
+  std::uniform_int_distribution<unsigned int> distr_kill_distance(2, 4);
+  std::uniform_int_distribution<unsigned int> distr_branch_length(1, 4);
+  std::uniform_int_distribution<unsigned int> distr_attraction_point_range(4, 10);
+  std::uniform_int_distribution<unsigned int> distr_max_attraction_points(1600, 4800);
+
+  ProceduralTree::TreeBranchSettings tree_branch_settings{
+      .kill_distance{distr_kill_distance(generator)},
+      .branch_length{distr_branch_length(generator)},
+      .attraction_point_range{distr_attraction_point_range(generator)},
+      .max_attraction_points{distr_max_attraction_points(generator)},
+      .max_iterations{320},
+      .bounding_box_size{16}};
+
+  return m_branch_generator.generateBranches(tree_settings.tree_pos,
+                                             tree_branch_settings);
+}
+
+std::vector<ProceduralTree::Branch>& TerrainGenerator::chooseTree() {
+  CHECK_GT_F(m_trees.size(), 0, "Tree array was not inited correctly");
+  std::random_device rand_dev;
+  std::mt19937 generator(rand_dev());
+  std::uniform_int_distribution<int> distr(0, m_trees.size() - 1);
+  return m_trees.at(distr(generator));
+}
+
+void TerrainGenerator::generateTrees(Chunk& chunk,
+                                     ChunkSlidingWindow& chunk_sliding_window) {
+  glm::ivec3 chunk_pos = chunk.getPos();
+#if SETTING_USE_HEIGHTMAP_BLENDING
+  HeightMap height_map =
+      generateBlendedHeightMap(chunk.getPos(), chunk.getLevelOfDetail());
+#elif SETTING_USE_PRELOADED_HEIGHTMAP
+  HeightMap height_map =
+      m_preloaded_generator.getHeightMap(chunk_pos, chunk.getLevelOfDetail());
+#else
+  HeightMap height_map = m_procedural_generator.generateHeightMap(chunk);
+#endif
+  TreePresenceMap tree_presence_map =
+      m_preloaded_generator.generateTreePresenceMap(
+          m_preloaded_generator.getTreeMap(chunk_pos));
+  placeTrees(chunk, height_map, tree_presence_map, m_water_height,
+             m_tree_settings, chunk_sliding_window);
 }

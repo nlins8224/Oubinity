@@ -185,7 +185,7 @@ static ImageBundle resizeImage(ImageBundle src, glm::vec3 scale) {
       .width = dst_width,
       .height = dst_height,
       .channels = 1,  // parse channels linearly, even if it's RGB
-      .image = std::make_unique<unsigned char[]>(dst_height * dst_width)};
+      .image = std::make_unique<unsigned char[]>(dst_height * dst_width * 2)};
 
   dst_img.height = dst_height;
   dst_img.width = dst_width;

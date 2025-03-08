@@ -37,7 +37,7 @@ int main() {
 
   std::cout << glGetError() << std::endl;
   Camera camera{glm::vec3(0.0f, 128.0f, 0.0f)};
-  TerrainGenerator terrain_generator{1337, 1};
+  TerrainGenerator terrain_generator{1337, 22};
   TextureManager m_texture_manager{16, 16, 256};
   MasterRenderer master_renderer(
       terrain_generator, camera, m_texture_manager.getSkyboxTextureId(),
@@ -86,7 +86,7 @@ int main() {
   glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &max_ssbo_size);
   LOG_F(INFO, "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is %d bytes", max_ssbo_size);
 
-  master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
+  //master_renderer.getChunkRenderer().runTraverseSceneInDetachedThread();
   // PreloadedGeneration::parsePNGToHeightMaps("assets/heightmap.png");
 
   double xpos, ypos;

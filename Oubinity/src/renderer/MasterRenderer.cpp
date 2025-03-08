@@ -27,7 +27,7 @@ void MasterRenderer::clear() const {
 }
 
 void MasterRenderer::render(Camera& camera) {
-  // m_chunk_renderer.traverseSceneLoop();
+  m_chunk_renderer.traverseSceneLoop();
   //
   m_chunk_renderer.updateBufferIfNeedsUpdate();
   m_chunk_renderer.drawChunksSceneMesh();

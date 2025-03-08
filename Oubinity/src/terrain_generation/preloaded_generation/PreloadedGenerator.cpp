@@ -1,16 +1,17 @@
 #include "PreloadedGenerator.h"
 #include "../../Util.h"
+#include "../procedural_generation/ProceduralGenerator.h"
 
 PreloadedGenerator::PreloadedGenerator(uint8_t water_height, glm::vec3 scale)
     : m_water_height{water_height} {
   HeightMapBundle height_map_bundle =
-      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/canyon_heightmap.png",
+      PreloadedGeneration::parsePNGToHeightMaps_8BIT("assets/mountain_lake_heightmap.png",
                                                      scale);
   BlockMapBundle block_map_bundle = PreloadedGeneration::parsePNGToBlockMaps(
-      "assets/canyon_colormap.png", scale);
+      "assets/mountain_lake_colormap.png", scale);
   HeightMapBundle tree_map_bundle =
       PreloadedGeneration::parsePNGToHeightMaps_8BIT(
-          "assets/gaea31_treemap.png", scale);
+          "assets/treemap.png", scale);
 
   m_height_maps =
       std::vector(height_map_bundle.maps.begin(), height_map_bundle.maps.end());
@@ -51,7 +52,7 @@ TreePresenceMap PreloadedGenerator::generateTreePresenceMap(
   TreePresenceMap tree_presence_map{};
   for (int x = 0; x < CHUNK_SIZE; x++) {
     for (int z = 0; z < CHUNK_SIZE; z++) {
-      tree_presence_map[x][z] = tree_map[x][z] > 0.5;
+      tree_presence_map[x][z] = tree_map[x][z] > 0.0;
     }
   }
   return tree_presence_map;
@@ -68,7 +69,7 @@ bool PreloadedGenerator::generateLayers(Chunk& chunk,
   for (int x = 0; x < block_amount_padding; x++) {
     for (int z = 0; z < block_amount_padding; z++) {
       // TODO: y for loop should not be needed at all.
-      for (int y = 1; y < block_amount_padding - 1; y++) {
+      for (int y = 0; y < block_amount_padding; y++) {
         glm::ivec3 block_pos{x, y, z};
         float surface_height = height_map[x][z];
         glm::ivec3 block_padded_pos =
@@ -118,25 +119,10 @@ bool PreloadedGenerator::isBlockUnderneathSurface(glm::ivec3 block_pos,
 glm::ivec3 PreloadedGenerator::mapChunkPosToHeightMapPos(glm::ivec3 chunk_pos) {
   glm::ivec3 translated_chunk_pos =
       chunk_pos + (((int)m_chunks_in_heightmap_xz - 1) / 2);
-  // LOG_F(WARNING, "chunk_pos: (%d, %d, %d)", chunk_pos.x, chunk_pos.y,
-  // chunk_pos.z); LOG_F(WARNING, "translated_chunk_pos: (%d, %d, %d)",
-  // translated_chunk_pos.x, translated_chunk_pos.y, translated_chunk_pos.z);
-
   int x{translated_chunk_pos.x}, y{translated_chunk_pos.y},
       z{translated_chunk_pos.z};
   glm::ivec3 target_chunk_pos = {Util::getMod(x, m_chunks_in_heightmap_xz),
                                  chunk_pos.y,
                                  Util::getMod(z, m_chunks_in_heightmap_xz)};
-  // LOG_F(WARNING, "target_chunk_pos: (%d, %d, %d)", target_chunk_pos.x,
-  // target_chunk_pos.y, target_chunk_pos.z);
   return target_chunk_pos;
-}
-
-void PreloadedGenerator::generateTrees(Chunk& chunk) {
-   glm::ivec3 chunk_pos = chunk.getPos();
-   HeightMap height_map = getHeightMap(chunk_pos, chunk.getLevelOfDetail());
-   TreePresenceMap tree_presence_map =
-   generateTreePresenceMap(getTreeMap(chunk_pos));
-   m_decoration_generator.generateTrees(chunk, height_map, tree_presence_map,
-   m_water_height);
 }

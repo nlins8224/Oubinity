@@ -38,16 +38,23 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
   unsigned int added_faces = alloc_data._added_faces_amount;
   glm::ivec3 chunk_pos = alloc_data._chunk_pos;
   if (added_faces == 0) {
-    LOG_F(INFO, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x,
+    LOG_F(1, "Empty chunk at pos (%d, %d, %d), no faces added", chunk_pos.x,
           chunk_pos.y, chunk_pos.z);
     return;
   }
 
   m_stats.added_faces += added_faces;
   unsigned int added_vertices = Block::VERTICES_PER_FACE * added_faces;
+
+  MeshBucket* first_free_bucket;
   size_t lod_level = alloc_data._lod.level;
   Zone zone = chooseZone(lod_level);
-  MeshBucket* first_free_bucket = getFirstFreeBucket(zone.level);
+  if (wasChunkAllocated(chunk_pos)) {
+    // reallocate chunk by freeing and allocating again
+    free(chunk_pos);
+  }
+  first_free_bucket = getFirstFreeBucket(zone.level);
+  
   m_stats.chunks_in_buckets[zone.level]++;
 
   if (first_free_bucket == nullptr) {
@@ -111,13 +118,17 @@ void ZoneVertexPool::allocate(ChunkAllocData&& alloc_data) {
 }
 
 void ZoneVertexPool::free(glm::ivec3 chunk_pos) {
-  if (m_chunk_pos_to_bucket_id.find(chunk_pos) ==
-      m_chunk_pos_to_bucket_id.end()) {
+  if (!wasChunkAllocated(chunk_pos)) {
     LOG_F(3, "Chunk at (%d, %d, %d) not found", chunk_pos.x, chunk_pos.y,
           chunk_pos.z);
     return;
   }
   fastErase(chunk_pos);
+}
+
+bool ZoneVertexPool::wasChunkAllocated(glm::ivec3 chunk_pos) { 
+    return m_chunk_pos_to_bucket_id.find(chunk_pos) !=
+         m_chunk_pos_to_bucket_id.end();
 }
 
 void ZoneVertexPool::fastErase(glm::ivec3 chunk_pos) {
@@ -162,6 +173,11 @@ MeshBucket* ZoneVertexPool::getFirstFreeBucket(int zone_id) {
   }
   return nullptr;
 }
+
+MeshBucket* ZoneVertexPool::getBucketHoldingChunk(glm::ivec3 chunk_pos) {
+  return nullptr;
+}
+
 
 Zone ZoneVertexPool::chooseZone(unsigned int lod_level) {
   return *zones[lod_level];
@@ -208,16 +224,52 @@ void ZoneVertexPool::push_allocate(ChunkAllocData&& alloc_data, bool fast_path) 
   if (fast_path) {
     allocate(std::move(alloc_data));
     updateMeshBufferDAIC();
-    return;
+  } else {
+    m_pending_allocations.push(alloc_data);
   }
-  m_pending_allocations.push(alloc_data);
+
   if (m_pending_allocations.size() == BUFFER_NEEDS_UPDATE) {
+    commitUpdate();
+  }
+}
+
+void ZoneVertexPool::push_free(glm::ivec3 chunk_pos, bool fast_path) {
+  if (fast_path) {
+    free(chunk_pos);
+  } else {
+    m_pending_frees.push(chunk_pos);
+  }
+
+  if (m_pending_frees.size() == BUFFER_NEEDS_UPDATE) {
+    commitUpdate();
+  }
+}
+
+void ZoneVertexPool::push_update_lod(ChunkAllocData&& alloc_data) {
+  m_pending_lod_updates.push(alloc_data);
+  if (m_pending_lod_updates.size() == BUFFER_NEEDS_UPDATE) {
+    commitUpdate();
+  }
+}
+
+void ZoneVertexPool::commitUpdate() {
+    while (!m_pending_lod_updates.empty()) {
+      ChunkAllocData alloc_data = m_pending_lod_updates.front();
+      free(alloc_data._chunk_pos);
+      allocate(std::move(alloc_data));
+      m_pending_lod_updates.pop();
+    }
+    while (!m_pending_frees.empty()) {
+      free(m_pending_frees.front());
+      m_pending_frees.pop();
+    }
     while (!m_pending_allocations.empty()) {
       allocate(std::move(m_pending_allocations.front()));
       m_pending_allocations.pop();
     }
+    updateChunkInfoBuffer();
+    updateChunkLodBuffer();
     updateMeshBufferDAIC();
-  }
 }
 
 void ZoneVertexPool::initBuckets() {
@@ -288,7 +340,7 @@ size_t ZoneVertexPool::calculateBucketAmountInZones() {
   auto lods_it = Lods.begin();
   for (zones_it, lods_it; zones_it != zones.end() && lods_it + 1 != Lods.end();
        zones_it++, lods_it++) {
-    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 4 * Settings::SETTING_BLOCK_MARGIN + ZONE_INITIAL_BUCKET_AMOUNT_MARGIN;
+    (*zones_it)->buckets_amount = std::pow((lods_it + 1)->draw_distance, 2) * 4 + ZONE_INITIAL_BUCKET_AMOUNT_MARGIN;
     buckets_added += (*zones_it)->buckets_amount;
     if (lods_it != Lods.end() && lods_it + 1 != Lods.end() &&
         (lods_it + 1)->draw_distance > MAX_RENDERED_CHUNKS_IN_XZ_AXIS + 1) {
@@ -421,25 +473,52 @@ void ZoneVertexPool::updateFaceStreamBuffer(std::vector<Face>& mesh,
 }
 
 void ZoneVertexPool::createChunkInfoBuffer() {
-  m_chunk_info_ssbo = 0;
+  glDeleteBuffers(1, &m_chunk_info_ssbo); // delete previous buffer
   glGenBuffers(1, &m_chunk_info_ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
   glBufferData(GL_SHADER_STORAGE_BUFFER,
                sizeof(m_chunk_metadata.active_chunk_info),
-               &m_chunk_metadata.active_chunk_info, GL_STATIC_COPY);
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+               &m_chunk_metadata.active_chunk_info, GL_DYNAMIC_DRAW);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  glDeleteBuffers(1, &m_chunk_info_ssbo);
 }
 
 void ZoneVertexPool::createChunkLodBuffer() {
-  m_chunks_lod_ssbo = 1;
+  glDeleteBuffers(1, &m_chunks_lod_ssbo); // delete previous buffer
   glGenBuffers(1, &m_chunks_lod_ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
   glBufferData(GL_SHADER_STORAGE_BUFFER,
                sizeof(m_chunk_metadata.active_chunks_lod),
-               &m_chunk_metadata.active_chunks_lod, GL_STATIC_COPY);
-  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 1);
+               &m_chunk_metadata.active_chunks_lod, GL_DYNAMIC_DRAW);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+// TODO: Add proper update function
+void ZoneVertexPool::updateChunkInfoBuffer() {
+  glDeleteBuffers(1, &m_chunk_info_ssbo); // delete previous buffer
+  glGenBuffers(1, &m_chunk_info_ssbo);
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunk_info_ssbo);
+  glBufferData(GL_SHADER_STORAGE_BUFFER,
+               sizeof(m_chunk_metadata.active_chunk_info),
+               &m_chunk_metadata.active_chunk_info, GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_chunk_info_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+// TODO: Add proper update function
+void ZoneVertexPool::updateChunkLodBuffer() {
+  glDeleteBuffers(1, &m_chunks_lod_ssbo); // delete previous buffer
+  glGenBuffers(1, &m_chunks_lod_ssbo);
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_chunks_lod_ssbo);
+  glBufferData(GL_SHADER_STORAGE_BUFFER,
+               sizeof(m_chunk_metadata.active_chunks_lod),
+               &m_chunk_metadata.active_chunks_lod, GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_chunks_lod_ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 }  // namespace VertexPool

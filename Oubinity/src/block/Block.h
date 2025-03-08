@@ -45,7 +45,7 @@ static const Block Water{.id{WATER}, .texture{"water"}};
 
 static const Block Oak_Log{.id{OAK_LOG}, .texture{"oak_log"}};
 
-static const Block Oak_Leaves{.id{OAK_LEAVES}, .texture{"oak_leaves"}};
+static const Block Oak_Leaves{.id{OAK_LEAVES}, .texture{"leaves"}};
 
 inline Block getBlockType(block_id block_id) {
   switch (block_id) {

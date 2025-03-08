@@ -25,12 +25,13 @@ class ChunkRenderer : public Renderer {
   void render(Camera& camera) override;
 
   void traverseScene();
-  void doIterate(int camera_chunk_pos_x, int camera_chunk_pos_z);
+  void doIterate(int src_camera_chunk_pos_x,
+                 int src_camera_chunk_pos_z, int dst_camera_chunk_pos_x,
+                 int dst_camera_chunk_pos_z);
   void updateBufferIfNeedsUpdate();
   void runTraverseSceneInDetachedThread();
   void drawChunksSceneMesh();
   void traverseSceneLoop();
-  block_id getBlockIdByWorldPos(glm::ivec3 world_block_pos);
   bool isBlockPresentByWorldPos(glm::ivec3 world_block_pos);
   void updateBlockByWorldPos(glm::ivec3 world_block_pos, block_id type);
 
@@ -41,24 +42,26 @@ class ChunkRenderer : public Renderer {
   HeightMap generateHeightmap(glm::ivec3 chunk_pos,
                               LevelOfDetail::LevelOfDetail lod);
   bool populateChunkNeighbor(glm::ivec3 chunk_pos);
-  bool generateChunkTerrain(glm::ivec3 chunk_pos);
-  bool decorateChunkIfPresent(glm::ivec3 chunk_pos);
+  bool remeshChunkNeighbors(glm::ivec3 chunk_pos);
+  bool reallocateChunkNeighbors(glm::ivec3 chunk_pos);
+  bool generateChunkTerrainIfNeeded(glm::ivec3 chunk_pos);
   bool meshChunk(glm::ivec3 chunk_pos);
-  bool deleteChunkIfPresent(glm::ivec3 chunk_pos);
-  void deleteChunk(glm::ivec3 chunk_pos);
-  bool checkIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
-  void iterateOverChunkBorderAndCreate(WindowMovementDirection move_dir);
-  void iterateOverChunkBorderAndDelete(WindowMovementDirection move_dir);
+  bool freeChunkIfPresent(glm::ivec3 chunk_pos);
+  bool markIfChunkLodNeedsUpdate(glm::ivec3 chunk_pos);
+  void updateChunkLod(glm::ivec3 chunk_pos);
+  BS::multi_future<void> UpdateWorldChunkBorder(WindowMovementDirection move_dir,
+                                       ChunkBorder dst_chunk_border);
+  void updateTreeChunkBorder(WindowMovementDirection move_dir,
+                             ChunkBorder dst_chunk_border);
   void iterateOverChunkBorderAndUpdateLod(ChunkBorder chunk_border);
   bool isChunkOutOfBorder(glm::ivec3 chunk_pos, ChunkBorder chunk_border);
 
-  void generateChunk(glm::ivec3 chunk_pos);
+  void generateChunk(glm::ivec3 chunk_pos, bool update_lod);
+  bool generateChunkDecoration(glm::ivec3 chunk_pos);
+  HeightMap getChunkHeightmap(glm::ivec3 chunk_pos);
   VertexPool::ChunkAllocData getAllocData(glm::ivec3 chunk_pos);
-
-  std::weak_ptr<Chunk> getChunkByWorldPos(glm::ivec3 world_block_pos);
-
   void allocateChunk(VertexPool::ChunkAllocData alloc_data, bool fast_path);
-  void freeChunk(glm::ivec3 chunk_pos);
+  void freeChunk(glm::ivec3 chunk_pos, bool fast_path);
 
   Camera& m_camera;
   glm::ivec3 m_camera_last_chunk_pos;
@@ -68,7 +71,9 @@ class ChunkRenderer : public Renderer {
   // Meshing is done on generation thread, but allocate and free are
   // done on main thread, because of OpenGL context requirements
   std::atomic<bool> m_buffer_needs_update;
-
+  std::atomic<int> m_generation_tasks;
+  std::atomic<int> m_free_tasks;
+  std::atomic<int> m_lod_update_tasks;
   ChunkSlidingWindow
       m_chunks_by_coord;  // shared between generation and main threads
 
@@ -76,10 +81,10 @@ class ChunkRenderer : public Renderer {
       m_chunks_to_allocate;  // generation thread writes, main thread reads
   moodycamel::ConcurrentQueue<glm::ivec3>
       m_chunks_to_free;  // generation thread writes, main thread reads
+  moodycamel::ConcurrentQueue<VertexPool::ChunkAllocData>
+      m_chunks_to_update_lod;  // generation thread writes, main thread reads
 
-  BS::thread_pool m_generation_task_pool{std::min(1u, std::thread::hardware_concurrency())};
-
-  std::queue<std::function<void()>> m_tasks;
+  BS::thread_pool m_generation_task_pool{std::min(10u, std::thread::hardware_concurrency())};
 
   VertexPool::ZoneVertexPool* m_vertexpool;  // called only on main thread
   TerrainGenerator& m_terrain_generator;     // called only on generation thread

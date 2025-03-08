@@ -21,13 +21,13 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
   std::mt19937 generator_y(tree_pos.y);
   std::mt19937 generator_z(tree_pos.z);
 
-  double range = 5.0;
+  double range = 3.0;
 
   std::uniform_real_distribution<double> dist(-range, range);
   std::uniform_real_distribution<double> dist_unsigned(0, range);
-  for (size_t x = 0; x < Settings::CHUNK_SIZE; x += 8) {
-    for (size_t y = 0; y < Settings::CHUNK_SIZE; y += 8) {
-      for (size_t z = 0; z < Settings::CHUNK_SIZE; z += 8) {
+  for (size_t x = 0; x < Settings::CHUNK_SIZE; x += 4) {
+    for (size_t y = 0; y < Settings::CHUNK_SIZE; y += 4) {
+      for (size_t z = 0; z < Settings::CHUNK_SIZE; z += 4) {
         glm::vec3 ap_pos =
             tree_pos + glm::ivec3(dist(generator_x),
                                   dist_unsigned(generator_y) + range,
@@ -40,7 +40,16 @@ void ProceduralTree::BranchGenerator::generateAttractionPoints(
 }
 
 std::vector<ProceduralTree::Branch>
-ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
+ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos, TreeBranchSettings settings) {
+  // TODO: Make this stateless instead of clearing each time
+  m_attraction_points.clear();
+  m_nodes.clear();
+  m_branches.clear();
+  std::queue<Node*> empty;
+  std::swap(m_pending_new_nodes, empty);
+  m_settings = settings;
+  m_grid.clear();
+  // ---- 
   generateAttractionPoints(tree_pos);
   createRootNode(tree_pos);
   size_t iter_count = 0;
@@ -50,6 +59,7 @@ ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
        i++) {
     doIteration();
   }
+  printBranches();
   return m_branches;
 }
 
@@ -151,11 +161,23 @@ bool ProceduralTree::BranchGenerator::nodesAreInAttractionPointsRange() {
 }
 
 void ProceduralTree::BranchGenerator::printBranches() {
+  LOG_F(INFO, "-----------PRINT BRANCHES------------");
   for (auto& branch : m_branches) {
     glm::vec3 v = branch.v->pos;
     glm::vec3 u = branch.u->pos;
     LOG_F(INFO, "branch  pos: (%f, %f, %f) -> (%f, %f, %f)", v.x, v.y, v.z, u.x,
           u.y, u.z);
-    ;
+    auto v_childs = branch.v->childs;
+    for (auto v_child : v_childs) {
+      LOG_F(INFO, "v_child pos (%f, %f, %f)", v_child->pos.x,
+            v_child->pos.y, v_child->pos.z);
+    }
+    auto u_childs = branch.u->childs;
+    for (auto u_child : u_childs) {
+      LOG_F(INFO, "u_child pos (%f, %f, %f)", u_child->pos.x, u_child->pos.y,
+            u_child->pos.z);
+    }
+    LOG_F(INFO, "branch v_childs=%d, u_childs=%d", v_childs.size(), u_childs.size());
   }
+  LOG_F(INFO, "----------------------------");
 }

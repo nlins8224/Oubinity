@@ -43,6 +43,10 @@ void Block::BlockStorage::clearBlockIdCache() {
   m_padded_occupancy_mask.reset();
 }
 
+void Block::BlockStorage::clearOccupancyMask() {
+  m_padded_occupancy_mask.clear();
+}
+
 void Block::BlockStorage::resizeIfNeeded() { 
    int padded_chunk_size_cubed = (m_chunk_size + 2) * (m_chunk_size + 2) * (m_chunk_size + 2);
    if (m_padded_block_id_cache.size() < padded_chunk_size_cubed) {

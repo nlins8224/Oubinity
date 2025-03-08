@@ -22,9 +22,8 @@ using Settings::MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 constexpr size_t TOTAL_CHUNKS =
     MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_XZ_AXIS * MAX_RENDERED_CHUNKS_IN_Y_AXIS;
 constexpr size_t TOTAL_BUCKETS_AMOUNT = TOTAL_CHUNKS;
-constexpr uint16_t BUFFER_NEEDS_UPDATE = 4;
-//Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS;
-constexpr size_t ZONE_INITIAL_BUCKET_AMOUNT_MARGIN = 0;
+constexpr uint16_t BUFFER_NEEDS_UPDATE = Settings::MAX_RENDERED_CHUNKS_IN_XZ_AXIS / 4;
+constexpr size_t ZONE_INITIAL_BUCKET_AMOUNT_MARGIN = 2000;
 
 static const size_t MAX_DAIC_AMOUNT = TOTAL_BUCKETS_AMOUNT;
 
@@ -104,10 +103,10 @@ class ZoneVertexPool {
   ZoneVertexPool();
   virtual ~ZoneVertexPool();
   void push_allocate(ChunkAllocData&& alloc_data, bool fast_path);
+  void push_free(glm::ivec3 chunk_pos, bool fast_path);
+  void push_update_lod(ChunkAllocData&& alloc_data);
   void draw();
-  void free(glm::ivec3 chunk_pos);
-  void createChunkInfoBuffer();
-  void createChunkLodBuffer();
+  void commitUpdate();
 
  private:
   void initBuckets();
@@ -118,13 +117,20 @@ class ZoneVertexPool {
   void updateMeshBufferDAIC();
   void createFaceStreamBuffer();
   void updateFaceStreamBuffer(std::vector<Face>& mesh, int face_offset);
+  void createChunkInfoBuffer();
+  void createChunkLodBuffer();
+  void updateChunkInfoBuffer();
+  void updateChunkLodBuffer();
   void formatVBO();
   void waitBuffer(GLsync& sync);
   void lockBuffer(GLsync& sync);
   void fastErase(glm::ivec3 chunk_pos);
   void allocate(ChunkAllocData&& alloc_data);
+  void free(glm::ivec3 chunk_pos);
+  bool wasChunkAllocated(glm::ivec3 chunk_pos);
 
   MeshBucket* getFirstFreeBucket(int zone_id);
+  MeshBucket* getBucketHoldingChunk(glm::ivec3 chunk_pos);
   Zone chooseZone(unsigned int lod_level);
   std::pair<size_t, size_t> getBucketIdFromDAIC(DAIC daic);
   size_t calculateBucketAmountInZones();
@@ -157,6 +163,8 @@ class ZoneVertexPool {
   int m_buffer_needs_update_count;
 
   std::queue<ChunkAllocData> m_pending_allocations;
+  std::queue<glm::ivec3> m_pending_frees;
+  std::queue<ChunkAllocData> m_pending_lod_updates;
 };
 
 }  // namespace VertexPool

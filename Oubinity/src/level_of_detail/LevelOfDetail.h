@@ -30,13 +30,13 @@ static const LevelOfDetail One{.level{1},
 static const LevelOfDetail Two{.level{2},
                                .block_amount{Settings::CHUNK_SIZE / 4},
                                .block_size{4.0f},
-                               .draw_distance{64},
+                               .draw_distance{32},
                                .divide_factor{4}};
 
 static const LevelOfDetail Three{.level{3},
                                  .block_amount{Settings::CHUNK_SIZE / 8},
                                  .block_size{8.0f},
-                                 .draw_distance{128},
+                                 .draw_distance{64},
                                  .divide_factor{8}};
 
 static const LevelOfDetail Four{.level{4},

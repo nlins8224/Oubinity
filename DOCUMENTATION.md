@@ -1,11 +1,11 @@
 # Oubinity Documentation
 
-This document aims to provide an overview of the engine and to describe core algorithms and techniques used. It's not supposed to be a tutorial, but it shouldn't have a high barrier of entry either. Assumption is that the reader has knowledge of any programming language, preferably C++ and a basic knowledge of OpenGL or similar graphics API. Engine is work in progress. There are known bugs and components that need to be redesigned. However the core mechanics and major components described here should be quite stable.
+This document aims to provide an overview of the engine and to describe core algorithms and techniques used. It's not supposed to be a tutorial, but it shouldn't have a high barrier of entry either. Assumption is that the reader has knowledge of any programming language, preferably C++ and a basic knowledge of OpenGL or similar graphics API. Engine is work in progress. There are known bugs and components that need to be redesigned. 
 
 ### Contents
 1. Overview
     * Introduction
-    * World scene management
+    * World generation
 2. Terrain Generation
     * Chunk Preloaded & Procedural generation
     * Trees
@@ -18,17 +18,17 @@ This document aims to provide an overview of the engine and to describe core alg
     * Vertexpool, gl Multi-Draw and persistent mapped buffers
     * Data packing
     * Vertex pulling
-
+5. Adding and destroying blocks
 
 ### Overview
 
 ### Introduction - what is a Voxel Engine
-Oubinity is a voxel engine[^1]. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example, can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
+Oubinity is a voxel engine[^1]. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
 
-Voxel in the wild:
-![Voxel in the wild](https://i.ibb.co/nQJkwtt/Screenshot-2024-11-26-194137.png)
+Voxels stack
+![Voxels stack](https://i.ibb.co/LzDb0hLS/voxels-wikipedia.png)
 
-Voxels amount in the world scene scale up cubically. Voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. The strategy is to identify what data does not need to be stored. To illustrate, voxels that cannot be seen by a player camera do not need to be stored. Voxels are grouped into chunks[^2]. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
+Voxels amount in the world scene scale up cubically and voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. One of the strategies is to identify what data does not need to be stored and which part of the world scene does not need to be rendered. To illustrate, voxels that were not edited by a player do not need to be stored. World fragments that cannot be seen by a player do not need to be rendered. To manage this, voxels are grouped into chunks[^2]. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
 
 World generation can be divided conceptually into three phases:
 
@@ -37,9 +37,9 @@ World generation can be divided conceptually into three phases:
 2. Chunk meshing:  
 Voxel is the smallest interactable unit from the player point of view, but it is not the smallest unit to render overall. Voxels are composed of faces (quads) and each voxel has 6 faces (quads). Not every voxel or face is visible to a camera, thus not every face needs to be in mesh. Mesh is a collection of faces (quads) to render on a screen. Meshing is a phase that takes chunk's voxels and produces an array of faces that engine considers as visible.
 
-3. Mesh rendering: a phase when mesh is passed to GPU via OpenGL API calls, to be rendered. 
+3. Mesh rendering: a phase when mesh is passed to GPU via OpenGL API calls, to be rendered. Mesh is passed as an input to GPUs render pipeline. 
  
-These three phases are main building blocks of chunk pipeline and they will be described in greater detail in next sections. Each phase has a great potential to be optimized.
+These three phases are main building blocks of chunk gneration pipeline and they will be described in greater detail in next sections. Each phase has a great potential to be optimized.
 
 
 [^1]: To be more precise it is rasterization based engine. There are other approaches, based on raytracing or hybrid methods.
@@ -47,35 +47,83 @@ These three phases are main building blocks of chunk pipeline and they will be d
 [^2]: Using chunks is not the only to write a rasterized voxel engine. There are other methods, for example global lattice: https://www.youtube.com/watch?v=4xs66m1Of4A&t.
 
 ---
-### World scene management
+### World generation
 
-Ideas described above have their representation in the engine's code logic. This section describes management of objects on a world scene in greater detail.
-`MasterRenderer` class manages world scene. Chunks are handled by `ChunkRenderer` class, sky by `SkyRenderer` and water by `WaterRenderer`.
+##### Overview
 
-`ChunkRenderer` is one of the most important components of the engine. It manages chunks on the scene and decides when a chunk should be created, deleted or updated. Chunks are represented by `Chunk` class and are stored in a flat 1D array that acts similarly to a circular buffer (`ChunkSlidingWindow` class). Chunk creation logic is done in batches and goes as follow, for a batch of chunks:
+Ideas presented above, in the introductory section have their representation in the engine.
+World scene generation and updates are managed by a `MasterRenderer` class. `MasterRenderer` orchestrates generation and updates of chunks, water and sky. Most of the logic in the engine is related to chunks and world is splitted into them. `ChunkRenderer` is a `MasterRenderer`'s component that handles world chunk generation and handles chunk updates. `ChunkRenderer` actions are splitted into two parts: world initial loading and world updates. All visible chunks that are in the render distance are loaded in a world loading phase. Update part is done when camera moves far enough that new chunks are needed to be generated or old ones are needed to be deleted. Initial loading and updates are divided into smaller tasks. Tasks are considered to be main building blocks of chunk scene management and a [thread pool](https://github.com/bshoshany/thread-pool) is used to manage tasks. Threads that are used by [thread pool](https://github.com/bshoshany/thread-pool) are called generation threads. On those threads chunks can be created, have their terrain generated, can be meshed or can be marked to be deleted. However there is no rendering done on generation threads. OpenGL API calls are executed on a render thread.
 
-1. Determine if there are chunks in render distance that should be created and queue them.
+<img src="https://i.ibb.co/fYCcFrtM/chunk-pipeline.png"/>
 
-For queued chunks:
+ When the task is completed its result is moved to a [lock-free concurrent queue](https://github.com/cameron314/concurrentqueue). This queue is shared between multiple generation threads and one render thread, which fetches items from the queue and renders them.
 
-2. Create `chunk` instances, choose `chunk` level of detail
-3. Add chunk neighbors references
-4. Generate chunks terrain
-5. Decorate chunks, i.e. generate trees
-6. Mesh chunks
-7. Allocate and draw chunks
+Chunks have padding. Padding in that context means that chunks have overlapping blocks with their neighboring chunks. Each chunk stores additional blocks it borders with. This allows to mesh chunk independently from other chunks and makes multithreading easier, because each chunk can be generated without any dependency on other chunks. Structures which extend over several chunks (e.g. trees) are generated in an additional dedicated phase.
 
-Chunks advance to next steps in batches as well, all of the chunks in a batch have to complete current step for next one to be unlocked. This is because chunks may need their neighbors data from previous steps. Steps 1-6 are executed on a render thread while step 7 is done on a main thread[^7]. Terrain generation is a hybrid between loading data from texture maps and procedural generation. Binary Greedy Meshing is a meshing algorithm of choice. OpenGL is used as a graphics backend. A custom memory allocator in a persistent mapped buffer is used to allocate chunks data on GPU, to reduce draw calls by utilizing OpenGL's multidraw API (`glMultiDrawArraysIndirectCount`).
+![Padding](https://i.ibb.co/kJ740JQ/Screenshot-2024-11-30-205320.png)
+
+Example image above - Blue chunk borders with four purple chunks. We add purple neighbor blocks that are on chunk borders to blue chunk. 
+
+##### Loading phase
+Each chunk in the render distance is loaded. If trees are enabled, they will be generated in a separate phase that happens after initial chunk generation tasks are finished.
+
+##### Update phase
+When the camera moves, world scene needs to have additional chunks generated and some of the chunks removed. Additionally some chunks may need level of detail update. `traverseScene` method scans for chunks that need updates. To make this more efficient only world borders are checked and that check is only done when camera has moved in a specific direction.
+
+<img src=https://i.ibb.co/TBkMDBnp/move-right-update.png>
+
+See example image above - camera has moved one chunk to the right, which generated `WindowMovementDirection` with movement to the right. Leftmost chunks will be deleted and new row will be added to the right. Camera position will be updated.
+
+Chunks that are in the render distance are stored in a `ChunkSlidingWindow` (circular buffer). Those chunks are only a slice of the whole world scene and are updated in a scrollable manner, when the camera moves. `ChunkSlidingWindow` is an array of a fixed size, where chunks are stored relative to camera's position. When the camera moves, we delete old chunks and add new ones into their places. Other elements do not need to be repositioned. This allows for a fast `O(1)` lookups, fast inserts and is convenient in multithreading scenarios, because the underlying structure is a static array.
+
+##### Trees
+Trees introduce additional complexity - they can be placed across chunk boundaries and be part of multiple chunks at once. 
+
+<img src="https://i.ibb.co/NgBh0fhS/chunk-tree-boundaries.png"/>
+
+Example image above - one tree spreads across four chunks. Tree blocks actually belong to the chunk they are in, so part of the tree is in `Chunk1`, part of it in `Chunk2`, `Chunk3` and `Chunk4`. If `Chunk2` and `Chunk4` were not present, rightmost part of the tree would be cut.
+
+We need to ensure that trees which spread over a few chunks will be fully generated and rendered. The proposed solution is to place trees only when all the chunks on which the tree will be located are already generated. To make things easier tree generation is done in a separate phase, after chunk generation finished. Furthermore tree generation has it's own chunk padding margin, to ensure that tree will not go out of the world borders. That strategy makes it easier to ensure that trees will be fully generated and the generation will be done once.
+
+<img src=https://i.ibb.co/pr0fDbgz/tree-margin-boundaries.png>
+
+On the example image above - Trees can be placed only in green area. A proper ordering of tasks during update phase must be preserved. Chunk generation tasks need to be executed before tree generation tasks. Similarly to chunk generation, tree generation also consists of terrain generation, meshing and rendering. Tree generation is also a task in a thread pool.
+
+<img src=https://i.ibb.co/G4mrkqcL/move-right-update-with-trees.png>
+
+Example image above - world update when trees are enabled. Notice that tree update needs more than one row to be updated. This is because one tree can spread itself over multiple chunks. 
+
+Next sections will cover chunk generation steps (terrain generation, meshing and rendering) in a more detail. Terrain generation is a hybrid between loading data from texture maps and procedural generation. Binary Greedy Meshing is a meshing algorithm of choice. OpenGL is used as a graphics backend. A custom memory allocator in a persistent mapped buffer is used to allocate chunks data on GPU, to reduce draw calls by utilizing OpenGL's multidraw API (`glMultiDrawArraysIndirectCount`).
 
 
-### Level of detail
+### Level of Detail
 
+Level of Detail (LoD for short) refers to the complexity of the generated models. Models that are further away from the camera occupy less pixels on the display screen. Those models do not need to be rendered in full detail, because with them being far away it would be hard to see those details and distinguish from less detailed replacements anyway. Rendering less detailed models mean that we will have smaller meshes and smaller polygons (triangles) count. 
+
+<img src=https://i.ibb.co/LXsBKgZX/lod-transitions.png>
+
+Example image above - Level of Detail transitions (from more details to less) were marked by red and blue rectangles. For demonstration purposes LoD transitions are very close to the camera, to make it visible. Usually we don't want LoD to be very noticeable.
+
+In this engine we mostly deal with chunk's LoD. Chunks with fewer details have less amount of blocks, but their blocks are larger in size. For example, assume that chunk size is equal to 32 and ignore chunk padding.
+
+Chunk levels are done as follows:
+Level 1: 32 blocks, each of size 1x1x1
+Level 2: 16 blocks, each of size 2x2x2
+.
+.
+Level 5: 1 blocks of size 32x32x32
+
+Levels are chosen based on distance between camera and a chunk, it is grid based
+
+<img src=http://i.ibb.co/pjywy1dF/lod-grid.png>
+
+One of the drawbacks of a current implementation is that each lod level is fully generated on CPU. When lod level changes, chunk is deleted and new one with different LoD is generated - this is slow and will be reworked. Additionally Quadtree or Octree may be considered instead of grid based system.
 
 ### TerrainGeneration
 
-Terrain generation is a step done when chunk instance is already created, level of detail is chosen and chunk 'knows' it's neighbors. `TerrainGenerator` is a main class. It has two major components: `ProceduralGenerator` and `PreloadedGenerator`. 
-In this step voxel types will be determined for each visible voxel in each visible chunk. Terrain generation pipeline is a hybrid between procedural generation and preloaded generation.
-* Procedural generation is a method of calculating voxel types algorithmically, at runtime. Main building blocks are chosen from a family of  noise algorithms. FastNoise2 library is used.
+Terrain generation is a step done when chunk instance is already created and level of detail is chosen. `TerrainGenerator` is a main class. It has two major components: `ProceduralGenerator` and `PreloadedGenerator`. 
+In this step voxel types are to be determined for each visible voxel in each visible chunk. Terrain generation pipeline is a hybrid between procedural generation and preloaded generation.
+* Procedural generation is a method of calculating voxel types algorithmically, at runtime. Main building blocks are chosen from a family of  noise algorithms. [FastNoise2](https://github.com/Auburn/FastNoise2) library is used.
 * Preloaded generation is a term used in this engine to describe terrain generation based on reading terrain data from maps stored as image files. 
 
 Terrain generation consists of four phases:
@@ -117,7 +165,7 @@ World scenes can be bigger. Here's an example of 768x8x768 chunks in the render 
 
 # Oubinity water
 
-Water is handled by `WaterRenderer`. Water is implemented in a shader: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
+Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
 ![water](https://i.ibb.co/mSL33J7/water.png)
 
 [^3]: Like Gaea, World Machine, World Painter, or even a drawing in MS Paint.
@@ -136,35 +184,15 @@ Tree generation can be divided into:
 2. Tree generation algorithms
 
 ### Determining tree locations
-Tree locations can be determined basing on a preloaded tree map or from procedurally generated noise. There are some additional rules, for example tree has to be above water and has to be placed on grass block. 
+Tree locations can be determined based on a preloaded tree map or from procedurally generated noise. There are some additional rules, for example tree has to be above water and has to be placed on grass block. 
 
-![tree_in_mountains](https://i.ibb.co/pRV6H7L/tree-mountains.png)
+![tree-placement-example](https://i.ibb.co/qYxDdxtY/tree-placement-example.png)
 
 ### Tree generation
-Trees are generated procedurally. Each generated tree can be unique.
-A technique from "Modeling Trees with a Space Colonization Algorithm" paper: http://algorithmicbotany.org/papers/colonization.egwnp2007.large.pdf
-was used to generate trees. This algorithm simulates tree growth by creating a set of 'attraction points' located in a 3D space. Tree skeleton is created iteratively. In each iteration, an attraction point may influence the tree node that is closest to it, making tree branches grow towards attraction points. Attraction points have their kill distance. Attraction point is removed (killed) when there is at least one tree node within kill distance threshold. There are additional settings and rules that allow for more variety. Reading the paper is recommended.
+Trees are generated procedurally. Each generated tree can be unique. A batch of trees is generated during the initialization and is cached. During tree placement tree type is chosen from that cache with a uniform distribution.
+A technique from [Modeling Trees with a Space Colonization Algorithm](http://algorithmicbotany.org/papers/colonization.egwnp2007.large.pdf) paper was used to generate trees. This algorithm simulates tree growth by creating a set of 'attraction points' located in a 3D space. Tree skeleton is created iteratively. In each iteration, an attraction point may influence the tree node that is closest to it, making tree branches grow towards attraction points. Attraction points have their kill distance. Attraction point is removed (killed) when there is at least one tree node within kill distance threshold. There are additional settings and rules that allow for more variety. Source code can be found in `BranchGenerator` class.
 
-Source code can be found in `BranchGenerator` class
-
-```cpp
-std::vector<ProceduralTree::Branch>
-ProceduralTree::BranchGenerator::generateBranches(glm::ivec3 tree_pos) {
-  generateAttractionPoints(tree_pos);
-  createRootNode(tree_pos);
-  size_t iter_count = 0;
-  for (size_t i = 0;
-       i < m_settings.max_iterations && atLeastOneAttractionPointExists() &&
-       nodesAreInAttractionPointsRange();
-       i++) {
-    doIteration();
-  }
-  return m_branches;
-}
-```
-This algorithm outputs an array of branches. A branch has two nodes and each node stores its position vector. Branches are voxelized by using a technique from "A Fast Voxel Traversal Algorithm for Ray Tracing" paper: http://www.cs.yorku.ca/~amana/research/grid.pdf
-
-Source code can be found in `Tree` class
+This algorithm outputs an array of branches. A branch has two nodes and each node stores its position vector. Branches are voxelized by using a technique from [A Fast Voxel Traversal Algorithm for Ray Tracing](http://www.cs.yorku.ca/~amana/research/grid.pdf) paper. Source code can be found in `Tree` class
 
 ![tree](https://i.ibb.co/FxnsNHr/tree.png)
 
@@ -178,7 +206,7 @@ Meshing is a phase that is done after chunk terrain is generated. It takes array
 In this example every face possible is present in a chunk mesh. This can be seen because of wireframe mode. Most of those faces would not be visible to a camera, if wireframe mode was not used. One of optimizations is to cull out (skip) interior faces that are occluded by their neighbors. It is possible, because each voxel type in a chunk is already known, it is given as an input. 
 
 ![culled8x8x8](https://hackmd.io/_uploads/Sk8ftu_mkl.png)
-Second example illustrates this. Faces that were inside chunk are not meshed nor rendered at all. This improves the performance, as it reduces faces amount from O(n^3) to O(n^2). Changes would be unnoticeable from the camera point of view, if not for wireframe.
+Second example illustrates this. Faces that were inside chunk are not meshed nor rendered at all. This improves the performance, as it reduces faces amount from `O(n^3)` to `O(n^2)`. Changes would be unnoticeable from the camera point of view, if not for wireframe.
 
 A working example from the very early version of this engine:
 ```cpp
@@ -217,10 +245,9 @@ bool Chunk::isFaceVisible(glm::ivec3 block_pos) {
 	return m_blocks[x][y][z] != block_id::AIR;
 }
 ```
-More can be found under this old commit https://github.com/nlins8224/Oubinity/blob/fca8794907b71a1f52e1202556307351d9ef3494/Minecraft/src/Chunk.cpp
 
 This method is still quite naive. Next method, that is binary greedy meshing is way better, but it takes a leap to understand. To give some credit first, images of a wireframed chunk were taken from this article: https://0fps.net/2012/06/30/meshing-in-a-minecraft-game/. 
-This article actually covers greedy meshing as well, but it's not the one used in this engine. It's quite different. The one used in this engine comes from: https://github.com/cgerikj/binary-greedy-meshing. Version 1.0.0 is used.
+This article actually covers greedy meshing as well, but it's not the one used in this engine. It's quite different. The one used in this engine comes from: https://github.com/cgerikj/binary-greedy-meshing/tree/v1.0.0. Version 1.0.0 with baked ambient occlussion is used.
 
 #### Binary Greedy Meshing
 
@@ -338,10 +365,12 @@ We apply AND operation on first and third result, that gives us faces that have 
 
 That was binary meshing part of the algorithm. Faces that should be visible are stored in columns and they could be collected and rendered as they are. This part can be used as a standalone algorithm: TODO LINK. Greedy meshing, which is next part, takes `col_face_masks` as an input and merges faces of the same type into bigger quads.
 
+This part of the algorithm can be used as in a standalone version. Standalone version can be found [here](https://github.com/nlins8224/Oubinity/blob/78bb0ab6cedb1ed23b5ed8315130610c13a35398/Minecraft/src/chunk/Chunk.cpp#L123)
+
 ##### Greedy meshing
 Faces of the same voxel type can be merged into a bigger face quads. Textures will not be stretched. They will be repeatably applied, so this will not be visible.
 Picture below illustrates a grid plane view. There are 32 (chunk size) grids per each axis. Each cell represents a **column**. Colors represent different voxel types. The end result:
-![merged](https://i.ibb.co/MpgsS97/Screenshot-2024-12-01-122205.png)
+![merged](https://i.ibb.co/zWWG4rVv/greedy-meshing-output.png)
 Algorithm starts in bottom left corner. Algorithm merges faces in forward direction first and in right direction when merging forward is no longer possible. This is done iteratively, iterating to the right. Faces from columns in first row are merged with neighbors from second row. Face is added to an array of faces when it is no longer possible to merge in any direction.
 ![merging](https://i.ibb.co/kDkPQgB/Screenshot-2024-12-01-195855.png)
 In example above algorithm is in a row and column indicated by an arrow. On the left, algorithm already merged faces from previous rows with their forward neighbors and is about to merge another one in a forward direction. On the right, merging forward was no longer possible, so algorithm merged to the right direction.
@@ -365,7 +394,7 @@ for (uint8_t face = 0; face < 6; face++) {
 }
 ```
 We apply AND operations to merge faces that are solid and store them in `bits_merging_forward` and `bits_merging_right`. Voxel type check will be later.
-![bits](https://i.ibb.co/0X3bGMW/Screenshot-2024-12-01-140205.png)
+![bits](https://i.ibb.co/LzkQ0Tyg/greedy-meshing-bits-forward.png)
 
 From columns perspective, merging current and next to the 'right' columns:
 `uint64_t bits_merging_right = bits_here & bits_right;`
@@ -462,15 +491,13 @@ Those faces are merged in right direction
 
 When meshing phase will be finished, a batch of meshes will passed to next phase that will allocate data on the GPU and render it.  
 
-https://github.com/nlins8224/Oubinity/blob/78bb0ab6cedb1ed23b5ed8315130610c13a35398/Minecraft/src/chunk/Chunk.cpp
-
 [^1]:We are gloriously solving a problem that has been introduced along with data stucture for this algorithm, but I don't mind. Original algorithm uses padding as well, but they use slightly smaller chunk size, which is generally smarter.
 
 
 ### Vertexpool allocation and drawing commands
 Vertexpool follows AZDO approach and combines multi-draw (`glMultiDrawArraysIndirect`) with persistent mapped buffers. Source code can be found in `ZoneVertexPool` class. 
 
-When meshing phase is done, a batch of mesh data is passed to a lower level layer that handles communication with GPU. Mesh to be rendered is passed via OpenGL API calls. A popular strategy is to render each chunk mesh separately. In that strategy, there is one OpenGL draw call and one vertex buffer object per chunk. However, as the number of chunks increases, the number of draw calls increases as well. To the point that communication between engine and GPU that is handled by a GPU driver becomes a bottleneck.
+When meshing phase is done, a batch of mesh data is passed to a lower level layer that handles communication with GPU. Mesh to be rendered is passed via OpenGL API calls. A popular strategy is to render each chunk mesh separately. In that strategy, there is one OpenGL draw call and one vertex buffer object per chunk. However, as the number of chunks increases, the number of draw calls increases as well. To the point that communication between engine and GPU that is handled by a GPU driver becomes a bottleneck. Hence a different strategy is needed.
 
 OpenGL (`v. 4.3+`) has a multi-draw (`glMultiDrawArraysIndirect`) API call that allows to render many different meshes within a single API call[^1] and using only one mesh data buffer. Multi-draw takes a batch of draw commands (`DrawArraysIndirectCommand`) called DAIC for short. Each DAIC stores an offset to a particular mesh location and a size of a mesh.
 In other words one of multi-draw requirements is to handle GPU memory management on engine side. This involves writing a custom memory allocator. OpenGL has a concept of persistently mapped buffers. Persistently mapped buffer is a buffer that is allocated once, is immutable (cannot be enlarged/shrinked in runtime), is always mapped and allows to write to GPUs memory. A manual synchronisation on the engine side is also required - GPU should not read the buffer when engine writes. Persistently mapped buffer is used as a base of memory pool allocator.
@@ -750,11 +777,17 @@ Data is unpacked on GPU in vertex shader (`chunkVertex.glsl`) as follows:
 ```
 Actual face position and orientation is determined based on `face_id` face attribute `ChunkInfo` SSBO that is passed separately and lookup tables in vertex shader.
 
+### Adding and destroying blocks
+
+One of premises of a voxel engine is that voxels are interactable. For example each voxel can be destroyed. We utilize a raytracing algorithm for adding and destroying voxels.
+The idea is that we shot a ray in a direction the camera is currently facing. This ray has a distance defined and algorithm ends if a block was found or the distance has been exceeded. We iterate over the voxels encountered in the ray path. In each iteration we check if a block was found and we traverse to next voxel if it was not.  
 
 
+<img src=https://i.ibb.co/p67JQ2wM/Screenshot-2025-03-08-134736.png>
 
+Example picture above - Red line is a ray. Orange squares represent solid voxels. Grey squares represent air. Iteration will be done over voxels `A, B, C, D, E, F`. Example is in 2D, but real algorithm operates on a 3D world.
 
-
+Implementation can be found in a `Ray` class. `Ray` class is used in `PlayerInput` class. In contrary to world generation, updating chunk that was modified by a Player is not done as a task. It happens immediately and is fully done on a render thread.
 
 
 ---
