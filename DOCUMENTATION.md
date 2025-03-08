@@ -60,7 +60,7 @@ World scene generation and updates are managed by a `MasterRenderer` class. `Mas
 
 Chunks have padding. Padding in that context means that chunks have overlapping blocks with their neighboring chunks. Each chunk stores additional blocks it borders with. This allows to mesh chunk independently from other chunks and makes multithreading easier, because each chunk can be generated without any dependency on other chunks. Structures which extend over several chunks (e.g. trees) are generated in an additional dedicated phase.
 
-![Padding](https://i.ibb.co/kJ740JQ/Screenshot-2024-11-30-205320.png)
+![Padding](documentation_resources/chunk-padding.png)
 
 Example image above - Blue chunk borders with four purple chunks. We add purple neighbor blocks that are on chunk borders to blue chunk. 
 
@@ -70,7 +70,7 @@ Each chunk in the render distance is loaded. If trees are enabled, they will be 
 ##### Update phase
 When the camera moves, world scene needs to have additional chunks generated and some of the chunks removed. Additionally some chunks may need level of detail update. `traverseScene` method scans for chunks that need updates. To make this more efficient only world borders are checked and that check is only done when camera has moved in a specific direction.
 
-<img src=https://i.ibb.co/TBkMDBnp/move-right-update.png>
+![move-right](documentation_resources/move-right-update.png)
 
 See example image above - camera has moved one chunk to the right, which generated `WindowMovementDirection` with movement to the right. Leftmost chunks will be deleted and new row will be added to the right. Camera position will be updated.
 
@@ -79,17 +79,17 @@ Chunks that are in the render distance are stored in a `ChunkSlidingWindow` (cir
 ##### Trees
 Trees introduce additional complexity - they can be placed across chunk boundaries and be part of multiple chunks at once. 
 
-<img src="https://i.ibb.co/NgBh0fhS/chunk-tree-boundaries.png"/>
+![chunk-tree-boundaries](documentation_resources/chunk-tree-boundaries.png)
 
 Example image above - one tree spreads across four chunks. Tree blocks actually belong to the chunk they are in, so part of the tree is in `Chunk1`, part of it in `Chunk2`, `Chunk3` and `Chunk4`. If `Chunk2` and `Chunk4` were not present, rightmost part of the tree would be cut.
 
 We need to ensure that trees which spread over a few chunks will be fully generated and rendered. The proposed solution is to place trees only when all the chunks on which the tree will be located are already generated. To make things easier tree generation is done in a separate phase, after chunk generation finished. Furthermore tree generation has it's own chunk padding margin, to ensure that tree will not go out of the world borders. That strategy makes it easier to ensure that trees will be fully generated and the generation will be done once.
 
-<img src=https://i.ibb.co/pr0fDbgz/tree-margin-boundaries.png>
+![tree-margin-boundaries](documentation_resources/tree-margin-boundaries.png)
 
 On the example image above - Trees can be placed only in green area. A proper ordering of tasks during update phase must be preserved. Chunk generation tasks need to be executed before tree generation tasks. Similarly to chunk generation, tree generation also consists of terrain generation, meshing and rendering. Tree generation is also a task in a thread pool.
 
-<img src=https://i.ibb.co/G4mrkqcL/move-right-update-with-trees.png>
+![move-right-update-with-trees](documentation_resources/move-right-update-with-trees.png)
 
 Example image above - world update when trees are enabled. Notice that tree update needs more than one row to be updated. This is because one tree can spread itself over multiple chunks. 
 
@@ -100,7 +100,7 @@ Next sections will cover chunk generation steps (terrain generation, meshing and
 
 Level of Detail (LoD for short) refers to the complexity of the generated models. Models that are further away from the camera occupy less pixels on the display screen. Those models do not need to be rendered in full detail, because with them being far away it would be hard to see those details and distinguish from less detailed replacements anyway. Rendering less detailed models mean that we will have smaller meshes and smaller polygons (triangles) count. 
 
-<img src=https://i.ibb.co/LXsBKgZX/lod-transitions.png>
+![lod-transitions](documentation_resources/lod-transitions.png)
 
 Example image above - Level of Detail transitions (from more details to less) were marked by red and blue rectangles. For demonstration purposes LoD transitions are very close to the camera, to make it visible. Usually we don't want LoD to be very noticeable.
 
@@ -115,7 +115,7 @@ Level 5: 1 blocks of size 32x32x32
 
 Levels are chosen based on distance between camera and a chunk, it is grid based
 
-<img src=http://i.ibb.co/pjywy1dF/lod-grid.png>
+![lod-grid](documentation_resources/lod-grid.png)
 
 One of the drawbacks of a current implementation is that each lod level is fully generated on CPU. When lod level changes, chunk is deleted and new one with different LoD is generated - this is slow and will be reworked. Additionally Quadtree or Octree may be considered instead of grid based system.
 
@@ -135,11 +135,11 @@ Terrain generation consists of four phases:
 First phase can be either purely procedural, purely preloaded or a blended hybrid. Second and third phase can be either preloaded or procedural. Tree generation is procedural only and is optional. Generation modes can be chosen in `Settings` class and they are applied at compile time.
 
 
-<img src="https://i.ibb.co/xhzGWyT/scene-1.png"/>
+![scene-1](documentation_resources/scene-1.png)
 
 Above, a fully preloaded example. The shape of the terrain is determined via a preloaded heightmap, which is parsed, chunked and then optionally scaled (bilinear interpolation). Next, colormap is parsed, chunked and optionally scaled. A function is used to map a color to a closest matching block type.
 
-<img src="https://i.ibb.co/tMwX9m9/Screenshot-2024-11-27-220341.png"/>
+![preloaded-scene](documentation_resources/preloaded-scene-1.png)
 
 In this example above shape of the terrain (heightmap) is calculated procedurally, while colormap is preloaded. The world is infinite and fog is enabled.
 
@@ -147,26 +147,27 @@ Preloaded generation allows to create maps in third party tools[^3] and does not
 
 Determining height and voxel types distribution is not the only way to change appearence of the terrain. Different voxel palette can be chosen to change how the terrain looks. In the example below, the same heightmap and colormap are used, but with different voxel type palette.
 
-<img src="https://i.ibb.co/X8VxyJH/green-erosion.png" width="50%" height="337"/>
-<img src="https://i.ibb.co/JC1gR2j/weird-terrain.png" width="50%" height="337"/>
+![scene-2](documentation_resources/scene-2.png)
+
+![scene-3](documentation_resources/scene-3.png)
 
 There are limitations to loading terrain from texture maps as well. Image files are finite, which means that either world will be finite or the same world will be repeated multiple times. A single texture map is not sufficient to represent an infinite world. Texture maps are mixed with procedural noise for a better outcome.
 In some way texture maps are a hardcoded layered procedural noise. Preloaded and procedural noises can be represented in a graph form, where single procedural noise or preloaded texture map is a node. Nodes can be combined together in various ways.
 
-![procedural_preloaded](https://i.ibb.co/5LGYzww/procedural-preloaded-composed.png)
+![scene-4](documentation_resources/scene-4.png)
 
 Above, a blended heightmap terrain, preloaded texture acts as a node and is composed with another procedural simplex noise node. This gives infinite terrain and also maintains preloaded node properties, while offering varied, not so repeating world.
 
 
 World scenes can be bigger. Here's an example of 768x8x768 chunks in the render distance with camera in the middle. World shape is purely procedural in this example. A single simplex node was used. Repetitions in the terrain are visible. One single noise node is often not enough to get a varied terrain.
 
-<img src="https://i.ibb.co/JKsFGkT/Screenshot-2024-11-27-223856.png"/>
-
+![scene-5](documentation_resources/scene-5.png)
 
 # Oubinity water
 
 Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVertex`, `waterFragment` as a flat transparent plane with water texture.
-![water](https://i.ibb.co/mSL33J7/water.png)
+
+![scene-6](documentation_resources/scene-6.png)
 
 [^3]: Like Gaea, World Machine, World Painter, or even a drawing in MS Paint.
 
@@ -174,8 +175,7 @@ Water is handled by `WaterRenderer`. Water is implemented in a shaders: `waterVe
 
 Sky and clouds implementation is based on https://iquilezles.org/articles/dynclouds/. Sky rendering is handled by `SkyRenderer`. Sky is mapped onto a quad plane and the main part is handled in a fragment shader `skyFragment`
 
-![hills_sky](https://i.ibb.co/qDzmDy7/hills-sky.png)
-
+![scene-7](documentation_resources/scene-7.png)
 
 # Oubinity Trees
 
@@ -186,7 +186,7 @@ Tree generation can be divided into:
 ### Determining tree locations
 Tree locations can be determined based on a preloaded tree map or from procedurally generated noise. There are some additional rules, for example tree has to be above water and has to be placed on grass block. 
 
-![tree-placement-example](https://i.ibb.co/qYxDdxtY/tree-placement-example.png)
+![scene-8](documentation_resources/scene-8.png)
 
 ### Tree generation
 Trees are generated procedurally. Each generated tree can be unique. A batch of trees is generated during the initialization and is cached. During tree placement tree type is chosen from that cache with a uniform distribution.
@@ -194,18 +194,19 @@ A technique from [Modeling Trees with a Space Colonization Algorithm](http://alg
 
 This algorithm outputs an array of branches. A branch has two nodes and each node stores its position vector. Branches are voxelized by using a technique from [A Fast Voxel Traversal Algorithm for Ray Tracing](http://www.cs.yorku.ca/~amana/research/grid.pdf) paper. Source code can be found in `Tree` class
 
-![tree](https://i.ibb.co/FxnsNHr/tree.png)
+![tree](documentation_resources/tree.png)
 
 # Oubinity - Binary greedy meshing
 
 #### Introduction
 Meshing is a phase that is done after chunk terrain is generated. It takes array of voxel types on input and produces visible faces (quads) as an output. Meshing is done per chunk. It is generally worth to reduce faces amount on a world scene, as it reduces memory footprint and allows GPU to render less data, which reduces render times. The idea is to reduce faces, without changing the scene from camera's perspective. This can be illustrated by looking at a single chunk:
 
-![naive8x8x8](https://hackmd.io/_uploads/Sk_iU__X1g.png)
+![wireframe-1](documentation_resources/wireframe-1.png)
 
 In this example every face possible is present in a chunk mesh. This can be seen because of wireframe mode. Most of those faces would not be visible to a camera, if wireframe mode was not used. One of optimizations is to cull out (skip) interior faces that are occluded by their neighbors. It is possible, because each voxel type in a chunk is already known, it is given as an input. 
 
-![culled8x8x8](https://hackmd.io/_uploads/Sk8ftu_mkl.png)
+![wireframe-2](documentation_resources/wireframe-2.png)
+
 Second example illustrates this. Faces that were inside chunk are not meshed nor rendered at all. This improves the performance, as it reduces faces amount from `O(n^3)` to `O(n^2)`. Changes would be unnoticeable from the camera point of view, if not for wireframe.
 
 A working example from the very early version of this engine:
@@ -259,25 +260,27 @@ Binary greedy meshing combines faces of the same orientation (top, left) and typ
 This part of the algorithm determines if a face should be visible. An array of chunk's voxel types is given as an input. At first each face of solid voxel type (i.e. not air) is considered visible. Faces in chunk interior will be culled out. The idea is to group faces in a way that allows to determine visibility not just for one face, but for a whole column simultaneously in one or few bitwise operations.
 
 First, we need to store faces in columns. We have three axises (x, y, z), so we have three column types, one per axis.
-![Column](https://i.ibb.co/qsyPJ1s/Screenshot-2024-11-30-191422.png)
+![Column-1](documentation_resources/greedy-meshing-column.png)
 This is Y axis column. It has up to 32 top and 32 bottom faces.
 
 Each column is given on a plane. This mapping goes as follows:
 
-![Columns](https://i.ibb.co/pZLk94g/Screenshot-2024-11-30-180353.png)
+![axis](documentation_resources/greedy-meshing-axis.png)
 
 XZ plane stores Y axis columns. There are 32 Y axis columns per chunk. Y column stores top and bottom faces.
 ZY plane stores X axis columns. There are 32 X axis columns per chunk. X column stores left and right faces.
 XY plane stores Z axis columns. There are 32 Z axis columns per chunk. Z column stores front and back faces.
 
-
 Each column stores two types of faces (e.g. top and bottom faces):
-![Overlap](https://i.ibb.co/3RpcLX9/Screenshot-2024-11-30-192315.png)
+
+![slots](documentation_resources/greedy-meshing-slots.png)
+
 There are 32 slots for Top faces and 32 slots for Bottom faces in Y column (also - column has CHUNK_SIZE + 1 slots). 
 Top and bottom faces overlap with each other. First and last face does not overlap with faces inside a chunk, but they may overlap with faces that are present in chunk neighbors adjacent to them. We need to know those adjacent faces type to determine border slots visibility.
 We solve this by adding neighbor voxels padding to a chunk. In other words, instead of storing 32x32x32 chunks, we store 34x34x34 chunks, where additional voxels are taken from neighboring chunks.[^1]
 
-![Padding](https://i.ibb.co/kJ740JQ/Screenshot-2024-11-30-205320.png)
+![Padding](documentation_resources/chunk-padding.png)
+
 Blue 32x32x32 chunk now stores it's neighbor chunks voxels, that it borders with.
 Blue chunk size is now (32+2)x(32+2)x(32+2)
 
@@ -370,9 +373,13 @@ This part of the algorithm can be used as in a standalone version. Standalone ve
 ##### Greedy meshing
 Faces of the same voxel type can be merged into a bigger face quads. Textures will not be stretched. They will be repeatably applied, so this will not be visible.
 Picture below illustrates a grid plane view. There are 32 (chunk size) grids per each axis. Each cell represents a **column**. Colors represent different voxel types. The end result:
-![merged](https://i.ibb.co/zWWG4rVv/greedy-meshing-output.png)
+
+![merged](documentation_resources/greedy-meshing-output.png)
+
 Algorithm starts in bottom left corner. Algorithm merges faces in forward direction first and in right direction when merging forward is no longer possible. This is done iteratively, iterating to the right. Faces from columns in first row are merged with neighbors from second row. Face is added to an array of faces when it is no longer possible to merge in any direction.
-![merging](https://i.ibb.co/kDkPQgB/Screenshot-2024-12-01-195855.png)
+
+![forward](documentation_resources/greedy-meshing-forward.png)
+
 In example above algorithm is in a row and column indicated by an arrow. On the left, algorithm already merged faces from previous rows with their forward neighbors and is about to merge another one in a forward direction. On the right, merging forward was no longer possible, so algorithm merged to the right direction.
 
 We start with:
@@ -394,11 +401,14 @@ for (uint8_t face = 0; face < 6; face++) {
 }
 ```
 We apply AND operations to merge faces that are solid and store them in `bits_merging_forward` and `bits_merging_right`. Voxel type check will be later.
-![bits](https://i.ibb.co/LzkQ0Tyg/greedy-meshing-bits-forward.png)
+
+![bits](documentation_resources/greedy-meshing-bits-forward.png)
 
 From columns perspective, merging current and next to the 'right' columns:
 `uint64_t bits_merging_right = bits_here & bits_right;`
-![columns](https://i.ibb.co/dmZBF6R/Screenshot-2024-12-01-143045.png)
+
+![columns](documentation_resources/greedy-meshing-column-2.png)
+
 Notice that there are visible gaps, one is marked by curly brace and an asterisk (*). That represents empty slots in a column. Not every face is visible. Notice that there are also double colored fields in 'Bits merging right', marked by curly brace and exclamation mark (!). This is because algorithm checked only if visible faces are next to each other. It did not check if they are the same type yet. 
 
 Next step is to check if faces are of the same voxel type. Algorithm takes a column and 'unpacks' it, i.e. it iterates through faces that were merged and checks if they are of the same type. If they are not, they will be cleared. Algorithm checks 'forward' direction first.
@@ -513,7 +523,7 @@ Memory pool is divided into buckets. Bucket is a continuous segment of memory in
 DAIC list with active DAICs is passed via `glMultiDrawArraysIndirect` call.
 
 
-![VertexPool](https://i.ibb.co/c6gFg98/Screenshot-2024-12-07-150611.png)
+![VertexPool](documentation_resources/vertexpool-1.png)
 
 Creation of ZoneVertexPool object goes as follow:
 1. Calculate how many buckets is needed in each zone. This is based on LOD settings and render distance settings.
@@ -782,8 +792,7 @@ Actual face position and orientation is determined based on `face_id` face attri
 One of premises of a voxel engine is that voxels are interactable. For example each voxel can be destroyed. We utilize a raytracing algorithm for adding and destroying voxels.
 The idea is that we shot a ray in a direction the camera is currently facing. This ray has a distance defined and algorithm ends if a block was found or the distance has been exceeded. We iterate over the voxels encountered in the ray path. In each iteration we check if a block was found and we traverse to next voxel if it was not.  
 
-
-<img src=https://i.ibb.co/p67JQ2wM/Screenshot-2025-03-08-134736.png>
+![ray](documentation_resources/ray-block-detection.png)
 
 Example picture above - Red line is a ray. Orange squares represent solid voxels. Grey squares represent air. Iteration will be done over voxels `A, B, C, D, E, F`. Example is in 2D, but real algorithm operates on a 3D world.
 
