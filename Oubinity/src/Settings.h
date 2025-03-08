@@ -34,5 +34,9 @@ static constexpr double SETTING_CAMERA_SPEED = 15.0;
 
 static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 128;
 static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 16;
+
+constexpr char PRELOADED_HEIGHTMAP[] = "assets/mountain_lake_heightmap.png";
+constexpr char PRELOADED_COLORMAP[] = "assets/mountain_lake_colormap.png";
+constexpr char PRELOADED_TREEMAP[] = "assets/treemap.png";
 }  // namespace Settings
  
