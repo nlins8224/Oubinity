@@ -35,7 +35,7 @@ If using Visual Studio `Release` or `RelWithDebInfo` is recommended.
 Run the binary in `Oubinity/bin`.
 
 ### Documentation
-A usage cheatsheet and an overview of the world generation pipeline, terrain generation, meshing, rendering and core algorithms used is available under [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/docs_update/DOCUMENTATION.md)
+A usage cheatsheet and an overview of the world generation pipeline, terrain generation, meshing, rendering and core algorithms used is available under [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/main/DOCUMENTATION.md)
 
 ### Roadmap
 Roadmap can be found [here](https://github.com/users/nlins8224/projects/2/views/1)
