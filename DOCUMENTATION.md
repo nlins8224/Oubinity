@@ -4,6 +4,7 @@ This document aims to provide an overview of the engine and to describe core alg
 
 ### Contents
 1. [Overview](#overview)
+    * [Usage Cheatsheet](#usage-cheatsheet)
     * [Introduction](#introduction---what-is-a-voxel-engine)
     * [World generation](#world-generation)
     * [Level of Detail](#level-of-detail)
@@ -21,6 +22,33 @@ This document aims to provide an overview of the engine and to describe core alg
 5. [Adding and destroying blocks](#adding-and-destroying-blocks)
 
 ### Overview
+
+#### Usage Cheatsheet
+This engine uses a few toggle modes that can be enabled in `src/Settings.h`
+Most important are:
+```c++
+// 1 - enabled, 0 - disabled
+// Enable reading height of the terrain from external image files
+#define SETTING_USE_PRELOADED_HEIGHTMAP 1
+// Enable reading voxel types of the terrain from external image files
+#define SETTING_USE_PRELOADED_COLORMAP 1
+// Blend external image files data with procedural generation.
+#define SETTING_USE_HEIGHTMAP_BLENDING 1
+
+// Enable trees
+#define SETTING_TREES_ENABLED 1
+// Read tree positions data from external image file
+#define SETTING_USE_PRELOADED_TREEMAP 1
+
+// Horizontal and Vertical render distances
+static constexpr int MAX_RENDERED_CHUNKS_IN_XZ_AXIS = 128;
+static constexpr int MAX_RENDERED_CHUNKS_IN_Y_AXIS = 16;
+
+// Path to maps
+constexpr char PRELOADED_HEIGHTMAP[] = "assets/mountain_lake_heightmap.png";
+constexpr char PRELOADED_COLORMAP[] = "assets/mountain_lake_colormap.png";
+constexpr char PRELOADED_TREEMAP[] = "assets/treemap.png";
+```
 
 #### Introduction - what is a Voxel Engine
 Oubinity is a voxel engine. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
