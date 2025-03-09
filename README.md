@@ -11,15 +11,16 @@ Oubinity is a voxel engine that focuses on a terrain rendering.
     <img src="./documentation_resources/scene-8.png"/>
   </div>
 
-### How to build
+### Build
 Build on Linux or Windows using Cmake
 ```
 1. git clone https://github.com/nlins8224/Oubinity.git
-2. cmake .  
-3. cmake  --build .
-4. Navigate to Oubinity/bin
+2. cd Oubinity
+3. cmake .  
+4. cmake  --build .
+5. Navigate to Oubinity/bin
 ```
-Visual studio
+You can either run the binary in `Oubinity/bin` or open `Oubinity.sln` and run under Visual Studio on Windows
 
 ### Documentation
 An overview of the world generation pipeline, terrain generation, meshing, rendering and core algorithms used is available under [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/docs_update/DOCUMENTATION.md)
