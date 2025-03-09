@@ -3,6 +3,7 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include <vector>
+#include <atomic>
 #include "../block/Block.h"
 #include "../block/BlockArray.h"
 #include "../block/BlockMesh.h"
