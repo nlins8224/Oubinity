@@ -26,6 +26,7 @@ This document aims to provide an overview of the engine and to describe core alg
 Oubinity is a voxel engine. Voxel is a 3D cube located on a three-dimnesional grid and can be seen as a 3D counterpart to a 2D pixel. Every object on the world scene is composed of voxels and each voxel is interactable, for example it can be destroyed. This opens a possibility for a player to interact and modify everything that is located on a world scene. Main focus of this engine is on terrain.
 
 Voxels stack
+
 ![Voxels stack](https://i.ibb.co/LzDb0hLS/voxels-wikipedia.png)
 
 Voxels amount in the world scene scale up cubically and voxels count is in billions or higher. Dealing with a large amounts of voxel data is one of the main problems to solve in voxel engine development. Storing or rendering all of the voxels would make PC quickly run out of CPU and memory resources. One of the strategies is to identify what data does not need to be stored and which part of the world scene does not need to be rendered. To illustrate, voxels that were not edited by a player do not need to be stored. World fragments that cannot be seen by a player do not need to be rendered. To manage this, voxels are grouped into chunks. Chunk is defined as 32x32x32 cube that is composed of voxels. Representing world as chunks opens possibilities for performance optimizations and is also convenient in general.
@@ -254,7 +255,9 @@ Binary greedy meshing combines faces of the same orientation (top, left) and typ
 This part of the algorithm determines if a face should be visible. An array of chunk's voxel types is given as an input. At first each face of solid voxel type (i.e. not air) is considered visible. Faces in chunk interior will be culled out. The idea is to group faces in a way that allows to determine visibility not just for one face, but for a whole column simultaneously in one or few bitwise operations.
 
 First, we need to store faces in columns. We have three axises (x, y, z), so we have three column types, one per axis.
+
 ![Column-1](documentation_resources/greedy-meshing-column.png)
+
 This is Y axis column. It has up to 32 top and 32 bottom faces.
 
 Each column is given on a plane. This mapping goes as follows:
@@ -262,7 +265,9 @@ Each column is given on a plane. This mapping goes as follows:
 ![axis](documentation_resources/greedy-meshing-axis.png)
 
 XZ plane stores Y axis columns. There are 32 Y axis columns per chunk. Y column stores top and bottom faces.
+
 ZY plane stores X axis columns. There are 32 X axis columns per chunk. X column stores left and right faces.
+
 XY plane stores Z axis columns. There are 32 Z axis columns per chunk. Z column stores front and back faces.
 
 Each column stores two types of faces (e.g. top and bottom faces):
@@ -510,8 +515,8 @@ Conceptually Vertexpool can be split into:
 1. Memory pool part
 2. GPU communication handler part
 
-Memory pool is divided into buckets. Bucket is a continuous segment of memory in a pool. Each bucket can store a mesh. Buckets can have different sizes and are divided into zones, that correspond to level of detail. This is because chunks with lower level of detail contain fewer mesh, therefore bucket for that mesh can be also smaller. Bucket can be empty, can store mesh that has it's DAIC or can store a mesh that no longer has it's DAIC. Buckets that are empty or do not have their DAIC counterpart are considered free and can be allocated. Buckets that have mesh that corresponds to DAIC are not free and cannot be allocated. 
-DAIC list with active DAICs is passed via `glMultiDrawArraysIndirect` call.
+Memory pool is divided into buckets. Bucket is a continuous segment of memory in a pool. Each bucket can store a mesh. Buckets can have different sizes and are divided into zones, that correspond to level of detail[^1]. This is because chunks with lower level of detail contain fewer mesh, therefore bucket for that mesh can be also smaller. Bucket can be empty, can store mesh that has it's DAIC or can store a mesh that no longer has it's DAIC. Buckets that are empty or do not have their DAIC counterpart are considered free and can be allocated. Buckets that have mesh that corresponds to DAIC are not free and cannot be allocated. 
+DAIC list with active DAICs is passed via `glMultiDrawArraysIndirect` call[^2].
 
 
 ![VertexPool](documentation_resources/vertexpool-1.png)
@@ -791,3 +796,7 @@ Implementation can be found in a `Ray` class. `Ray` class is used in `PlayerInpu
 
 
 ---
+
+[^1]: Actually that idea of having fixed size buckets that correspond to LoD turned out to have a lot of drawbacks. Coupling between LoD and VertexPool bites in unexpected moments. Additionally meshes were optimized by the time it was implemented and VertexPool suffers from fragmentation now. That allocation strategy will be rewritten.
+
+[^2]: Two more calls that are worth to consider are [glMultiDrawElementsIndirect](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glMultiDrawElementsIndirect.xhtml) and `glMultiDrawElementsIndirectCount` - this one can be found in [OpenGL 4.6. Core Profile](https://registry.khronos.org/OpenGL/specs/gl/glspec46.core.pdf) spec in `10.4. DRAWING COMMANDS USING VERTEX ARRAYS` section. `glMultiDrawElementsIndirectCount` makes `drawcount` to define an offset into the buffer object bound and adds `maxdrawcount` that specifies the maximum number of draws that are expected to be stored in the buffer.
