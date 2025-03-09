@@ -36,3 +36,6 @@ Run the binary in `Oubinity/bin`.
 
 ### Documentation
 An overview of the world generation pipeline, terrain generation, meshing, rendering and core algorithms used is available under [DOCUMENTATION.md](https://github.com/nlins8224/Oubinity/blob/docs_update/DOCUMENTATION.md)
+
+### Roadmap
+Roadmap can be found [here](https://github.com/users/nlins8224/projects/2/views/1)
